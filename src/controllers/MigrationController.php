@@ -2,7 +2,9 @@
 
 namespace bizley\migration\controllers;
 
+use bizley\migration\components\Generator;
 use Yii;
+use yii\base\Action;
 use yii\console\Controller;
 use yii\db\Connection;
 use yii\di\Instance;
@@ -31,7 +33,7 @@ class MigrationController extends Controller
      * This can be either a path alias (e.g. "@app/migrations/template.php")
      * or a file path.
      */
-    public $templateFile = '@vendor/bizley/migration/views/migration.php';
+    public $templateFile = '@vendor/bizley/migration/src/views/migration.php';
     
     /**
      * @var boolean indicates whether the table names generated should consider
@@ -62,7 +64,7 @@ class MigrationController extends Controller
     /**
      * This method is invoked right before an action is to be executed (after all possible filters.)
      * It checks the existence of the [[migrationPath]].
-     * @param \yii\base\Action $action the action to be executed.
+     * @param Action $action the action to be executed.
      * @return boolean whether the action should continue to be executed.
      */
     public function beforeAction($action)
@@ -82,6 +84,28 @@ class MigrationController extends Controller
     
     public function actionCreate($table)
     {
-        
+        $tables = [$table];
+        if (strpos($table, ',') !== false) {
+            $tables = explode(',', $table);
+        }
+        foreach ($tables as $name) {
+            $this->stdout(" > Creating migration for table $name ...");
+
+            $className = 'm' . gmdate('ymd_His') . '_create_table_' . $name;
+            $file = $this->migrationPath . DIRECTORY_SEPARATOR . $className . '.php';
+
+            $generator = new Generator([
+                'db'             => $this->db, 
+                'view'           => $this->view,
+                'useTablePrefix' => $this->useTablePrefix,
+                'templateFile'   => $this->templateFile,
+                'tableName'      => $name,
+                'className'      => $className,
+            ]);
+            file_put_contents($file, $generator->generateMigration());
+
+            $this->stdout("DONE!\n");
+            $this->stdout(" > Saved as " . Yii::getAlias($file) . "\n\n");
+        }
     }
 }
