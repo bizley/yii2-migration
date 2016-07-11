@@ -11,32 +11,39 @@ use yii\di\Instance;
 use yii\helpers\FileHelper;
 
 /**
- * Description of MigrationController
- *
- * @author Bizley
+ * Migration creator.
+ * Tested with MySQL DB.
+ * Doesn't generate indexes.
+ * Foreign keys ON UPDATE and ON DELETE are set to null.
+ * 
+ * @author Paweł Bizley Brzozowski
+ * @version 1.0
+ * @license Apache 2.0
+ * https://github.com/bizley/yii2-migration
+ * 
  */
 class MigrationController extends Controller
 {
     /**
-     * @var string the default command action.
+     * @var string Default command action.
      */
     public $defaultAction = 'create';
     
     /**
-     * @var string the directory storing the migration classes. This can be either
+     * @var string Directory storing the migration classes. This can be either
      * a path alias or a directory.
      */
     public $migrationPath = '@app/migrations';
     
     /**
-     * @var string the template file for generating new migrations.
+     * @var string Template file for generating new migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php")
      * or a file path.
      */
     public $templateFile = '@vendor/bizley/migration/src/views/migration.php';
     
     /**
-     * @var boolean indicates whether the table names generated should consider
+     * @var boolean Whether the table names generated should consider
      * the `tablePrefix` setting of the DB connection. For example, if the table
      * name is `post` the generator wil return `{{%post}}`.
      */
@@ -44,7 +51,7 @@ class MigrationController extends Controller
     
     /**
      * @var Connection|array|string the DB connection object or the application 
-     * component ID of the DB connection to use when applying migrations. 
+     * component ID of the DB connection to use when creating migrations. 
      * Starting from Yii 2.0.3, this can also be a configuration array
      * for creating the object.
      */
@@ -62,8 +69,10 @@ class MigrationController extends Controller
     }
     
     /**
-     * This method is invoked right before an action is to be executed (after all possible filters.)
-     * It checks the existence of the [[migrationPath]].
+     * This method is invoked right before an action is to be executed (after 
+     * all possible filters).
+     * It checks the existence of the migrationPath and makes sure 
+     * DB connection is prepared.
      * @param Action $action the action to be executed.
      * @return boolean whether the action should continue to be executed.
      */
@@ -82,6 +91,10 @@ class MigrationController extends Controller
         return false;
     }
     
+    /**
+     * Creates new migration for a given tables.
+     * @param string $table Table names separated by commas.
+     */
     public function actionCreate($table)
     {
         $tables = [$table];
@@ -107,5 +120,7 @@ class MigrationController extends Controller
             $this->stdout("DONE!\n");
             $this->stdout(" > Saved as " . Yii::getAlias($file) . "\n\n");
         }
+        
+        $this->stdout("(!) Remember to verify generated files before applying migration.\n\n");
     }
 }

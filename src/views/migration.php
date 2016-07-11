@@ -30,7 +30,7 @@ class <?= $className ?> extends Migration
         
 <?php if ($foreignKeys): ?>
 <?php foreach ($foreignKeys as $key): ?>
-        $this->addForeignKey();
+        $this->addForeignKey(<?= $key ?>);
 <?php endforeach ?>
 <?php endif ?>
     }

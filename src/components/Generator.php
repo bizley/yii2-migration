@@ -12,49 +12,59 @@ use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Schema;
 use yii\db\TableSchema;
+use yii\helpers\ArrayHelper;
 
 /**
- * Description of Generator
- * @author Bizley
+ * Migration file generator.
  * 
- * @property array $tableSchema
+ * @author Paweł Bizley Brzozowski
+ * @version 1.0
+ * @license Apache 2.0
+ * https://github.com/bizley/yii2-migration
+ * 
+ * @property TableSchema $tableSchema
  */
 class Generator extends Component
 {
     /**
-     * @var Connection
+     * @var Connection DB connection.
      */
     public $db;
     
     /**
-     * @var string
+     * @var string Table name to be generated (before prefix).
      */
     public $tableName;
     
     /**
-     * @var string
+     * @var string Migration class name.
      */
     public $className;
     
     /**
-     * @var View
+     * @var View View used in controller.
      */
     public $view;
     
     /**
-     * @var boolean indicates whether the table names generated should consider
-     * the `tablePrefix` setting of the DB connection. For example, if the table
-     * name is `post` the generator wil return `{{%post}}`.
+     * @var boolean Table prefix flag.
      */
     public $useTablePrefix;
     
     /**
-     * @var string
+     * @var string File template.
      */
     public $templateFile;
     
+    /**
+     * @var TableSchema Table schema.
+     */
     protected $_tableSchema;
     
+    /**
+     * Checks if DB connection is passed.
+     * @throws InvalidConfigException
+     */
     public function init()
     {
         parent::init();
@@ -63,6 +73,10 @@ class Generator extends Component
         }
     }
 
+    /**
+     * Returns table schema.
+     * @return TableSchema
+     */
     public function getTableSchema()
     {
         if ($this->_tableSchema === null) {
@@ -85,6 +99,10 @@ class Generator extends Component
         return '{{%' . $tableName . '}}';
     }
     
+    /**
+     * Generates migration content or echoes exception message.
+     * @return string
+     */
     public function generateMigration()
     {
         try {
@@ -99,9 +117,12 @@ class Generator extends Component
         } catch (Exception $exc) {
             echo 'Exception: ' . $exc->getMessage() . "\n\n";
         }
-        die;
     }
     
+    /**
+     * Checks if table schema is available.
+     * @throws InvalidParamException
+     */
     public function checkSchema()
     {
         if (!$this->tableSchema) {
@@ -109,6 +130,10 @@ class Generator extends Component
         }
     }
     
+    /**
+     * Prepares definitions of columns.
+     * @return array
+     */
     public function prepareColumnsDefinitions()
     {
         $columns = [];
@@ -120,6 +145,10 @@ class Generator extends Component
         return $columns;
     }
     
+    /**
+     * Prepares definitions of foreign keys.
+     * @return array
+     */
     public function prepareForeignKeysDefinitions()
     {
         $keys = [];
@@ -128,25 +157,44 @@ class Generator extends Component
                 $keys[] = $this->renderKeyDefinition($key);
             }
         }
-        var_dump($keys);die;
         return $keys;
     }
     
+    /**
+     * Returns size value from ColumnSchema.
+     * @param ColumnSchema $column
+     * @return mixed
+     */
     public function renderSize(ColumnSchema $column)
     {
         return $column->size ?: null;
     }
     
+    /**
+     * Returns scale value from ColumnSchema.
+     * @param ColumnSchema $column
+     * @return mixed
+     */
     public function renderScale(ColumnSchema $column)
     {
         return $column->scale ?: null;
     }
     
+    /**
+     * Returns precision value from ColumnSchema.
+     * @param ColumnSchema $column
+     * @return mixed
+     */
     public function renderPrecision(ColumnSchema $column)
     {
         return $column->precision ?: null;
     }
     
+    /**
+     * Returns column definition based on ColumnSchema.
+     * @param ColumnSchema $column
+     * @return string
+     */
     public function renderColumnDefinition(ColumnSchema $column)
     {
         $definition = '';
@@ -224,10 +272,38 @@ class Generator extends Component
         return $definition;
     }
     
+    /**
+     * Returns foreign key definition based on key array.
+     * @param array $key
+     * @return string
+     */
     public function renderKeyDefinition($key)
     {
-        $refTable = $key[0];
+        $refTable = ArrayHelper::remove($key, 0);
+        $column = key($key);
+        $refColumn = current($key);
+        $name = $this->generateForeignKeyName($column);
         
-        return $definition;
+        return implode(', ', [
+            "'$name'",
+            "'{$this->generateTableName($this->tableName)}'",
+            "'$column'",
+            "'{$this->generateTableName($refTable)}'",
+            "'$refColumn'",
+        ]);
+    }
+    
+    /**
+     * Returns foreign key name.
+     * @param string $column
+     * @return string
+     */
+    public function generateForeignKeyName($column)
+    {
+        return implode('-', [
+            'fk',
+            $this->tableName,
+            $column
+        ]);
     }
 }
