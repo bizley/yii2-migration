@@ -23,6 +23,8 @@ use yii\helpers\ArrayHelper;
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  * 
+ * ONLY MYSQL NOW
+ * 
  * @property TableSchema $tableSchema
  */
 class Generator extends Component
@@ -199,79 +201,77 @@ class Generator extends Component
     public function renderColumnDefinition(ColumnSchema $column)
     {
         $definition = '';
-        if ($column->isPrimaryKey) {
-            if ($column->type == Schema::TYPE_BIGINT) {
-                $definition .= '->bigPrimaryKey(' . $this->renderSize($column) . ')';
+        switch ($column->type) {
+            case Schema::TYPE_CHAR:
+                $definition .= '->char(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_STRING:
+                $definition .= '->string(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_TEXT:
+                $definition .= '->text()';
+                break;
+            case Schema::TYPE_SMALLINT:
+                $definition .= '->smallInteger(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_INTEGER:
+                $definition .= '->integer(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_BIGINT:
+                $definition .= '->bigInteger(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_FLOAT:
+                $definition .= '->float(' . $this->renderPrecision($column) . ')';
+                break;
+            case Schema::TYPE_DOUBLE:
+                $definition .= '->double(' . $this->renderPrecision($column) . ')';
+                break;
+            case Schema::TYPE_DECIMAL:
+                $definition .= '->decimal(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
+                break;
+            case Schema::TYPE_DATETIME:
+                $definition .= '->dateTime(' . $this->renderPrecision($column) . ')';
+                break;
+            case Schema::TYPE_TIMESTAMP:
+                $definition .= '->timestamp(' . $this->renderPrecision($column) . ')';
+                break;
+            case Schema::TYPE_TIME:
+                $definition .= '->time(' . $this->renderPrecision($column) . ')';
+                break;
+            case Schema::TYPE_DATE:
+                $definition .= '->date()';
+                break;
+            case Schema::TYPE_BINARY:
+                $definition .= '->binary(' . $this->renderSize($column) . ')';
+                break;
+            case Schema::TYPE_BOOLEAN:
+                $definition .= '->boolean()';
+                break;
+            case Schema::TYPE_MONEY:
+                $definition .= '->money(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
+                break;
+        }
+        if ($column->unsigned) {
+            $definition .= '->unsigned()';
+        }
+        if (!$column->allowNull) {
+            $definition .= '->notNull()';
+        }
+        if ($column->defaultValue !== null) {
+            if ($column->defaultValue instanceof Expression) {
+                $definition .= '->defaultExpression(\'' . $column->defaultValue->expression . '\')';
             } else {
-                $definition .= '->primaryKey(' . $this->renderSize($column) . ')';
+                $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
             }
-        } else {
-            switch ($column->type) {
-                case Schema::TYPE_CHAR:
-                    $definition .= '->char(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_STRING:
-                    $definition .= '->string(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_TEXT:
-                    $definition .= '->text()';
-                    break;
-                case Schema::TYPE_SMALLINT:
-                    $definition .= '->smallInteger(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_INTEGER:
-                    $definition .= '->integer(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_BIGINT:
-                    $definition .= '->bigInteger(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_FLOAT:
-                    $definition .= '->float(' . $this->renderPrecision($column) . ')';
-                    break;
-                case Schema::TYPE_DOUBLE:
-                    $definition .= '->double(' . $this->renderPrecision($column) . ')';
-                    break;
-                case Schema::TYPE_DECIMAL:
-                    $definition .= '->decimal(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
-                    break;
-                case Schema::TYPE_DATETIME:
-                    $definition .= '->dateTime(' . $this->renderPrecision($column) . ')';
-                    break;
-                case Schema::TYPE_TIMESTAMP:
-                    $definition .= '->timestamp(' . $this->renderPrecision($column) . ')';
-                    break;
-                case Schema::TYPE_TIME:
-                    $definition .= '->time(' . $this->renderPrecision($column) . ')';
-                    break;
-                case Schema::TYPE_DATE:
-                    $definition .= '->date()';
-                    break;
-                case Schema::TYPE_BINARY:
-                    $definition .= '->binary(' . $this->renderSize($column) . ')';
-                    break;
-                case Schema::TYPE_BOOLEAN:
-                    $definition .= '->boolean()';
-                    break;
-                case Schema::TYPE_MONEY:
-                    $definition .= '->money(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
-                    break;
-            }
-            if ($column->unsigned) {
-                $definition .= '->unsigned()';
-            }
-            if (!$column->allowNull) {
-                $definition .= '->notNull()';
-            }
-            if ($column->defaultValue !== null) {
-                if ($column->defaultValue instanceof Expression) {
-                    $definition .= '->defaultValue(' . new Expression($column->defaultValue->expression) . ')';
-                } else {
-                    $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
-                }
-            }
-            if ($column->comment) {
-                $definition .= '->comment(\'' . $column->comment . '\')';
-            }
+        }
+        if ($column->comment) {
+            $definition .= '->comment(\'' . $column->comment . '\')';
+        }
+        if ($column->isPrimaryKey) {
+            $definition .= '->append(\'PRIMARY KEY\')';
+        }
+        if ($column->autoIncrement) {
+            $definition .= '->append(\'AUTO_INCREMENT\')';
         }
         
         return $definition;
