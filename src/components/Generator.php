@@ -262,10 +262,10 @@ class Generator extends Component
                 $definition .= '->notNull()';
             }
             if ($column->defaultValue !== null) {
-                $definition .= '->defaultValue(' . $column->defaultValue . ')';
+                $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
             }
             if ($column->comment) {
-                $definition .= '->comment(' . $column->comment . ')';
+                $definition .= '->comment(\'' . $column->comment . '\')';
             }
         }
         
