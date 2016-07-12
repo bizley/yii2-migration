@@ -10,6 +10,7 @@ use yii\base\InvalidParamException;
 use yii\base\View;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
+use yii\db\Expression;
 use yii\db\Schema;
 use yii\db\TableSchema;
 use yii\helpers\ArrayHelper;
@@ -262,7 +263,11 @@ class Generator extends Component
                 $definition .= '->notNull()';
             }
             if ($column->defaultValue !== null) {
-                $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
+                if ($column->defaultValue instanceof Expression) {
+                    $definition .= '->defaultValue(' . new Expression($column->defaultValue->expression) . ')';
+                } else {
+                    $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
+                }
             }
             if ($column->comment) {
                 $definition .= '->comment(\'' . $column->comment . '\')';
