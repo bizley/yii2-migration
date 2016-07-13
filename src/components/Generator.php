@@ -23,8 +23,6 @@ use yii\helpers\ArrayHelper;
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  * 
- * ONLY MYSQL NOW
- * 
  * @property TableSchema $tableSchema
  */
 class Generator extends Component
@@ -267,14 +265,60 @@ class Generator extends Component
         if ($column->comment) {
             $definition .= '->comment(\'' . $column->comment . '\')';
         }
-        if ($column->isPrimaryKey) {
-            $definition .= '->append(\'PRIMARY KEY\')';
-        }
         if ($column->autoIncrement) {
-            $definition .= '->append(\'AUTO_INCREMENT\')';
+            $definition .= '->append(\'' . $this->renderAutoIncrement() . '\')';
+        }
+        if ($column->isPrimaryKey) {
+            $definition .= '->append(\'' . $this->renderPrimaryKey() . '\')';
         }
         
         return $definition;
+    }
+    
+    /**
+     * Renders auto increment command based on used schema.
+     * @return string
+     */
+    public function renderAutoIncrement()
+    {
+        $schema = $this->db->schema;
+        switch ($schema::className()) {
+            case 'yii\db\sqlite\Schema':
+                $sql = 'AUTOINCREMENT';
+                break;
+            case 'yii\db\mssql\Schema':
+            case 'yii\db\oci\Schema':
+            case 'yii\db\pgsql\Schema':
+                $sql = '';
+                break;
+            case 'yii\db\mysql\Schema':
+            case 'yii\db\cubrid\Schema':
+            default:
+                $sql = 'AUTO_INCREMENT';
+        }
+        return $sql;
+    }
+    
+    /**
+     * Renders primary key command based on used schema.
+     * @return string
+     */
+    public function renderPrimaryKey()
+    {
+        $schema = $this->db->schema;
+        switch ($schema::className()) {
+            case 'yii\db\mssql\Schema':
+                $sql = 'IDENTITY PRIMARY KEY';
+                break;
+            case 'yii\db\cubrid\Schema':
+            case 'yii\db\mysql\Schema':
+            case 'yii\db\oci\Schema':
+            case 'yii\db\pgsql\Schema':
+            case 'yii\db\sqlite\Schema':
+            default:
+                $sql = 'PRIMARY KEY';
+        }
+        return $sql;
     }
     
     /**
