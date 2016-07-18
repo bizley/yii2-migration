@@ -265,58 +265,37 @@ class Generator extends Component
         if ($column->comment) {
             $definition .= '->comment(\'' . $column->comment . '\')';
         }
-        if ($column->autoIncrement) {
-            $definition .= '->append(\'' . $this->renderAutoIncrement() . '\')';
-        }
         if ($column->isPrimaryKey) {
-            $definition .= '->append(\'' . $this->renderPrimaryKey() . '\')';
+            $definition .= '->append(\'' . $this->renderPrimaryKey($column->autoIncrement) . '\')';
         }
         
         return $definition;
     }
     
     /**
-     * Renders auto increment command based on used schema.
-     * @return string
-     */
-    public function renderAutoIncrement()
-    {
-        $schema = $this->db->schema;
-        switch ($schema::className()) {
-            case 'yii\db\sqlite\Schema':
-                $sql = 'AUTOINCREMENT';
-                break;
-            case 'yii\db\mssql\Schema':
-            case 'yii\db\oci\Schema':
-            case 'yii\db\pgsql\Schema':
-                $sql = '';
-                break;
-            case 'yii\db\mysql\Schema':
-            case 'yii\db\cubrid\Schema':
-            default:
-                $sql = 'AUTO_INCREMENT';
-        }
-        return $sql;
-    }
-    
-    /**
      * Renders primary key command based on used schema.
+     * @param boolean $autoIncrement
      * @return string
      */
-    public function renderPrimaryKey()
+    public function renderPrimaryKey($autoIncrement = false)
     {
         $schema = $this->db->schema;
         switch ($schema::className()) {
             case 'yii\db\mssql\Schema':
                 $sql = 'IDENTITY PRIMARY KEY';
                 break;
-            case 'yii\db\cubrid\Schema':
-            case 'yii\db\mysql\Schema':
             case 'yii\db\oci\Schema':
             case 'yii\db\pgsql\Schema':
-            case 'yii\db\sqlite\Schema':
-            default:
                 $sql = 'PRIMARY KEY';
+                break;
+            case 'yii\db\sqlite\Schema':
+                $sql = 'PRIMARY KEY' . ($autoIncrement ? ' AUTOINCREMENT' : '');
+                break;
+            case 'yii\db\cubrid\Schema':
+            case 'yii\db\mysql\Schema':
+            default:
+                $sql = ($autoIncrement ? 'AUTO_INCREMENT ' : '') . 'PRIMARY KEY';
+                break;
         }
         return $sql;
     }
