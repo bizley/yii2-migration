@@ -349,7 +349,7 @@ class Generator extends Component
      */
     public function generateForeignKeyName($column)
     {
-        return implode('-', [
+        return implode('_', [
             'fk',
             $this->tableName,
             $column
