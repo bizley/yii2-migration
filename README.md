@@ -1,6 +1,6 @@
 # yii2-migration
 
-Migration creator.
+Migration creator. Generates migration file based on the existing database table.
 
 ## Installation
 
@@ -33,13 +33,13 @@ Run console command
 
     php yii migration <table_name>
 
-to create migration for DB table <table_name>.
+to create migration for DB table `table_name`.
 
-You can create multiple migrations for many tables at once:
+You can create multiple migrations for many tables at once by separating the names with a comma:
 
     php yii migration <table_name1>,<table_name2>,<table_name3>
 
-## Parameters
+## Command line parameters
 
 --migrationPath __(default '@app/migrations')__ 
 Directory storing the migration classes.
@@ -51,4 +51,4 @@ Template file for generating new migrations.
 Whether the table names generated should consider the `tablePrefix` setting of the DB connection.
 
 --db __(default 'db')__ 
-Connection|array|string the DB connection object or the application component ID of the DB connection to use when creating migrations. 
+Application component's ID of the DB connection to use when creating migrations. 

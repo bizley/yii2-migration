@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\components;
+namespace bizley\migration;
 
 use Exception;
 use Yii;
@@ -19,7 +19,7 @@ use yii\helpers\ArrayHelper;
  * Migration file generator.
  * 
  * @author Paweł Bizley Brzozowski
- * @version 1.0
+ * @version 1.0.6
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  * 
@@ -48,7 +48,7 @@ class Generator extends Component
     public $view;
     
     /**
-     * @var boolean Table prefix flag.
+     * @var bool Table prefix flag.
      */
     public $useTablePrefix;
     
@@ -70,7 +70,7 @@ class Generator extends Component
     {
         parent::init();
         if (!($this->db instanceof Connection)) {
-            throw new InvalidConfigException('Parameter db must be an instance of yii\db\Connection!');
+            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\db\Connection!");
         }
     }
 
@@ -103,21 +103,18 @@ class Generator extends Component
     /**
      * Generates migration content or echoes exception message.
      * @return string
+     * @throws Exception
      */
     public function generateMigration()
     {
-        try {
-            $this->checkSchema();
-            $params = [
-                'tableName'   => $this->generateTableName($this->tableName),
-                'className'   => $this->className,
-                'columns'     => $this->prepareColumnsDefinitions(),
-                'foreignKeys' => $this->prepareForeignKeysDefinitions(),
-            ];
-            return $this->view->renderFile(Yii::getAlias($this->templateFile), $params);
-        } catch (Exception $exc) {
-            echo 'Exception: ' . $exc->getMessage() . "\n\n";
-        }
+        $this->checkSchema();
+        $params = [
+            'tableName'   => $this->generateTableName($this->tableName),
+            'className'   => $this->className,
+            'columns'     => $this->prepareColumnsDefinitions(),
+            'foreignKeys' => $this->prepareForeignKeysDefinitions(),
+        ];
+        return $this->view->renderFile(Yii::getAlias($this->templateFile), $params);
     }
     
     /**
@@ -127,7 +124,7 @@ class Generator extends Component
     public function checkSchema()
     {
         if (!$this->tableSchema) {
-            throw new InvalidParamException('Cannot find schema for ' . $this->tableName . ' table!');
+            throw new InvalidParamException("Cannot find schema for '" . $this->tableName . "' table!");
         }
     }
     
@@ -328,7 +325,7 @@ class Generator extends Component
      */
     public function generateForeignKeyName($column)
     {
-        return implode('_', [
+        return implode('-', [
             'fk',
             $this->tableName,
             $column

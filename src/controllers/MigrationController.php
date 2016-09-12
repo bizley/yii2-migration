@@ -2,7 +2,8 @@
 
 namespace bizley\migration\controllers;
 
-use bizley\migration\components\Generator;
+use bizley\migration\Generator;
+use Exception;
 use Yii;
 use yii\base\Action;
 use yii\console\Controller;
@@ -12,15 +13,16 @@ use yii\helpers\FileHelper;
 
 /**
  * Migration creator.
+ * Generates migration file based on the existing database table.
+ * 
  * Tested with MySQL DB.
  * Doesn't generate indexes.
- * Foreign keys ON UPDATE and ON DELETE are set to null.
+ * Foreign keys' ON UPDATE and ON DELETE are set to null.
  * 
  * @author Paweł Bizley Brzozowski
- * @version 1.0
+ * @version 1.0.6
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
- * 
  */
 class MigrationController extends Controller
 {
@@ -43,9 +45,9 @@ class MigrationController extends Controller
     public $templateFile = '@vendor/bizley/migration/src/views/migration.php';
     
     /**
-     * @var boolean Whether the table names generated should consider
+     * @var bool|string|int Whether the table names generated should consider
      * the `tablePrefix` setting of the DB connection. For example, if the table
-     * name is `post` the generator wil return `{{%post}}`.
+     * name is `post` the generator will return `{{%post}}`.
      */
     public $useTablePrefix = true;
     
@@ -69,6 +71,20 @@ class MigrationController extends Controller
     }
     
     /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        if ($this->useTablePrefix !== true) {
+            if ($this->useTablePrefix === 'true' || $this->useTablePrefix === 1) {
+                $this->useTablePrefix = true;
+            }
+            $this->useTablePrefix = (bool)$this->useTablePrefix;
+        }
+    }
+    
+    /**
      * This method is invoked right before an action is to be executed (after 
      * all possible filters).
      * It checks the existence of the migrationPath and makes sure 
@@ -85,7 +101,7 @@ class MigrationController extends Controller
             }
             $this->migrationPath = $path;
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool\n\n");
+            $this->stdout("Yii 2 Migration Generator Tool v1.0.6\n\n");
             return true;
         }
         return false;
@@ -102,23 +118,28 @@ class MigrationController extends Controller
             $tables = explode(',', $table);
         }
         foreach ($tables as $name) {
-            $this->stdout(" > Creating migration for table $name ...");
+            try {
+                $this->stdout(" > Creating migration for table '{$name}' ...");
 
-            $className = 'm' . gmdate('ymd_His') . '_create_table_' . $name;
-            $file = $this->migrationPath . DIRECTORY_SEPARATOR . $className . '.php';
+                $className = 'm' . gmdate('ymd_His') . '_create_table_' . $name;
+                $file = $this->migrationPath . DIRECTORY_SEPARATOR . $className . '.php';
 
-            $generator = new Generator([
-                'db'             => $this->db, 
-                'view'           => $this->view,
-                'useTablePrefix' => $this->useTablePrefix,
-                'templateFile'   => $this->templateFile,
-                'tableName'      => $name,
-                'className'      => $className,
-            ]);
-            file_put_contents($file, $generator->generateMigration());
+                $generator = new Generator([
+                    'db'             => $this->db, 
+                    'view'           => $this->view,
+                    'useTablePrefix' => $this->useTablePrefix,
+                    'templateFile'   => $this->templateFile,
+                    'tableName'      => $name,
+                    'className'      => $className,
+                ]);
+                file_put_contents($file, $generator->generateMigration());
 
-            $this->stdout("DONE!\n");
-            $this->stdout(" > Saved as " . Yii::getAlias($file) . "\n\n");
+                $this->stdout("DONE!\n");
+                $this->stdout(" > Saved as " . Yii::getAlias($file) . "\n\n");
+            } catch (Exception $exc) {
+                $this->stdout("ERROR!\n");
+                $this->stdout(" > " . $exc->getMessage() . "\n\n");
+            }
         }
         
         $this->stdout("(!) Remember to verify generated files before applying migration.\n\n");
