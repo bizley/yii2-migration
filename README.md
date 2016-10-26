@@ -1,5 +1,9 @@
 # yii2-migration
 
+![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
+![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)
+![License](https://img.shields.io/packagist/l/bizley/migration.svg)
+
 Migration creator. Generates migration file based on the existing database table.
 
 ## Installation
