@@ -14,12 +14,13 @@ use yii\db\Expression;
 use yii\db\Schema;
 use yii\db\TableSchema;
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 /**
  * Migration file generator.
  * 
  * @author Paweł Bizley Brzozowski
- * @version 1.0.6
+ * @version 1.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  * 
@@ -31,37 +32,43 @@ class Generator extends Component
      * @var Connection DB connection.
      */
     public $db;
-    
+
     /**
      * @var string Table name to be generated (before prefix).
      */
     public $tableName;
-    
+
     /**
      * @var string Migration class name.
      */
     public $className;
-    
+
     /**
      * @var View View used in controller.
      */
     public $view;
-    
+
     /**
      * @var bool Table prefix flag.
      */
     public $useTablePrefix;
-    
+
     /**
      * @var string File template.
      */
     public $templateFile;
-    
+
+    /**
+     * @var string Migration namespace.
+     * @since 1.1
+     */
+    public $namespace;
+
     /**
      * @var TableSchema Table schema.
      */
     protected $_tableSchema;
-    
+
     /**
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
@@ -85,9 +92,9 @@ class Generator extends Component
         }
         return $this->_tableSchema;
     }
-    
+
     /**
-     * If `useTablePrefix` equals true, then the table name will contain the
+     * If $useTablePrefix equals true, then the table name will contain the
      * prefix format.
      * @param string $tableName the table name to generate.
      * @return string
@@ -99,7 +106,7 @@ class Generator extends Component
         }
         return '{{%' . $tableName . '}}';
     }
-    
+
     /**
      * Generates migration content or echoes exception message.
      * @return string
@@ -109,14 +116,15 @@ class Generator extends Component
     {
         $this->checkSchema();
         $params = [
-            'tableName'   => $this->generateTableName($this->tableName),
-            'className'   => $this->className,
-            'columns'     => $this->prepareColumnsDefinitions(),
+            'tableName' => $this->generateTableName($this->tableName),
+            'className' => $this->className,
+            'columns' => $this->prepareColumnsDefinitions(),
             'foreignKeys' => $this->prepareForeignKeysDefinitions(),
+            'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
         ];
         return $this->view->renderFile(Yii::getAlias($this->templateFile), $params);
     }
-    
+
     /**
      * Checks if table schema is available.
      * @throws InvalidParamException
@@ -124,10 +132,10 @@ class Generator extends Component
     public function checkSchema()
     {
         if (!$this->tableSchema) {
-            throw new InvalidParamException("Cannot find schema for '" . $this->tableName . "' table!");
+            throw new InvalidParamException("Cannot find schema for '{$this->tableName}' table!");
         }
     }
-    
+
     /**
      * Prepares definitions of columns.
      * @return array
@@ -142,7 +150,7 @@ class Generator extends Component
         }
         return $columns;
     }
-    
+
     /**
      * Prepares definitions of foreign keys.
      * @return array
@@ -151,13 +159,13 @@ class Generator extends Component
     {
         $keys = [];
         if ($this->tableSchema instanceof TableSchema) {
-            foreach ($this->tableSchema->foreignKeys as $key) {
-                $keys[] = $this->renderKeyDefinition($key);
+            foreach ($this->tableSchema->foreignKeys as $name => $key) {
+                $keys[] = $this->renderKeyDefinition($name, $key);
             }
         }
         return $keys;
     }
-    
+
     /**
      * Returns size value from ColumnSchema.
      * @param ColumnSchema $column
@@ -167,7 +175,7 @@ class Generator extends Component
     {
         return $column->size ?: null;
     }
-    
+
     /**
      * Returns scale value from ColumnSchema.
      * @param ColumnSchema $column
@@ -177,7 +185,7 @@ class Generator extends Component
     {
         return $column->scale ?: null;
     }
-    
+
     /**
      * Returns precision value from ColumnSchema.
      * @param ColumnSchema $column
@@ -187,7 +195,7 @@ class Generator extends Component
     {
         return $column->precision ?: null;
     }
-    
+
     /**
      * Returns column definition based on ColumnSchema.
      * @param ColumnSchema $column
@@ -268,10 +276,10 @@ class Generator extends Component
         
         return $definition;
     }
-    
+
     /**
      * Renders primary key command based on used schema.
-     * @param boolean $autoIncrement
+     * @param bool $autoIncrement
      * @return string
      */
     public function renderPrimaryKey($autoIncrement = false)
@@ -292,23 +300,26 @@ class Generator extends Component
             case 'yii\db\mysql\Schema':
             default:
                 $sql = ($autoIncrement ? 'AUTO_INCREMENT ' : '') . 'PRIMARY KEY';
-                break;
         }
         return $sql;
     }
-    
+
     /**
      * Returns foreign key definition based on key array.
-     * @param array $key
+     * Since 1.1 key name can be taken from tableSchema.
+     * @param string $name key name
+     * @param array $key key parameters
      * @return string
      */
-    public function renderKeyDefinition($key)
+    public function renderKeyDefinition($name, $key)
     {
         $refTable = ArrayHelper::remove($key, 0);
         $column = key($key);
         $refColumn = current($key);
-        $name = $this->generateForeignKeyName($column);
-        
+        if (empty($name) || is_numeric($name)) {
+            $name = $this->generateForeignKeyName($column);
+        }
+
         return implode(', ', [
             "'$name'",
             "'{$this->generateTableName($this->tableName)}'",
@@ -317,7 +328,7 @@ class Generator extends Component
             "'$refColumn'",
         ]);
     }
-    
+
     /**
      * Returns foreign key name.
      * @param string $column
