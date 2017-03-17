@@ -4,12 +4,7 @@ namespace bizley\migration;
 
 use Exception;
 use Yii;
-use yii\base\Component;
-use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
-use yii\base\View;
 use yii\db\ColumnSchema;
-use yii\db\Connection;
 use yii\db\Expression;
 use yii\db\Schema;
 use yii\db\TableSchema;
@@ -18,95 +13,14 @@ use yii\helpers\FileHelper;
 
 /**
  * Migration file generator.
- * 
+ *
  * @author Paweł Bizley Brzozowski
- * @version 1.1
+ * @version 2.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
- * 
- * @property TableSchema $tableSchema
  */
-class Generator extends Component
+class Generator extends Extractor
 {
-    /**
-     * @var Connection DB connection.
-     */
-    public $db;
-
-    /**
-     * @var string Table name to be generated (before prefix).
-     */
-    public $tableName;
-
-    /**
-     * @var string Migration class name.
-     */
-    public $className;
-
-    /**
-     * @var View View used in controller.
-     */
-    public $view;
-
-    /**
-     * @var bool Table prefix flag.
-     */
-    public $useTablePrefix;
-
-    /**
-     * @var string File template.
-     */
-    public $templateFile;
-
-    /**
-     * @var string Migration namespace.
-     * @since 1.1
-     */
-    public $namespace;
-
-    /**
-     * @var TableSchema Table schema.
-     */
-    protected $_tableSchema;
-
-    /**
-     * Checks if DB connection is passed.
-     * @throws InvalidConfigException
-     */
-    public function init()
-    {
-        parent::init();
-        if (!($this->db instanceof Connection)) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\db\Connection!");
-        }
-    }
-
-    /**
-     * Returns table schema.
-     * @return TableSchema
-     */
-    public function getTableSchema()
-    {
-        if ($this->_tableSchema === null) {
-            $this->_tableSchema = $this->db->getTableSchema($this->tableName);
-        }
-        return $this->_tableSchema;
-    }
-
-    /**
-     * If $useTablePrefix equals true, then the table name will contain the
-     * prefix format.
-     * @param string $tableName the table name to generate.
-     * @return string
-     */
-    protected function generateTableName($tableName)
-    {
-        if (!$this->useTablePrefix) {
-            return $tableName;
-        }
-        return '{{%' . $tableName . '}}';
-    }
-
     /**
      * Generates migration content or echoes exception message.
      * @return string
@@ -115,10 +29,12 @@ class Generator extends Component
     public function generateMigration()
     {
         $this->checkSchema();
+        $pk = $this->getTablePrimaryKey();
         $params = [
             'tableName' => $this->generateTableName($this->tableName),
             'className' => $this->className,
-            'columns' => $this->prepareColumnsDefinitions(),
+            'columns' => $this->prepareColumnsDefinitions(count($pk) > 1),
+            'primaryKey' => $pk,
             'foreignKeys' => $this->prepareForeignKeysDefinitions(),
             'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
         ];
@@ -126,26 +42,16 @@ class Generator extends Component
     }
 
     /**
-     * Checks if table schema is available.
-     * @throws InvalidParamException
-     */
-    public function checkSchema()
-    {
-        if (!$this->tableSchema) {
-            throw new InvalidParamException("Cannot find schema for '{$this->tableName}' table!");
-        }
-    }
-
-    /**
      * Prepares definitions of columns.
+     * @param bool $compositePk whether primary key is composite
      * @return array
      */
-    public function prepareColumnsDefinitions()
+    public function prepareColumnsDefinitions($compositePk = false)
     {
         $columns = [];
         if ($this->tableSchema instanceof TableSchema) {
             foreach ($this->tableSchema->columns as $column) {
-                $columns[$column->name] = $this->renderColumnDefinition($column);
+                $columns[$column->name] = $this->renderColumnDefinition($column, $compositePk);
             }
         }
         return $columns;
@@ -199,65 +105,153 @@ class Generator extends Component
     /**
      * Returns column definition based on ColumnSchema.
      * @param ColumnSchema $column
+     * @param bool $compositePk whether primary key is composite
      * @return string
      */
-    public function renderColumnDefinition(ColumnSchema $column)
+    public function renderColumnDefinition(ColumnSchema $column, $compositePk = false)
     {
         $definition = '';
+        $size = '';
+        $checkPrimaryKey = true;
+        $checkNotNull = true;
+        $checkUnsigned = true;
+        $schema = $this->db->schema;
         switch ($column->type) {
+            case Schema::TYPE_PK:
+            case Schema::TYPE_UPK:
+            case Schema::TYPE_BIGPK:
+            case Schema::TYPE_UBIGPK:
             case Schema::TYPE_CHAR:
-                $definition .= '->char(' . $this->renderSize($column) . ')';
-                break;
             case Schema::TYPE_STRING:
-                $definition .= '->string(' . $this->renderSize($column) . ')';
-                break;
             case Schema::TYPE_TEXT:
-                $definition .= '->text()';
-                break;
             case Schema::TYPE_SMALLINT:
-                $definition .= '->smallInteger(' . $this->renderSize($column) . ')';
-                break;
             case Schema::TYPE_INTEGER:
-                $definition .= '->integer(' . $this->renderSize($column) . ')';
-                break;
             case Schema::TYPE_BIGINT:
-                $definition .= '->bigInteger(' . $this->renderSize($column) . ')';
+            case Schema::TYPE_BINARY:
+                $size = $this->renderSize($column);
                 break;
             case Schema::TYPE_FLOAT:
-                $definition .= '->float(' . $this->renderPrecision($column) . ')';
-                break;
             case Schema::TYPE_DOUBLE:
-                $definition .= '->double(' . $this->renderPrecision($column) . ')';
+            case Schema::TYPE_DATETIME:
+            case Schema::TYPE_TIMESTAMP:
+            case Schema::TYPE_TIME:
+                $size = $this->renderPrecision($column);
                 break;
             case Schema::TYPE_DECIMAL:
-                $definition .= '->decimal(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
+            case Schema::TYPE_MONEY:
+                $size = $this->renderPrecision($column) . ',' . $this->renderScale($column);
+        }
+        if ($this->generalSchema) {
+            $size = '';
+        }
+        switch ($column->type) {
+            case Schema::TYPE_UPK:
+                if ($this->generalSchema) {
+                    $checkUnsigned = false;
+                    $definition .= '->unsigned()';
+                }
+                // no break
+            case Schema::TYPE_PK:
+                if ($this->generalSchema) {
+                    $checkPrimaryKey = false;
+                    if ($schema::className() !== 'yii\db\mssql\Schema') {
+                        $checkNotNull = false;
+                    }
+                }
+                $definition .= '->primaryKey(' . $size . ')';
+                break;
+            case Schema::TYPE_UBIGPK:
+                if ($this->generalSchema) {
+                    $checkUnsigned = false;
+                    $definition .= '->unsigned()';
+                }
+                // no break
+            case Schema::TYPE_BIGPK:
+                if ($this->generalSchema) {
+                    $checkPrimaryKey = false;
+                    if ($schema::className() !== 'yii\db\mssql\Schema') {
+                        $checkNotNull = false;
+                    }
+                }
+                $definition .= '->bigPrimaryKey(' . $size . ')';
+                break;
+            case Schema::TYPE_CHAR:
+                $definition .= '->char(' . $size . ')';
+                break;
+            case Schema::TYPE_STRING:
+                $definition .= '->string(' . $size . ')';
+                break;
+            case Schema::TYPE_TEXT:
+                $definition .= '->text(' . $size . ')';
+                break;
+            case Schema::TYPE_SMALLINT:
+                $definition .= '->smallInteger(' . $size . ')';
+                break;
+            case Schema::TYPE_INTEGER:
+                if ($this->generalSchema) {
+                    if (!$compositePk && $column->isPrimaryKey) {
+                        $checkPrimaryKey = false;
+                        if ($schema::className() !== 'yii\db\mssql\Schema') {
+                            $checkNotNull = false;
+                        }
+                        $definition .= '->primaryKey()';
+                    } else {
+                        $definition .= '->integer()';
+                    }
+                } else {
+                    $definition .= '->integer(' . $size . ')';
+                }
+                break;
+            case Schema::TYPE_BIGINT:
+                if ($this->generalSchema) {
+                    if (!$compositePk && $column->isPrimaryKey) {
+                        $checkPrimaryKey = false;
+                        if ($schema::className() !== 'yii\db\mssql\Schema') {
+                            $checkNotNull = false;
+                        }
+                        $definition .= '->bigPrimaryKey()';
+                    } else {
+                        $definition .= '->bigInteger()';
+                    }
+                } else {
+                    $definition .= '->bigInteger(' . $size . ')';
+                }
+                break;
+            case Schema::TYPE_FLOAT:
+                $definition .= '->float(' . $size . ')';
+                break;
+            case Schema::TYPE_DOUBLE:
+                $definition .= '->double(' . $size . ')';
+                break;
+            case Schema::TYPE_DECIMAL:
+                $definition .= '->decimal(' . $size . ')';
                 break;
             case Schema::TYPE_DATETIME:
-                $definition .= '->dateTime(' . $this->renderPrecision($column) . ')';
+                $definition .= '->dateTime(' . $size . ')';
                 break;
             case Schema::TYPE_TIMESTAMP:
-                $definition .= '->timestamp(' . $this->renderPrecision($column) . ')';
+                $definition .= '->timestamp(' . $size . ')';
                 break;
             case Schema::TYPE_TIME:
-                $definition .= '->time(' . $this->renderPrecision($column) . ')';
+                $definition .= '->time(' . $size . ')';
                 break;
             case Schema::TYPE_DATE:
                 $definition .= '->date()';
                 break;
             case Schema::TYPE_BINARY:
-                $definition .= '->binary(' . $this->renderSize($column) . ')';
+                $definition .= '->binary(' . $size . ')';
                 break;
             case Schema::TYPE_BOOLEAN:
                 $definition .= '->boolean()';
                 break;
             case Schema::TYPE_MONEY:
-                $definition .= '->money(' . $this->renderPrecision($column) . ', ' . $this->renderScale($column) . ')';
+                $definition .= '->money(' . $size . ')';
                 break;
         }
-        if ($column->unsigned) {
+        if ($checkUnsigned && $column->unsigned) {
             $definition .= '->unsigned()';
         }
-        if (!$column->allowNull) {
+        if ($checkNotNull && !$column->allowNull) {
             $definition .= '->notNull()';
         }
         if ($column->defaultValue !== null) {
@@ -270,10 +264,10 @@ class Generator extends Component
         if ($column->comment) {
             $definition .= '->comment(\'' . $column->comment . '\')';
         }
-        if ($column->isPrimaryKey) {
+        if (!$compositePk && $checkPrimaryKey && $column->isPrimaryKey) {
             $definition .= '->append(\'' . $this->renderPrimaryKey($column->autoIncrement) . '\')';
         }
-        
+
         return $definition;
     }
 
@@ -314,8 +308,12 @@ class Generator extends Component
     public function renderKeyDefinition($name, $key)
     {
         $refTable = ArrayHelper::remove($key, 0);
-        $column = key($key);
-        $refColumn = current($key);
+        $columns = [];
+        $refColumns = [];
+        foreach ($key as $column => $refColumn) {
+            $columns[] = $column;
+            $refColumns[] = $refColumn;
+        }
         if (empty($name) || is_numeric($name)) {
             $name = $this->generateForeignKeyName($column);
         }
@@ -323,9 +321,9 @@ class Generator extends Component
         return implode(', ', [
             "'$name'",
             "'{$this->generateTableName($this->tableName)}'",
-            "'$column'",
+            count($columns) === 1 ? '\'' . $columns[0] . '\'' : '[\'' . implode('\',\'', $columns) . '\']',
             "'{$this->generateTableName($refTable)}'",
-            "'$refColumn'",
+            count($refColumns) === 1 ? '\'' . $refColumns[0] . '\'' : '[\'' . implode('\',\'', $refColumns) . '\']',
         ]);
     }
 

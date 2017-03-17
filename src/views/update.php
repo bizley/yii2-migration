@@ -5,9 +5,7 @@
  * @var $tableName string full table name
  * @var $className string class name
  * @var $namespace string namespace
- * @var $columns array columns definitions
- * @var $primaryKey array primary key definition
- * @var $foreignKeys array foreign keys arrays
+ * @var $methods array methods definitions
  */
 
 echo "<?php\n";
@@ -27,21 +25,9 @@ class <?= $className ?> extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->createTable('<?= $tableName ?>', [
-<?php foreach ($columns as $name => $definition): ?>
-            '<?= $name ?>' => $this<?= $definition ?>,
+<?php foreach ($methods as $definition): ?>
+        $this-><?= $definition[0] ?>(<?= $definition[1] ?>);
 <?php endforeach; ?>
-        ], $tableOptions);
-
-<?php if (count($primaryKey) > 1): ?>
-        $this->addPrimaryKey('PRIMARY', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
-<?php endif; ?>
-
-<?php if ($foreignKeys): ?>
-<?php foreach ($foreignKeys as $key): ?>
-        $this->addForeignKey(<?= $key ?>);
-<?php endforeach; ?>
-<?php endif; ?>
     }
 
     public function safeDown()
