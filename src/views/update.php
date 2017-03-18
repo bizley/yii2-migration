@@ -1,6 +1,6 @@
 <?php
 /**
- * This is the template for generating the migration of a specified table.
+ * This is the template for generating the update migration of a specified table.
  *
  * @var $tableName string full table name
  * @var $className string class name
@@ -20,11 +20,6 @@ class <?= $className ?> extends Migration
 {
     public function safeUp()
     {
-        $tableOptions = null;
-        if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
-        }
-
 <?php foreach ($methods as $definition): ?>
         $this-><?= $definition[0] ?>(<?= $definition[1] ?>);
 <?php endforeach; ?>

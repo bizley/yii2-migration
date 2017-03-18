@@ -15,12 +15,12 @@ use yii\helpers\FileHelper;
 use yii\helpers\Inflector;
 
 /**
- * Migration creator.
- * Generates migration file based on the existing database table.
+ * Migration creator and updater.
+ * Generates migration file based on the existing database table and previous migrations.
  *
  * Tested with MySQL DB.
- * Doesn't generate indexes.
- * Foreign keys' ON UPDATE and ON DELETE are set to null.
+ * Yii 2 does not keep information about database indexes and foreign keys'
+ * ON UPDATE and ON DELETE actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
  * @version 2.0
@@ -85,7 +85,7 @@ class MigrationController extends Controller
      * the $tablePrefix setting of the DB connection. For example, if the table
      * name is 'post' the generator will return '{{%post}}'.
      */
-    public $useTablePrefix = true;
+    public $useTablePrefix = 1;
 
     /**
      * @var Connection|array|string the DB connection object or the application
@@ -97,24 +97,26 @@ class MigrationController extends Controller
 
     /**
      * @var string the name of the table for keeping applied migration information.
+     * The same as in yii\console\controllers\MigrateController::$migrationTable.
      * @since 2.0
      */
     public $migrationTable = '{{%migration}}';
 
     /**
      * @var array list of namespaces containing the migration classes.
+     * The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
      * @since 2.0
      */
     public $migrationNamespaces = [];
 
     /**
-     * @var bool|int whether to only display changes instead of create update migration.
+     * @var bool|string|int whether to only display changes instead of create update migration.
      * @since 2.0
      */
     public $showOnly = 0;
 
     /**
-     * @var bool|int whether to use general column schema instead of database specific.
+     * @var bool|string|int whether to use general column schema instead of database specific.
      * @since 2.0
      */
     public $generalSchema = 0;
@@ -253,7 +255,11 @@ class MigrationController extends Controller
                             'default' => in_array($this->defaultDecision, ['y', 'n']) ? $this->defaultDecision : 'n',
                             'validator' => function ($input, &$error) {
                                 if (!in_array(strtolower($input), ['y', 'n', 'a', 's'])) {
-                                    $error = 'Available options are: y = yes, n = no (default), a = overwrite all, s = skip all';
+                                    $error = 'Available options are: y = yes'
+                                            . ($this->defaultDecision == 'y' ? ' (default)' : '')
+                                            . ', n = no'
+                                            . ($this->defaultDecision == 'n' ? ' (default)' : '')
+                                            . ', a = overwrite all, s = skip all';
                                     return false;
                                 }
                                 return true;

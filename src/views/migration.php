@@ -32,12 +32,12 @@ class <?= $className ?> extends Migration
             '<?= $name ?>' => $this<?= $definition ?>,
 <?php endforeach; ?>
         ], $tableOptions);
-
 <?php if (count($primaryKey) > 1): ?>
+
         $this->addPrimaryKey('PRIMARY', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
 <?php endif; ?>
-
 <?php if ($foreignKeys): ?>
+
 <?php foreach ($foreignKeys as $key): ?>
         $this->addForeignKey(<?= $key ?>);
 <?php endforeach; ?>

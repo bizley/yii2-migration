@@ -263,7 +263,7 @@ class Updater extends Generator
         if ($value === false) {
             return 'FALSE';
         }
-        return $value;
+        return '"' . $value . '"';
     }
 
     private $_modifications = [];
@@ -481,11 +481,11 @@ class Updater extends Generator
             if ($column['default'] instanceof Expression) {
                 $definition .= '->defaultExpression(\'' . $column['default']->expression . '\')';
             } else {
-                $definition .= '->defaultValue(\'' . $column['default'] . '\')';
+                $definition .= '->defaultValue(\'' . str_replace("'", "\'", $column['default']) . '\')';
             }
         }
         if (array_key_exists('comment', $column) && $column['comment']) {
-            $definition .= '->comment(\'' . $column['comment'] . '\')';
+            $definition .= '->comment(\'' . str_replace("'", "\'", $column['comment']) . '\')';
         }
         if (array_key_exists('append', $column) && $column['append']) {
             $definition .= '->append(\'' . $column['append'] . '\')';
@@ -586,6 +586,7 @@ class Updater extends Generator
                             ])];
                         }
                     }
+                    break;
                 case 'addForeignKey':
                     foreach ($data as $fk => $type) {
                         $tmp = [
@@ -611,7 +612,6 @@ class Updater extends Generator
                             '\'' . $this->generateTableName($this->tableName) . '\'',
                         ])];
                     }
-                    break;
             }
         }
         return $updates;

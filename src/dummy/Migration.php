@@ -7,14 +7,14 @@ use yii\di\Instance;
 
 /**
  * Dummy Migration class.
+ * This class is used to gather migration details instead of applying them.
  */
 class Migration extends Component implements MigrationInterface
 {
     use SchemaBuilderTrait;
 
     /**
-     *
-     * @var array table => [array of changes]
+     * @var array List of all migration actions in form of 'table' => [array of changes]
      */
     public $changes = [];
 
@@ -122,11 +122,9 @@ class Migration extends Component implements MigrationInterface
             $builder = trim(str_replace('AUTOINCREMENT', '', $builder));
         }
         if (strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
-            //$schema['append'] = 'IDENTITY PRIMARY KEY';
             $builder = trim(str_replace('IDENTITY PRIMARY KEY', '', $builder));
         }
         if (strpos($builder, 'PRIMARY KEY') !== false) {
-            //$schema['append'] = 'PRIMARY KEY';
             $builder = trim(str_replace('PRIMARY KEY', '', $builder));
         }
         if (strpos($builder, 'UNSIGNED') !== false) {
@@ -165,7 +163,7 @@ class Migration extends Component implements MigrationInterface
                 $schema[$property] = $value;
             }
         }
-        $schema['comment'] = $type->comment;
+        $schema['comment'] = empty($type->comment) ? '' : $type->comment;
         return $schema;
     }
 
@@ -195,39 +193,44 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * Executes a SQL statement.
-     * This method executes the specified SQL statement using [[db]].
-     * @param string $sql the SQL statement to be executed
-     * @param array $params input parameters (name => value) for the SQL execution.
-     * See [[Command::execute()]] for more details.
+     * @inheritdoc
      */
     public function execute($sql, $params = [])
     {
-        echo "    > execute SQL: $sql ...";
-        $time = microtime(true);
-        $this->db->createCommand($sql)->bindValues($params)->execute();
-        echo ' done (time: ' . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        // not supported
     }
 
     /**
      * @inheritdoc
      */
-    public function insert($table, $columns) {}
+    public function insert($table, $columns)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
      */
-    public function batchInsert($table, $columns, $rows) {}
+    public function batchInsert($table, $columns, $rows)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
      */
-    public function update($table, $columns, $condition = '', $params = []) {}
+    public function update($table, $columns, $condition = '', $params = [])
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
      */
-    public function delete($table, $condition = '', $params = []) {}
+    public function delete($table, $condition = '', $params = [])
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
@@ -256,7 +259,10 @@ class Migration extends Component implements MigrationInterface
     /**
      * @inheritdoc
      */
-    public function truncateTable($table) {}
+    public function truncateTable($table)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
@@ -332,12 +338,18 @@ class Migration extends Component implements MigrationInterface
     /**
      * @inheritdoc
      */
-    public function createIndex($name, $table, $columns, $unique = false) {}
+    public function createIndex($name, $table, $columns, $unique = false)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
      */
-    public function dropIndex($name, $table) {}
+    public function dropIndex($name, $table)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
@@ -350,7 +362,10 @@ class Migration extends Component implements MigrationInterface
     /**
      * @inheritdoc
      */
-    public function addCommentOnTable($table, $comment) {}
+    public function addCommentOnTable($table, $comment)
+    {
+        // not supported
+    }
 
     /**
      * @inheritdoc
@@ -363,5 +378,8 @@ class Migration extends Component implements MigrationInterface
     /**
      * @inheritdoc
      */
-    public function dropCommentFromTable($table) {}
+    public function dropCommentFromTable($table)
+    {
+        // not supported
+    }
 }
