@@ -70,12 +70,12 @@ Directory storing the migration classes. _(default '@app/migrations')_
 
 --migrationNamespace
 
-Namespace in case of generating namespaced migration.
+Namespace in case of generating namespaced migration.  
 With this option present `migrationPath` is ignored. _(default null)_
 
 --defaultDecision
 
-Default decision what to do in case the file to be generated already exists. _(default 'n')_
+Default decision what to do in case the file to be generated already exists. _(default 'n')_  
 Available options are:
 - 'y' = asks before every existing file, overwrite is default option,
 - 'n' = asks before every existing file, skip is default option,
@@ -100,12 +100,12 @@ Application component's ID of the DB connection to use when generating migration
 
 --migrationTable
 
-Name of the table for keeping applied migration information. _(default '{{%migration}}')_
+Name of the table for keeping applied migration information. _(default '{{%migration}}')_  
 The same as in yii\console\controllers\MigrateController::$migrationTable.
 
 --migrationNamespaces
 
-List of namespaces containing the migration classes. _(default [])_
+List of namespaces containing the migration classes. _(default [])_  
 The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
 
 --showOnly
@@ -116,8 +116,8 @@ Whether to only display changes instead of generating update migration. _(defaul
 
 Whether to use general column schema instead of database specific. _(default 0)_
 
-> Example: MySQL's `VARCHAR(45)` column will generate:
-> with --generalSchema=0: `$this->string(45)`
+> Example: MySQL's `VARCHAR(45)` column will generate:  
+> with --generalSchema=0: `$this->string(45)`  
 > with --generalSchema=1: `$this->string()`
 
 Remember that with different database types general column schemas may be generated with different length.
