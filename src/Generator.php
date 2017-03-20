@@ -36,6 +36,7 @@ class Generator extends Extractor
             'columns' => $this->prepareColumnsDefinitions(count($pk) > 1),
             'primaryKey' => $pk,
             'foreignKeys' => $this->prepareForeignKeysDefinitions(),
+            'uniqueIndexes' => $this->getTableUniqueIndexes(),
             'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
         ];
         return $this->view->renderFile(Yii::getAlias($this->templateFile), $params);

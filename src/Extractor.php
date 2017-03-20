@@ -5,6 +5,7 @@ namespace bizley\migration;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
+use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
 use yii\db\TableSchema;
@@ -68,8 +69,6 @@ class Extractor extends Component
      */
     public $generalSchema = 0;
 
-    protected $schemaAutoIncrement = '';
-
     /**
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
@@ -79,15 +78,6 @@ class Extractor extends Component
         parent::init();
         if (!($this->db instanceof Connection)) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\db\Connection!");
-        }
-        $schema = $this->db->schema;
-        switch ($schema::className()) {
-            case 'yii\db\sqlite\Schema':
-                $this->schemaAutoIncrement = 'AUTOINCREMENT';
-                break;
-            case 'yii\db\cubrid\Schema':
-            case 'yii\db\mysql\Schema':
-                $this->schemaAutoIncrement = 'AUTO_INCREMENT';
         }
     }
 
@@ -141,7 +131,8 @@ class Extractor extends Component
             'table' => $this->tableName,
             'pk' => $this->tablePrimaryKey,
             'columns' => $this->tableColumns,
-            'fks' => $this->tableForeignKeys
+            'fks' => $this->tableForeignKeys,
+            'uidxs' => $this->tableUniqueIndexes,
         ];
     }
 
@@ -159,6 +150,47 @@ class Extractor extends Component
     }
 
     /**
+     * Returns table unique indexes.
+     * @return array
+     */
+    protected function getTableUniqueIndexes()
+    {
+        try {
+            return $this->db->schema->findUniqueIndexes($this->tableSchema);
+        } catch (NotSupportedException $exc) {
+            return [];
+        }
+    }
+
+    /**
+     * Prepares append SQL based on schema.
+     * @param bool $primaryKey
+     * @param bool $autoIncrement
+     * @return string
+     */
+    public function prepareSchemaAppend($primaryKey, $autoIncrement)
+    {
+        $schema = $this->db->schema;
+        switch ($schema::className()) {
+            case 'yii\db\mssql\Schema':
+                $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
+                break;
+            case 'yii\db\oci\Schema':
+            case 'yii\db\pgsql\Schema':
+                $append = $primaryKey ? 'PRIMARY KEY' : '';
+                break;
+            case 'yii\db\sqlite\Schema':
+                $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
+                break;
+            case 'yii\db\cubrid\Schema':
+            case 'yii\db\mysql\Schema':
+            default:
+                $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
+        }
+        return empty($append) ? null : $append;
+    }
+
+    /**
      * Returns columns structure.
      * @return array
      */
@@ -166,7 +198,7 @@ class Extractor extends Component
     {
         $columns = [];
         if ($this->tableSchema instanceof TableSchema) {
-            $uniqueIndexes = $this->db->schema->findUniqueIndexes($this->tableSchema);
+            $uniqueIndexes = $this->getTableUniqueIndexes();
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
                 foreach ($uniqueIndexes as $uIndex) {
@@ -182,7 +214,7 @@ class Extractor extends Component
                     'isUnique' => $isUnique,
                     'check' => null,
                     'default' => $column->defaultValue,
-                    'append' => $column->autoIncrement ? $this->schemaAutoIncrement : null,
+                    'append' => $this->prepareSchemaAppend($column->autoIncrement, $column->isPrimaryKey),
                     'isUnsigned' => $column->unsigned,
                     'comment' => $column->comment,
                 ];

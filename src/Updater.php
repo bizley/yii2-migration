@@ -137,17 +137,17 @@ class Updater extends Generator
         if (!isset($changes[$this->_tableSubject])) {
             return true;
         }
-        $data = array_reverse($changes[$this->_tableSubject], true);
-        foreach ($data as $method => $structure) {
-            if ($method === 'dropTable') {
+        $data = array_reverse($changes[$this->_tableSubject]);
+        foreach ($data as $methods) {
+            if (key($methods) === 'dropTable') {
                 return false;
             }
-            if ($method === 'renameTable') {
-                $this->_tableSubject = $structure;
+            if (key($methods) === 'renameTable') {
+                $this->_tableSubject = current($methods);
                 return $this->analyseChanges($changes);
             }
-            $this->_oldSchema[] = $structure;
-            if ($method === 'createTable') {
+            $this->_oldSchema[] = $methods;
+            if (key($methods) === 'createTable') {
                 return false;
             }
         }
@@ -177,72 +177,66 @@ class Updater extends Generator
      */
     protected function formatStructure()
     {
-        $structure = array_reverse($this->_oldSchema, true);
+        $changes = array_reverse($this->_oldSchema);
         $this->_structure['columns'] = [];
         $this->_structure['fks'] = [];
         $this->_structure['pk'] = [];
-        foreach ($structure as $change) {
-            if (is_array($change)) {
-                foreach ($change as $column => $properties) {
-                    if ($column === '___drop___') {
-                        if (isset($this->_structure['columns'][$properties])) {
-                            unset($this->_structure['columns'][$properties]);
-                        }
-                        break;
+        $this->_structure['uidxs'] = [];
+        foreach ($changes as $change) {
+            switch (key($change)) {
+                case 'createTable':
+                case 'addColumn':
+                    foreach (current($change) as $column => $properties) {
+                        $this->_structure['columns'][$column] = $properties;
                     }
-                    if ($column === '___dropcomment___') {
-                        if (isset($this->_structure['columns'][$properties[0]])) {
-                            $this->_structure['columns'][$properties[0]]['comment'] = null;
-                        }
-                        break;
+                    break;
+                case 'dropColumn':
+                    if (isset($this->_structure['columns'][current($change)])) {
+                        unset($this->_structure['columns'][current($change)]);
                     }
-                    if ($column === '___dropprimary___') {
-                        $this->_structure['pk'] = [];
-                        break;
+                    break;
+                case 'renameColumn':
+                    if (isset($this->_structure['columns'][key(current($change))])) {
+                        $this->_structure['columns'][current(current($change))] = $this->_structure['columns'][key(current($change))];
+                        unset($this->_structure['columns'][key(current($change))]);
                     }
-                    if ($column === '___primary___') {
-                        $this->_structure['pk'] = $properties;
-                        break;
+                    break;
+                case 'alterColumn':
+                    if (isset($this->_structure['columns'][key(current($change))])) {
+                        $this->_structure['columns'][key(current($change))] = current(current($change));
                     }
-                    if ($column === '___rename___') {
-                        if (isset($this->_structure['columns'][$properties[0]])) {
-                            $this->_structure['columns'][$properties[1]] = $this->_structure['columns'][$properties[0]];
-                            unset($this->_structure['columns'][$properties[0]]);
-                        }
-                        break;
+                    break;
+                case 'addPrimaryKey':
+                    $this->_structure['pk'] = current($change);
+                    break;
+                case 'dropPrimaryKey':
+                    $this->_structure['pk'] = [];
+                    break;
+                case 'addForeignKey':
+                    $this->_structure['fks'][current($change)[0]] = [current($change)[1], current($change)[2], current($change)[3], current($change)[4], current($change)[5]];
+                    break;
+                case 'dropForeignKey':
+                    if (isset($this->_structure['fks'][current($change)])) {
+                        unset($this->_structure['fks'][current($change)]);
                     }
-                    if ($column === '___alter___') {
-                        if (isset($this->_structure['columns'][$properties[0]])) {
-                            $this->_structure['columns'][$properties[0]] = [];
-                            foreach ($properties[1] as $property => $value) {
-                                $this->_structure['columns'][$properties[0]][$property] = $value;
-                            }
-                        }
-                        break;
+                    break;
+                case 'createIndex':
+                    $this->_structure['uidxs'][key(current($change))] = current(current($change));
+                    break;
+                case 'dropIndex':
+                    if (isset($this->_structure['uidxs'][current($change)])) {
+                        unset($this->_structure['uidxs'][current($change)]);
                     }
-                    if ($column === '___comment___') {
-                        if (isset($this->_structure['columns'][$properties[0]])) {
-                            $this->_structure['columns'][$properties[0]]['comment'] = $properties[1];
-                        }
-                        break;
+                    break;
+                case 'addCommentOnColumn':
+                    if (isset($this->_structure['columns'][key(current($change))])) {
+                        $this->_structure['columns'][key(current($change))]['comment'] = current(current($change));
                     }
-                    if ($column === '___foreign___') {
-                        $this->_structure['fks'][$properties[0]] = [$properties[1], $properties[2], $properties[3], $properties[4], $properties[5]];
-                        break;
+                    break;
+                case 'dropCommentFromColumn':
+                    if (isset($this->_structure['columns'][current($change)])) {
+                        $this->_structure['columns'][current($change)]['comment'] = null;
                     }
-                    if ($column === '___dropforeign___') {
-                        if (isset($this->_structure['fks'][$properties[0]])) {
-                            unset($this->_structure['fks'][$properties[0]]);
-                        }
-                        break;
-                    }
-                    if (!isset($this->_structure['columns'][$column])) {
-                        $this->_structure['columns'][$column] = [];
-                    }
-                    foreach ($properties as $property => $value) {
-                        $this->_structure['columns'][$column][$property] = $value;
-                    }
-                }
             }
         }
     }
@@ -321,7 +315,7 @@ class Updater extends Generator
                 $different = true;
             }
         }
-        foreach ($this->structure['fks'] as $fk) {
+        foreach ($this->structure['fks'] as $fk => $data) {
             if (!isset($this->_structure['fks'][$fk])) {
                 if ($this->showOnly) {
                     echo "   - missing foreign key '$fk'\n";
@@ -337,6 +331,25 @@ class Updater extends Generator
                     echo "   - excessive foreign key '$fk'\n";
                 }
                 $this->_modifications['dropForeignKey'][] = $fk;
+                $different = true;
+            }
+        }
+        foreach ($this->structure['uidxs'] as $uidx => $data) {
+            if (!isset($this->_structure['uidxs'][$uidx])) {
+                if ($this->showOnly) {
+                    echo "   - missing unique index '$uidx'\n";
+                }
+                $this->_modifications['createIndex'][$uidx] = $data;
+                $different = true;
+                continue;
+            }
+        }
+        foreach ($this->_structure['uidxs'] as $uidx => $data) {
+            if (!isset($this->structure['uidxs'][$uidx])) {
+                if ($this->showOnly) {
+                    echo "   - excessive unique index '$uidx'\n";
+                }
+                $this->_modifications['dropIndex'][] = $uidx;
                 $different = true;
             }
         }
@@ -588,19 +601,19 @@ class Updater extends Generator
                     }
                     break;
                 case 'addForeignKey':
-                    foreach ($data as $fk => $type) {
+                    foreach ($data as $fk => $data) {
                         $tmp = [
                             '\'' . $fk . '\'',
                             '\'' . $this->generateTableName($this->tableName) . '\'',
-                            is_array($type[0]) ? '[' . implode(', ', $type[0]) . ']' : '\'' . $type[0] . '\'',
+                            is_array($data[0]) ? '[' . implode(', ', $data[0]) . ']' : '\'' . $data[0] . '\'',
                             '\'' . $this->generateTableName($type[1]) . '\'',
-                            is_array($type[2]) ? '[' . implode(', ', $type[2]) . ']' : '\'' . $type[2] . '\'',
+                            is_array($data[2]) ? '[' . implode(', ', $data[2]) . ']' : '\'' . $data[2] . '\'',
                         ];
-                        if ($type[3] !== null || $type[4] !== null) {
-                            $tmp[] = $type[3] !== null ? '\'' . $type[3] . '\'' : 'null';
+                        if ($data[3] !== null || $data[4] !== null) {
+                            $tmp[] = $data[3] !== null ? '\'' . $data[3] . '\'' : 'null';
                         }
-                        if ($type[4] !== null) {
-                            $tmp[] = '\'' . $type[4] . '\'';
+                        if ($data[4] !== null) {
+                            $tmp[] = '\'' . $data[4] . '\'';
                         }
                         $updates[] = [$method, implode(', ', $tmp)];
                     }
@@ -609,6 +622,24 @@ class Updater extends Generator
                     foreach ($data as $fk) {
                         $updates[] = [$method, implode(', ', [
                             '\'' . $fk . '\'',
+                            '\'' . $this->generateTableName($this->tableName) . '\'',
+                        ])];
+                    }
+                    break;
+                case 'createIndex':
+                    foreach ($data as $uidx => $columns) {
+                        $updates[] = [$method, implode(', ', [
+                            '\'' . $uidx . '\'',
+                            '\'' . $this->generateTableName($this->tableName) . '\'',
+                            count($columns) === 1 ? '\'' . $columns[0] . '\'' : '[' . implode(', ', $columns) . ']',
+                            'true',
+                        ])];
+                    }
+                    break;
+                case 'dropIndex':
+                    foreach ($data as $uidx) {
+                        $updates[] = [$method, implode(', ', [
+                            '\'' . $uidx . '\'',
                             '\'' . $this->generateTableName($this->tableName) . '\'',
                         ])];
                     }

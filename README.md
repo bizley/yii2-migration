@@ -64,60 +64,66 @@ With yii2-migration 2.0 it is possible to generate update migration for database
 
 ## Command line parameters
 
---migrationPath
+    --migrationPath
 
 Directory storing the migration classes. _(default '@app/migrations')_
 
---migrationNamespace
+    --migrationNamespace
 
-Namespace in case of generating namespaced migration.  
+Namespace in case of generating namespaced migration.
+
 With this option present `migrationPath` is ignored. _(default null)_
 
---defaultDecision
+    --defaultDecision
 
-Default decision what to do in case the file to be generated already exists. _(default 'n')_  
+Default decision what to do in case the file to be generated already exists. _(default 'n')_
+
 Available options are:
 - 'y' = asks before every existing file, overwrite is default option,
 - 'n' = asks before every existing file, skip is default option,
 - 'a' = doesn't ask, all files are overwritten,
 - 's' = doesn't ask, no files are overwritten.
 
---templateFile
+    --templateFile
 
-Template file for generating create migrations. _(default '@vendor/bizley/migration/src/views/migration.php')_
+Template file for generating create migrations. _(default '@vendor/bizley/migration/src/views/create_migration.php')_
 
---templateFileUpdate
+    --templateFileUpdate
 
-Template file for generating update migrations. _(default '@vendor/bizley/migration/src/views/update.php')_
+Template file for generating update migrations. _(default '@vendor/bizley/migration/src/views/update_migration.php')_
 
---useTablePrefix
+    --useTablePrefix
 
 Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _(default 1)_
 
---db
+    --db
 
 Application component's ID of the DB connection to use when generating migrations. _(default 'db')_
 
---migrationTable
+    --migrationTable
 
-Name of the table for keeping applied migration information. _(default '{{%migration}}')_  
+Name of the table for keeping applied migration information. _(default '{{%migration}}')_
+
 The same as in yii\console\controllers\MigrateController::$migrationTable.
 
---migrationNamespaces
+    --migrationNamespaces
 
-List of namespaces containing the migration classes. _(default [])_  
+List of namespaces containing the migration classes. _(default [])_
+
 The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
 
---showOnly
+    --showOnly
 
 Whether to only display changes instead of generating update migration. _(default 0)_
 
---generalSchema
+    --generalSchema
 
 Whether to use general column schema instead of database specific. _(default 0)_
 
-> Example: MySQL's `VARCHAR(45)` column will generate:  
-> with --generalSchema=0: `$this->string(45)`  
+> Example: MySQL's `VARCHAR(45)` column will generate:
+
+> with --generalSchema=0: `$this->string(45)`
+
 > with --generalSchema=1: `$this->string()`
 
 Remember that with different database types general column schemas may be generated with different length.
@@ -134,7 +140,7 @@ This extension is tested on MySQL database but should work with all database typ
 
 Let me know if something is wrong with databases other than MySQL (and in case of MySQL let me know as well).
 
-As far as I know Yii 2 does not keep information about table indexes and foreign keys' ON UPDATE and ON DELETE actions
+As far as I know Yii 2 does not keep information about table indexes (except unique ones) and foreign keys' ON UPDATE and ON DELETE actions
 so unfortunately this can not be tracked and applied to generated migrations - you have to add it on your own.
 
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with

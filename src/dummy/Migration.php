@@ -183,13 +183,13 @@ class Migration extends Component implements MigrationInterface
      * @param string $method
      * @param mixed $value
      */
-    public function addChanges($table, $method, $value)
+    public function addChange($table, $method, $value)
     {
         $table = $this->getRawTableName($table);
         if (!isset($this->changes[$table])) {
             $this->changes[$table] = [];
         }
-        $this->changes[$table][$method] = $value;
+        $this->changes[$table][] = [$method => $value];
     }
 
     /**
@@ -237,7 +237,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function createTable($table, $columns, $options = null)
     {
-        $this->addChanges($table, 'createTable', $this->extractColumns($columns));
+        $this->addChange($table, 'createTable', $this->extractColumns($columns));
     }
 
     /**
@@ -245,7 +245,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function renameTable($table, $newName)
     {
-        $this->addChanges($table, 'renameTable', $this->getRawTableName($newName));
+        $this->addChange($table, 'renameTable', $this->getRawTableName($newName));
     }
 
     /**
@@ -253,7 +253,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropTable($table)
     {
-        $this->addChanges($table, 'dropTable', null);
+        $this->addChange($table, 'dropTable', null);
     }
 
     /**
@@ -269,7 +269,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addColumn($table, $column, $type)
     {
-        $this->addChanges($table, 'addColumn', [$column => $this->extractColumn($type)]);
+        $this->addChange($table, 'addColumn', [$column => $this->extractColumn($type)]);
     }
 
     /**
@@ -277,7 +277,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropColumn($table, $column)
     {
-        $this->addChanges($table, 'dropColumn', ['___drop___' => $column]);
+        $this->addChange($table, 'dropColumn', $column);
     }
 
     /**
@@ -285,7 +285,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function renameColumn($table, $name, $newName)
     {
-        $this->addChanges($table, 'renameColumn', ['___rename___' => [$name, $newName]]);
+        $this->addChange($table, 'renameColumn', [$name => $newName]);
     }
 
     /**
@@ -293,7 +293,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function alterColumn($table, $column, $type)
     {
-        $this->addChanges($table, 'alterColumn', ['___alter___' => [$column, $this->extractColumn($type)]]);
+        $this->addChange($table, 'alterColumn', [$column => $this->extractColumn($type)]);
     }
 
     /**
@@ -301,7 +301,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addPrimaryKey($name, $table, $columns)
     {
-        $this->addChanges($table, 'addPrimaryKey', ['___primary___' => is_array($columns) ? $columns : explode(',', $columns)]);
+        $this->addChange($table, 'addPrimaryKey', is_array($columns) ? $columns : explode(',', $columns));
     }
 
     /**
@@ -309,7 +309,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropPrimaryKey($name, $table)
     {
-        $this->addChanges($table, 'dropPrimaryKey', ['___dropprimary___' => $name]);
+        $this->addChange($table, 'dropPrimaryKey', $name);
     }
 
     /**
@@ -317,14 +317,14 @@ class Migration extends Component implements MigrationInterface
      */
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
-        $this->addChanges($table, 'addForeignKey', ['___foreign___' => [
+        $this->addChange($table, 'addForeignKey', [
             $name,
             is_array($columns) ? $columns : explode(',', $columns),
             $refTable,
             is_array($refColumns) ? $refColumns : explode(',', $refColumns),
             $delete,
             $update
-        ]]);
+        ]);
     }
 
     /**
@@ -332,7 +332,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropForeignKey($name, $table)
     {
-        $this->addChanges($table, 'dropForeignKey', ['___dropforeign___' => $name]);
+        $this->addChange($table, 'dropForeignKey', $name);
     }
 
     /**
@@ -340,7 +340,9 @@ class Migration extends Component implements MigrationInterface
      */
     public function createIndex($name, $table, $columns, $unique = false)
     {
-        // not supported
+        if ($unique) {
+            $this->addChange($table, 'createIndex', [$name => is_array($columns) ? $columns : explode(',', $columns)]);
+        }
     }
 
     /**
@@ -348,7 +350,8 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropIndex($name, $table)
     {
-        // not supported
+        // requires check for uniqueness
+        $this->addChange($table, 'dropIndex', $name);
     }
 
     /**
@@ -356,7 +359,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addCommentOnColumn($table, $column, $comment)
     {
-        $this->addChanges($table, 'addCommentOnColumn', ['___comment___' => [$column, $comment]]);
+        $this->addChange($table, 'addCommentOnColumn', [$column => $comment]);
     }
 
     /**
@@ -372,7 +375,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropCommentFromColumn($table, $column)
     {
-        $this->addChanges($table, 'dropCommentFromColumn', ['___dropcomment___' => $column]);
+        $this->addChange($table, 'dropCommentFromColumn', $column);
     }
 
     /**
