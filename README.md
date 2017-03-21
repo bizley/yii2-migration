@@ -70,20 +70,21 @@ Directory storing the migration classes. _(default '@app/migrations')_
 
     --migrationNamespace
 
-Namespace in case of generating namespaced migration.
-
-With this option present `migrationPath` is ignored. _(default null)_
+Namespace in case of generating namespaced migration. _(default null)_  
+With this option present `migrationPath` is ignored. 
 
     --defaultDecision
 
-Default decision what to do in case the file to be generated already exists. _(default 'n')_
-
+Default decision what to do in case the file to be generated already exists. _(default 'n')_  
 Available options are:
+
 - 'y' = asks before every existing file, overwrite is default option,
 - 'n' = asks before every existing file, skip is default option,
 - 'a' = doesn't ask, all files are overwritten,
 - 's' = doesn't ask, no files are overwritten.
 
+Both `create` and `update` action use the same decision mechanism.
+ 
     --templateFile
 
 Template file for generating create migrations. _(default '@vendor/bizley/migration/src/views/create_migration.php')_
@@ -102,14 +103,12 @@ Application component's ID of the DB connection to use when generating migration
 
     --migrationTable
 
-Name of the table for keeping applied migration information. _(default '{{%migration}}')_
-
+Name of the table for keeping applied migration information. _(default '{{%migration}}')_  
 The same as in yii\console\controllers\MigrateController::$migrationTable.
 
     --migrationNamespaces
 
-List of namespaces containing the migration classes. _(default [])_
-
+List of namespaces containing the migration classes. _(default [])_  
 The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
 
     --showOnly
@@ -120,10 +119,8 @@ Whether to only display changes instead of generating update migration. _(defaul
 
 Whether to use general column schema instead of database specific. _(default 0)_
 
-> Example: MySQL's `VARCHAR(45)` column will generate:
-
-> with --generalSchema=0: `$this->string(45)`
-
+> Example: MySQL's `VARCHAR(45)` column will generate:  
+> with --generalSchema=0: `$this->string(45)`  
 > with --generalSchema=1: `$this->string()`
 
 Remember that with different database types general column schemas may be generated with different length.
@@ -131,6 +128,7 @@ Remember that with different database types general column schemas may be genera
 ## Notes
 
 This extension is tested on MySQL database but should work with all database types supported in Yii 2 core:
+
 - CUBRID (9.3.x and higher)
 - MS SQL Server (2008 and above)
 - MySQL (4.1.x and 5.x)
