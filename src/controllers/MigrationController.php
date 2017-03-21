@@ -8,6 +8,8 @@ use Closure;
 use Exception;
 use Yii;
 use yii\base\Action;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidParamException;
 use yii\console\Controller;
 use yii\db\Connection;
 use yii\di\Instance;
@@ -156,6 +158,9 @@ class MigrationController extends Controller
      * DB connection is prepared.
      * @param Action $action the action to be executed.
      * @return bool whether the action should continue to be executed.
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
+     * @throws \yii\base\Exception
      */
     public function beforeAction($action)
     {
@@ -176,6 +181,8 @@ class MigrationController extends Controller
      * Prepares path directory.
      * @param string $path
      * @since 1.1
+     * @throws InvalidParamException
+     * @throws \yii\base\Exception
      */
     public function preparePathDirectory($path)
     {
@@ -189,6 +196,8 @@ class MigrationController extends Controller
     /**
      * Prepares namespaced directory.
      * @since 1.1
+     * @throws \yii\base\Exception
+     * @throws InvalidParamException
      */
     public function prepareNamespacedDirectory()
     {
@@ -245,20 +254,20 @@ class MigrationController extends Controller
                         $this->stdout("SKIP ALL\n");
                         $prompt = 'n';
                     } else {
-                        $message = "\n > (!) File " . Yii::getAlias($file) . " already exists - overwrite? ([y]es / [n]o";
+                        $message = "\n > (!) File " . Yii::getAlias($file) . ' already exists - overwrite? ([y]es / [n]o';
                         if (count($tables) > 1) {
-                            $message .= " / overwrite [a]ll / [s]kip all";
+                            $message .= ' / overwrite [a]ll / [s]kip all';
                         }
-                        $message .= ")";
+                        $message .= ')';
                         $prompt = $this->prompt($message, [
                             'required' => false,
                             'default' => in_array($this->defaultDecision, ['y', 'n']) ? $this->defaultDecision : 'n',
                             'validator' => function ($input, &$error) {
                                 if (!in_array(strtolower($input), ['y', 'n', 'a', 's'])) {
                                     $error = 'Available options are: y = yes'
-                                            . ($this->defaultDecision == 'y' ? ' (default)' : '')
+                                            . ($this->defaultDecision === 'y' ? ' (default)' : '')
                                             . ', n = no'
-                                            . ($this->defaultDecision == 'n' ? ' (default)' : '')
+                                            . ($this->defaultDecision === 'n' ? ' (default)' : '')
                                             . ', a = overwrite all, s = skip all';
                                     return false;
                                 }
@@ -277,17 +286,17 @@ class MigrationController extends Controller
                             $this->stdout(" > Migration for table '{$name}' not generated!\n\n");
                             continue 2;
                     }
-                    $this->stdout(" > Overwriting migration file ...");
+                    $this->stdout(' > Overwriting migration file ...');
                 }
 
-                if (call_user_func($actionMethod, $name, $className, $file)) {
+                if ($actionMethod($name, $className, $file)) {
                     $migrationsGenerated++;
                     $this->stdout("DONE!\n");
-                    $this->stdout(" > Saved as " . Yii::getAlias($file) . "\n\n");
+                    $this->stdout(' > Saved as ' . Yii::getAlias($file) . "\n\n");
                 }
             } catch (Exception $exc) {
                 $this->stdout("ERROR!\n");
-                $this->stdout(" > " . $exc->getMessage() . "\n\n");
+                $this->stdout(' > ' . $exc->getMessage() . "\n\n");
             }
         }
 
@@ -302,6 +311,7 @@ class MigrationController extends Controller
     /**
      * Creates new migration for a given tables.
      * @param string $table Table names separated by commas.
+     * @throws InvalidParamException
      */
     public function actionCreate($table)
     {
@@ -325,6 +335,7 @@ class MigrationController extends Controller
      * Creates new update migration for a given tables.
      * @param string $table Table names separated by commas.
      * @since 2.0
+     * @throws InvalidParamException
      */
     public function actionUpdate($table)
     {

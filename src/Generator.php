@@ -2,8 +2,8 @@
 
 namespace bizley\migration;
 
-use Exception;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\db\ColumnSchema;
 use yii\db\Expression;
 use yii\db\Schema;
@@ -24,7 +24,7 @@ class Generator extends Extractor
     /**
      * Generates migration content or echoes exception message.
      * @return string
-     * @throws Exception
+     * @throws InvalidParamException
      */
     public function generateMigration()
     {
@@ -76,7 +76,7 @@ class Generator extends Extractor
     /**
      * Returns size value from ColumnSchema.
      * @param ColumnSchema $column
-     * @return mixed
+     * @return string
      */
     public function renderSize(ColumnSchema $column)
     {
@@ -86,7 +86,7 @@ class Generator extends Extractor
     /**
      * Returns scale value from ColumnSchema.
      * @param ColumnSchema $column
-     * @return mixed
+     * @return string
      */
     public function renderScale(ColumnSchema $column)
     {
@@ -96,7 +96,7 @@ class Generator extends Extractor
     /**
      * Returns precision value from ColumnSchema.
      * @param ColumnSchema $column
-     * @return mixed
+     * @return string
      */
     public function renderPrecision(ColumnSchema $column)
     {

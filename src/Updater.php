@@ -4,6 +4,8 @@ namespace bizley\migration;
 
 use Exception;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidParamException;
 use yii\console\controllers\MigrateController;
 use yii\db\Expression;
 use yii\db\Query;
@@ -46,6 +48,7 @@ class Updater extends Generator
 
     /**
      * Sets subject table name.
+     * @throws InvalidConfigException
      */
     public function init()
     {
@@ -57,6 +60,7 @@ class Updater extends Generator
 
     /**
      * Sets dummy Migration class.
+     * @throws InvalidParamException
      */
     protected function setDummyMigrationClass()
     {
@@ -83,7 +87,7 @@ class Updater extends Generator
         if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
             return [];
         }
-        $query = (new Query())
+        $query = (new Query)
             ->select(['version', 'apply_time'])
             ->from($this->migrationTable)
             ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC]);
@@ -289,7 +293,7 @@ class Updater extends Generator
                 if ($value !== null && !isset($this->_structure['columns'][$column][$property])) {
                     if ($this->showOnly) {
                         echo "   - missing '$column' column property: $property (";
-                        echo "DB: " . $this->displayValue($value) . ")\n";
+                        echo 'DB: ' . $this->displayValue($value) . ")\n";
                     }
                     $this->_modifications['alterColumn'][$column][] = $data;
                     $different = true;
@@ -297,8 +301,8 @@ class Updater extends Generator
                 } elseif ($this->_structure['columns'][$column][$property] != $value) {
                     if ($this->showOnly) {
                         echo "   - different '$column' column property: $property (";
-                        echo "DB: " . $this->displayValue($value) . " <> ";
-                        echo "MIG: " . $this->displayValue($this->_structure['columns'][$column][$property]) . ")\n";
+                        echo 'DB: ' . $this->displayValue($value) . ' <> ';
+                        echo 'MIG: ' . $this->displayValue($this->_structure['columns'][$column][$property]) . ")\n";
                     }
                     $this->_modifications['alterColumn'][$column][] = $data;
                     $different = true;
@@ -359,6 +363,7 @@ class Updater extends Generator
     /**
      * Checks if new updating migration is required.
      * @return bool
+     * @throws InvalidParamException
      */
     public function isUpdateRequired()
     {
@@ -519,7 +524,7 @@ class Updater extends Generator
         switch ($schema::className()) {
             case 'yii\db\mssql\Schema':
                 if (stripos($append, 'IDENTITY') !== false && stripos($append, 'PRIMARY KEY') !== false) {
-                    $append = str_replace('PRIMARY KEY', '', str_replace('IDENTITY', '', strtoupper($append)));
+                    $append = str_replace(['PRIMARY KEY', 'IDENTITY'], '', strtoupper($append));
                     $primaryKey = true;
                 }
                 break;
@@ -532,18 +537,16 @@ class Updater extends Generator
                 break;
             case 'yii\db\sqlite\Schema':
                 if (stripos($append, 'PRIMARY KEY') !== false) {
-                    $append = str_replace('PRIMARY KEY', '', strtoupper($append));
+                    $append = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', strtoupper($append));
                     $primaryKey = true;
-                    $append = str_replace('AUTOINCREMENT', '', $append);
                 }
                 break;
             case 'yii\db\cubrid\Schema':
             case 'yii\db\mysql\Schema':
             default:
                 if (stripos($append, 'PRIMARY KEY') !== false) {
-                    $append = str_replace('PRIMARY KEY', '', strtoupper($append));
+                    $append = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', strtoupper($append));
                     $primaryKey = true;
-                    $append = str_replace('AUTO_INCREMENT', '', $append);
                 }
         }
         if ($primaryKey) {
@@ -570,6 +573,7 @@ class Updater extends Generator
     public function prepareUpdates()
     {
         $updates = [];
+        /* @var $data array */
         foreach ($this->_modifications as $method => $data) {
             switch ($method) {
                 case 'dropColumn':
@@ -590,6 +594,7 @@ class Updater extends Generator
                     }
                     break;
                 case 'alterColumn':
+                    /* @var $typesList array */
                     foreach ($data as $column => $typesList) {
                         foreach ($typesList as $type) {
                             $updates[] = [$method, implode(', ', [
@@ -601,19 +606,19 @@ class Updater extends Generator
                     }
                     break;
                 case 'addForeignKey':
-                    foreach ($data as $fk => $data) {
+                    foreach ($data as $fk => $params) {
                         $tmp = [
                             '\'' . $fk . '\'',
                             '\'' . $this->generateTableName($this->tableName) . '\'',
-                            is_array($data[0]) ? '[' . implode(', ', $data[0]) . ']' : '\'' . $data[0] . '\'',
-                            '\'' . $this->generateTableName($type[1]) . '\'',
-                            is_array($data[2]) ? '[' . implode(', ', $data[2]) . ']' : '\'' . $data[2] . '\'',
+                            is_array($params[0]) ? '[' . implode(', ', $params[0]) . ']' : '\'' . $params[0] . '\'',
+                            '\'' . $this->generateTableName($params[1]) . '\'',
+                            is_array($params[2]) ? '[' . implode(', ', $params[2]) . ']' : '\'' . $params[2] . '\'',
                         ];
-                        if ($data[3] !== null || $data[4] !== null) {
-                            $tmp[] = $data[3] !== null ? '\'' . $data[3] . '\'' : 'null';
+                        if ($params[3] !== null || $params[4] !== null) {
+                            $tmp[] = $params[3] !== null ? '\'' . $params[3] . '\'' : 'null';
                         }
-                        if ($data[4] !== null) {
-                            $tmp[] = '\'' . $data[4] . '\'';
+                        if ($params[4] !== null) {
+                            $tmp[] = '\'' . $params[4] . '\'';
                         }
                         $updates[] = [$method, implode(', ', $tmp)];
                     }
@@ -651,7 +656,7 @@ class Updater extends Generator
     /**
      * Generates migration content or echoes exception message.
      * @return string
-     * @throws Exception
+     * @throws InvalidParamException
      */
     public function generateMigration()
     {

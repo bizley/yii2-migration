@@ -77,7 +77,7 @@ class Extractor extends Component
     {
         parent::init();
         if (!($this->db instanceof Connection)) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\db\Connection!");
+            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
         }
     }
 
@@ -123,6 +123,7 @@ class Extractor extends Component
     /**
      * Returns table structure.
      * @return array
+     * @throws InvalidParamException
      */
     public function getStructure()
     {
