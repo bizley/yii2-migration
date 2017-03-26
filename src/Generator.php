@@ -335,10 +335,6 @@ class Generator extends Extractor
      */
     public function generateForeignKeyName($column)
     {
-        return implode('-', [
-            'fk',
-            $this->tableName,
-            $column
-        ]);
+        return implode('-', ['fk', $this->tableName, $column]);
     }
 }

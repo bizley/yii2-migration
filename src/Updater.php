@@ -2,7 +2,6 @@
 
 namespace bizley\migration;
 
-use Exception;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
@@ -24,25 +23,24 @@ use yii\helpers\FileHelper;
 class Updater extends Generator
 {
     /**
-     * @var string the name of the table for keeping applied migration information.
+     * @var string Name of the table for keeping applied migration information.
      */
     public $migrationTable = '{{%migration}}';
 
     /**
-     * @var array list of namespaces containing the migration classes.
+     * @var array List of namespaces containing the migration classes.
      */
     public $migrationNamespaces = [];
 
     /**
-     * @var string directory storing the migration classes. This can be either
-     * a path alias or a directory.
+     * @var string Directory storing the migration classes. This can be either a path alias or a directory.
      */
     public $migrationPath = '@app/migrations';
 
     /**
-     * @var bool whether to only display changes instead of creat update migration.
+     * @var bool Whether to only display changes instead of create updating migration.
      */
-    public $showOnly = 0;
+    public $showOnly = false;
 
     private $_tableSubject;
 
@@ -162,10 +160,11 @@ class Updater extends Generator
      * Extracts migration data structures.
      * @param string $migration
      * @return array
+     * @throws \yii\base\InvalidParamException
      */
     protected function extract($migration)
     {
-        require_once(Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php'));
+        require_once Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
 
         $subject = new $migration;
         $subject->db = $this->db;
@@ -298,7 +297,8 @@ class Updater extends Generator
                     $this->_modifications['alterColumn'][$column][] = $data;
                     $different = true;
                     break;
-                } elseif ($this->_structure['columns'][$column][$property] != $value) {
+                }
+                if ($this->_structure['columns'][$column][$property] != $value) {
                     if ($this->showOnly) {
                         echo "   - different '$column' column property: $property (";
                         echo 'DB: ' . $this->displayValue($value) . ' <> ';

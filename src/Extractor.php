@@ -30,44 +30,44 @@ class Extractor extends Component
     public $db;
 
     /**
-     * @var string table name to be generated (before prefix).
+     * @var string Table name to be generated (before prefix).
      */
     public $tableName;
 
     /**
-     * @var string migration class name.
+     * @var string Migration class name.
      */
     public $className;
 
     /**
-     * @var View view used in controller.
+     * @var View View used in controller.
      */
     public $view;
 
     /**
-     * @var bool table prefix flag.
+     * @var bool Table prefix flag.
      */
     public $useTablePrefix;
 
     /**
-     * @var string file template.
+     * @var string File template.
      */
     public $templateFile;
 
     /**
-     * @var string file update template.
+     * @var string File update template.
      */
     public $templateFileUpdate;
 
     /**
-     * @var string migration namespace.
+     * @var string Migration namespace.
      */
     public $namespace;
 
     /**
-     * @var bool whether to use general column schema instead of database specific.
+     * @var bool Whether to use general column schema instead of database specific.
      */
-    public $generalSchema = 0;
+    public $generalSchema = false;
 
     /**
      * Checks if DB connection is passed.
@@ -96,8 +96,7 @@ class Extractor extends Component
     }
 
     /**
-     * If $useTablePrefix equals true, then the table name will contain the
-     * prefix format.
+     * If $useTablePrefix equals true then the table name will contain the prefix format.
      * @param string $tableName the table name to generate.
      * @return string
      */
@@ -203,7 +202,7 @@ class Extractor extends Component
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
                 foreach ($uniqueIndexes as $uIndex) {
-                    if ($uIndex[0] == $column->name && count($uIndex) === 1) {
+                    if ($uIndex[0] === $column->name && count($uIndex) === 1) {
                         $isUnique = true;
                         break;
                     }

@@ -90,8 +90,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function getKeysMap($type)
     {
-        $builder = $type->db->schema->createQueryBuilder();
-        return $builder->typeMap;
+        return $type->db->schema->createQueryBuilder()->typeMap;
     }
 
     /**
