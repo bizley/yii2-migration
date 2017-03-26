@@ -6,7 +6,9 @@
  * @var $className string class name
  * @var $namespace string namespace
  * @var $columns array columns definitions
+ * @var $primaryKey array primary key definition
  * @var $foreignKeys array foreign keys arrays
+ * @var $uniqueIndexes array unique indexes arrays
  */
 
 echo "<?php\n";
@@ -31,8 +33,18 @@ class <?= $className ?> extends Migration
             '<?= $name ?>' => $this<?= $definition ?>,
 <?php endforeach; ?>
         ], $tableOptions);
+<?php if (count($primaryKey) > 1): ?>
 
+        $this->addPrimaryKey('PRIMARY', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
+<?php endif; ?>
+<?php if ($uniqueIndexes): ?>
+
+<?php foreach ($uniqueIndexes as $index => $columns): ?>
+        $this->createIndex('<?= $index ?>', '<?= $tableName ?>', <?= count($columns) === 1 ? '\'' . $columns[0] . '\'' : '[\'' . implode('\',\'', $columns) . '\']' ?>, true);
+<?php endforeach; ?>
+<?php endif; ?>
 <?php if ($foreignKeys): ?>
+
 <?php foreach ($foreignKeys as $key): ?>
         $this->addForeignKey(<?= $key ?>);
 <?php endforeach; ?>

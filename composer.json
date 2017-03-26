@@ -4,7 +4,6 @@
     "type": "yii2-extension",
     "keywords": [
         "yii2",
-        "yii 2",
         "migration",
         "migrate",
         "generator",
@@ -21,7 +20,7 @@
         "source": "https://github.com/bizley/yii2-migration"
     },
     "require": {
-        "yiisoft/yii2": "~2.0.6"
+        "yiisoft/yii2": "~2.0.8"
     },
     "autoload": {
         "psr-4": {
