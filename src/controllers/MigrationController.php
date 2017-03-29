@@ -415,11 +415,11 @@ class MigrationController extends Controller
      */
     public function actionList()
     {
-        $this->stdout("Your Database contains the following tables:\n\n");
         $tables = $this->db->schema->getTableNames();
-        if(!$tables) {
-            $this->stdout ("Your Database does not contain any tables yet.");
+        if (!$tables) {
+            $this->stdout("Your database does not contain any tables yet.\n");
         } else {
+            $this->stdout("Your database contains " . count($tables) . " tables:\n\n");
             foreach ($tables as $table) {
                 $this->stdout("$table\n");
             }
