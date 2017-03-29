@@ -126,6 +126,11 @@ class MigrationController extends Controller
     public $fixHistory = 0;
 
     /**
+     * @var bool Are you sure to create migrations for all tables in your database?
+     */
+    public $sure = 'no';
+
+    /**
      * @inheritdoc
      */
     public function options($actionID)
@@ -133,7 +138,7 @@ class MigrationController extends Controller
         return array_merge(
             parent::options($actionID),
             ['defaultDecision', 'migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile',
-                'useTablePrefix', 'fixHistory', 'migrationTable'],
+                'useTablePrefix', 'fixHistory', 'migrationTable', 'sure'],
             $actionID === 'update' ? ['migrationNamespaces', 'showOnly', 'templateFileUpdate'] : []
         );
     }
@@ -410,7 +415,7 @@ class MigrationController extends Controller
     }
 
     /**
-     * Creates new migration for a given tables.
+     * Creates new migration for a given table.
      * @param string $table Table names separated by commas.
      * @throws InvalidParamException
      */
@@ -430,6 +435,27 @@ class MigrationController extends Controller
             file_put_contents($file, $generator->generateMigration());
             return true;
         });
+    }
+
+    /**
+     * Creates new migrations for every table in your database.
+     * @throws InvalidParamException
+     */
+    public function actionCreateAll()
+    {
+        $tables = $this->db->schema->getTableNames();
+
+        if (!$tables) {
+            return $this->stdout("Your Database does not contain any tables yet.");
+        }
+
+        if ($this->sure !== 'yes') {
+            return $this->stdout("Please run ./yii migrate/create-all --sure=yes if you want to generate " . count($tables) . " migrations.\n");
+        }
+
+        foreach($tables as $table) {
+            $this->actionCreate($table);
+        }
     }
 
     /**
