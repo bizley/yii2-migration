@@ -35,7 +35,7 @@ class MigrationController extends Controller
     /**
      * @var string Default command action.
      */
-    public $defaultAction = 'create';
+    public $defaultAction = 'list';
 
     /**
      * @var string Default user decision in case the file to be generated already exists. Console asks if file should
@@ -407,6 +407,24 @@ class MigrationController extends Controller
         } else {
             $this->stdout("No files generated.\n\n", Console::FG_YELLOW);
         }
+    }
+
+
+    /**
+     * Lists all Tables in the database.
+     */
+    public function actionList()
+    {
+        $tables = $this->db->schema->getTableNames();
+        if (!$tables) {
+            $this->stdout("Your database does not contain any tables yet.\n");
+        } else {
+            $this->stdout("Your database contains " . count($tables) . " tables:\n\n");
+            foreach ($tables as $table) {
+                $this->stdout("$table\n");
+            }
+        }
+        $this->stdout("\n\nUse ./yii migration/create <table> to create a migration for the specific table.\n");
     }
 
     /**
