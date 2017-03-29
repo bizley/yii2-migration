@@ -410,7 +410,7 @@ class MigrationController extends Controller
     }
 
     /**
-     * Creates new migration for a given tables.
+     * Creates new migration for a given table.
      * @param string $table Table names separated by commas.
      * @throws InvalidParamException
      */
@@ -430,6 +430,25 @@ class MigrationController extends Controller
             file_put_contents($file, $generator->generateMigration());
             return true;
         });
+    }
+
+    /**
+     * Creates new migrations for every table in your database.
+     * @throws InvalidParamException
+     */
+    public function actionCreateAll()
+    {
+        $tables = $this->db->schema->getTableNames();
+
+        if (!$tables) {
+            return $this->stdout("Your Database does not contain any tables yet.");
+        }
+
+        if ($this->prompt("Are you sure you want to generate " . count($tables) . " migrations? [yes/no]") === 'yes') {
+            $this->actionCreate(implode(',', $tables));
+        } else {
+            $this->stdout("Operation cancelled by user\n");
+        }
     }
 
     /**
