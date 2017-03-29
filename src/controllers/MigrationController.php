@@ -445,9 +445,7 @@ class MigrationController extends Controller
         }
 
         if ($this->prompt("Are you sure you want to generate " . count($tables) . " migrations? [yes/no]") === 'yes') {
-            foreach ($tables as $table) {
-                $this->actionCreate($table);
-            }
+            $this->actionCreate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user\n");
         }
