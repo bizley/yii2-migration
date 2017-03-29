@@ -409,6 +409,23 @@ class MigrationController extends Controller
         }
     }
 
+
+    /**
+     * Lists all Tables in the database.
+     */
+    public function actionList()
+    {
+        $this->stdout("Your Database contains the following tables:\n");
+        $tables = $this->db->schema->getTableNames();
+        if(!$tables) {
+            $this->stdout ("Your Database does not contain any tables yet.");
+        } else {
+            foreach ($tables as $table) {
+                $this->stdout("$table\n");
+            }
+        }
+    }
+
     /**
      * Creates new migration for a given tables.
      * @param string $table Table names separated by commas.
