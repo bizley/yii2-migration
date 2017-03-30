@@ -35,32 +35,46 @@ Add the following in your configuration file (preferably console configuration f
 
 ## Usage
 
-Run console command
+The following console command are available:
+
+    php yii migration
+    
+or
+
+    php yii migration/list
+
+Lists all the tables in the database.
 
     php yii migration/create table_name
 
-to generate migration to create DB table `table_name`.
+Generates migration to create DB table `table_name`.
 
-Run console command
+    php yii migration/create-all
+
+Generates migrations to create all DB tables.
 
     php yii migration/update table_name
 
-to generate migration to update DB table `table_name`.
+Generates migration to update DB table `table_name`.
+
+    php yii migration/update-all
+
+Generates migrations to update all DB tables.
 
 You can generate multiple migrations for many tables at once by separating the names with a comma:
 
-    php yii migration table_name1,table_name2,table_name3
+    php yii migration/create table_name1,table_name2,table_name3
 
 In case the file to be generated already exists user is asked if it should be overwritten or appended with number.
 
 ## Updating migration
 
-With yii2-migration 2.0 it is possible to generate update migration for database table.
+Starting with yii2-migration v2.0 it is possible to generate updating migration for database table.
 
 1. History of applied migrations is scanned to gather all modifications made to the table.
 2. Virtual table schema is prepared and compared with current table schema.
 3. Differences are generated as update migration.
-4. In case of migration history not keeping information about the table create migration is generated.
+4. In case of migration history not keeping information about the table creating migration is generated.
 
 ## Command line parameters
 

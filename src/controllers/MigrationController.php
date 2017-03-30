@@ -26,7 +26,7 @@ use yii\helpers\Inflector;
  * actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.0
+ * @version 2.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -194,7 +194,7 @@ class MigrationController extends Controller
                 $this->preparePathDirectory($this->migrationPath);
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.0\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v2.1\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
@@ -341,7 +341,6 @@ class MigrationController extends Controller
                         }
                         $message .= ')';
                         $prompt = $this->prompt($message, [
-                            'required' => false,
                             'default' => in_array($this->defaultDecision, ['y', 'n', 'a'], true) ? $this->defaultDecision : 'n',
                             'validator' => function ($input, &$error) {
                                 if (!in_array(strtolower($input), ['y', 'n', 'a', 'o', 's', 'p'], true)) {
@@ -409,26 +408,36 @@ class MigrationController extends Controller
         }
     }
 
-
     /**
-     * Lists all Tables in the database.
+     * Lists all tables in the database.
+     * @since 2.1
      */
     public function actionList()
     {
         $tables = $this->db->schema->getTableNames();
         if (!$tables) {
-            $this->stdout("Your database does not contain any tables yet.\n");
+            $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
-            $this->stdout("Your database contains " . count($tables) . " tables:\n\n");
+            $this->stdout(' > Your database contains ' . count($tables) . " tables:\n");
             foreach ($tables as $table) {
-                $this->stdout("$table\n");
+                $this->stdout("   - $table\n");
             }
         }
-        $this->stdout("\n\nUse ./yii migration/create <table> to create a migration for the specific table.\n");
+        $this->stdout("\nRun\n", Console::FG_GREEN);
+        $this->stdout('migration/create ', Console::FG_CYAN);
+        $this->stdout('<table>', Console::FG_YELLOW);
+        $this->stdout(" to generate creating migration for the specific table.\n", Console::FG_GREEN);
+        $this->stdout('migration/create-all', Console::FG_CYAN);
+        $this->stdout(" to generate creating migrations for all the tables.\n", Console::FG_GREEN);
+        $this->stdout('migration/update ', Console::FG_CYAN);
+        $this->stdout('<table>', Console::FG_YELLOW);
+        $this->stdout(" to generate updating migration for the specific table.\n", Console::FG_GREEN);
+        $this->stdout('migration/update-all', Console::FG_CYAN);
+        $this->stdout(" to generate updating migrations for all the tables.\n", Console::FG_GREEN);
     }
 
     /**
-     * Creates new migration for a given table.
+     * Creates new migration for a given tables.
      * @param string $table Table names separated by commas.
      * @throws InvalidParamException
      */
@@ -451,21 +460,26 @@ class MigrationController extends Controller
     }
 
     /**
-     * Creates new migrations for every table in your database.
+     * Creates new migrations for every table in database.
      * @throws InvalidParamException
+     * @since 2.1
      */
     public function actionCreateAll()
     {
         $tables = $this->db->schema->getTableNames();
 
         if (!$tables) {
-            return $this->stdout("Your Database does not contain any tables yet.");
+            $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
+            return Controller::EXIT_CODE_NORMAL;
         }
 
-        if ($this->prompt("Are you sure you want to generate " . count($tables) . " migrations? [yes/no]") === 'yes') {
+        $prompt = $this->prompt(' > Are you sure you want to generate ' . count($tables) . ' migrations? [y]es / [n]o', [
+            'default' => 'n'
+        ]);
+        if (strtolower($prompt) === 'y') {
             $this->actionCreate(implode(',', $tables));
         } else {
-            $this->stdout("Operation cancelled by user\n");
+            $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
     }
 
@@ -503,5 +517,29 @@ class MigrationController extends Controller
             }
             return false;
         });
+    }
+
+    /**
+     * Creates new update migrations for every table in database.
+     * @throws InvalidParamException
+     * @since 2.1
+     */
+    public function actionUpdateAll()
+    {
+        $tables = $this->db->schema->getTableNames();
+
+        if (!$tables) {
+            $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
+            return Controller::EXIT_CODE_NORMAL;
+        }
+
+        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations? [y]es / [n]o', [
+            'default' => 'n'
+        ]);
+        if (strtolower($prompt) === 'y') {
+            $this->actionUpdate(implode(',', $tables));
+        } else {
+            $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
+        }
     }
 }

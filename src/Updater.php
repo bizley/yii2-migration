@@ -3,6 +3,7 @@
 namespace bizley\migration;
 
 use Yii;
+use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\console\controllers\MigrateController;
@@ -160,11 +161,19 @@ class Updater extends Generator
      * Extracts migration data structures.
      * @param string $migration
      * @return array
-     * @throws \yii\base\InvalidParamException
+     * @throws InvalidParamException
+     * @throws ErrorException
      */
     protected function extract($migration)
     {
-        require_once Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
+        $migration = trim($migration, '\\');
+        if (strpos($migration, '\\') === false) {
+            $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
+            if (!file_exists($file)) {
+                throw new ErrorException("File '{$file}' can not be found! Check migration history table.");
+            }
+            require_once $file;
+        }
 
         $subject = new $migration;
         $subject->db = $this->db;
