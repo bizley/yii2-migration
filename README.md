@@ -10,7 +10,7 @@ Generates migration file based on the existing database table and previous migra
 
 ## Installation
 
-Add the package to your composer.json (this version is in beta stage so use this for now):
+Add the package to your composer.json:
 
     {
         "require": {
