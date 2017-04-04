@@ -107,7 +107,7 @@ Template file for generating create migrations. _(default '@vendor/bizley/migrat
 
     --templateFileUpdate -U
 
-Template file for generating update migrations. _(default '@vendor/bizley/migration/src/views/update_migration.php')_
+[Updates only] Template file for generating update migrations. _(default '@vendor/bizley/migration/src/views/update_migration.php')_
 
     --useTablePrefix -P
 
@@ -124,12 +124,12 @@ The same as in yii\console\controllers\MigrateController::$migrationTable.
 
     --migrationNamespaces -N
 
-List of namespaces containing the migration classes. _(default [])_  
+[Updates only] List of namespaces containing the migration classes. _(default [])_  
 The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
 
     --showOnly -s
 
-Whether to only display changes instead of generating update migration. _(default 0)_
+[Updates only] Whether to only display changes instead of generating update migration. _(default 0)_
 
     --generalSchema -g
 
@@ -149,6 +149,12 @@ Remember that with different database types general column schemas may be genera
     
 Whether to add migration history entry when migration is generated. _(default 0)_
 
+    --skipMigrations -k
+
+[Updates only] List of migrations from the history table that should be skipped during the update process. _(default [])_  
+Here you can place migrations containing actions that can not be covered by extractor i.e.  when there is migration 
+setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
+this list to prevent them from being run during the extraction process.
 
 ## Notes
 

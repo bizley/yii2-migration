@@ -26,7 +26,7 @@ use yii\helpers\Inflector;
  * actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1
+ * @version 2.1.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -126,6 +126,13 @@ class MigrationController extends Controller
     public $fixHistory = 0;
 
     /**
+     * @var array List of migrations from the history table that should be skipped during the update process.
+     * Here you can place migrations containing actions that can not be covered by extractor.
+     * @since 2.1.1
+     */
+    public $skipMigrations = [];
+
+    /**
      * @inheritdoc
      */
     public function options($actionID)
@@ -134,7 +141,7 @@ class MigrationController extends Controller
             parent::options($actionID),
             ['defaultDecision', 'migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile',
                 'useTablePrefix', 'fixHistory', 'migrationTable'],
-            $actionID === 'update' ? ['migrationNamespaces', 'showOnly', 'templateFileUpdate'] : []
+            in_array($actionID, ['update', 'update-all'], true) ? ['migrationNamespaces', 'showOnly', 'templateFileUpdate', 'skipMigrations'] : []
         );
     }
 
@@ -156,6 +163,7 @@ class MigrationController extends Controller
             'P' => 'useTablePrefix',
             'h' => 'fixHistory',
             's' => 'showOnly',
+            'k' => 'skipMigrations',
         ]);
     }
 
@@ -194,7 +202,7 @@ class MigrationController extends Controller
                 $this->preparePathDirectory($this->migrationPath);
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.1\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v2.1.1\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
@@ -506,6 +514,7 @@ class MigrationController extends Controller
                 'migrationNamespaces' => $this->migrationNamespaces,
                 'showOnly' => $this->showOnly,
                 'generalSchema' => $this->generalSchema,
+                'skipMigrations' => $this->skipMigrations,
             ]);
             if ($updater->isUpdateRequired()) {
                 if (!$this->showOnly) {

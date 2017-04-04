@@ -17,7 +17,7 @@ use yii\helpers\FileHelper;
  * Update migration file generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.0
+ * @version 2.1.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -43,16 +43,26 @@ class Updater extends Generator
      */
     public $showOnly = false;
 
+    /**
+     * @var array List of migration from the history that should be skipped during the update process.
+     * Here you can place migrations containing actions that can not be covered by extractor.
+     * @since 2.1.1
+     */
+    public $skipMigrations = [];
+
     private $_tableSubject;
 
     /**
-     * Sets subject table name.
+     * Sets subject table name and clears skipped migrations names.
      * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
         $this->_tableSubject = $this->tableName;
+        foreach ($this->skipMigrations as $index => $migration) {
+            $this->skipMigrations[$index] = trim($migration, '\\');
+        }
     }
 
     private $_classMap;
@@ -166,7 +176,6 @@ class Updater extends Generator
      */
     protected function extract($migration)
     {
-        $migration = trim($migration, '\\');
         if (strpos($migration, '\\') === false) {
             $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
             if (!file_exists($file)) {
@@ -373,6 +382,7 @@ class Updater extends Generator
      * Checks if new updating migration is required.
      * @return bool
      * @throws InvalidParamException
+     * @throws ErrorException
      */
     public function isUpdateRequired()
     {
@@ -380,6 +390,10 @@ class Updater extends Generator
         if (!empty($history)) {
             $this->setDummyMigrationClass();
             foreach ($history as $migration => $time) {
+                $migration = trim($migration, '\\');
+                if (in_array($migration, $this->skipMigrations, true)) {
+                    continue;
+                }
                 if (!$this->analyseChanges($this->extract($migration))) {
                     break;
                 }
