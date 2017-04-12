@@ -156,6 +156,16 @@ Here you can place migrations containing actions that can not be covered by extr
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
 
+## Renaming
+
+When you rename table or column remember to generate appropriate migration manually otherwise this extension will 
+not generate updating migration (in case of the table) or will generate migration with command to drop original column 
+and add renamed one (in case of the column). This is happening because yii2-migration can only compare two states of 
+the table without the knowledge of how one state turned into another. And while the very result of migration renaming 
+the column and the one dropping it and adding another is the same in terms of structure, the latter makes you lose data.
+
+Once you add renaming migration to the history it's being tracked by the extension.
+
 ## Notes
 
 This extension is tested on MySQL database but should work with all database types supported in Yii 2 core:
