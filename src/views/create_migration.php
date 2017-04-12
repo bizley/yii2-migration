@@ -35,7 +35,7 @@ class <?= $className ?> extends Migration
         ], $tableOptions);
 <?php if (count($primaryKey) > 1): ?>
 
-        $this->addPrimaryKey('PRIMARY', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
+        $this->addPrimaryKey('primary_key', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
 <?php endif; ?>
 <?php if ($uniqueIndexes): ?>
 
