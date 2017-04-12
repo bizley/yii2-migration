@@ -15,7 +15,7 @@ use yii\helpers\FileHelper;
  * Migration file generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.0
+ * @version 2.1.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -266,37 +266,10 @@ class Generator extends Extractor
             $definition .= '->comment(\'' . $column->comment . '\')';
         }
         if (!$compositePk && $checkPrimaryKey && $column->isPrimaryKey) {
-            $definition .= '->append(\'' . $this->renderPrimaryKey($column->autoIncrement) . '\')';
+            $definition .= '->append(\'' . $this->prepareSchemaAppend(true, $column->autoIncrement) . '\')';
         }
 
         return $definition;
-    }
-
-    /**
-     * Renders primary key command based on used schema.
-     * @param bool $autoIncrement
-     * @return string
-     */
-    public function renderPrimaryKey($autoIncrement = false)
-    {
-        $schema = $this->db->schema;
-        switch ($schema::className()) {
-            case 'yii\db\mssql\Schema':
-                $sql = 'IDENTITY PRIMARY KEY';
-                break;
-            case 'yii\db\oci\Schema':
-            case 'yii\db\pgsql\Schema':
-                $sql = 'PRIMARY KEY';
-                break;
-            case 'yii\db\sqlite\Schema':
-                $sql = 'PRIMARY KEY' . ($autoIncrement ? ' AUTOINCREMENT' : '');
-                break;
-            case 'yii\db\cubrid\Schema':
-            case 'yii\db\mysql\Schema':
-            default:
-                $sql = ($autoIncrement ? 'AUTO_INCREMENT ' : '') . 'PRIMARY KEY';
-        }
-        return $sql;
     }
 
     /**
