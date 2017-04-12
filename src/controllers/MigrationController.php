@@ -8,6 +8,7 @@ use Closure;
 use Exception;
 use Yii;
 use yii\base\Action;
+use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -26,7 +27,7 @@ use yii\helpers\Inflector;
  * actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.1
+ * @version 2.1.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -137,12 +138,19 @@ class MigrationController extends Controller
      */
     public function options($actionID)
     {
-        return array_merge(
-            parent::options($actionID),
-            ['defaultDecision', 'migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile',
-                'useTablePrefix', 'fixHistory', 'migrationTable'],
-            in_array($actionID, ['update', 'update-all'], true) ? ['migrationNamespaces', 'showOnly', 'templateFileUpdate', 'skipMigrations'] : []
-        );
+        $options = parent::options($actionID);
+        $createOptions = ['defaultDecision', 'migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile',
+            'useTablePrefix', 'fixHistory', 'migrationTable'];
+        $updateOptions = ['migrationNamespaces', 'showOnly', 'templateFileUpdate', 'skipMigrations'];
+        switch ($actionID) {
+            case 'create':
+            case 'create-all':
+                return array_merge($options, $createOptions);
+            case 'update':
+            case 'update-all':
+                return array_merge($options, $createOptions, $updateOptions);
+        }
+        return $options;
     }
 
     /**
@@ -202,7 +210,7 @@ class MigrationController extends Controller
                 $this->preparePathDirectory($this->migrationPath);
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.1.1\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v2.1.2\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
@@ -431,17 +439,20 @@ class MigrationController extends Controller
                 $this->stdout("   - $table\n");
             }
         }
-        $this->stdout("\nRun\n", Console::FG_GREEN);
-        $this->stdout('migration/create ', Console::FG_CYAN);
-        $this->stdout('<table>', Console::FG_YELLOW);
-        $this->stdout(" to generate creating migration for the specific table.\n", Console::FG_GREEN);
-        $this->stdout('migration/create-all', Console::FG_CYAN);
-        $this->stdout(" to generate creating migrations for all the tables.\n", Console::FG_GREEN);
-        $this->stdout('migration/update ', Console::FG_CYAN);
-        $this->stdout('<table>', Console::FG_YELLOW);
-        $this->stdout(" to generate updating migration for the specific table.\n", Console::FG_GREEN);
-        $this->stdout('migration/update-all', Console::FG_CYAN);
-        $this->stdout(" to generate updating migrations for all the tables.\n", Console::FG_GREEN);
+        $this->stdout("\n > Run\n", Console::FG_GREEN);
+        $tab = $this->ansiFormat('<table>', Console::FG_YELLOW);
+        $cmd = $this->ansiFormat('migration/create', Console::FG_CYAN);
+        $this->stdout("   $cmd $tab\n");
+        $this->stdout("      to generate creating migration for the specific table.\n", Console::FG_GREEN);
+        $cmd = $this->ansiFormat('migration/create-all', Console::FG_CYAN);
+        $this->stdout("   $cmd\n");
+        $this->stdout("      to generate creating migrations for all the tables.\n", Console::FG_GREEN);
+        $cmd = $this->ansiFormat('migration/update', Console::FG_CYAN);
+        $this->stdout("   $cmd $tab\n");
+        $this->stdout("      to generate updating migration for the specific table.\n", Console::FG_GREEN);
+        $cmd = $this->ansiFormat('migration/update-all', Console::FG_CYAN);
+        $this->stdout("   $cmd\n");
+        $this->stdout("      to generate updating migrations for all the tables.\n", Console::FG_GREEN);
     }
 
     /**
@@ -496,6 +507,7 @@ class MigrationController extends Controller
      * @param string $table Table names separated by commas.
      * @since 2.0
      * @throws InvalidParamException
+     * @throws ErrorException
      */
     public function actionUpdate($table)
     {
