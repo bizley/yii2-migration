@@ -15,7 +15,7 @@ use yii\db\TableSchema;
  * Gathers information about DB schema and migration files.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.0
+ * @version 2.1.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  *
@@ -129,10 +129,10 @@ class Extractor extends Component
         $this->checkSchema();
         return [
             'table' => $this->tableName,
-            'pk' => $this->tablePrimaryKey,
-            'columns' => $this->tableColumns,
-            'fks' => $this->tableForeignKeys,
-            'uidxs' => $this->tableUniqueIndexes,
+            'pk' => $this->getTablePrimaryKey(),
+            'columns' => $this->getTableColumns(),
+            'fks' => $this->getTableForeignKeys(),
+            'uidxs' => $this->getTableUniqueIndexes(),
         ];
     }
 
@@ -214,7 +214,7 @@ class Extractor extends Component
                     'isUnique' => $isUnique,
                     'check' => null,
                     'default' => $column->defaultValue,
-                    'append' => $this->prepareSchemaAppend($column->autoIncrement, $column->isPrimaryKey),
+                    'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
                     'isUnsigned' => $column->unsigned,
                     'comment' => $column->comment,
                 ];
