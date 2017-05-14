@@ -53,7 +53,6 @@ class <?= $className ?> extends Migration
 
     public function safeDown()
     {
-        echo "<?= $className ?> cannot be reverted.\n";
-        return false;
+        $this->dropTable('<?= $tableName ?>');
     }
 }

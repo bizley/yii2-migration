@@ -17,7 +17,6 @@ use yii\db\Connection;
 use yii\di\Instance;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
-use yii\helpers\Inflector;
 
 /**
  * Migration creator and updater.
@@ -27,7 +26,7 @@ use yii\helpers\Inflector;
  * actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.2
+ * @version 2.2.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -39,21 +38,8 @@ class MigrationController extends Controller
     public $defaultAction = 'list';
 
     /**
-     * @var string Default user decision in case the file to be generated already exists. Console asks if file should
-     * be overwritten.
-     * Available options are:
-     * 'y' = yes (user is asked before every existing file, 'y' is default),
-     * 'a' = no, append next number (user is asked before every existing file, 'a' is default),
-     * 'n' = no, skip file (user is asked before every existing file, 'n' is default),
-     * 'o' = overwrite all (user is not asked, all files are overwritten),
-     * 'p' = append all with next number (user is not asked, all files are appended),
-     * 's' = skip all (user is not asked, no files are overwritten).
-     * @since 1.1
-     */
-    public $defaultDecision = 'n';
-
-    /**
      * @var string Directory storing the migration classes. This can be either a path alias or a directory.
+     * Alias -p
      */
     public $migrationPath = '@app/migrations';
 
@@ -65,6 +51,7 @@ class MigrationController extends Controller
      * 'app\migrations', the code Yii::getAlias('@app/migrations') should be able to return the file path to
      * the directory this namespace refers to.
      * Namespaced migrations have been added in Yii 2.0.10.
+     * Alias -n
      * @since 1.1
      */
     public $migrationNamespace;
@@ -72,18 +59,21 @@ class MigrationController extends Controller
     /**
      * @var string Template file for generating new migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
+     * Alias -F
      */
     public $templateFile = '@vendor/bizley/migration/src/views/create_migration.php';
 
     /**
      * @var string Template file for generating updating migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
+     * Alias -U
      */
     public $templateFileUpdate = '@vendor/bizley/migration/src/views/update_migration.php';
 
     /**
      * @var bool|string|int Whether the table names generated should consider the $tablePrefix setting of the DB
      * connection. For example, if the table name is 'post' the generator will return '{{%post}}'.
+     * Alias -P
      */
     public $useTablePrefix = 1;
 
@@ -97,31 +87,28 @@ class MigrationController extends Controller
     /**
      * @var string Name of the table for keeping applied migration information.
      * The same as in yii\console\controllers\MigrateController::$migrationTable.
+     * Alias -t
      * @since 2.0
      */
     public $migrationTable = '{{%migration}}';
 
     /**
-     * @var array List of namespaces containing the migration classes.
-     * The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
-     * @since 2.0
-     */
-    public $migrationNamespaces = [];
-
-    /**
      * @var bool|string|int Whether to only display changes instead of create update migration.
+     * Alias -s
      * @since 2.0
      */
     public $showOnly = 0;
 
     /**
      * @var bool|string|int Whether to use general column schema instead of database specific.
+     * Alias -g
      * @since 2.0
      */
     public $generalSchema = 0;
 
     /**
      * @var bool|string|int Whether to add generated migration to migration history.
+     * Alias -h
      * @since 2.0
      */
     public $fixHistory = 0;
@@ -139,9 +126,8 @@ class MigrationController extends Controller
     public function options($actionID)
     {
         $options = parent::options($actionID);
-        $createOptions = ['defaultDecision', 'migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile',
-            'useTablePrefix', 'fixHistory', 'migrationTable'];
-        $updateOptions = ['migrationNamespaces', 'showOnly', 'templateFileUpdate', 'skipMigrations'];
+        $createOptions = ['migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile', 'useTablePrefix', 'fixHistory', 'migrationTable'];
+        $updateOptions = ['showOnly', 'templateFileUpdate', 'skipMigrations'];
         switch ($actionID) {
             case 'create':
             case 'create-all':
@@ -160,10 +146,8 @@ class MigrationController extends Controller
     public function optionAliases()
     {
         return array_merge(parent::optionAliases(), [
-            'd' => 'defaultDecision',
             'p' => 'migrationPath',
             'n' => 'migrationNamespace',
-            'N' => 'migrationNamespaces',
             't' => 'migrationTable',
             'g' => 'generalSchema',
             'F' => 'templateFile',
@@ -171,7 +155,6 @@ class MigrationController extends Controller
             'P' => 'useTablePrefix',
             'h' => 'fixHistory',
             's' => 'showOnly',
-            'k' => 'skipMigrations',
         ]);
     }
 
@@ -192,6 +175,8 @@ class MigrationController extends Controller
         }
     }
 
+    protected $workingPath;
+
     /**
      * This method is invoked right before an action is to be executed (after all possible filters).
      * It checks the existence of the migrationPath and makes sure DB connection is prepared.
@@ -204,13 +189,19 @@ class MigrationController extends Controller
     public function beforeAction($action)
     {
         if (parent::beforeAction($action)) {
-            if (!empty($this->migrationNamespace)) {
-                $this->prepareNamespacedDirectory();
-            } else {
-                $this->preparePathDirectory($this->migrationPath);
+            if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
+                if ($this->migrationPath !== null) {
+                    $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
+                }
+                if ($this->migrationNamespace !== null) {
+                    $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
+                    $this->workingPath = $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
+                } else {
+                    $this->workingPath = $this->migrationPath;
+                }
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.1.2\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v2.2.0\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
@@ -219,6 +210,7 @@ class MigrationController extends Controller
     /**
      * Prepares path directory.
      * @param string $path
+     * @return string
      * @since 1.1
      * @throws InvalidParamException
      * @throws \yii\base\Exception
@@ -229,51 +221,7 @@ class MigrationController extends Controller
         if (!is_dir($translatedPath)) {
             FileHelper::createDirectory($translatedPath);
         }
-        $this->migrationPath = $translatedPath;
-    }
-
-    /**
-     * Prepares namespaced directory.
-     * @since 1.1
-     * @throws \yii\base\Exception
-     * @throws InvalidParamException
-     */
-    public function prepareNamespacedDirectory()
-    {
-        $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
-    }
-
-    /**
-     * Returns name of the migration class based on the selected type.
-     * @param string $tableName
-     * @param string $action
-     * @return string
-     * @since 1.1
-     */
-    public function generateClassName($tableName, $action = 'create')
-    {
-        if (empty($this->migrationNamespace)) {
-            return 'm' . gmdate('ymd_His') . '_' . $action . '_table_' . $tableName;
-        }
-        return Inflector::camelize($action . '_' . $tableName . '_table');
-    }
-
-    /**
-     * Returns file name and path appended with next available number.
-     * @param string $className old file name
-     * @param string $file old file path
-     * @param int $suffix next number to check
-     * @return array
-     * @since 2.0
-     */
-    public function suffixCheck($className, $file, $suffix = 2)
-    {
-        $newClassName = $className . $suffix;
-        $newFile = substr($file, 0, -4) . $suffix . '.php';
-        if (file_exists($newFile)) {
-            return $this->suffixCheck($className, $file, ++$suffix);
-        }
-        return [$newClassName, $newFile];
+        return $translatedPath;
     }
 
     /**
@@ -299,37 +247,33 @@ class MigrationController extends Controller
     /**
      * Adds migration history entry.
      * @param string $version
+     * @param string $namespace
      * @throws \yii\db\Exception
      * @since 2.0
      */
-    protected function addMigrationHistory($version)
+    protected function addMigrationHistory($version, $namespace = null)
     {
         $this->stdout(' > Adding migration history entry ...', Console::FG_YELLOW);
         $command = $this->db->createCommand();
         $command->insert($this->migrationTable, [
-            'version' => $version,
+            'version' => ($namespace ? $namespace . '\\' : '') . $version,
             'apply_time' => time(),
         ])->execute();
         $this->stdout("DONE.\n", Console::FG_GREEN);
     }
 
     /**
-     * Handles the execution of the given action with mass decision taken into account.
+     * Handles the execution of the given action.
      * @param string $type
      * @param string $table
      * @param Closure $actionMethod
-     * @since 2.0
+     * @since 2.2.0
      */
-    public function massDecision($type, $table, $actionMethod)
+    protected function execute($type, $table, $actionMethod)
     {
         $tables = [$table];
         if (strpos($table, ',') !== false) {
             $tables = explode(',', $table);
-        }
-
-        $massDecision = null;
-        if (in_array($this->defaultDecision, ['o', 'p', 's'], true)) {
-            $massDecision = $this->defaultDecision;
         }
 
         $migrationsGenerated = 0;
@@ -337,64 +281,8 @@ class MigrationController extends Controller
             try {
                 $this->stdout(" > Generating $type migration for table '{$name}' ...", Console::FG_YELLOW);
 
-                $className = $this->generateClassName($name, $type);
-                $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $className . '.php');
-
-                if (file_exists($file)) {
-                    if ($massDecision === 'o') {
-                        $this->stdout("OVERWRITE ALL\n", Console::FG_RED);
-                        $prompt = 'o';
-                    } elseif ($massDecision === 's') {
-                        $this->stdout("SKIP ALL\n", Console::FG_YELLOW);
-                        $prompt = 'n';
-                    } elseif ($massDecision === 'p') {
-                        $this->stdout("APPEND ALL\n", Console::FG_GREEN);
-                        $prompt = 'p';
-                    } else {
-                        $message = "\n > (!) File '{$file}' already exists - overwrite? ([y]es / [n]o / [a]ppend next number";
-                        if (count($tables) > 1) {
-                            $message .= ' / [o]verwrite all / [s]kip all / a[p]pend all';
-                        }
-                        $message .= ')';
-                        $prompt = $this->prompt($message, [
-                            'default' => in_array($this->defaultDecision, ['y', 'n', 'a'], true) ? $this->defaultDecision : 'n',
-                            'validator' => function ($input, &$error) {
-                                if (!in_array(strtolower($input), ['y', 'n', 'a', 'o', 's', 'p'], true)) {
-                                    $error = 'Available options are: y = yes'
-                                            . ($this->defaultDecision === 'y' ? ' (default)' : '')
-                                            . ', n = no'
-                                            . ($this->defaultDecision === 'n' ? ' (default)' : '')
-                                            . ', a = append next number'
-                                            . ($this->defaultDecision === 'a' ? ' (default)' : '')
-                                            . ', o = overwrite all, s = skip all, p = append all';
-                                    return false;
-                                }
-                                return true;
-                            }
-                        ]);
-                    }
-                    switch (strtolower($prompt)) {
-                        case 'o':
-                            $massDecision = 'o';
-                            // no break
-                        case 'y':
-                            $this->stdout(' > Overwriting migration file ...', Console::FG_YELLOW);
-                            break;
-                        case 'p':
-                            $massDecision = 'p';
-                            // no break
-                        case 'a':
-                            list($className, $file) = $this->suffixCheck($className, $file);
-                            $this->stdout(' > Generating migration file with appended number ...', Console::FG_YELLOW);
-                            break;
-                        case 's':
-                            $massDecision = 's';
-                            // no break
-                        case 'n':
-                            $this->stdout(" > Migration for table '{$name}' not generated!\n\n", Console::FG_YELLOW);
-                            continue 2;
-                    }
-                }
+                $className = 'm' . gmdate('ymd_His') . '_' . $type . '_table_' . $name;
+                $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
 
                 if ($actionMethod($name, $className, $file)) {
                     $migrationsGenerated++;
@@ -405,7 +293,7 @@ class MigrationController extends Controller
                         if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
                             $this->createMigrationHistoryTable();
                         }
-                        $this->addMigrationHistory($className);
+                        $this->addMigrationHistory($className, $this->migrationNamespace);
                     }
 
                     $this->stdout("\n");
@@ -426,6 +314,7 @@ class MigrationController extends Controller
 
     /**
      * Lists all tables in the database.
+     * @return int
      * @since 2.1
      */
     public function actionList()
@@ -453,16 +342,18 @@ class MigrationController extends Controller
         $cmd = $this->ansiFormat('migration/update-all', Console::FG_CYAN);
         $this->stdout("   $cmd\n");
         $this->stdout("      to generate updating migrations for all the tables.\n", Console::FG_GREEN);
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**
      * Creates new migration for a given tables.
      * @param string $table Table names separated by commas.
+     * @return int
      * @throws InvalidParamException
      */
     public function actionCreate($table)
     {
-        $this->massDecision('create', $table, function ($name, $className, $file) {
+        $this->execute('create', $table, function ($name, $className, $file) {
             $generator = new Generator([
                 'db' => $this->db,
                 'view' => $this->view,
@@ -476,10 +367,12 @@ class MigrationController extends Controller
             file_put_contents($file, $generator->generateMigration());
             return true;
         });
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**
      * Creates new migrations for every table in database.
+     * @return int
      * @throws InvalidParamException
      * @since 2.1
      */
@@ -492,26 +385,26 @@ class MigrationController extends Controller
             return Controller::EXIT_CODE_NORMAL;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to generate ' . count($tables) . ' migrations? [y]es / [n]o', [
-            'default' => 'n'
-        ]);
+        $prompt = $this->prompt(' > Are you sure you want to generate ' . count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
         if (strtolower($prompt) === 'y') {
             $this->actionCreate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**
      * Creates new update migration for a given tables.
      * @param string $table Table names separated by commas.
-     * @since 2.0
+     * @return int
      * @throws InvalidParamException
      * @throws ErrorException
+     * @since 2.0
      */
     public function actionUpdate($table)
     {
-        $this->massDecision('update', $table, function ($name, $className, $file) {
+        $this->execute('update', $table, function ($name, $className, $file) {
             $updater = new Updater([
                 'db' => $this->db,
                 'view' => $this->view,
@@ -523,7 +416,6 @@ class MigrationController extends Controller
                 'namespace' => $this->migrationNamespace,
                 'migrationPath' => $this->migrationPath,
                 'migrationTable' => $this->migrationTable,
-                'migrationNamespaces' => $this->migrationNamespaces,
                 'showOnly' => $this->showOnly,
                 'generalSchema' => $this->generalSchema,
                 'skipMigrations' => $this->skipMigrations,
@@ -538,11 +430,14 @@ class MigrationController extends Controller
             }
             return false;
         });
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**
      * Creates new update migrations for every table in database.
+     * @return int
      * @throws InvalidParamException
+     * @throws ErrorException
      * @since 2.1
      */
     public function actionUpdateAll()
@@ -554,13 +449,12 @@ class MigrationController extends Controller
             return Controller::EXIT_CODE_NORMAL;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations? [y]es / [n]o', [
-            'default' => 'n'
-        ]);
+        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
         if (strtolower($prompt) === 'y') {
             $this->actionUpdate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
+        return Controller::EXIT_CODE_NORMAL;
     }
 }

@@ -78,62 +78,21 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 
 ## Command line parameters
 
-    --migrationPath -p
+| --command            | -alias | description                                                             | default value
+|----------------------|:------:|-------------------------------------------------------------------------|------------------------------------------------------------
+| `db`                 |        | Application component's ID of the DB connection to use when generating migrations. | `'db'`
+| `migrationPath`      | `p`    | Directory storing the migration classes.                                | `'@app/migrations'`
+| `migrationNamespace` | `n`    | Namespace in case of generating namespaced migration.                   | `null`
+| `templateFile`       | `F`    | Template file for generating create migrations.                         | `'@vendor/bizley/migration/src/views/create_migration.php'`
+| `templateFileUpdate` | `U`    | Template file for generating update migrations.                         | `'@vendor/bizley/migration/src/views/update_migration.php'`
+| `useTablePrefix`     | `P`    | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. | `1`
+| `migrationTable`     | `t`    | Name of the table for keeping applied migration information.            | `'{{%migration}}'`
+| `showOnly`           | `s`    | Whether to only display changes instead of generating update migration. | `0`
+| `generalSchema`      | `g`    | Whether to use general column schema instead of database specific (1).  | `0`
+| `fixHistory`         | `h`    | Whether to add migration history entry when migration is generated.     | `0`
+| `skipMigrations`     |        | List of migrations from the history table that should be skipped during the update process. (2) | `[]`
 
-Directory storing the migration classes. _(default '@app/migrations')_
-
-    --migrationNamespace -n
-
-Namespace in case of generating namespaced migration. _(default null)_  
-With this option set `migrationPath` is ignored. 
-
-    --defaultDecision -d
-
-Default decision what to do in case the file to be generated already exists. _(default 'n')_  
-Available options are:
-
-- 'y' = asks before every existing file, overwrite is default option,
-- 'n' = asks before every existing file, skip is default option,
-- 'a' = asks before every existing file, append next number is default option,
-- 'o' = doesn't ask, all existing files are overwritten,
-- 's' = doesn't ask, no existing files are overwritten,
-- 'p' = doesn't ask, all existing files are appended with next number.
-
-Both `create` and `update` action use the same decision mechanism.
- 
-    --templateFile -F
-
-Template file for generating create migrations. _(default '@vendor/bizley/migration/src/views/create_migration.php')_
-
-    --templateFileUpdate -U
-
-[Updates only] Template file for generating update migrations. _(default '@vendor/bizley/migration/src/views/update_migration.php')_
-
-    --useTablePrefix -P
-
-Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _(default 1)_
-
-    --db
-
-Application component's ID of the DB connection to use when generating migrations. _(default 'db')_
-
-    --migrationTable -t
-
-Name of the table for keeping applied migration information. _(default '{{%migration}}')_  
-The same as in yii\console\controllers\MigrateController::$migrationTable.
-
-    --migrationNamespaces -N
-
-[Updates only] List of namespaces containing the migration classes. _(default [])_  
-The same as in yii\console\controllers\BaseMigrateController::$migrationNamespaces.
-
-    --showOnly -s
-
-[Updates only] Whether to only display changes instead of generating update migration. _(default 0)_
-
-    --generalSchema -g
-
-Whether to use general column schema instead of database specific. _(default 0)_
+(1) Remember that with different database types general column schemas may be generated with different length.
 
 > ### MySQL examples:  
 > Column `varchar(45)`  
@@ -141,18 +100,9 @@ Whether to use general column schema instead of database specific. _(default 0)_
 > generalSchema=1: `$this->string()`  
 > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`    
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
-> generalSchema=1: `$this->primaryKey()`  
+> generalSchema=1: `$this->primaryKey()`
 
-Remember that with different database types general column schemas may be generated with different length.
-
-    --fixHistory -h
-    
-Whether to add migration history entry when migration is generated. _(default 0)_
-
-    --skipMigrations -k
-
-[Updates only] List of migrations from the history table that should be skipped during the update process. _(default [])_  
-Here you can place migrations containing actions that can not be covered by extractor i.e.  when there is migration 
+(2) Here you can place migrations containing actions that can not be covered by extractor i.e.  when there is migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
 

@@ -17,7 +17,7 @@ use yii\helpers\FileHelper;
  * Update migration file generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.2
+ * @version 2.2.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -27,11 +27,6 @@ class Updater extends Generator
      * @var string Name of the table for keeping applied migration information.
      */
     public $migrationTable = '{{%migration}}';
-
-    /**
-     * @var array List of namespaces containing the migration classes.
-     */
-    public $migrationNamespaces = [];
 
     /**
      * @var string Directory storing the migration classes. This can be either a path alias or a directory.
@@ -96,20 +91,11 @@ class Updater extends Generator
         if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
             return [];
         }
-        $query = (new Query)
+        $rows = (new Query())
             ->select(['version', 'apply_time'])
             ->from($this->migrationTable)
-            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC]);
-
-        if (empty($this->migrationNamespaces)) {
-            $rows = $query->all($this->db);
-            $history = ArrayHelper::map($rows, 'version', 'apply_time');
-            unset($history[MigrateController::BASE_MIGRATION]);
-            return $history;
-        }
-
-        $rows = $query->all($this->db);
-
+            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+            ->all($this->db);
         $history = [];
         foreach ($rows as $key => $row) {
             if ($row['version'] === MigrateController::BASE_MIGRATION) {
@@ -132,9 +118,8 @@ class Updater extends Generator
                 }
                 return strcasecmp($b['version'], $a['version']);
             }
-            return ($a['apply_time'] > $b['apply_time']) ? 1 : -1;
+            return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
         });
-
         return ArrayHelper::map($history, 'version', 'apply_time');
     }
 
