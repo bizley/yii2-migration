@@ -78,19 +78,19 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 
 ## Command line parameters
 
-| --command            | -alias | description                                                             | default value
-|----------------------|:------:|-------------------------------------------------------------------------|------------------------------------------------------------
-| `db`                 |        | Application component's ID of the DB connection to use when generating migrations. | `'db'`
-| `migrationPath`      | `p`    | Directory storing the migration classes.                                | `'@app/migrations'`
-| `migrationNamespace` | `n`    | Namespace in case of generating namespaced migration.                   | `null`
-| `templateFile`       | `F`    | Template file for generating create migrations.                         | `'@vendor/bizley/migration/src/views/create_migration.php'`
-| `templateFileUpdate` | `U`    | Template file for generating update migrations.                         | `'@vendor/bizley/migration/src/views/update_migration.php'`
-| `useTablePrefix`     | `P`    | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. | `1`
-| `migrationTable`     | `t`    | Name of the table for keeping applied migration information.            | `'{{%migration}}'`
-| `showOnly`           | `s`    | Whether to only display changes instead of generating update migration. | `0`
-| `generalSchema`      | `g`    | Whether to use general column schema instead of database specific (1).  | `0`
-| `fixHistory`         | `h`    | Whether to add migration history entry when migration is generated.     | `0`
-| `skipMigrations`     |        | List of migrations from the history table that should be skipped during the update process. (2) | `[]`
+| --command            | -alias | description                                                             
+|----------------------|:------:|-----------------------------------------------------------------------------------------------------------------------
+| `db`                 |        | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
+| `migrationPath`      | `p`    | Directory storing the migration classes. _default:_ `'@app/migrations'`
+| `migrationNamespace` | `n`    | Namespace in case of generating namespaced migration. _default:_ `null`
+| `templateFile`       | `F`    | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/src/views/create_migration.php'`
+| `templateFileUpdate` | `U`    | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/src/views/update_migration.php'`
+| `useTablePrefix`     | `P`    | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
+| `migrationTable`     | `t`    | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
+| `showOnly`           | `s`    | Whether to only display changes instead of generating update migration. _default:_ `0`
+| `generalSchema`      | `g`    | Whether to use general column schema instead of database specific (1). _default:_ `0`
+| `fixHistory`         | `h`    | Whether to add migration history entry when migration is generated. _default:_ `0`
+| `skipMigrations`     |        | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
 
 (1) Remember that with different database types general column schemas may be generated with different length.
 
