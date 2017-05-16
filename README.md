@@ -65,8 +65,6 @@ You can generate multiple migrations for many tables at once by separating the n
 
     php yii migration/create table_name1,table_name2,table_name3
 
-In case the file to be generated already exists user is asked if it should be overwritten or appended with number.
-
 ## Updating migration
 
 Starting with yii2-migration v2.0 it is possible to generate updating migration for database table.
@@ -78,19 +76,19 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 
 ## Command line parameters
 
-| --command            | -alias | description                                                             
-|----------------------|:------:|-----------------------------------------------------------------------------------------------------------------------
-| `db`                 |        | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
-| `migrationPath`      | `p`    | Directory storing the migration classes. _default:_ `'@app/migrations'`
-| `migrationNamespace` | `n`    | Namespace in case of generating namespaced migration. _default:_ `null`
-| `templateFile`       | `F`    | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/src/views/create_migration.php'`
-| `templateFileUpdate` | `U`    | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/src/views/update_migration.php'`
-| `useTablePrefix`     | `P`    | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
-| `migrationTable`     | `t`    | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
-| `showOnly`           | `s`    | Whether to only display changes instead of generating update migration. _default:_ `0`
-| `generalSchema`      | `g`    | Whether to use general column schema instead of database specific (1). _default:_ `0`
-| `fixHistory`         | `h`    | Whether to add migration history entry when migration is generated. _default:_ `0`
-| `skipMigrations`     |        | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
+| command              | alias | description                                                             
+|----------------------|:-----:|-----------------------------------------------------------------------------------------------------------------------
+| `db`                 |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
+| `migrationPath`      | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
+| `migrationNamespace` | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
+| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/src/views/create_migration.php'`
+| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/src/views/update_migration.php'`
+| `useTablePrefix`     | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
+| `migrationTable`     | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
+| `showOnly`           | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
+| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (1). _default:_ `0`
+| `fixHistory`         | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
+| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
 
 (1) Remember that with different database types general column schemas may be generated with different length.
 
@@ -102,7 +100,7 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
 > generalSchema=1: `$this->primaryKey()`
 
-(2) Here you can place migrations containing actions that can not be covered by extractor i.e.  when there is migration 
+(2) Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
 
@@ -112,7 +110,7 @@ When you rename table or column remember to generate appropriate migration manua
 not generate updating migration (in case of the table) or will generate migration with command to drop original column 
 and add renamed one (in case of the column). This is happening because yii2-migration can only compare two states of 
 the table without the knowledge of how one state turned into another. And while the very result of migration renaming 
-the column and the one dropping it and adding another is the same in terms of structure, the latter makes you lose data.
+the column and the one dropping it and adding another is the same in terms of structure, the latter **makes you lose data**.
 
 Once you add renaming migration to the history it's being tracked by the extension.
 
