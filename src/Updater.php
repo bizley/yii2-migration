@@ -697,7 +697,7 @@ class Updater extends Generator
      */
     public function renderSizeStructure($column)
     {
-        return $column['length'] ?: null;
+        return empty($column['length']) && !is_numeric($column['length']) ? null : $column['length'];
     }
 
     /**
