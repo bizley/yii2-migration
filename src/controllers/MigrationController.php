@@ -26,7 +26,7 @@ use yii\helpers\FileHelper;
  * actions so there is no support for them in this generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.2.0
+ * @version 2.2.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -201,7 +201,7 @@ class MigrationController extends Controller
                 }
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.2.0\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v2.2.1\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
