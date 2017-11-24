@@ -80,7 +80,7 @@ class Generator extends Extractor
      */
     public function renderSize(ColumnSchema $column)
     {
-        return $column->size ?: null;
+        return empty($column->size) && !is_numeric($column->size) ? null : $column->size;
     }
 
     /**
@@ -90,7 +90,7 @@ class Generator extends Extractor
      */
     public function renderScale(ColumnSchema $column)
     {
-        return $column->scale ?: null;
+        return empty($column->scale) && !is_numeric($column->scale) ? null : $column->scale;
     }
 
     /**
@@ -100,7 +100,7 @@ class Generator extends Extractor
      */
     public function renderPrecision(ColumnSchema $column)
     {
-        return $column->precision ?: null;
+        return empty($column->precision) && !is_numeric($column->precision) ? null : $column->precision;
     }
 
     /**
