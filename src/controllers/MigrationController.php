@@ -398,8 +398,8 @@ class MigrationController extends Controller
      * Creates new update migration for a given tables.
      * @param string $table Table names separated by commas.
      * @return int
+     * @throws \yii\base\ErrorException
      * @throws InvalidParamException
-     * @throws ErrorException
      * @since 2.0
      */
     public function actionUpdate($table)

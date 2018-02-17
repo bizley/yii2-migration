@@ -132,7 +132,7 @@ class Migration extends Component implements MigrationInterface
         }
         preg_match('/^([a-z]+)(\(([0-9,]+)\))?$/', $builder, $matches);
         if (array_key_exists($matches[1], $dbToKey)) {
-            if (isset($matches[3]) && $matches[3]) {
+            if (!empty($matches[3])) {
                 $schema['length'] = $matches[3];
             }
             $schema['type'] = $dbToKey[$matches[1]];
@@ -144,6 +144,7 @@ class Migration extends Component implements MigrationInterface
      * Returns extracted column data.
      * @param ColumnSchemaBuilder $type
      * @return array
+     * @throws \ReflectionException
      */
     protected function extractColumn($type)
     {

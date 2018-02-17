@@ -133,6 +133,7 @@ class Extractor extends Component
             'columns' => $this->getTableColumns(),
             'fks' => $this->getTableForeignKeys(),
             'uidxs' => $this->getTableUniqueIndexes(),
+            'idxs' => $this->getTableIndexes(),
         ];
     }
 
@@ -142,11 +143,22 @@ class Extractor extends Component
      */
     protected function getTablePrimaryKey()
     {
-        $pk = [];
+        if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
+            /* @var $constraint \yii\db\Constraint */
+            $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
+            return [
+                'columnNames' => $constraint->columnNames,
+                'name' => $constraint->name,
+            ];
+        }
         if ($this->tableSchema instanceof TableSchema) {
             $pk = $this->tableSchema->primaryKey;
+            return [
+                'columnNames' => $pk,
+                'name' => null,
+            ];
         }
-        return $pk;
+        return [];
     }
 
     /**
@@ -154,6 +166,20 @@ class Extractor extends Component
      * @return array
      */
     protected function getTableUniqueIndexes()
+    {
+        try {
+            return $this->db->schema->findUniqueIndexes($this->tableSchema);
+        } catch (NotSupportedException $exc) {
+            return [];
+        }
+    }
+
+    /**
+     * Returns table indexes.
+     * @return array
+     * @since 2.2.2
+     */
+    protected function getTableIndexes()
     {
         try {
             return $this->db->schema->findUniqueIndexes($this->tableSchema);

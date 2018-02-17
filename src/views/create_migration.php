@@ -33,9 +33,9 @@ class <?= $className ?> extends Migration
             '<?= $name ?>' => $this<?= $definition ?>,
 <?php endforeach; ?>
         ], $tableOptions);
-<?php if (count($primaryKey) > 1): ?>
+<?php if (array_key_exists('columnNames', $primaryKey) && count($primaryKey['columnNames']) > 1): ?>
 
-        $this->addPrimaryKey('primary_key', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey) ?>']);
+        $this->addPrimaryKey('<?= $primaryKey['name'] !== null ? $primaryKey['name'] : 'primary_key' ?>', '<?= $tableName ?>', ['<?= implode('\',\'', $primaryKey['columnNames']) ?>']);
 <?php endif; ?>
 <?php if ($uniqueIndexes): ?>
 
