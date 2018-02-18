@@ -136,16 +136,17 @@ class Updater extends Generator
             return true;
         }
         $data = array_reverse($changes[$this->_currentTable]);
-        foreach ($data as $method => $details) {
-            if ($method === 'dropTable') {
+        /* @var $tableChange TableChange */
+        foreach ($data as $tableChange) {
+            if ($tableChange->method === 'dropTable') {
                 return false;
             }
-            if ($method === 'renameTable') {
-                $this->_currentTable = $details;
+            if ($tableChange->method === 'renameTable') {
+                $this->_currentTable = $tableChange->data;
                 return $this->analyseChanges($changes);
             }
-            $this->_oldSchema[] = $method;
-            if ($method === 'createTable') {
+            $this->_oldSchema[] = $tableChange;
+            if ($tableChange->method === 'createTable') {
                 return false;
             }
         }
@@ -409,7 +410,6 @@ class Updater extends Generator
                 }
                 $this->_modifications['addForeignKey'][$fk] = $data;
                 $different = true;
-                continue;
             }
         }
         foreach ($this->_oldStructure['fks'] as $fk => $data) {
@@ -443,7 +443,6 @@ class Updater extends Generator
                 }
                 $this->_modifications['createIndex'][$uidx] = $data;
                 $different = true;
-                continue;
             }
         }
         foreach ($this->_oldStructure['uidxs'] as $uidx => $data) {

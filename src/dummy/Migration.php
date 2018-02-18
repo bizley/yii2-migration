@@ -2,6 +2,7 @@
 
 namespace yii\db;
 
+use bizley\migration\TableChange;
 use yii\base\Component;
 use yii\di\Instance;
 
@@ -19,14 +20,10 @@ class Migration extends Component implements MigrationInterface
     public $changes = [];
 
     /**
-     * @inheritdoc
+     * @var Connection|array|string
      */
     public $db = 'db';
 
-
-    /**
-     * @inheritdoc
-     */
     public function init()
     {
         parent::init();
@@ -36,43 +33,32 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getDb()
     {
         return $this->db;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function up()
     {
         $this->safeUp();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function down()
     {
         return null;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function safeUp() {}
 
-    /**
-     * @inheritdoc
-     */
     public function safeDown() {}
 
     /**
      * Returns extracted columns data.
      * @param array $columns
      * @return array
+     * @throws \ReflectionException
      */
     protected function extractColumns($columns)
     {
@@ -181,15 +167,15 @@ class Migration extends Component implements MigrationInterface
      * Adds method of structure change and its data
      * @param string $table
      * @param string $method
-     * @param mixed $value
+     * @param mixed $data
      */
-    public function addChange($table, $method, $value)
+    public function addChange($table, $method, $data)
     {
         $table = $this->getRawTableName($table);
         if (!isset($this->changes[$table])) {
             $this->changes[$table] = [];
         }
-        $this->changes[$table][] = [$method => $value];
+        $this->changes[$table][] = new TableChange(['table' => $table, 'method' => $method, 'data' => $data]);
     }
 
     /**
@@ -301,7 +287,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addPrimaryKey($name, $table, $columns)
     {
-        $this->addChange($table, 'addPrimaryKey', is_array($columns) ? $columns : explode(',', $columns));
+        $this->addChange($table, 'addPrimaryKey', [$name => is_array($columns) ? $columns : explode(',', $columns)]);
     }
 
     /**

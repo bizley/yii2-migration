@@ -289,25 +289,22 @@ class Generator extends Extractor
             $refColumns[] = $refColumn;
         }
         if (empty($name) || is_numeric($name)) {
-            $name = $this->generateForeignKeyName($column);
+            $name = $this->generateForeignKeyName($columns);
         }
 
-        return implode(', ', [
-            "'$name'",
-            "'{$this->generateTableName($this->tableName)}'",
-            count($columns) === 1 ? '\'' . $columns[0] . '\'' : '[\'' . implode('\',\'', $columns) . '\']',
-            "'{$this->generateTableName($refTable)}'",
-            count($refColumns) === 1 ? '\'' . $refColumns[0] . '\'' : '[\'' . implode('\',\'', $refColumns) . '\']',
-        ]);
+        return "'$name', '" . $this->generateTableName($this->tableName) . "', "
+            . (count($columns) === 1 ? "'{$columns[0]}'" : "['" . implode("', '", $columns) . "']")
+            . ", '{$this->generateTableName($refTable)}', "
+            . (count($refColumns) === 1 ? "'{$refColumns[0]}'" : "['" . implode("', '", $refColumns) . "']");
     }
 
     /**
      * Returns foreign key name.
-     * @param string $column
+     * @param array $columns
      * @return string
      */
-    public function generateForeignKeyName($column)
+    public function generateForeignKeyName($columns)
     {
-        return implode('-', ['fk', $this->tableName, $column]);
+        return "fk-{$this->tableName}-" . implode('-', $columns);
     }
 }
