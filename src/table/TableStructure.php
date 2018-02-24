@@ -11,6 +11,10 @@ class TableStructure extends Object
      */
     public $name;
     /**
+     * @var string
+     */
+    public $nameToRender;
+    /**
      * @var TablePrimaryKey
      */
     public $primaryKey;

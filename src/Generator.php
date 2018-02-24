@@ -28,6 +28,9 @@ class Generator extends Extractor
      */
     public function generateMigration()
     {
+        $this->prepareTable();
+
+
         $this->checkSchema();
         $pk = $this->getTablePrimaryKey();
         $params = [

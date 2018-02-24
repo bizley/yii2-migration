@@ -22,6 +22,28 @@ class TableColumn extends Object
      * @var string
      */
     public $length;
-
-// 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'
+    /**
+     * @var string
+     */
+    public $isUnique;
+    /**
+     * @var string
+     */
+    public $check;
+    /**
+     * @var string
+     */
+    public $default;
+    /**
+     * @var string
+     */
+    public $append;
+    /**
+     * @var string
+     */
+    public $isUnsigned;
+    /**
+     * @var string
+     */
+    public $comment;
 }

@@ -2,7 +2,7 @@
 
 namespace yii\db;
 
-use bizley\migration\TableChange;
+use bizley\migration\table\TableChange;
 use yii\base\Component;
 use yii\di\Instance;
 
@@ -255,7 +255,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addColumn($table, $column, $type)
     {
-        $this->addChange($table, 'addColumn', [$column => $this->extractColumn($type)]);
+        $this->addChange($table, 'addColumn', [$column, $this->extractColumn($type)]);
     }
 
     /**
@@ -271,7 +271,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function renameColumn($table, $name, $newName)
     {
-        $this->addChange($table, 'renameColumn', [$name => $newName]);
+        $this->addChange($table, 'renameColumn', [$name, $newName]);
     }
 
     /**
@@ -279,7 +279,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function alterColumn($table, $column, $type)
     {
-        $this->addChange($table, 'alterColumn', [$column => $this->extractColumn($type)]);
+        $this->addChange($table, 'alterColumn', [$column, $this->extractColumn($type)]);
     }
 
     /**
@@ -287,7 +287,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addPrimaryKey($name, $table, $columns)
     {
-        $this->addChange($table, 'addPrimaryKey', [$name => is_array($columns) ? $columns : explode(',', $columns)]);
+        $this->addChange($table, 'addPrimaryKey', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)]);
     }
 
     /**
@@ -305,9 +305,9 @@ class Migration extends Component implements MigrationInterface
     {
         $this->addChange($table, 'addForeignKey', [
             $name,
-            is_array($columns) ? $columns : explode(',', $columns),
+            is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
             $refTable,
-            is_array($refColumns) ? $refColumns : explode(',', $refColumns),
+            is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
             $delete,
             $update
         ]);
@@ -326,9 +326,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function createIndex($name, $table, $columns, $unique = false)
     {
-        if ($unique) {
-            $this->addChange($table, 'createIndex', [$name => is_array($columns) ? $columns : explode(',', $columns)]);
-        }
+        $this->addChange($table, 'createIndex', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns), $unique]);
     }
 
     /**
@@ -336,7 +334,6 @@ class Migration extends Component implements MigrationInterface
      */
     public function dropIndex($name, $table)
     {
-        // requires check for uniqueness
         $this->addChange($table, 'dropIndex', $name);
     }
 
@@ -345,7 +342,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addCommentOnColumn($table, $column, $comment)
     {
-        $this->addChange($table, 'addCommentOnColumn', [$column => $comment]);
+        $this->addChange($table, 'addCommentOnColumn', [$column, $comment]);
     }
 
     /**
