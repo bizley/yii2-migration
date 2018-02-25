@@ -2,6 +2,11 @@
 
 namespace bizley\migration;
 
+use bizley\migration\table\TableColumn;
+use bizley\migration\table\TableForeignKey;
+use bizley\migration\table\TableIndex;
+use bizley\migration\table\TablePrimaryKey;
+use bizley\migration\table\TableStructure;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
@@ -9,6 +14,7 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
 use yii\db\TableSchema;
+use yii\helpers\ArrayHelper;
 
 /**
  * Extractor class.
@@ -21,6 +27,7 @@ use yii\db\TableSchema;
  *
  * @property TableSchema $tableSchema
  * @property array $structure
+ * @property TableStructure $table
  */
 class Extractor extends Component
 {
@@ -69,6 +76,8 @@ class Extractor extends Component
      */
     public $generalSchema = false;
 
+    const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
+
     /**
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
@@ -111,6 +120,7 @@ class Extractor extends Component
     /**
      * Checks if table schema is available.
      * @throws InvalidParamException
+     * TODO wywalic
      */
     public function checkSchema()
     {
@@ -123,6 +133,7 @@ class Extractor extends Component
      * Returns table structure.
      * @return array
      * @throws InvalidParamException
+     * TODO wywalic
      */
     public function getStructure()
     {
@@ -139,31 +150,105 @@ class Extractor extends Component
 
     /**
      * Returns table primary key.
-     * @return array
+     * @return TablePrimaryKey
      */
     protected function getTablePrimaryKey()
     {
+        $data = [];
         if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
             /* @var $constraint \yii\db\Constraint */
             $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
-            return [
-                'columnNames' => $constraint->columnNames,
+            $data = [
+                'columns' => $constraint->columnNames,
                 'name' => $constraint->name,
             ];
-        }
-        if ($this->tableSchema instanceof TableSchema) {
+        } elseif ($this->tableSchema instanceof TableSchema) {
             $pk = $this->tableSchema->primaryKey;
-            return [
-                'columnNames' => $pk,
-                'name' => null,
+            $data = [
+                'columns' => $pk,
+                'name' => self::GENERIC_PRIMARY_KEY,
             ];
         }
-        return [];
+        return new TablePrimaryKey($data);
+    }
+
+    /**
+     * Returns columns structure.
+     * @param $indexes TableIndex[]
+     * @return TableColumn[]
+     */
+    protected function getTableColumns($indexes = [])
+    {
+        $columns = [];
+        if ($this->tableSchema instanceof TableSchema) {
+            $indexData = !empty($indexes) ? $indexes : $this->getTableIndexes();
+            foreach ($this->tableSchema->columns as $column) {
+                $isUnique = false;
+                foreach ($indexData as $index) {
+                    if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
+                        $isUnique = true;
+                        break;
+                    }
+                }
+                $columns[] = new TableColumn([
+                    'name' => $column->name,
+                    'type' => $column->type,
+                    'length' => $column->size,
+                    'isNotNull' => $column->allowNull ? null : true,
+                    'isUnique' => $isUnique,
+                    'check' => null,
+                    'default' => $column->defaultValue,
+                    'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
+                    'isUnsigned' => $column->unsigned,
+                    'comment' => $column->comment,
+                ]);
+            }
+        }
+        return $columns;
+    }
+
+    /**
+     * Returns foreign keys structure.
+     * @return TableForeignKey[]
+     */
+    protected function getTableForeignKeys()
+    {
+        $data = [];
+        if (method_exists($this->db->schema, 'getTableForeignKeys')) {
+            $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
+            /* @var $fk \yii\db\ForeignKeyConstraint */
+            foreach ($fks as $fk) {
+                $data[] = new TableForeignKey([
+                    'name' => $fk->name,
+                    'columns' => $fk->columnNames,
+                    'refTable' => $fk->foreignTableName,
+                    'refColumns' => $fk->foreignColumnNames,
+                    'onDelete' => $fk->onDelete,
+                    'onUpdate' => $fk->onUpdate,
+                ]);
+            }
+        } elseif ($this->tableSchema instanceof TableSchema) {
+            foreach ($this->tableSchema->foreignKeys as $name => $key) {
+                $fk = new TableForeignKey([
+                    'name' => $name,
+                    'refTable' => ArrayHelper::remove($key, 0),
+                    'onDelete' => null,
+                    'onUpdate' => null,
+                ]);
+                foreach ($key as $col => $ref) {
+                    $fk->columns[] = $col;
+                    $fk->refColumns[] = $ref;
+                }
+                $data[] = $fk;
+            }
+        }
+        return $data;
     }
 
     /**
      * Returns table unique indexes.
      * @return array
+     * TODO: wywalic
      */
     protected function getTableUniqueIndexes()
     {
@@ -176,16 +261,37 @@ class Extractor extends Component
 
     /**
      * Returns table indexes.
-     * @return array
+     * @return TableIndex[]
      * @since 2.2.2
      */
     protected function getTableIndexes()
     {
-        try {
-            return $this->db->schema->findUniqueIndexes($this->tableSchema);
-        } catch (NotSupportedException $exc) {
-            return [];
+        $data = [];
+        if (method_exists($this->db->schema, 'getTableIndexes')) {
+            $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
+            /* @var $idx \yii\db\IndexConstraint */
+            foreach ($idxs as $idx) {
+                if (!$idx->isPrimary) {
+                    $data[] = new TableIndex([
+                        'name' => $idx->name,
+                        'unique' => $idx->isUnique,
+                        'columns' => $idx->columnNames
+                    ]);
+                }
+            }
+        } else {
+            try {
+                $uidxs = $this->db->schema->findUniqueIndexes($this->tableSchema);
+                foreach ($uidxs as $name => $cols) {
+                    $data[] = new TableIndex([
+                        'name' => $name,
+                        'unique' => false,
+                        'columns' => $cols
+                    ]);
+                }
+            } catch (NotSupportedException $exc) {}
         }
+        return $data;
     }
 
     /**
@@ -216,51 +322,22 @@ class Extractor extends Component
         return empty($append) ? null : $append;
     }
 
-    /**
-     * Returns columns structure.
-     * @return array
-     */
-    protected function getTableColumns()
-    {
-        $columns = [];
-        if ($this->tableSchema instanceof TableSchema) {
-            $uniqueIndexes = $this->getTableUniqueIndexes();
-            foreach ($this->tableSchema->columns as $column) {
-                $isUnique = false;
-                foreach ($uniqueIndexes as $uIndex) {
-                    if ($uIndex[0] === $column->name && count($uIndex) === 1) {
-                        $isUnique = true;
-                        break;
-                    }
-                }
-                $columns[$column->name] = [
-                    'type' => $column->type,
-                    'length' => $column->size,
-                    'isNotNull' => $column->allowNull ? null : true,
-                    'isUnique' => $isUnique,
-                    'check' => null,
-                    'default' => $column->defaultValue,
-                    'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
-                    'isUnsigned' => $column->unsigned,
-                    'comment' => $column->comment,
-                ];
-            }
-        }
-        return $columns;
-    }
+    private $_table;
 
     /**
-     * Returns foreign keys structure.
-     * @return array
+     * Returns table data
+     * @return TableStructure
      */
-    protected function getTableForeignKeys()
+    public function getTable()
     {
-        $keys = [];
-        if ($this->tableSchema instanceof TableSchema) {
-            foreach ($this->tableSchema->foreignKeys as $name => $key) {
-                $keys[$name] = $key;
-            }
+        if ($this->_table === null) {
+            $this->_table = new TableStructure(['name' => $this->tableName]);
+            $indexes = $this->getTableIndexes();
+            $this->_table->primaryKey = $this->getTablePrimaryKey();
+            $this->_table->columns = $this->getTableColumns($indexes);
+            $this->_table->foreignKeys = $this->getTableForeignKeys();
+            $this->_table->indexes = $indexes;
         }
-        return $keys;
+        return $this->_table;
     }
 }

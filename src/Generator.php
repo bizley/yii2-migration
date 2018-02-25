@@ -18,9 +18,16 @@ use yii\helpers\FileHelper;
  * @version 2.1.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
+ *
+ * @property-read string|null $normalizedNamespace
  */
 class Generator extends Extractor
 {
+    public function getNormalizedNamespace()
+    {
+        return !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null;
+    }
+
     /**
      * Generates migration content or echoes exception message.
      * @return string
@@ -28,21 +35,23 @@ class Generator extends Extractor
      */
     public function generateMigration()
     {
-        $this->prepareTable();
-
-
-        $this->checkSchema();
-        $pk = $this->getTablePrimaryKey();
+        //$this->checkSchema();
+        //$pk = $this->getTablePrimaryKey();
         $params = [
-            'tableName' => $this->generateTableName($this->tableName),
-            'className' => $this->className,
-            'columns' => $this->prepareColumnsDefinitions(count($pk) > 1),
-            'primaryKey' => $pk,
-            'foreignKeys' => $this->prepareForeignKeysDefinitions(),
-            'uniqueIndexes' => $this->getTableUniqueIndexes(),
-            'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
+//            'tableName' => $this->generateTableName($this->tableName),
+//            'className' => $this->className,
+//            'columns' => $this->prepareColumnsDefinitions(count($pk) > 1),
+//            'primaryKey' => $pk,
+//            'foreignKeys' => $this->prepareForeignKeysDefinitions(),
+//            'uniqueIndexes' => $this->getTableUniqueIndexes(),
+//            'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
         ];
-        return $this->view->renderFile(Yii::getAlias($this->templateFile), $params);
+        return $this->view->renderFile(Yii::getAlias($this->templateFile), [
+            'table' => $this->table,
+            'tableName' => $this->generateTableName($this->table->name),
+            'className' => $this->className,
+            'namespace' => $this->normalizedNamespace
+        ]);
     }
 
     /**

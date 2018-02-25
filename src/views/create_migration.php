@@ -2,13 +2,10 @@
 /**
  * This is the template for generating the migration of a specified table.
  *
- * @var $tableName string full table name
- * @var $className string class name
- * @var $namespace string namespace
- * @var $columns array columns definitions
- * @var $primaryKey array primary key definition
- * @var $foreignKeys array foreign keys arrays
- * @var $uniqueIndexes array unique indexes arrays
+ * @var $table \bizley\migration\table\TableStructure Table data
+ * @var $tableName string full Table name
+ * @var $className string Class name
+ * @var $namespace string Migration namespace
  */
 
 echo "<?php\n";
@@ -21,7 +18,7 @@ use yii\db\Migration;
 
 class <?= $className ?> extends Migration
 {
-    public function safeUp()
+    public function up()
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -29,8 +26,8 @@ class <?= $className ?> extends Migration
         }
 
         $this->createTable('<?= $tableName ?>', [
-<?php foreach ($columns as $name => $definition): ?>
-            '<?= $name ?>' => $this<?= $definition ?>,
+<?php foreach ($table->columns as $column): ?>
+            <?= $column->render(); ?>
 <?php endforeach; ?>
         ], $tableOptions);
 <?php if (array_key_exists('columnNames', $primaryKey) && count($primaryKey['columnNames']) > 1): ?>
@@ -51,7 +48,7 @@ class <?= $className ?> extends Migration
 <?php endif; ?>
     }
 
-    public function safeDown()
+    public function down()
     {
         $this->dropTable('<?= $tableName ?>');
     }
