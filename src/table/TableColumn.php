@@ -16,25 +16,17 @@ class TableColumn extends Object
      */
     public $type;
     /**
-     * @var bool isNotNull
+     * @var bool|null
      */
-    public $allowNull;
+    public $isNotNull;
     /**
-     * @var string length
+     * @var int|string|array
      */
-    public $size;
+    public $length;
     /**
-     * @var int precision of the column data, if it is numeric.
+     * @var bool
      */
-    public $precision;
-    /**
-     * @var int scale of the column data, if it is numeric.
-     */
-    public $scale;
-    /**
-     * @var string WYWALIC
-     */
-    //public $isUnique;
+    public $isUnique = false;
     /**
      * @var bool whether this column is a primary key
      */
@@ -46,19 +38,19 @@ class TableColumn extends Object
     /**
      * @var bool
      */
-    public $isUnsigned;
+    public $isUnsigned = false;
     /**
      * @var string
      */
-    //public $check;
+    public $check;
     /**
-     * @var string default
+     * @var mixed
      */
-    public $defaultValue;
+    public $default;
     /**
      * @var string
      */
-    //public $append;
+    public $append;
     /**
      * @var string
      */
