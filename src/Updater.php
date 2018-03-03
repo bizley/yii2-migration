@@ -2,6 +2,7 @@
 
 namespace bizley\migration;
 
+use bizley\migration\table\TableChange;
 use Yii;
 use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
