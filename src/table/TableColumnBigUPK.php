@@ -4,10 +4,13 @@ namespace bizley\migration\table;
 
 class TableColumnBigUPK extends TableColumnBigPK
 {
-    public function buildSpecificDefinition($schema, $general)
+    /**
+     * @param TableStructure $table
+     */
+    public function buildSpecificDefinition($table)
     {
-        parent::buildSpecificDefinition($schema, $general);
-        if ($general) {
+        parent::buildSpecificDefinition($table);
+        if ($table->generalSchema) {
             $this->definition[] = 'unsigned()';
             $this->isUnsignedPossible = false;
         }

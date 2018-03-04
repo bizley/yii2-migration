@@ -99,17 +99,19 @@ class Migration extends Component implements MigrationInterface
             $builder = trim(str_replace('NOT NULL', '', $builder));
         }
         if (strpos($builder, 'AUTO_INCREMENT') !== false) {
-            $schema['append'] = 'AUTO_INCREMENT';
+            $schema['autoIncrement'] = true;
             $builder = trim(str_replace('AUTO_INCREMENT', '', $builder));
         }
         if (strpos($builder, 'AUTOINCREMENT') !== false) {
-            $schema['append'] = 'AUTOINCREMENT';
+            $schema['autoIncrement'] = true;
             $builder = trim(str_replace('AUTOINCREMENT', '', $builder));
         }
         if (strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
+            $schema['isPrimaryKey'] = true;
             $builder = trim(str_replace('IDENTITY PRIMARY KEY', '', $builder));
         }
         if (strpos($builder, 'PRIMARY KEY') !== false) {
+            $schema['isPrimaryKey'] = true;
             $builder = trim(str_replace('PRIMARY KEY', '', $builder));
         }
         if (strpos($builder, 'UNSIGNED') !== false) {

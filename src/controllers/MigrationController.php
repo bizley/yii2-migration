@@ -104,7 +104,7 @@ class MigrationController extends Controller
      * Alias -g
      * @since 2.0
      */
-    public $generalSchema = 0;
+    public $generalSchema = 1;
 
     /**
      * @var bool|string|int Whether to add generated migration to migration history.
@@ -398,7 +398,6 @@ class MigrationController extends Controller
      * Creates new update migration for a given tables.
      * @param string $table Table names separated by commas.
      * @return int
-     * @throws \yii\base\ErrorException
      * @throws InvalidParamException
      * @since 2.0
      */

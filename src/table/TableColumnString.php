@@ -4,7 +4,10 @@ namespace bizley\migration\table;
 
 class TableColumnString extends TableColumn
 {
-    public function buildSpecificDefinition($general, $schema, $composite)
+    /**
+     * @param TableStructure $table
+     */
+    public function buildSpecificDefinition($table)
     {
         $this->definition[] = "string({$this->length})";
     }

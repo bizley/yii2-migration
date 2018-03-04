@@ -26,6 +26,7 @@ class TableChange extends Object
     /**
      * Returns change value.
      * @return mixed
+     * @throws \yii\base\InvalidConfigException
      */
     public function getValue()
     {
@@ -33,7 +34,7 @@ class TableChange extends Object
             case 'createTable':
                 $columns = [];
                 foreach ((array)$this->data as $column => $schema) {
-                    $columns[] = new TableColumn([
+                    $columns[] = TableColumnFactory::build([
                         'name' => $column,
                         'type' => $schema['type'],
                         'length' => isset($schema['length']) ? $schema['length'] : null,
@@ -54,7 +55,7 @@ class TableChange extends Object
                 ];
             case 'addColumn':
             case 'alterColumn':
-                return new TableColumn([
+                return TableColumnFactory::build([
                     'name' => $this->data[0],
                     'type' => $this->data[1]['type'],
                     'length' => isset($this->data[1]['length']) ? $this->data[1]['length'] : null,
@@ -85,10 +86,10 @@ class TableChange extends Object
                     'unique' => $this->data[2],
                 ]);
             case 'addCommentOnColumn':
-                return new TableColumn([
+                return [
                     'name' => $this->data[0],
                     'comment' => $this->data[1],
-                ]);
+                ];
             case 'renameTable':
             case 'dropTable':
             case 'dropColumn':

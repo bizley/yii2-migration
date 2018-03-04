@@ -6,6 +6,8 @@ use yii\base\Object;
 
 class TablePrimaryKey extends Object
 {
+    const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
+
     /**
      * @var string
      */
@@ -14,4 +16,26 @@ class TablePrimaryKey extends Object
      * @var array
      */
     public $columns;
+
+    /**
+     * Checks if primary key is composite.
+     * @return bool
+     */
+    public function isComposite()
+    {
+        return count($this->columns) > 1;
+    }
+
+    /**
+     * @param TableStructure $table
+     * @return string
+     */
+    public function render($table)
+    {
+        return '        $this->addPrimaryKey(\''
+            . ($this->name ?: self::GENERIC_PRIMARY_KEY)
+            . "', '" . $table->renderName() . "', ['"
+            . implode("', '", $this->columns)
+            . "']);\n";
+    }
 }

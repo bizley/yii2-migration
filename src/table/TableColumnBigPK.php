@@ -4,12 +4,15 @@ namespace bizley\migration\table;
 
 class TableColumnBigPK extends TableColumn
 {
-    public function buildSpecificDefinition($schema, $general)
+    /**
+     * @param TableStructure $table
+     */
+    public function buildSpecificDefinition($table)
     {
         $this->definition[] = "bigPrimaryKey({$this->length})";
-        if ($general) {
+        if ($table->generalSchema) {
             $this->isPkPossible = false;
-            if ($schema === TableStructure::SCHEMA_MSSQL) {
+            if ($table->schema === TableStructure::SCHEMA_MSSQL) {
                 $this->isNotNullPossible = false;
             }
         }

@@ -4,7 +4,10 @@ namespace bizley\migration\table;
 
 class TableColumnBinary extends TableColumn
 {
-    public function buildSpecificDefinition($schema, $general)
+    /**
+     * @param TableStructure $table
+     */
+    public function buildSpecificDefinition($table)
     {
         $this->definition[] = "binary({$this->length})";
     }

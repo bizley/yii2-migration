@@ -4,7 +4,10 @@ namespace bizley\migration\table;
 
 class TableColumnTime extends TableColumn
 {
-    public function buildSpecificDefinition($general, $schema, $composite)
+    /**
+     * @param TableStructure $table
+     */
+    public function buildSpecificDefinition($table)
     {
         $this->definition[] = "time({$this->length})";
     }
