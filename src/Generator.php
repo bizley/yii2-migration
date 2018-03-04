@@ -3,10 +3,12 @@
 namespace bizley\migration;
 
 use bizley\migration\table\TableColumn;
+use bizley\migration\table\TableColumnFactory;
 use bizley\migration\table\TableForeignKey;
 use bizley\migration\table\TableIndex;
 use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;
+use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
@@ -15,6 +17,7 @@ use yii\base\View;
 use yii\db\Connection;
 use yii\db\TableSchema;
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 /**
  * Extractor class.
@@ -28,8 +31,9 @@ use yii\helpers\ArrayHelper;
  * @property TableSchema $tableSchema
  * @property array $structure
  * @property TableStructure $table
+ * @property-read string|null $normalizedNamespace
  */
-class Extractor extends Component
+class Generator extends Component
 {
     /**
      * @var Connection DB connection.
@@ -54,7 +58,7 @@ class Extractor extends Component
     /**
      * @var bool Table prefix flag.
      */
-    public $useTablePrefix;
+    public $useTablePrefix = true;
 
     /**
      * @var string File template.
@@ -74,9 +78,7 @@ class Extractor extends Component
     /**
      * @var bool Whether to use general column schema instead of database specific.
      */
-    public $generalSchema = false;
-
-    const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
+    public $generalSchema = true;
 
     /**
      * Checks if DB connection is passed.
@@ -108,6 +110,7 @@ class Extractor extends Component
      * If $useTablePrefix equals true then the table name will contain the prefix format.
      * @param string $tableName the table name to generate.
      * @return string
+     * TODO wywalic
      */
     protected function generateTableName($tableName)
     {
@@ -115,37 +118,6 @@ class Extractor extends Component
             return $tableName;
         }
         return '{{%' . $tableName . '}}';
-    }
-
-    /**
-     * Checks if table schema is available.
-     * @throws InvalidParamException
-     * TODO wywalic
-     */
-    public function checkSchema()
-    {
-        if (!$this->tableSchema) {
-            throw new InvalidParamException("Cannot find schema for '{$this->tableName}' table!");
-        }
-    }
-
-    /**
-     * Returns table structure.
-     * @return array
-     * @throws InvalidParamException
-     * TODO wywalic
-     */
-    public function getStructure()
-    {
-        $this->checkSchema();
-        return [
-            'table' => $this->tableName,
-            'pk' => $this->getTablePrimaryKey(),
-            'columns' => $this->getTableColumns(),
-            'fks' => $this->getTableForeignKeys(),
-            'uidxs' => $this->getTableUniqueIndexes(),
-            'idxs' => $this->getTableIndexes(),
-        ];
     }
 
     /**
@@ -166,7 +138,7 @@ class Extractor extends Component
             $pk = $this->tableSchema->primaryKey;
             $data = [
                 'columns' => $pk,
-                'name' => self::GENERIC_PRIMARY_KEY,
+                'name' => TablePrimaryKey::GENERIC_PRIMARY_KEY,
             ];
         }
         return new TablePrimaryKey($data);
@@ -176,6 +148,7 @@ class Extractor extends Component
      * Returns columns structure.
      * @param $indexes TableIndex[]
      * @return TableColumn[]
+     * @throws InvalidConfigException
      */
     protected function getTableColumns($indexes = [])
     {
@@ -190,7 +163,7 @@ class Extractor extends Component
                         break;
                     }
                 }
-                $columns[] = new TableColumn([
+                $columns[] = TableColumnFactory::build([
                     'name' => $column->name,
                     'type' => $column->type,
                     'length' => $column->size,
@@ -198,7 +171,9 @@ class Extractor extends Component
                     'isUnique' => $isUnique,
                     'check' => null,
                     'default' => $column->defaultValue,
-                    'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
+                    //'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
+                    'isPrimaryKey' => $column->isPrimaryKey,
+                    'autoIncrement' => $column->autoIncrement,
                     'isUnsigned' => $column->unsigned,
                     'comment' => $column->comment,
                 ]);
@@ -294,50 +269,47 @@ class Extractor extends Component
         return $data;
     }
 
-    /**
-     * Prepares append SQL based on schema.
-     * @param bool $primaryKey
-     * @param bool $autoIncrement
-     * @return string
-     */
-    public function prepareSchemaAppend($primaryKey, $autoIncrement)
-    {
-        $schema = $this->db->schema;
-        switch ($schema::className()) {
-            case 'yii\db\mssql\Schema':
-                $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
-                break;
-            case 'yii\db\oci\Schema':
-            case 'yii\db\pgsql\Schema':
-                $append = $primaryKey ? 'PRIMARY KEY' : '';
-                break;
-            case 'yii\db\sqlite\Schema':
-                $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
-                break;
-            case 'yii\db\cubrid\Schema':
-            case 'yii\db\mysql\Schema':
-            default:
-                $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
-        }
-        return empty($append) ? null : $append;
-    }
-
     private $_table;
 
     /**
      * Returns table data
      * @return TableStructure
+     * @throws InvalidConfigException
      */
     public function getTable()
     {
         if ($this->_table === null) {
-            $this->_table = new TableStructure(['name' => $this->tableName]);
             $indexes = $this->getTableIndexes();
-            $this->_table->primaryKey = $this->getTablePrimaryKey();
-            $this->_table->columns = $this->getTableColumns($indexes);
-            $this->_table->foreignKeys = $this->getTableForeignKeys();
-            $this->_table->indexes = $indexes;
+            $this->_table = new TableStructure([
+                'name' => $this->tableName,
+                'schema' => get_class($this->db->schema),
+                'generalSchema' => $this->generalSchema,
+                'usePrefix' => $this->useTablePrefix,
+                'primaryKey' => $this->getTablePrimaryKey(),
+                'columns' => $this->getTableColumns($indexes),
+                'foreignKeys' => $this->getTableForeignKeys(),
+                'indexes' => $indexes
+            ]);
         }
         return $this->_table;
+    }
+
+    public function getNormalizedNamespace()
+    {
+        return !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null;
+    }
+
+    /**
+     * Generates migration content or echoes exception message.
+     * @return string
+     * @throws InvalidParamException
+     */
+    public function generateMigration()
+    {
+        return $this->view->renderFile(Yii::getAlias($this->templateFile), [
+            'table' => $this->table,
+            'className' => $this->className,
+            'namespace' => $this->normalizedNamespace
+        ]);
     }
 }
