@@ -9,6 +9,6 @@ class TableColumnText extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = "text({$this->length})";
+        $this->definition[] = 'text(' . ($table->generalSchema ? null : $this->length) . ')';
     }
 }

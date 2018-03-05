@@ -50,8 +50,12 @@ class TableColumnFactory
                 return new TableColumnTimestamp($configuration);
             case Schema::TYPE_TIME:
                 return new TableColumnTime($configuration);
+            case Schema::TYPE_DATE:
+                return new TableColumnDate($configuration);
             case Schema::TYPE_DECIMAL:
                 return new TableColumnDecimal($configuration);
+            case Schema::TYPE_BOOLEAN:
+                return new TableColumnBoolean($configuration);
             case Schema::TYPE_MONEY:
                 return new TableColumnMoney($configuration);
             default:

@@ -130,16 +130,18 @@ class Generator extends Component
         if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
             /* @var $constraint \yii\db\Constraint */
             $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
-            $data = [
-                'columns' => $constraint->columnNames,
-                'name' => $constraint->name,
-            ];
+            if ($constraint) {
+                $data = [
+                    'columns' => $constraint->columnNames,
+                    'name' => $constraint->name,
+                ];
+            }
         } elseif ($this->tableSchema instanceof TableSchema) {
-            $pk = $this->tableSchema->primaryKey;
-            $data = [
-                'columns' => $pk,
-                'name' => TablePrimaryKey::GENERIC_PRIMARY_KEY,
-            ];
+            if ($this->tableSchema->primaryKey) {
+                $data = [
+                    'columns' => $this->tableSchema->primaryKey,
+                ];
+            }
         }
         return new TablePrimaryKey($data);
     }
@@ -166,12 +168,13 @@ class Generator extends Component
                 $columns[] = TableColumnFactory::build([
                     'name' => $column->name,
                     'type' => $column->type,
-                    'length' => $column->size,
+                    'size' => $column->size,
+                    'precision' => $column->precision,
+                    'scale' => $column->scale,
                     'isNotNull' => $column->allowNull ? null : true,
                     'isUnique' => $isUnique,
                     'check' => null,
                     'default' => $column->defaultValue,
-                    //'append' => $this->prepareSchemaAppend($column->isPrimaryKey, $column->autoIncrement),
                     'isPrimaryKey' => $column->isPrimaryKey,
                     'autoIncrement' => $column->autoIncrement,
                     'isUnsigned' => $column->unsigned,
@@ -221,20 +224,6 @@ class Generator extends Component
     }
 
     /**
-     * Returns table unique indexes.
-     * @return array
-     * TODO: wywalic
-     */
-    protected function getTableUniqueIndexes()
-    {
-        try {
-            return $this->db->schema->findUniqueIndexes($this->tableSchema);
-        } catch (NotSupportedException $exc) {
-            return [];
-        }
-    }
-
-    /**
      * Returns table indexes.
      * @return TableIndex[]
      * @since 2.2.2
@@ -260,7 +249,7 @@ class Generator extends Component
                 foreach ($uidxs as $name => $cols) {
                     $data[] = new TableIndex([
                         'name' => $name,
-                        'unique' => false,
+                        'unique' => true,
                         'columns' => $cols
                     ]);
                 }
@@ -294,6 +283,9 @@ class Generator extends Component
         return $this->_table;
     }
 
+    /**
+     * @return null|string
+     */
     public function getNormalizedNamespace()
     {
         return !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null;

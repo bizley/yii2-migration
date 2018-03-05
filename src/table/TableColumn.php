@@ -5,6 +5,12 @@ namespace bizley\migration\table;
 use yii\base\Object;
 use yii\db\Expression;
 
+/**
+ * Class TableColumn
+ * @package bizley\migration\table
+ *
+ * @property-read int|string $length
+ */
 class TableColumn extends Object
 {
     /**
@@ -20,9 +26,17 @@ class TableColumn extends Object
      */
     public $isNotNull;
     /**
-     * @var int|string|array
+     * @var int
      */
-    public $length;
+    public $size;
+    /**
+     * @var int
+     */
+    public $precision;
+    /**
+     * @var int
+     */
+    public $scale;
     /**
      * @var bool
      */
@@ -56,6 +70,14 @@ class TableColumn extends Object
      */
     public $comment;
 
+    /**
+     * @return int|string
+     */
+    public function getLength()
+    {
+        return $this->size;
+    }
+
     protected function buildSpecificDefinition($table) {}
 
     protected $definition = [];
@@ -84,7 +106,7 @@ class TableColumn extends Object
             }
         }
         // TODO dodac append dodatkowy
-        if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnPK($table->primaryKey)) {
+        if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
             $this->definition[] = "append('" . $this->prepareSchemaAppend($table, true, $this->autoIncrement) . "')";
         }
         if ($this->comment) {
@@ -116,7 +138,7 @@ class TableColumn extends Object
      * @param TablePrimaryKey $pk
      * @return bool
      */
-    public function isColumnPK($pk)
+    public function isColumnInPK($pk)
     {
         return in_array($this->name, $pk->columns, true);
     }

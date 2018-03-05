@@ -15,7 +15,7 @@ class TablePrimaryKey extends Object
     /**
      * @var array
      */
-    public $columns;
+    public $columns = [];
 
     /**
      * Checks if primary key is composite.
@@ -32,7 +32,7 @@ class TablePrimaryKey extends Object
      */
     public function render($table)
     {
-        return '        $this->addPrimaryKey(\''
+        return "\n        \$this->addPrimaryKey('"
             . ($this->name ?: self::GENERIC_PRIMARY_KEY)
             . "', '" . $table->renderName() . "', ['"
             . implode("', '", $this->columns)

@@ -141,6 +141,7 @@ PHP;
     {
         $output = '';
         if ($this->indexes) {
+            $output .= "\n";
             foreach ($this->indexes as $index) {
                 $output .= $index->render($this);
             }
@@ -152,6 +153,7 @@ PHP;
     {
         $output = '';
         if ($this->foreignKeys) {
+            $output .= "\n";
             foreach ($this->foreignKeys as $foreignKey) {
                 $output .= $foreignKey->render($this);
             }

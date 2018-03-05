@@ -9,7 +9,7 @@ class TableColumnBigPK extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = "bigPrimaryKey({$this->length})";
+        $this->definition[] = 'bigPrimaryKey(' . ($table->generalSchema ? null : $this->length) . ')';
         if ($table->generalSchema) {
             $this->isPkPossible = false;
             if ($table->schema === TableStructure::SCHEMA_MSSQL) {

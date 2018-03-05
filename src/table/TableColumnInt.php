@@ -9,14 +9,14 @@ class TableColumnInt extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        if ($table->generalSchema && !$table->primaryKey->isComposite() && $this->isColumnPK($table->primaryKey)) {
+        if ($table->generalSchema && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
             $this->isPkPossible = false;
             if ($table->schema === TableStructure::SCHEMA_MSSQL) {
                 $this->isNotNullPossible = false;
             }
             $this->definition[] = 'primaryKey()';
         } else {
-            $this->definition[] = "integer({$this->length})";
+            $this->definition[] = 'integer(' . ($table->generalSchema ? null : $this->length) . ')';
         }
     }
 }
