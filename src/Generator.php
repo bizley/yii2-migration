@@ -15,7 +15,7 @@ use yii\helpers\FileHelper;
  * Migration file generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.2
+ * @version 2.1.3
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
