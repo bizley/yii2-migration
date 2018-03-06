@@ -15,7 +15,7 @@ use yii\db\TableSchema;
  * Gathers information about DB schema and migration files.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.3
+ * @version 2.2.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  *
