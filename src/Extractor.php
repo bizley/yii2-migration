@@ -15,7 +15,7 @@ use yii\db\TableSchema;
  * Gathers information about DB schema and migration files.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.1.2
+ * @version 2.1.3
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  *
@@ -96,7 +96,7 @@ class Extractor extends Component
     }
 
     /**
-     * If $useTablePrefix equals true then the table name will contain the prefix format.
+     * If $useTablePrefix equals true the table name contains the prefix format and prefix itself is removed from the name.
      * @param string $tableName the table name to generate.
      * @return string
      */
@@ -104,6 +104,9 @@ class Extractor extends Component
     {
         if (!$this->useTablePrefix) {
             return $tableName;
+        }
+        if ($this->db->tablePrefix && strpos($tableName, $this->db->tablePrefix) === 0) {
+            $tableName = substr($tableName, mb_strlen($this->db->tablePrefix, 'UTF-8'));
         }
         return '{{%' . $tableName . '}}';
     }
