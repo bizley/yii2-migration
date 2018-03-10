@@ -17,7 +17,7 @@ use yii\helpers\FileHelper;
  * Update migration file generator.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.2.0
+ * @version 2.2.3
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -286,7 +286,7 @@ class Updater extends Generator
         if ($value === false) {
             return 'FALSE';
         }
-        return '"' . $value . '"';
+        return '"' . str_replace('"', '\"', $value) . '"';
     }
 
     /**
