@@ -100,9 +100,9 @@ class TableColumn extends Object
         }
         if ($this->default !== null) {
             if ($this->default instanceof Expression) {
-                $this->definition[] = "defaultExpression('{$this->default->expression}')";
+                $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
             } else {
-                $this->definition[] = "defaultValue('{$this->default}')";
+                $this->definition[] = "defaultValue('" . $this->escapeQuotes($this->default) . "')";
             }
         }
         // TODO dodac append dodatkowy
@@ -110,7 +110,7 @@ class TableColumn extends Object
             $this->definition[] = "append('" . $this->prepareSchemaAppend($table, true, $this->autoIncrement) . "')";
         }
         if ($this->comment) {
-            $this->definition[] = "comment('{$this->comment}')";
+            $this->definition[] = "comment('" . $this->escapeQuotes($this->comment) . "')";
         }
     }
 
@@ -169,5 +169,10 @@ class TableColumn extends Object
                 $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
         return empty($append) ? null : $append;
+    }
+
+    public function escapeQuotes($value)
+    {
+        return str_replace('\'', '\\\'', $value);
     }
 }

@@ -7,6 +7,8 @@ use yii\base\Object;
 /**
  * Class TableChange
  * @package bizley\migration\table
+ *
+ * @property-read array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex $value
  */
 class TableChange extends Object
 {
@@ -25,7 +27,7 @@ class TableChange extends Object
 
     /**
      * Returns change value.
-     * @return mixed
+     * @return array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex
      * @throws \yii\base\InvalidConfigException
      */
     public function getValue()

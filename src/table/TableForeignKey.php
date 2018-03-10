@@ -49,10 +49,14 @@ class TableForeignKey extends Object
      */
     public function renderRefTableName($table)
     {
+        $tableName = $this->refTable;
         if (!$table->usePrefix) {
-            return $this->refTable;
+            return $tableName;
         }
-        return '{{%' . $this->refTable . '}}';
+        if ($table->dbPrefix && strpos($this->refTable, $table->dbPrefix) === 0) {
+            $tableName = substr($this->refTable, mb_strlen($table->dbPrefix, 'UTF-8'));
+        }
+        return '{{%' . $tableName . '}}';
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace bizley\migration;
 
 use bizley\migration\table\TableChange;
+use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
@@ -49,7 +50,7 @@ class Updater extends Generator
     private $_currentTable;
 
     /**
-     * Sets subject table name and clears skipped migrations names.
+     * Sets current table name and clears skipped migrations names.
      * @throws InvalidConfigException
      */
     public function init()
@@ -124,14 +125,15 @@ class Updater extends Generator
         return ArrayHelper::map($history, 'version', 'apply_time');
     }
 
-    private $_oldSchema = [];
+    private $_appliedChanges = [];
 
     /**
-     * Analyses gathered changes.
+     * Gathers applied changes.
      * @param array $changes
      * @return bool true if more data can be analysed or false if this must be last one
+     * @since 2.3.0
      */
-    protected function analyseChanges($changes)
+    protected function gatherChanges($changes)
     {
         if (!isset($changes[$this->_currentTable])) {
             return true;
@@ -143,10 +145,10 @@ class Updater extends Generator
                 return false;
             }
             if ($tableChange->method === 'renameTable') {
-                $this->_currentTable = $tableChange->data;
-                return $this->analyseChanges($changes);
+                $this->_currentTable = $tableChange->value;
+                return $this->gatherChanges($changes);
             }
-            $this->_oldSchema[] = $tableChange;
+            $this->_appliedChanges[] = $tableChange;
             if ($tableChange->method === 'createTable') {
                 return false;
             }
@@ -178,99 +180,24 @@ class Updater extends Generator
         return $subject->changes;
     }
 
-    private $_oldStructure = [];
+    protected $_oldTable;
 
     /**
-     * Formats the gathered migrations structure.
+     * Returns the table structure as applied in gathered migrations.
+     * @since 2.3.0
      */
-    protected function formatStructure()
+    public function getOldTable()
     {
-        $this->_oldStructure['columns'] = [];
-        $this->_oldStructure['fks'] = [];
-        $this->_oldStructure['pk'] = [];
-        $this->_oldStructure['uidxs'] = [];
-
-        $changes = array_reverse($this->_oldSchema);
-        foreach ($changes as $change) {
-            switch (key($change)) {
-                case 'createTable':
-                case 'addColumn':
-                    foreach (current($change) as $column => $properties) {
-                        $this->_oldStructure['columns'][$column] = $properties;
-                        if (!empty($this->_oldStructure['columns'][$column]['append']) && $this->findPrimaryKeyString($this->_oldStructure['columns'][$column]['append'])) {
-                            $this->_oldStructure['pk'][] = $column;
-                        }
-                    }
-                    break;
-                case 'dropColumn':
-                    if (isset($this->_oldStructure['columns'][current($change)])) {
-                        unset($this->_oldStructure['columns'][current($change)]);
-                    }
-                    break;
-                case 'renameColumn':
-                    if (isset($this->_oldStructure['columns'][key(current($change))])) {
-                        $this->_oldStructure['columns'][current(current($change))] = $this->_oldStructure['columns'][key(current($change))];
-                        unset($this->_oldStructure['columns'][key(current($change))]);
-                    }
-                    break;
-                case 'alterColumn':
-                    if (isset($this->_oldStructure['columns'][key(current($change))])) {
-                        $this->_oldStructure['columns'][key(current($change))] = current(current($change));
-                    }
-                    break;
-                case 'addPrimaryKey':
-                    $pk = current($change);
-                    $this->_oldStructure['pk'] = $pk;
-                    foreach ($pk as $key) {
-                        if (isset($this->_oldStructure['columns'][$key])) {
-                            if (empty($this->_oldStructure['columns'][$key]['append'])) {
-                                $this->_oldStructure['columns'][$key]['append'] = $this->prepareSchemaAppend(true, false);
-                            } elseif (!$this->findPrimaryKeyString($this->_oldStructure['columns'][$key]['append'])) {
-                                $this->_oldStructure['columns'][$key]['append'] .= ' ' . $this->prepareSchemaAppend(true, false);
-                            }
-                        }
-                    }
-                    break;
-                case 'dropPrimaryKey':
-                    if (!empty($this->_oldStructure['pk'])) {
-                        foreach ($this->_oldStructure['pk'] as $key) {
-                            if (isset($this->_oldStructure['columns'][$key]) && !empty($this->_oldStructure['columns'][$key]['append'])) {
-                                $append = $this->removePrimaryKeyString($this->_oldStructure['columns'][$key]['append']);
-                                if ($append) {
-                                    $this->_oldStructure['columns'][$key]['append'] = !is_string($append) || $append === ' ' ? null : $append;
-                                }
-                            }
-                        }
-                    }
-                    $this->_oldStructure['pk'] = [];
-                    break;
-                case 'addForeignKey':
-                    $this->_oldStructure['fks'][current($change)[0]] = [current($change)[1], current($change)[2], current($change)[3], current($change)[4], current($change)[5]];
-                    break;
-                case 'dropForeignKey':
-                    if (isset($this->_oldStructure['fks'][current($change)])) {
-                        unset($this->_oldStructure['fks'][current($change)]);
-                    }
-                    break;
-                case 'createIndex':
-                    $this->_oldStructure['uidxs'][key(current($change))] = current(current($change));
-                    break;
-                case 'dropIndex':
-                    if (isset($this->_oldStructure['uidxs'][current($change)])) {
-                        unset($this->_oldStructure['uidxs'][current($change)]);
-                    }
-                    break;
-                case 'addCommentOnColumn':
-                    if (isset($this->_oldStructure['columns'][key(current($change))])) {
-                        $this->_oldStructure['columns'][key(current($change))]['comment'] = current(current($change));
-                    }
-                    break;
-                case 'dropCommentFromColumn':
-                    if (isset($this->_oldStructure['columns'][current($change)])) {
-                        $this->_oldStructure['columns'][current($change)]['comment'] = null;
-                    }
-            }
+        if ($this->_oldTable === null) {
+            $this->_oldTable = new TableStructure([
+                'schema' => get_class($this->db->schema),
+                'generalSchema' => $this->generalSchema,
+                'usePrefix' => $this->useTablePrefix,
+                'dbPrefix' => $this->db->tablePrefix,
+            ]);
+            $this->_oldTable->applyChanges(array_reverse($this->_appliedChanges));
         }
+        return $this->_oldTable;
     }
 
     /**
@@ -353,16 +280,16 @@ class Updater extends Generator
      */
     protected function compareStructures()
     {
-        if (empty($this->_oldSchema)) {
+        if (empty($this->_appliedChanges)) {
             return true;
         }
-        $this->formatStructure();
+        $this->getOldTable();
         $different = false;
         if ($this->showOnly) {
             echo "SHOWING DIFFERENCES:\n";
         }
         foreach ($this->structure['columns'] as $column => $data) {
-            if (!isset($this->_oldStructure['columns'][$column])) {
+            if (!isset($this->_oldTable['columns'][$column])) {
                 if ($this->showOnly) {
                     echo "   - missing column '$column'\n";
                 }
@@ -371,7 +298,7 @@ class Updater extends Generator
                 continue;
             }
             foreach ($data as $property => $value) {
-                if ($value !== null && !isset($this->_oldStructure['columns'][$column][$property])) {
+                if ($value !== null && !isset($this->_oldTable['columns'][$column][$property])) {
                     if ($this->showOnly) {
                         echo "   - missing '$column' column property: $property (";
                         echo 'DB: ' . $this->displayValue($value) . ")\n";
@@ -380,12 +307,12 @@ class Updater extends Generator
                     $different = true;
                     break;
                 }
-                if ($this->_oldStructure['columns'][$column][$property] != $value) {
+                if ($this->_oldTable['columns'][$column][$property] != $value) {
                     if (!$this->generalSchema || $property !== 'length') {
                         if ($this->showOnly) {
                             echo "   - different '$column' column property: $property (";
                             echo 'DB: ' . $this->displayValue($value) . ' <> ';
-                            echo 'MIG: ' . $this->displayValue($this->_oldStructure['columns'][$column][$property]) . ")\n";
+                            echo 'MIG: ' . $this->displayValue($this->_oldTable['columns'][$column][$property]) . ")\n";
                         }
                         $this->_modifications['alterColumn'][$column] = $data;
                         $different = true;
@@ -394,7 +321,7 @@ class Updater extends Generator
                 }
             }
         }
-        foreach ($this->_oldStructure['columns'] as $column => $data) {
+        foreach ($this->_oldTable['columns'] as $column => $data) {
             if (!isset($this->structure['columns'][$column])) {
                 if ($this->showOnly) {
                     echo "   - excessive column '$column'\n";
@@ -405,7 +332,7 @@ class Updater extends Generator
         }
 
         foreach ($this->structure['fks'] as $fk => $data) {
-            if (!isset($this->_oldStructure['fks'][$fk])) {
+            if (!isset($this->_oldTable['fks'][$fk])) {
                 if ($this->showOnly) {
                     echo "   - missing foreign key '$fk'\n";
                 }
@@ -413,7 +340,7 @@ class Updater extends Generator
                 $different = true;
             }
         }
-        foreach ($this->_oldStructure['fks'] as $fk => $data) {
+        foreach ($this->_oldTable['fks'] as $fk => $data) {
             if (!isset($this->structure['fks'][$fk])) {
                 if ($this->showOnly) {
                     echo "   - excessive foreign key '$fk'\n";
@@ -423,12 +350,12 @@ class Updater extends Generator
             }
         }
 
-        $newKeys = array_diff($this->structure['pk'], $this->_oldStructure['pk']);
+        $newKeys = array_diff($this->structure['pk'], $this->_oldTable['pk']);
         if (count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
             }
-            if (!empty($this->_oldStructure['pk'])) {
+            if (!empty($this->_oldTable['pk'])) {
                 $this->_modifications['dropPrimaryKey'] = true;
             }
             if (!empty($this->structure['pk']) && $this->confirmCompositePrimaryKey($newKeys)) {
@@ -438,7 +365,7 @@ class Updater extends Generator
         }
 
         foreach ($this->structure['uidxs'] as $uidx => $data) {
-            if (!isset($this->_oldStructure['uidxs'][$uidx])) {
+            if (!isset($this->_oldTable['uidxs'][$uidx])) {
                 if ($this->showOnly) {
                     echo "   - missing unique index '$uidx'\n";
                 }
@@ -446,7 +373,7 @@ class Updater extends Generator
                 $different = true;
             }
         }
-        foreach ($this->_oldStructure['uidxs'] as $uidx => $data) {
+        foreach ($this->_oldTable['uidxs'] as $uidx => $data) {
             if (!isset($this->structure['uidxs'][$uidx])) {
                 if ($this->showOnly) {
                     echo "   - excessive unique index '$uidx'\n";
@@ -475,7 +402,7 @@ class Updater extends Generator
                 if (in_array($migration, $this->skipMigrations, true)) {
                     continue;
                 }
-                if (!$this->analyseChanges($this->extract($migration))) {
+                if (!$this->gatherChanges($this->extract($migration))) {
                     break;
                 }
             }
