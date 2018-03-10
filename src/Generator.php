@@ -257,13 +257,13 @@ class Generator extends Extractor
         }
         if ($column->defaultValue !== null) {
             if ($column->defaultValue instanceof Expression) {
-                $definition .= '->defaultExpression(\'' . $column->defaultValue->expression . '\')';
+                $definition .= '->defaultExpression(\'' . str_replace('\'', '\\\'', $column->defaultValue->expression) . '\')';
             } else {
-                $definition .= '->defaultValue(\'' . $column->defaultValue . '\')';
+                $definition .= '->defaultValue(\'' . str_replace('\'', '\\\'', $column->defaultValue) . '\')';
             }
         }
         if ($column->comment) {
-            $definition .= '->comment(\'' . $column->comment . '\')';
+            $definition .= '->comment(\'' . str_replace('\'', '\\\'', $column->comment) . '\')';
         }
         if (!$compositePk && $checkPrimaryKey && $column->isPrimaryKey) {
             $definition .= '->append(\'' . $this->prepareSchemaAppend(true, $column->autoIncrement) . '\')';
