@@ -165,7 +165,7 @@ class Generator extends Component
                         break;
                     }
                 }
-                $columns[] = TableColumnFactory::build([
+                $columns[$column->name] = TableColumnFactory::build([
                     'name' => $column->name,
                     'type' => $column->type,
                     'size' => $column->size,
@@ -196,7 +196,7 @@ class Generator extends Component
             $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
             /* @var $fk \yii\db\ForeignKeyConstraint */
             foreach ($fks as $fk) {
-                $data[] = new TableForeignKey([
+                $data[$fk->name] = new TableForeignKey([
                     'name' => $fk->name,
                     'columns' => $fk->columnNames,
                     'refTable' => $fk->foreignTableName,
@@ -217,7 +217,7 @@ class Generator extends Component
                     $fk->columns[] = $col;
                     $fk->refColumns[] = $ref;
                 }
-                $data[] = $fk;
+                $data[$name] = $fk;
             }
         }
         return $data;
@@ -236,7 +236,7 @@ class Generator extends Component
             /* @var $idx \yii\db\IndexConstraint */
             foreach ($idxs as $idx) {
                 if (!$idx->isPrimary) {
-                    $data[] = new TableIndex([
+                    $data[$idx->name] = new TableIndex([
                         'name' => $idx->name,
                         'unique' => $idx->isUnique,
                         'columns' => $idx->columnNames
@@ -247,7 +247,7 @@ class Generator extends Component
             try {
                 $uidxs = $this->db->schema->findUniqueIndexes($this->tableSchema);
                 foreach ($uidxs as $name => $cols) {
-                    $data[] = new TableIndex([
+                    $data[$name] = new TableIndex([
                         'name' => $name,
                         'unique' => true,
                         'columns' => $cols
@@ -274,6 +274,7 @@ class Generator extends Component
                 'schema' => get_class($this->db->schema),
                 'generalSchema' => $this->generalSchema,
                 'usePrefix' => $this->useTablePrefix,
+                'dbPrefix' => $this->db->tablePrefix,
                 'primaryKey' => $this->getTablePrimaryKey(),
                 'columns' => $this->getTableColumns($indexes),
                 'foreignKeys' => $this->getTableForeignKeys(),

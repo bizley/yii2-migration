@@ -8,7 +8,6 @@ use Closure;
 use Exception;
 use Yii;
 use yii\base\Action;
-use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
@@ -22,16 +21,15 @@ use yii\helpers\FileHelper;
  * Migration creator and updater.
  * Generates migration file based on the existing database table and previous migrations.
  *
- * Yii 2 does not keep information about database indexes (except unique ones) and foreign keys' ON UPDATE and ON DELETE
- * actions so there is no support for them in this generator.
- *
  * @author Paweł Bizley Brzozowski
- * @version 2.2.1
+ * @version 2.3.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
+    protected $version = '2.3.0';
+
     /**
      * @var string Default command action.
      */
@@ -201,7 +199,7 @@ class MigrationController extends Controller
                 }
             }
             $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v2.2.1\n\n", Console::FG_CYAN);
+            $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
             return true;
         }
         return false;
@@ -436,7 +434,6 @@ class MigrationController extends Controller
      * Creates new update migrations for every table in database.
      * @return int
      * @throws InvalidParamException
-     * @throws ErrorException
      * @since 2.1
      */
     public function actionUpdateAll()
