@@ -2,10 +2,10 @@
 /**
  * This is the template for generating the update migration of a specified table.
  *
- * @var $tableName string full table name
- * @var $className string class name
- * @var $namespace string namespace
- * @var $methods array methods definitions
+ * @var $table \bizley\migration\table\TableStructure Table structure
+ * @var $className string Class name
+ * @var $namespace string Namespace
+ * @var $plan \bizley\migration\table\TablePlan Changes definitions
  */
 
 echo "<?php\n";
@@ -20,9 +20,7 @@ class <?= $className ?> extends Migration
 {
     public function safeUp()
     {
-<?php foreach ($methods as $definition): ?>
-        $this-><?= $definition[0] ?>(<?= $definition[1] ?>);
-<?php endforeach; ?>
+<?= $plan->render($table) ?>
     }
 
     public function safeDown()

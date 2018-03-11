@@ -37,9 +37,9 @@ class TablePlan extends Object
     public $addForeignKey = [];
 
     /**
-     * @var bool
+     * @var string
      */
-    public $dropPrimaryKey = false;
+    public $dropPrimaryKey;
 
     /**
      * @var TablePrimaryKey
@@ -57,73 +57,54 @@ class TablePlan extends Object
     public $createIndex = [];
 
     /**
-     * Prepares updates definitions.
-     * @return array
+     * Renders migration changes.
+     * @param TableStructure $table
+     * @return string
      */
-    public function prepareUpdates()
+    public function render($table)
     {
-        $updates = [];
-        /* @var $data array */
-        foreach ($this->_modifications as $method => $data) {
-            switch ($method) {
-                case 'dropColumn':
-                    foreach ($data as $column) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}'"];
-                    }
-                    break;
-                case 'addColumn':
-                    foreach ($data as $column => $type) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}', " . $this->renderColumnStructure($type)];
-                    }
-                    break;
-                case 'alterColumn':
-                    /* @var $typesList array */
-                    foreach ($data as $column => $type) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}', " . $this->renderColumnStructure($type)];
-                    }
-                    break;
-                case 'addForeignKey':
-                    foreach ($data as $fk => $params) {
-                        $definition = [
-                            "'{$fk}'",
-                            "'" . $this->generateTableName($this->tableName) . "'",
-                            is_array($params[0]) ? '[' . implode(', ', $params[0]) . ']' : "'{$params[0]}'",
-                            "'" . $this->generateTableName($params[1]) . "'",
-                            is_array($params[2]) ? '[' . implode(', ', $params[2]) . ']' : "'{$params[2]}'",
-                        ];
-                        if ($params[3] !== null || $params[4] !== null) {
-                            $definition[] = $params[3] !== null ? "'{$params[3]}'" : 'null';
-                        }
-                        if ($params[4] !== null) {
-                            $definition[] = "'{$params[4]}'";
-                        }
-                        $updates[] = [$method, implode(', ', $definition)];
-                    }
-                    break;
-                case 'dropForeignKey':
-                    foreach ($data as $fk) {
-                        $updates[] = [$method, "'{$fk}', '" . $this->generateTableName($this->tableName) . "'"];
-                    }
-                    break;
-                case 'createIndex':
-                    foreach ($data as $uidx => $columns) {
-                        $updates[] = [$method, "'{$uidx}', '" . $this->generateTableName($this->tableName) . "', "
-                            . (count($columns) === 1 ? "'{$columns[0]}'" : "['" . implode("', '", $columns) . "']") . ', true'];
-                    }
-                    break;
-                case 'dropIndex':
-                    foreach ($data as $uidx) {
-                        $updates[] = [$method, "'{$uidx}', '" . $this->generateTableName($this->tableName) . "'"];
-                    }
-                    break;
-                case 'dropPrimaryKey':
-                    $updates[] = [$method, "'primary_key', '" . $this->generateTableName($this->tableName) . "'"];
-                    break;
-                case 'addPrimaryKey':
-                    $updates[] = [$method, "'primary_key', '" . $this->generateTableName($this->tableName) . "', "
-                        . (count($data) === 1 ? "'{$data[0]}'" : "['" . implode("', '", $data) . "']")];
-            }
+        $output = '';
+
+        foreach ($this->dropColumn as $name) {
+            $output .= "        \$this->dropColumn('" . $table->renderName() . "', '{$name}');\n";
         }
-        return $updates;
+
+        /* @var $column TableColumn */
+        foreach ($this->addColumn as $name => $column) {
+            $output .= "        \$this->addColumn('" . $table->renderName() . "', '{$name}', " . $column->renderDefinition($table) . ");\n";
+        }
+
+        /* @var $column TableColumn */
+        foreach ($this->alterColumn as $name => $column) {
+            $output .= "        \$this->alterColumn('" . $table->renderName() . "', '{$name}', " . $column->renderDefinition($table) . ");\n";
+        }
+
+        foreach ($this->dropForeignKey as $name) {
+            $output .= "        \$this->dropForeignKey('{$name}', '" . $table->renderName() . "');\n";
+        }
+
+        /* @var $foreignKey TableForeignKey */
+        foreach ($this->addForeignKey as $name => $foreignKey) {
+            $output .= $foreignKey->render($table);
+        }
+
+        foreach ($this->dropIndex as $name) {
+            $output .= "        \$this->dropIndex('{$name}', '" . $table->renderName() . "');\n";
+        }
+
+        /* @var $index TableIndex */
+        foreach ($this->createIndex as $name => $index) {
+            $output .= $index->render($table);
+        }
+
+        if ($this->dropPrimaryKey) {
+            $output .= "        \$this->dropPrimaryKey('{$this->dropPrimaryKey['name']}', '" . $table->renderName() . "');\n";
+        }
+
+        if ($this->addPrimaryKey) {
+            $output .= $this->addPrimaryKey->render($table);
+        }
+
+        return $output;
     }
 }
