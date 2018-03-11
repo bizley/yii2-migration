@@ -183,20 +183,25 @@ PHP;
             }
             switch ($change->method) {
                 case 'createTable':
-                    //todo
+                    /* @var $column TableColumn */
                     foreach ($change->value as $column) {
-                        $this->_oldTable['columns'][$column] = $properties;
-                        if (!empty($this->_oldTable['columns'][$column]['append']) && $this->findPrimaryKeyString($this->_oldTable['columns'][$column]['append'])) {
-                            $this->_oldTable['pk'][] = $column;
+                        $this->columns[$column->name] = $column;
+                        if ($column->isColumnAppendPK($this->schema)) {
+                            if ($this->primaryKey === null) {
+                                $this->primaryKey = new TablePrimaryKey(['columns' => [$column->name]]);
+                            } else {
+                                $this->primaryKey->addColumn($column->name);
+                            }
                         }
                     }
                     break;
                 case 'addColumn':
-                    //todo
-                    foreach (current($change) as $column => $properties) {
-                        $this->_oldTable['columns'][$column] = $properties;
-                        if (!empty($this->_oldTable['columns'][$column]['append']) && $this->findPrimaryKeyString($this->_oldTable['columns'][$column]['append'])) {
-                            $this->_oldTable['pk'][] = $column;
+                    $this->columns[$change->value->name] = $change->value;
+                    if ($change->value->isColumnAppendPK($this->schema)) {
+                        if ($this->primaryKey === null) {
+                            $this->primaryKey = new TablePrimaryKey(['columns' => [$change->value->name]]);
+                        } else {
+                            $this->primaryKey->addColumn($change->value->name);
                         }
                     }
                     break;
@@ -211,69 +216,50 @@ PHP;
                     }
                     break;
                 case 'alterColumn':
-                    //todo
-                    if (isset($this->_oldTable['columns'][key(current($change))])) {
-                        $this->_oldTable['columns'][key(current($change))] = current(current($change));
-                    }
+                    $this->columns[$change->value->name] = $change->value;
                     break;
                 case 'addPrimaryKey':
-                    //todo
-                    $pk = current($change);
-                    $this->_oldTable['pk'] = $pk;
-                    foreach ($pk as $key) {
-                        if (isset($this->_oldTable['columns'][$key])) {
-                            if (empty($this->_oldTable['columns'][$key]['append'])) {
-                                $this->_oldTable['columns'][$key]['append'] = $this->prepareSchemaAppend(true, false);
-                            } elseif (!$this->findPrimaryKeyString($this->_oldTable['columns'][$key]['append'])) {
-                                $this->_oldTable['columns'][$key]['append'] .= ' ' . $this->prepareSchemaAppend(true, false);
+                    $this->primaryKey = $change->value;
+                    foreach ($this->primaryKey->columns as $column) {
+                        if (isset($this->columns[$column])) {
+                            if (empty($this->columns[$column]->append)) {
+                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend($this, true, false);
+                            } elseif (!$this->columns[$column]->isColumnAppendPK($this->schema)) {
+                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend($this, true, false);
                             }
                         }
                     }
                     break;
                 case 'dropPrimaryKey':
-                    //todo
-                    if (!empty($this->_oldTable['pk'])) {
-                        foreach ($this->_oldTable['pk'] as $key) {
-                            if (isset($this->_oldTable['columns'][$key]) && !empty($this->_oldTable['columns'][$key]['append'])) {
-                                $append = $this->removePrimaryKeyString($this->_oldTable['columns'][$key]['append']);
-                                if ($append) {
-                                    $this->_oldTable['columns'][$key]['append'] = !is_string($append) || $append === ' ' ? null : $append;
-                                }
+                    if ($this->primaryKey !== null) {
+                        foreach ($this->primaryKey->columns as $column) {
+                            if (isset($this->columns[$column]) && !empty($this->columns[$column]->append)) {
+                                $this->columns[$column]->append = $this->columns[$column]->removePKAppend($this->schema);
                             }
                         }
                     }
-                    $this->_oldTable['pk'] = [];
+                    $this->primaryKey = null;
                     break;
                 case 'addForeignKey':
-                    //todo
-                    $this->_oldTable['fks'][current($change)[0]] = [current($change)[1], current($change)[2], current($change)[3], current($change)[4], current($change)[5]];
+                    $this->foreignKeys[$change->value->name] = $change->value;
                     break;
                 case 'dropForeignKey':
-                    //todo
-                    if (isset($this->_oldTable['fks'][current($change)])) {
-                        unset($this->_oldTable['fks'][current($change)]);
-                    }
+                    unset($this->foreignKeys[$change->value]);
                     break;
                 case 'createIndex':
-                    //todo
-                    $this->_oldTable['uidxs'][key(current($change))] = current(current($change));
+                    $this->indexes[$change->value->name] = $change->value;
                     break;
                 case 'dropIndex':
-                    //todo
-                    if (isset($this->_oldTable['uidxs'][current($change)])) {
-                        unset($this->_oldTable['uidxs'][current($change)]);
-                    }
+                    unset($this->indexes[$change->value]);
                     break;
                 case 'addCommentOnColumn':
-                    //todo
-                    if (isset($this->_oldTable['columns'][key(current($change))])) {
-                        $this->_oldTable['columns'][key(current($change))]['comment'] = current(current($change));
+                    if (isset($this->columns[$change->value->name])) {
+                        $this->columns[$change->value->name]->comment = $change->value->comment;
                     }
                     break;
                 case 'dropCommentFromColumn':
-                    //todo
-                    if (isset($this->_oldTable['columns'][current($change)])) {
-                        $this->_oldTable['columns'][current($change)]['comment'] = null;
+                    if (isset($this->columns[$change->value])) {
+                        $this->columns[$change->value]->comment = null;
                     }
             }
         }

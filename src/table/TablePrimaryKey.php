@@ -38,4 +38,14 @@ class TablePrimaryKey extends Object
             . implode("', '", $this->columns)
             . "']);\n";
     }
+
+    /**
+     * @param $name
+     */
+    public function addColumn($name)
+    {
+        if (!in_array($name, $this->columns, true)) {
+            $this->columns[] = $name;
+        }
+    }
 }

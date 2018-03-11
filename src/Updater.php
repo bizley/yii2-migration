@@ -3,6 +3,8 @@
 namespace bizley\migration;
 
 use bizley\migration\table\TableChange;
+use bizley\migration\table\TableColumn;
+use bizley\migration\table\TablePlan;
 use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\ErrorException;
@@ -13,7 +15,6 @@ use yii\db\Expression;
 use yii\db\Query;
 use yii\db\Schema;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 
 /**
  * Update migration file generator.
@@ -22,6 +23,9 @@ use yii\helpers\FileHelper;
  * @version 2.2.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
+ *
+ * @property-read TableStructure $oldTable
+ * @property TablePlan $plan
  */
 class Updater extends Generator
 {
@@ -216,7 +220,7 @@ class Updater extends Generator
         if ($value === false) {
             return 'FALSE';
         }
-        return '"' . $value . '"';
+        return '"' . str_replace('"', '\"', $value) . '"';
     }
 
     /**
@@ -272,7 +276,15 @@ class Updater extends Generator
         return true;
     }
 
-    private $_modifications = [];
+    private $_modifications;
+
+    public function getPlan()
+    {
+        if ($this->_modifications === null) {
+            $this->_modifications = new TablePlan();
+        }
+        return $this->_modifications;
+    }
 
     /**
      * Compares migration structure and database structure and gather required modifications.
@@ -283,102 +295,101 @@ class Updater extends Generator
         if (empty($this->_appliedChanges)) {
             return true;
         }
-        $this->getOldTable();
         $different = false;
         if ($this->showOnly) {
             echo "SHOWING DIFFERENCES:\n";
         }
-        foreach ($this->structure['columns'] as $column => $data) {
-            if (!isset($this->_oldTable['columns'][$column])) {
+
+        foreach ($this->table->columns as $name => $column) {
+            if (!isset($this->oldTable->columns[$name])) {
                 if ($this->showOnly) {
-                    echo "   - missing column '$column'\n";
+                    echo "   - missing column '$name'\n";
+                } else {
+                    $this->plan->addColumn[$name] = $column;
                 }
-                $this->_modifications['addColumn'][$column] = $data;
                 $different = true;
                 continue;
             }
-            foreach ($data as $property => $value) {
-                if ($value !== null && !isset($this->_oldTable['columns'][$column][$property])) {
+            foreach (TableColumn::properties() as $property) {
+                if (!$this->generalSchema && $this->oldTable->columns[$name]->$property !== $column->$property) {
                     if ($this->showOnly) {
-                        echo "   - missing '$column' column property: $property (";
-                        echo 'DB: ' . $this->displayValue($value) . ")\n";
-                    }
-                    $this->_modifications['alterColumn'][$column] = $data;
-                    $different = true;
-                    break;
-                }
-                if ($this->_oldTable['columns'][$column][$property] != $value) {
-                    if (!$this->generalSchema || $property !== 'length') {
-                        if ($this->showOnly) {
-                            echo "   - different '$column' column property: $property (";
-                            echo 'DB: ' . $this->displayValue($value) . ' <> ';
-                            echo 'MIG: ' . $this->displayValue($this->_oldTable['columns'][$column][$property]) . ")\n";
+                        echo "   - different '$name' column property: $property (";
+                        echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
+                        echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
+                    } else {
+                        if (!isset($this->plan->alterColumn[$name])) {
+                            $this->plan->alterColumn[$name] = $column;
                         }
-                        $this->_modifications['alterColumn'][$column] = $data;
-                        $different = true;
-                        break;
                     }
+                    $different = true;
                 }
             }
         }
-        foreach ($this->_oldTable['columns'] as $column => $data) {
-            if (!isset($this->structure['columns'][$column])) {
+        foreach ($this->oldTable->columns as $name => $column) {
+            if (!isset($this->table->columns[$name])) {
                 if ($this->showOnly) {
-                    echo "   - excessive column '$column'\n";
+                    echo "   - excessive column '$name'\n";
+                } else {
+                    $this->plan->dropColumn[] = $name;
                 }
-                $this->_modifications['dropColumn'][] = $column;
                 $different = true;
             }
         }
 
-        foreach ($this->structure['fks'] as $fk => $data) {
-            if (!isset($this->_oldTable['fks'][$fk])) {
+        foreach ($this->table->foreignKeys as $name => $foreignKey) {
+            if (!isset($this->oldTable->foreignKeys[$name])) {
                 if ($this->showOnly) {
-                    echo "   - missing foreign key '$fk'\n";
+                    echo "   - missing foreign key '$name'\n";
+                } else {
+                    $this->plan->addForeignKey[$name] = $foreignKey;
                 }
-                $this->_modifications['addForeignKey'][$fk] = $data;
                 $different = true;
             }
         }
-        foreach ($this->_oldTable['fks'] as $fk => $data) {
-            if (!isset($this->structure['fks'][$fk])) {
+        foreach ($this->oldTable->foreignKeys as $name => $foreignKey) {
+            if (!isset($this->table->foreignKeys[$name])) {
                 if ($this->showOnly) {
-                    echo "   - excessive foreign key '$fk'\n";
+                    echo "   - excessive foreign key '$name'\n";
+                } else {
+                    $this->plan->dropForeignKey[] = $name;
                 }
-                $this->_modifications['dropForeignKey'][] = $fk;
                 $different = true;
             }
         }
 
-        $newKeys = array_diff($this->structure['pk'], $this->_oldTable['pk']);
+        $newKeys = array_diff($this->table->primaryKey->columns, $this->oldTable->primaryKey->columns);
         if (count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
-            }
-            if (!empty($this->_oldTable['pk'])) {
-                $this->_modifications['dropPrimaryKey'] = true;
-            }
-            if (!empty($this->structure['pk']) && $this->confirmCompositePrimaryKey($newKeys)) {
-                $this->_modifications['addPrimaryKey'] = $this->structure['pk'];
+            } else {
+                if (!empty($this->oldTable->primaryKey->columns)) {
+                    $this->plan->dropPrimaryKey = true;
+                }
+                if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
+                    $this->plan->addPrimaryKey = $this->table->primaryKey;
+                }
             }
             $different = true;
         }
 
-        foreach ($this->structure['uidxs'] as $uidx => $data) {
-            if (!isset($this->_oldTable['uidxs'][$uidx])) {
+        foreach ($this->table->indexes as $name => $index) {
+            if (!isset($this->oldTable->indexes[$name])) {
                 if ($this->showOnly) {
-                    echo "   - missing unique index '$uidx'\n";
+                    echo "   - missing index '$name'\n";
+                } else {
+                    $this->plan->createIndex[$name] = $index;
                 }
-                $this->_modifications['createIndex'][$uidx] = $data;
                 $different = true;
             }
+            // todo sprawdz czy zmienil sie unique
         }
-        foreach ($this->_oldTable['uidxs'] as $uidx => $data) {
-            if (!isset($this->structure['uidxs'][$uidx])) {
+        foreach ($this->oldTable->indexes as $name => $index) {
+            if (!isset($this->table->indexes[$name])) {
                 if ($this->showOnly) {
-                    echo "   - excessive unique index '$uidx'\n";
+                    echo "   - excessive unique index '$name'\n";
+                } else {
+                    $this->plan->dropIndex[] = $name;
                 }
-                $this->_modifications['dropIndex'][] = $uidx;
                 $different = true;
             }
         }
@@ -542,63 +553,7 @@ class Updater extends Generator
 
         return $definition;
     }
-
-    /**
-     * Checks for primary key string based on column properties and used schema.
-     * @param string $append
-     * @return bool
-     * @since 2.1.2
-     */
-    public function findPrimaryKeyString($append)
-    {
-        $schema = $this->db->schema;
-        if ($schema::className() === 'yii\db\mssql\Schema') {
-            if (stripos($append, 'IDENTITY') !== false && stripos($append, 'PRIMARY KEY') !== false) {
-                return true;
-            }
-        } else {
-            if (stripos($append, 'PRIMARY KEY') !== false) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Removes primary key and autoincrement string based on column properties and used schema.
-     * @param string $append
-     * @return string|bool|null
-     * @since 2.1.2
-     */
-    public function removePrimaryKeyString($append)
-    {
-        if (!$this->findPrimaryKeyString($append)) {
-            return null;
-        }
-
-        $uppercaseAppend = preg_replace('/\s+/', ' ', mb_strtoupper($append, 'UTF-8'));
-
-        $schema = $this->db->schema;
-        switch ($schema::className()) {
-            case 'yii\db\mssql\Schema':
-                $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
-                break;
-            case 'yii\db\oci\Schema':
-            case 'yii\db\pgsql\Schema':
-                $formattedAppend = str_replace('PRIMARY KEY', '', $uppercaseAppend);
-                break;
-            case 'yii\db\sqlite\Schema':
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $uppercaseAppend);
-                break;
-            case 'yii\db\cubrid\Schema':
-            case 'yii\db\mysql\Schema':
-            default:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $uppercaseAppend);
-        }
-
-        return $formattedAppend ?: true;
-    }
-
+    
     /**
      * Returns size value from its structure.
      * @param array $column
@@ -607,77 +562,6 @@ class Updater extends Generator
     public function renderSizeStructure($column)
     {
         return empty($column['length']) && !is_numeric($column['length']) ? null : $column['length'];
-    }
-
-    /**
-     * Prepares updates definitions.
-     * @return array
-     */
-    public function prepareUpdates()
-    {
-        $updates = [];
-        /* @var $data array */
-        foreach ($this->_modifications as $method => $data) {
-            switch ($method) {
-                case 'dropColumn':
-                    foreach ($data as $column) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}'"];
-                    }
-                    break;
-                case 'addColumn':
-                    foreach ($data as $column => $type) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}', " . $this->renderColumnStructure($type)];
-                    }
-                    break;
-                case 'alterColumn':
-                    /* @var $typesList array */
-                    foreach ($data as $column => $type) {
-                        $updates[] = [$method, "'" . $this->generateTableName($this->tableName) . "', '{$column}', " . $this->renderColumnStructure($type)];
-                    }
-                    break;
-                case 'addForeignKey':
-                    foreach ($data as $fk => $params) {
-                        $definition = [
-                            "'{$fk}'",
-                            "'" . $this->generateTableName($this->tableName) . "'",
-                            is_array($params[0]) ? '[' . implode(', ', $params[0]) . ']' : "'{$params[0]}'",
-                            "'" . $this->generateTableName($params[1]) . "'",
-                            is_array($params[2]) ? '[' . implode(', ', $params[2]) . ']' : "'{$params[2]}'",
-                        ];
-                        if ($params[3] !== null || $params[4] !== null) {
-                            $definition[] = $params[3] !== null ? "'{$params[3]}'" : 'null';
-                        }
-                        if ($params[4] !== null) {
-                            $definition[] = "'{$params[4]}'";
-                        }
-                        $updates[] = [$method, implode(', ', $definition)];
-                    }
-                    break;
-                case 'dropForeignKey':
-                    foreach ($data as $fk) {
-                        $updates[] = [$method, "'{$fk}', '" . $this->generateTableName($this->tableName) . "'"];
-                    }
-                    break;
-                case 'createIndex':
-                    foreach ($data as $uidx => $columns) {
-                        $updates[] = [$method, "'{$uidx}', '" . $this->generateTableName($this->tableName) . "', "
-                            . (count($columns) === 1 ? "'{$columns[0]}'" : "['" . implode("', '", $columns) . "']") . ', true'];
-                    }
-                    break;
-                case 'dropIndex':
-                    foreach ($data as $uidx) {
-                        $updates[] = [$method, "'{$uidx}', '" . $this->generateTableName($this->tableName) . "'"];
-                    }
-                    break;
-                case 'dropPrimaryKey':
-                    $updates[] = [$method, "'primary_key', '" . $this->generateTableName($this->tableName) . "'"];
-                    break;
-                case 'addPrimaryKey':
-                    $updates[] = [$method, "'primary_key', '" . $this->generateTableName($this->tableName) . "', "
-                        . (count($data) === 1 ? "'{$data[0]}'" : "['" . implode("', '", $data) . "']")];
-            }
-        }
-        return $updates;
     }
 
     /**
@@ -690,11 +574,10 @@ class Updater extends Generator
         if (empty($this->_modifications)) {
             return parent::generateMigration();
         }
-        $params = [
+        return $this->view->renderFile(Yii::getAlias($this->templateFileUpdate), [
             'className' => $this->className,
-            'methods' => $this->prepareUpdates(),
-            'namespace' => !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null
-        ];
-        return $this->view->renderFile(Yii::getAlias($this->templateFileUpdate), $params);
+            'plan' => $this->plan,
+            'namespace' => $this->normalizedNamespace
+        ]);
     }
 }

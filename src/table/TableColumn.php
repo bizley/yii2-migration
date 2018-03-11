@@ -70,6 +70,11 @@ class TableColumn extends Object
      */
     public $comment;
 
+    public static function properties()
+    {
+        return ['type', 'isNotNull', 'size', 'precision', 'scale', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
+    }
+
     /**
      * @return int|string
      */
@@ -144,6 +149,27 @@ class TableColumn extends Object
     }
 
     /**
+     * @param string $schema
+     * @return bool
+     */
+    public function isColumnAppendPK($schema)
+    {
+        if (empty($this->append)) {
+            return false;
+        }
+        if ($schema === TableStructure::SCHEMA_MSSQL) {
+            if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
+                return true;
+            }
+        } else {
+            if (stripos($this->append, 'PRIMARY KEY') !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Prepares append SQL based on schema.
      * @param TableStructure $table
      * @param bool $primaryKey
@@ -174,5 +200,34 @@ class TableColumn extends Object
     public function escapeQuotes($value)
     {
         return str_replace('\'', '\\\'', $value);
+    }
+
+    public function removePKAppend($schema)
+    {
+        if (!$this->isColumnAppendPK($schema)) {
+            return null;
+        }
+
+        $uppercaseAppend = preg_replace('/\s+/', ' ', mb_strtoupper($this->append, 'UTF-8'));
+
+        switch ($schema) {
+            case TableStructure::SCHEMA_MSSQL:
+                $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
+                break;
+            case TableStructure::SCHEMA_OCI:
+            case TableStructure::SCHEMA_PGSQL:
+                $formattedAppend = str_replace('PRIMARY KEY', '', $uppercaseAppend);
+                break;
+            case TableStructure::SCHEMA_SQLITE:
+                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $uppercaseAppend);
+                break;
+            case TableStructure::SCHEMA_CUBRID:
+            case TableStructure::SCHEMA_MYSQL:
+            default:
+                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $uppercaseAppend);
+        }
+        $formattedAppend = trim($formattedAppend);
+
+        return !empty($formattedAppend) ? $formattedAppend : null;
     }
 }
