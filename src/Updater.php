@@ -344,6 +344,30 @@ class Updater extends Generator
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
                 $different = true;
+                continue;
+            }
+            if (count(array_diff($this->oldTable->foreignKeys[$name]->columns, $this->table->foreignKeys[$name]->columns))) {
+                if ($this->showOnly) {
+                    echo "   - different foreign key '$name' columns (";
+                    echo 'DB: (' . implode(', ', $this->table->foreignKeys[$name]->columns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $this->oldTable->foreignKeys[$name]->columns) . "))\n";
+                } else {
+                    $this->plan->dropForeignKey[] = $name;
+                    $this->plan->addForeignKey[$name] = $foreignKey;
+                }
+                $different = true;
+                continue;
+            }
+            if (count(array_diff($this->oldTable->foreignKeys[$name]->refColumns, $this->table->foreignKeys[$name]->refColumns))) {
+                if ($this->showOnly) {
+                    echo "   - different foreign key '$name' referral columns (";
+                    echo 'DB: (' . implode(', ', $this->table->foreignKeys[$name]->refColumns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $this->oldTable->foreignKeys[$name]->refColumns) . "))\n";
+                } else {
+                    $this->plan->dropForeignKey[] = $name;
+                    $this->plan->addForeignKey[$name] = $foreignKey;
+                }
+                $different = true;
             }
         }
         foreach ($this->oldTable->foreignKeys as $name => $foreignKey) {
@@ -380,13 +404,36 @@ class Updater extends Generator
                     $this->plan->createIndex[$name] = $index;
                 }
                 $different = true;
+                continue;
             }
-            // todo sprawdz czy zmienil sie unique
+            if ($this->oldTable->indexes[$name]->unique !== $this->table->indexes[$name]->unique) {
+                if ($this->showOnly) {
+                    echo "   - different index '$name' definition (";
+                    echo 'DB: unique ' . $this->displayValue($this->table->indexes[$name]->unique) . ' <> ';
+                    echo 'MIG: unique ' . $this->displayValue($this->oldTable->indexes[$name]->unique) . ")\n";
+                } else {
+                    $this->plan->dropIndex[] = $name;
+                    $this->plan->createIndex[$name] = $index;
+                }
+                $different = true;
+                continue;
+            }
+            if (count(array_diff($this->oldTable->indexes[$name]->columns, $this->table->indexes[$name]->columns))) {
+                if ($this->showOnly) {
+                    echo "   - different index '$name' columns (";
+                    echo 'DB: (' . implode(', ', $this->table->indexes[$name]->columns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $this->oldTable->indexes[$name]->columns) . "))\n";
+                } else {
+                    $this->plan->dropIndex[] = $name;
+                    $this->plan->createIndex[$name] = $index;
+                }
+                $different = true;
+            }
         }
         foreach ($this->oldTable->indexes as $name => $index) {
             if (!isset($this->table->indexes[$name])) {
                 if ($this->showOnly) {
-                    echo "   - excessive unique index '$name'\n";
+                    echo "   - excessive index '$name'\n";
                 } else {
                     $this->plan->dropIndex[] = $name;
                 }
