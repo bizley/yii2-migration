@@ -18,12 +18,12 @@ use yii\db\Migration;
 
 class <?= $className ?> extends Migration
 {
-    public function safeUp()
+    public function up()
     {
 <?= $plan->render($table) ?>
     }
 
-    public function safeDown()
+    public function down()
     {
         echo "<?= $className ?> cannot be reverted.\n";
         return false;

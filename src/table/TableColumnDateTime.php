@@ -13,6 +13,14 @@ class TableColumnDateTime extends TableColumn
     }
 
     /**
+     * @param $value
+     */
+    public function setLength($value)
+    {
+        $this->precision = $value;
+    }
+
+    /**
      * @param TableStructure $table
      */
     public function buildSpecificDefinition($table)

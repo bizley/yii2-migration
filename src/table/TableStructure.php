@@ -186,7 +186,7 @@ PHP;
                     /* @var $column TableColumn */
                     foreach ($change->value as $column) {
                         $this->columns[$column->name] = $column;
-                        if ($column->isColumnAppendPK($this->schema)) {
+                        if ($column->isPrimaryKey || $column->isColumnAppendPK($this->schema)) {
                             if ($this->primaryKey === null) {
                                 $this->primaryKey = new TablePrimaryKey(['columns' => [$column->name]]);
                             } else {
@@ -197,7 +197,7 @@ PHP;
                     break;
                 case 'addColumn':
                     $this->columns[$change->value->name] = $change->value;
-                    if ($change->value->isColumnAppendPK($this->schema)) {
+                    if ($change->value->isPrimaryKey || $change->value->isColumnAppendPK($this->schema)) {
                         if ($this->primaryKey === null) {
                             $this->primaryKey = new TablePrimaryKey(['columns' => [$change->value->name]]);
                         } else {

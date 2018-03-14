@@ -231,44 +231,31 @@ class Updater extends Generator
      */
     protected function confirmCompositePrimaryKey($newKeys)
     {
-        $primaryKeyColumns = array_key_exists('columnNames', $this->structure['pk']) ? $this->structure['pk']['columnNames'] : [];
-        if (count($primaryKeyColumns) === 1 && count($newKeys) === 1) {
-            if (isset($this->_modifications['addColumn'])) {
-                foreach ($this->_modifications['addColumn'] as $column => $data) {
-                    if ($column === $newKeys[0] && !empty($data['append']) && $this->findPrimaryKeyString($data['append'])) {
-                        return false;
-                    }
+        if (count($this->table->primaryKey->columns) === 1 && count($newKeys) === 1) {
+            /* @var $column TableColumn */
+            foreach ($this->plan->addColumn as $name => $column) {
+                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
+                    return false;
                 }
             }
-            if (isset($this->_modifications['alterColumn'])) {
-                foreach ($this->_modifications['alterColumn'] as $column => $data) {
-                    if ($column === $newKeys[0] && !empty($data['append']) && $this->findPrimaryKeyString($data['append'])) {
-                        return false;
-                    }
+            foreach ($this->plan->alterColumn as $name => $column) {
+                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
+                    return false;
                 }
             }
             return true;
         }
-        if (count($primaryKeyColumns) > 1) {
+        if (count($this->table->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
-                if (isset($this->_modifications['addColumn'])) {
-                    foreach ($this->_modifications['addColumn'] as $column => $data) {
-                        if ($column === $key && !empty($data['append'])) {
-                            $append = $this->removePrimaryKeyString($data['append']);
-                            if ($append) {
-                                $this->_modifications['addColumn'][$column]['append'] = !is_string($append) || $append === ' ' ? null : $append;
-                            }
-                        }
+                /* @var $column TableColumn */
+                foreach ($this->plan->addColumn as $name => $column) {
+                    if ($name === $key) {
+                        $column->append = $column->removePKAppend($this->table->schema);
                     }
                 }
-                if (isset($this->_modifications['alterColumn'])) {
-                    foreach ($this->_modifications['alterColumn'] as $column => $data) {
-                        if ($column === $key && !empty($data['append'])) {
-                            $append = $this->removePrimaryKeyString($data['append']);
-                            if ($append) {
-                                $this->_modifications['alterColumn'][$column]['append'] = !is_string($append) || $append === ' ' ? null : $append;
-                            }
-                        }
+                foreach ($this->plan->alterColumn as $name => $column) {
+                    if ($name === $key) {
+                        $column->append = $column->removePKAppend($this->table->schema);
                     }
                 }
             }

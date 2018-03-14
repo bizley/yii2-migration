@@ -83,6 +83,11 @@ class TableColumn extends Object
         return $this->size;
     }
 
+    public function setLength($value)
+    {
+        $this->size = $value;
+    }
+
     protected function buildSpecificDefinition($table) {}
 
     protected $definition = [];
