@@ -125,6 +125,8 @@ class Generator extends Extractor
             case Schema::TYPE_CHAR:
             case Schema::TYPE_STRING:
             case Schema::TYPE_TEXT:
+            // Need to check for tinyint support until Yii 2.0.14 is required
+            case defined('yii\db\Schema::TYPE_TINYINT') ? Schema::TYPE_TINYINT : false:
             case Schema::TYPE_SMALLINT:
             case Schema::TYPE_INTEGER:
             case Schema::TYPE_BIGINT:
@@ -184,6 +186,10 @@ class Generator extends Extractor
                 break;
             case Schema::TYPE_TEXT:
                 $definition .= '->text(' . $size . ')';
+                break;
+            // Need to check for tinyint support until Yii 2.0.14 is required
+            case defined('yii\db\Schema::TYPE_TINYINT') ? Schema::TYPE_TINYINT : false:
+                $definition .= '->tinyInteger(' . $size . ')';
                 break;
             case Schema::TYPE_SMALLINT:
                 $definition .= '->smallInteger(' . $size . ')';

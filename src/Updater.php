@@ -544,6 +544,10 @@ class Updater extends Generator
             case Schema::TYPE_TEXT:
                 $definition .= '->text(' . $size . ')';
                 break;
+            // Need to check for tinyint support until Yii 2.0.14 is required
+            case defined('yii\db\Schema::TYPE_TINYINT') ? Schema::TYPE_TINYINT : false:
+                $definition .= '->tinyInteger(' . $size . ')';
+                break;
             case Schema::TYPE_SMALLINT:
                 $definition .= '->smallInteger(' . $size . ')';
                 break;
