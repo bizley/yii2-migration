@@ -24,6 +24,7 @@
     },
     "autoload": {
         "psr-4": {
+            "bizley\\migration\\tests\\": "tests/",
             "bizley\\migration\\": "src/"
         }
     }

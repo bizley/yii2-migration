@@ -11,9 +11,7 @@ use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\console\controllers\MigrateController;
-use yii\db\Expression;
 use yii\db\Query;
-use yii\db\Schema;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -189,6 +187,7 @@ class Updater extends Generator
     /**
      * Returns the table structure as applied in gathered migrations.
      * @since 2.3.0
+     * @throws \yii\base\InvalidParamException
      */
     public function getOldTable()
     {
@@ -265,6 +264,9 @@ class Updater extends Generator
 
     private $_modifications;
 
+    /**
+     * @return TablePlan
+     */
     public function getPlan()
     {
         if ($this->_modifications === null) {
