@@ -46,6 +46,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'interactive' => false
                 ],
             ],
+            'components' => [
+                'db' => static::getConnection(),
+            ],
         ], $config));
     }
 

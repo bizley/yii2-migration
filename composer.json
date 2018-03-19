@@ -23,9 +23,9 @@
         "yiisoft/yii2": "~2.0.8"
     },
     "autoload": {
-        "psr-4": {
-            "bizley\\migration\\tests\\": "tests/",
-            "bizley\\migration\\": "src/"
-        }
+        "psr-4": { "bizley\\migration\\": "src" }
+    },
+    "autoload-dev": {
+        "psr-4": { "bizley\\migration\\": "tests" }
     }
 }
