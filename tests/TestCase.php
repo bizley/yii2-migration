@@ -33,7 +33,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         new $appClass(ArrayHelper::merge([
             'id' => 'MigrationTest',
             'basePath' => __DIR__,
-            'vendorPath' => __DIR__ . '/../../vendor/',
+            'vendorPath' => __DIR__ . '/../../../../vendor/',
             'controllerMap' => [
                 'migration' => [
                     'class' => 'bizley\migration\controllers\MigrationController',
