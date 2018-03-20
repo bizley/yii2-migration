@@ -59,14 +59,14 @@ class MigrationController extends Controller
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
      * Alias -F
      */
-    public $templateFile = '@vendor/bizley/migration/src/views/create_migration.php';
+    public $templateFile = '@bizley/migration/views/create_migration.php';
 
     /**
      * @var string Template file for generating updating migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
      * Alias -U
      */
-    public $templateFileUpdate = '@vendor/bizley/migration/src/views/update_migration.php';
+    public $templateFileUpdate = '@bizley/migration/views/update_migration.php';
 
     /**
      * @var bool|string|int Whether the table names generated should consider the $tablePrefix setting of the DB

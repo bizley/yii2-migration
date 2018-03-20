@@ -32,6 +32,9 @@ class TableColumnFactory
                 return new TableColumnString($configuration);
             case Schema::TYPE_TEXT:
                 return new TableColumnText($configuration);
+            case defined('yii\db\Schema::TYPE_TINYINT') ? Schema::TYPE_TINYINT : 'nottinyint':
+                // TinyInt support since Yii 2.0.14
+                return new TableColumnTinyInt($configuration);
             case Schema::TYPE_SMALLINT:
                 return new TableColumnSmallInt($configuration);
             case Schema::TYPE_INTEGER:

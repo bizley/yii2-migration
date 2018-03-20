@@ -107,20 +107,6 @@ class Generator extends Component
     }
 
     /**
-     * If $useTablePrefix equals true then the table name will contain the prefix format.
-     * @param string $tableName the table name to generate.
-     * @return string
-     * TODO wywalic
-     */
-    protected function generateTableName($tableName)
-    {
-        if (!$this->useTablePrefix) {
-            return $tableName;
-        }
-        return '{{%' . $tableName . '}}';
-    }
-
-    /**
      * Returns table primary key.
      * @return TablePrimaryKey
      */

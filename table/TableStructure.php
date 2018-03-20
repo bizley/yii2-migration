@@ -152,6 +152,11 @@ PHP;
         if ($this->indexes) {
             $output .= "\n";
             foreach ($this->indexes as $index) {
+                foreach ($this->foreignKeys as $foreignKey) {
+                    if ($foreignKey->name === $index->name) {
+                        continue 2;
+                    }
+                }
                 $output .= $index->render($this);
             }
         }
