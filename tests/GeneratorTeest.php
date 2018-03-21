@@ -5,7 +5,7 @@ namespace bizley\migration\tests;
 use bizley\migration\Generator;
 use Yii;
 
-class GeneratorTest extends TestCase
+class GeneratorTeest extends TestCase
 {
     protected function getGenerator($tableName, $generalSchema = true, $useTablePrefix = true, $namespace = null)
     {
