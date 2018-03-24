@@ -4,6 +4,10 @@ namespace bizley\migration\table;
 
 use yii\base\Object;
 
+/**
+ * Class TableForeignKey
+ * @package bizley\migration\table
+ */
 class TableForeignKey extends Object
 {
     /**
@@ -32,6 +36,7 @@ class TableForeignKey extends Object
     public $onUpdate;
 
     /**
+     * Renders key name.
      * @param TableStructure $table
      * @return string
      */
@@ -44,6 +49,7 @@ class TableForeignKey extends Object
     }
 
     /**
+     * Renders reference table name.
      * @param TableStructure $table
      * @return string
      */
@@ -60,17 +66,19 @@ class TableForeignKey extends Object
     }
 
     /**
+     * Renders the key.
      * @param TableStructure $table
+     * @param int $indent
      * @return string
      */
-    public function render($table)
+    public function render($table, $indent = 8)
     {
-        return '        $this->addForeignKey(\'' . $this->renderName($table) . "', '" . $table->renderName() . "', "
+        return str_repeat(' ', $indent) . '$this->addForeignKey(\'' . $this->renderName($table) . "', '" . $table->renderName() . "', "
             . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
             . ", '" . $this->renderRefTableName($table) . "', "
             . (count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
             . ($this->onDelete ? ", '{$this->onDelete}'" : '')
             . ($this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : '')
-            . ");\n";
+            . ');';
     }
 }

@@ -2,9 +2,14 @@
 
 namespace bizley\migration\table;
 
+/**
+ * Class TableColumnMoney
+ * @package bizley\migration\table
+ */
 class TableColumnMoney extends TableColumn
 {
     /**
+     * Returns length of the column.
      * @return int|string
      */
     public function getLength()
@@ -13,6 +18,7 @@ class TableColumnMoney extends TableColumn
     }
 
     /**
+     * Sets length of the column.
      * @param $value
      */
     public function setLength($value)
@@ -25,6 +31,7 @@ class TableColumnMoney extends TableColumn
     }
 
     /**
+     * Builds methods chain for column definition.
      * @param TableStructure $table
      */
     public function buildSpecificDefinition($table)

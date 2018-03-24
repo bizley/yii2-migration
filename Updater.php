@@ -15,12 +15,8 @@ use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 /**
- * Update migration file generator.
- *
- * @author Paweł Bizley Brzozowski
- * @version 2.2.0
- * @license Apache 2.0
- * https://github.com/bizley/yii2-migration
+ * Class Updater
+ * @package bizley\migration
  *
  * @property-read TableStructure $oldTable
  * @property TablePlan $plan

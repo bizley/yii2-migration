@@ -70,12 +70,17 @@ class TableColumn extends Object
      */
     public $comment;
 
+    /**
+     * List of all properties to be checked.
+     * @return array
+     */
     public static function properties()
     {
         return ['type', 'isNotNull', 'size', 'precision', 'scale', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
     }
 
     /**
+     * Returns length of the column.
      * @return int|string
      */
     public function getLength()
@@ -83,6 +88,10 @@ class TableColumn extends Object
         return $this->size;
     }
 
+    /**
+     * Sets length of the column.
+     * @param $value
+     */
     public function setLength($value)
     {
         $this->size = $value;
@@ -96,6 +105,7 @@ class TableColumn extends Object
     protected $isPkPossible = true;
 
     /**
+     * Builds general methods chain for column definition.
      * @param TableStructure $table
      */
     protected function buildGeneralDefinition($table)
@@ -115,9 +125,14 @@ class TableColumn extends Object
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes($this->default) . "')";
             }
         }
-        // TODO dodac append dodatkowy
         if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
-            $this->definition[] = "append('" . $this->prepareSchemaAppend($table, true, $this->autoIncrement) . "')";
+            $append = $this->prepareSchemaAppend($table, true, $this->autoIncrement);
+            if (!empty($this->append)) {
+                $append .= ' ' . $this->append;
+            }
+            $this->definition[] = "append('" . $this->escapeQuotes($append) . "')";
+        } elseif (!empty($this->append)) {
+            $this->definition[] = "append('" . $this->escapeQuotes($this->append) . "')";
         }
         if ($this->comment) {
             $this->definition[] = "comment('" . $this->escapeQuotes($this->comment) . "')";
@@ -125,6 +140,7 @@ class TableColumn extends Object
     }
 
     /**
+     * Renders column definition.
      * @param TableStructure $table
      * @return string
      */
@@ -136,15 +152,18 @@ class TableColumn extends Object
     }
 
     /**
+     * Renders the column.
      * @param TableStructure $table
+     * @param int $indent
      * @return string
      */
-    public function render($table)
+    public function render($table, $indent = 8)
     {
-        return "            '{$this->name}' => " . $this->renderDefinition($table) . ",\n";
+        return str_repeat(' ', $indent) . "'{$this->name}' => " . $this->renderDefinition($table) . ',';
     }
 
     /**
+     * Checks if column is a part of primary key.
      * @param TablePrimaryKey $pk
      * @return bool
      */
@@ -154,6 +173,7 @@ class TableColumn extends Object
     }
 
     /**
+     * Checks if information of primary key is set in append property.
      * @param string $schema
      * @return bool
      */
@@ -202,11 +222,21 @@ class TableColumn extends Object
         return empty($append) ? null : $append;
     }
 
+    /**
+     * Escapes single quotes.
+     * @param $value
+     * @return mixed
+     */
     public function escapeQuotes($value)
     {
         return str_replace('\'', '\\\'', $value);
     }
 
+    /**
+     * Removes information of primary key in append property.
+     * @param $schema
+     * @return null|string
+     */
     public function removePKAppend($schema)
     {
         if (!$this->isColumnAppendPK($schema)) {

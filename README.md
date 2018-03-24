@@ -20,7 +20,7 @@ Add the package to your composer.json:
 
 and run `composer update` or alternatively run `composer require bizley/migration`
 
-## Basic configuration
+## Configuration
 
 Add the following in your configuration file (preferably console configuration file):
 
@@ -37,29 +37,29 @@ Add the following in your configuration file (preferably console configuration f
 
 The following console command are available:
 
-    php yii migration
+- List all the tables in the database:
+
+      php yii migration
     
-or
+  or
 
-    php yii migration/list
+      php yii migration/list
 
-Lists all the tables in the database.
+- Generate migration to create DB table `table_name`:
 
-    php yii migration/create table_name
+      php yii migration/create table_name
 
-Generates migration to create DB table `table_name`.
+- Generate migrations to create all DB tables:
 
-    php yii migration/create-all
+      php yii migration/create-all
 
-Generates migrations to create all DB tables.
+- Generate migration to update DB table `table_name`:
 
-    php yii migration/update table_name
+      php yii migration/update table_name
 
-Generates migration to update DB table `table_name`.
+- Generate migrations to update all DB tables:
 
-    php yii migration/update-all
-
-Generates migrations to update all DB tables.
+      php yii migration/update-all
 
 You can generate multiple migrations for many tables at once by separating the names with a comma:
 
@@ -96,6 +96,7 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 > Column `varchar(45)`  
 > generalSchema=0: `$this->string(45)`    
 > generalSchema=1: `$this->string()`  
+
 > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`    
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
 > generalSchema=1: `$this->primaryKey()`
@@ -127,9 +128,9 @@ This extension is tested on MySQL database but should work with all database typ
 
 Let me know if something is wrong with databases other than MySQL (and in case of MySQL let me know as well).
 
-As far as I know Yii 2 does not keep information about table indexes (except unique ones) and foreign keys' 
-ON UPDATE and ON DELETE actions so unfortunately this can not be tracked and applied to generated migrations - 
-you have to add it on your own.
+Yii 2 limitations:
+- version 2.0.13 is required to track non-unique indexes,
+- version 2.0.14 is required to handle TinyInt and Json type columns.
 
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 

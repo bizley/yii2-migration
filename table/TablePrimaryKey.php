@@ -4,6 +4,10 @@ namespace bizley\migration\table;
 
 use yii\base\Object;
 
+/**
+ * Class TablePrimaryKey
+ * @package bizley\migration\table
+ */
 class TablePrimaryKey extends Object
 {
     const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
@@ -27,6 +31,7 @@ class TablePrimaryKey extends Object
     }
 
     /**
+     * Renders the key.
      * @param TableStructure $table
      * @return string
      */
@@ -40,6 +45,7 @@ class TablePrimaryKey extends Object
     }
 
     /**
+     * Adds column to the key.
      * @param $name
      */
     public function addColumn($name)

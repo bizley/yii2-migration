@@ -20,13 +20,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
 /**
- * Extractor class.
- * Gathers information about DB schema and migration files.
- *
- * @author Paweł Bizley Brzozowski
- * @version 2.1.2
- * @license Apache 2.0
- * https://github.com/bizley/yii2-migration
+ * Class Generator
+ * @package bizley\migration
  *
  * @property TableSchema $tableSchema
  * @property array $structure

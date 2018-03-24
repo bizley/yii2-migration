@@ -7,7 +7,6 @@ use yii\base\Object;
 /**
  * Class TablePlan
  * @package bizley\migration\table
- *
  */
 class TablePlan extends Object
 {

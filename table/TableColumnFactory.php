@@ -5,9 +5,14 @@ namespace bizley\migration\table;
 use yii\base\InvalidConfigException;
 use yii\db\Schema;
 
+/**
+ * Class TableColumnFactory
+ * @package bizley\migration\table
+ */
 class TableColumnFactory
 {
     /**
+     * Builds table column object based on the type.
      * @param array $configuration
      * @return TableColumn
      * @throws InvalidConfigException
@@ -61,6 +66,9 @@ class TableColumnFactory
                 return new TableColumnBoolean($configuration);
             case Schema::TYPE_MONEY:
                 return new TableColumnMoney($configuration);
+            case defined('yii\db\Schema::TYPE_JSON') ? Schema::TYPE_JSON : 'notjson':
+                // Json support since Yii 2.0.14
+                return new TableColumnJson($configuration);
             default:
                 throw new InvalidConfigException("Unsupported schema type '{$configuration['type']}' for TableColumnFactory.");
         }

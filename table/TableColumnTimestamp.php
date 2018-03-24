@@ -2,9 +2,14 @@
 
 namespace bizley\migration\table;
 
+/**
+ * Class TableColumnTimestamp
+ * @package bizley\migration\table
+ */
 class TableColumnTimestamp extends TableColumn
 {
     /**
+     * Returns length of the column.
      * @return int|string
      */
     public function getLength()
@@ -13,6 +18,7 @@ class TableColumnTimestamp extends TableColumn
     }
 
     /**
+     * Sets length of the column.
      * @param $value
      */
     public function setLength($value)
@@ -21,6 +27,7 @@ class TableColumnTimestamp extends TableColumn
     }
 
     /**
+     * Builds methods chain for column definition.
      * @param TableStructure $table
      */
     public function buildSpecificDefinition($table)

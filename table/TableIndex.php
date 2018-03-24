@@ -4,6 +4,10 @@ namespace bizley\migration\table;
 
 use yii\base\Object;
 
+/**
+ * Class TableIndex
+ * @package bizley\migration\table
+ */
 class TableIndex extends Object
 {
     /**
@@ -20,13 +24,15 @@ class TableIndex extends Object
     public $columns = [];
 
     /**
+     * Renders the index.
      * @param TableStructure $table
+     * @param int $indent
      * @return string
      */
-    public function render($table)
+    public function render($table, $indent = 8)
     {
-        return "        \$this->createIndex('{$this->name}', '" . $table->renderName() . "', "
+        return str_repeat(' ', $indent) . "\$this->createIndex('{$this->name}', '" . $table->renderName() . "', "
             . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ($this->unique ? ', true' : '') . ");\n";
+            . ($this->unique ? ', true' : '') . ');';
     }
 }

@@ -95,6 +95,10 @@ class TableStructure extends Object
         }
     }
 
+    /**
+     * Renders table name.
+     * @return bool|string
+     */
     public function renderName()
     {
         $tableName = $this->name;
@@ -107,11 +111,19 @@ class TableStructure extends Object
         return '{{%' . $tableName . '}}';
     }
 
+    /**
+     * Renders the migration structure.
+     * @return string
+     */
     public function render()
     {
         return $this->renderTable() . $this->renderPk() . $this->renderIndexes() . $this->renderForeignKeys();
     }
 
+    /**
+     * Renders the table.
+     * @return string
+     */
     public function renderTable()
     {
         $output = '';
@@ -128,15 +140,19 @@ class TableStructure extends Object
 PHP;
             $tableOptionsSet = true;
         }
-        $output .= "        \$this->createTable('" . $this->renderName() . "', [\n";
+        $output .= "        \$this->createTable('" . $this->renderName() . "', [";
         foreach ($this->columns as $column) {
-            $output .= $column->render($this);
+            $output .= "\n" . $column->render($this);
         }
-        $output .= '        ]' . ($tableOptionsSet ? ', $tableOptions' : '') . ");\n";
+        $output .= "\n        ]" . ($tableOptionsSet ? ', $tableOptions' : '') . ");\n";
 
         return $output;
     }
 
+    /**
+     * Renders the primary key.
+     * @return string
+     */
     public function renderPk()
     {
         $output = '';
@@ -146,36 +162,43 @@ PHP;
         return $output;
     }
 
+    /**
+     * Renders the indexes.
+     * @return string
+     */
     public function renderIndexes()
     {
         $output = '';
         if ($this->indexes) {
-            $output .= "\n";
             foreach ($this->indexes as $index) {
                 foreach ($this->foreignKeys as $foreignKey) {
                     if ($foreignKey->name === $index->name) {
                         continue 2;
                     }
                 }
-                $output .= $index->render($this);
-            }
-        }
-        return $output;
-    }
-
-    public function renderForeignKeys()
-    {
-        $output = '';
-        if ($this->foreignKeys) {
-            $output .= "\n";
-            foreach ($this->foreignKeys as $foreignKey) {
-                $output .= $foreignKey->render($this);
+                $output .= "\n" . $index->render($this);
             }
         }
         return $output;
     }
 
     /**
+     * Renders the foreign keys.
+     * @return string
+     */
+    public function renderForeignKeys()
+    {
+        $output = '';
+        if ($this->foreignKeys) {
+            foreach ($this->foreignKeys as $foreignKey) {
+                $output .= "\n" . $foreignKey->render($this);
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * Builds table structure based on the list of changes from the Updater.
      * @param TableChange[] $changes
      * @throws \yii\base\InvalidParamException
      */
