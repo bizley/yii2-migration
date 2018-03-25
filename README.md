@@ -81,8 +81,8 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 | `db`                 |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
 | `migrationPath`      | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
 | `migrationNamespace` | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
-| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/src/views/create_migration.php'`
-| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/src/views/update_migration.php'`
+| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/views/create_migration.php'`
+| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/views/update_migration.php'`
 | `useTablePrefix`     | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
 | `migrationTable`     | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
 | `showOnly`           | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
@@ -134,5 +134,5 @@ Yii 2 limitations:
 
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
-`dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `delete()`, `truncate()`, etc.) 
-are not tracked.
+`dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
+etc.) are not tracked.

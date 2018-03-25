@@ -69,7 +69,7 @@ class Updater extends Generator
     protected function setDummyMigrationClass()
     {
         $this->_originalMigrationClass = Yii::$classMap['yii\db\Migration'];
-        Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@vendor/bizley/migration/src/dummy/Migration.php');
+        Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
     }
 
     /**

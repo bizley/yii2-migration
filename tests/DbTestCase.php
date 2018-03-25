@@ -33,7 +33,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
             'controllerMap' => [
                 'migration' => [
                     'class' => 'bizley\migration\controllers\MigrationController',
-                    'interactive' => false
+                    'migrationPath' => null,
+                    'migrationNamespace' => null,
                 ],
                 'migrate' => [
                     'class' => 'bizley\migration\tests\EchoMigrateController',

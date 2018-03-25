@@ -14,6 +14,9 @@ class Migration extends Component implements MigrationInterface
 {
     use SchemaBuilderTrait;
 
+    public $maxSqlOutputLength;
+    public $compact = false;
+
     /**
      * @var array List of all migration actions in form of 'table' => [array of changes]
      */
@@ -42,7 +45,10 @@ class Migration extends Component implements MigrationInterface
 
     public function up()
     {
-        $this->safeUp();
+        if ($this->safeUp() === false) {
+            return false;
+        }
+        return null;
     }
 
     public function down()
