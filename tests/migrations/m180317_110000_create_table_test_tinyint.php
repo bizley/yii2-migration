@@ -4,12 +4,12 @@ namespace bizley\migration\tests\migrations;
 
 use yii\db\Migration;
 
-class m180324_171200_create_table_test_tinyint extends Migration
+class m180317_110000_create_table_test_tinyint extends Migration
 {
     public function up()
     {
         if (!method_exists($this, 'tinyInteger')) {
-            return false;
+            return true;
         }
 
         $tableOptions = null;
@@ -25,7 +25,7 @@ class m180324_171200_create_table_test_tinyint extends Migration
     public function down()
     {
         if (!method_exists($this, 'tinyInteger')) {
-            return false;
+            return true;
         }
         $this->dropTable('{{%test_tinyint}}');
     }

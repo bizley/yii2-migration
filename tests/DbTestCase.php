@@ -12,6 +12,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     public static $params;
     protected static $driverName;
     protected static $database;
+    protected static $runMigrations = true;
 
     /**
      * @var Connection
@@ -21,7 +22,9 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass()
     {
         static::mockApplication();
-        static::runSilentMigration('migrate/up');
+        if (static::$runMigrations) {
+            static::runSilentMigration('migrate/up');
+        }
     }
 
     protected static function mockApplication($config = [], $appClass = '\yii\console\Application')

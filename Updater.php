@@ -60,24 +60,13 @@ class Updater extends Generator
         }
     }
 
-    private $_originalMigrationClass;
-
     /**
      * Sets dummy Migration class.
      * @throws InvalidParamException
      */
     protected function setDummyMigrationClass()
     {
-        $this->_originalMigrationClass = Yii::$classMap['yii\db\Migration'];
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
-    }
-
-    /**
-     * Restores original Migration class.
-     */
-    protected function restoreMigrationClass()
-    {
-        Yii::$classMap['yii\db\Migration'] = $this->_originalMigrationClass;
     }
 
     /**
@@ -449,7 +438,6 @@ class Updater extends Generator
                     break;
                 }
             }
-            $this->restoreMigrationClass();
             return $this->compareStructures();
         }
         return true;
