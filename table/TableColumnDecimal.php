@@ -23,8 +23,14 @@ class TableColumnDecimal extends TableColumn
      */
     public function setLength($value)
     {
-        $length = preg_split('\s*,\s*', $value);
-        $this->precision = $length[0];
+        if (is_array($value)) {
+            $length = $value;
+        } else {
+            $length = preg_split('\s*,\s*', $value);
+        }
+        if (isset($length[0]) && !empty($length[0])) {
+            $this->precision = $length[0];
+        }
         if (isset($length[1]) && !empty($length[1])) {
             $this->scale = $length[1];
         }

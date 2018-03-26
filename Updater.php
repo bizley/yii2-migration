@@ -5,6 +5,7 @@ namespace bizley\migration;
 use bizley\migration\table\TableChange;
 use bizley\migration\table\TableColumn;
 use bizley\migration\table\TablePlan;
+use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\ErrorException;
@@ -320,11 +321,14 @@ class Updater extends Generator
                 $different = true;
                 continue;
             }
-            if (count(array_diff($this->oldTable->foreignKeys[$name]->columns, $this->table->foreignKeys[$name]->columns))) {
+            $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns) ? $this->table->foreignKeys[$name]->columns : [];
+            $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns) ? $this->oldTable->foreignKeys[$name]->columns : [];
+            if (count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+                array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
-                    echo 'DB: (' . implode(', ', $this->table->foreignKeys[$name]->columns) . ') <> ';
-                    echo 'MIG: (' . implode(', ', $this->oldTable->foreignKeys[$name]->columns) . "))\n";
+                    echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $oldTableFKColumns) . "))\n";
                 } else {
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
@@ -332,11 +336,14 @@ class Updater extends Generator
                 $different = true;
                 continue;
             }
-            if (count(array_diff($this->oldTable->foreignKeys[$name]->refColumns, $this->table->foreignKeys[$name]->refColumns))) {
+            $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns) ? $this->table->foreignKeys[$name]->refColumns : [];
+            $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns) ? $this->oldTable->foreignKeys[$name]->refColumns : [];
+            if (count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+                array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
-                    echo 'DB: (' . implode(', ', $this->table->foreignKeys[$name]->refColumns) . ') <> ';
-                    echo 'MIG: (' . implode(', ', $this->oldTable->foreignKeys[$name]->refColumns) . "))\n";
+                    echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $oldTableFKRefColumns) . "))\n";
                 } else {
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
@@ -355,13 +362,16 @@ class Updater extends Generator
             }
         }
 
-        $newKeys = array_diff($this->table->primaryKey->columns, $this->oldTable->primaryKey->columns);
+        $tablePKColumns = !empty($this->table->primaryKey->columns) ? $this->table->primaryKey->columns : [];
+        $oldTablePKColumns = !empty($this->oldTable->primaryKey->columns) ? $this->oldTable->primaryKey->columns : [];
+        $newKeys = array_merge(array_diff($tablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)),
+            array_diff($oldTablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)));
         if (count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
             } else {
                 if (!empty($this->oldTable->primaryKey->columns)) {
-                    $this->plan->dropPrimaryKey = true;
+                    $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
                 }
                 if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
                     $this->plan->addPrimaryKey = $this->table->primaryKey;
@@ -392,11 +402,14 @@ class Updater extends Generator
                 $different = true;
                 continue;
             }
-            if (count(array_diff($this->oldTable->indexes[$name]->columns, $this->table->indexes[$name]->columns))) {
+            $tableIndexColumns = !empty($this->table->indexes[$name]->columns) ? $this->table->indexes[$name]->columns : [];
+            $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns) ? $this->oldTable->indexes[$name]->columns : [];
+            if (count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+                array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
-                    echo 'DB: (' . implode(', ', $this->table->indexes[$name]->columns) . ') <> ';
-                    echo 'MIG: (' . implode(', ', $this->oldTable->indexes[$name]->columns) . "))\n";
+                    echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';
+                    echo 'MIG: (' . implode(', ', $oldTableIndexColumns) . "))\n";
                 } else {
                     $this->plan->dropIndex[] = $name;
                     $this->plan->createIndex[$name] = $index;

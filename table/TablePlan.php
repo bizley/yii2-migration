@@ -96,8 +96,8 @@ class TablePlan extends Object
             $output .= $index->render($table);
         }
 
-        if ($this->dropPrimaryKey) {
-            $output .= "        \$this->dropPrimaryKey('{$this->dropPrimaryKey['name']}', '" . $table->renderName() . "');\n";
+        if (!empty($this->dropPrimaryKey)) {
+            $output .= "        \$this->dropPrimaryKey('{$this->dropPrimaryKey}', '" . $table->renderName() . "');\n";
         }
 
         if ($this->addPrimaryKey) {

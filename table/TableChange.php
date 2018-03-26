@@ -64,7 +64,7 @@ class TableChange extends Object
                     'length' => isset($this->data[1]['length']) ? $this->data[1]['length'] : null,
                     'isNotNull' => isset($this->data[1]['isNotNull']) ? $this->data[1]['isNotNull'] : null,
                     'isUnique' => isset($this->data[1]['isUnique']) ? $this->data[1]['isUnique'] : null,
-                    'isPrimaryKey' => isset($schema['isPrimaryKey']) ? $schema['isPrimaryKey'] : null,
+                    'isPrimaryKey' => isset($this->data[1]['isPrimaryKey']) ? $this->data[1]['isPrimaryKey'] : null,
                     'check' => isset($this->data[1]['check']) ? $this->data[1]['check'] : null,
                     'default' => isset($this->data[1]['default']) ? $this->data[1]['default'] : null,
                     'append' => isset($this->data[1]['append']) ? $this->data[1]['append'] : null,
