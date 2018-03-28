@@ -103,9 +103,14 @@ class GeneratorColumnsTest extends MysqlDbTestCase
     {
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_bool', $table->columns);
-        $this->assertInstanceOf(TableColumnTinyInt::className(), $table->columns['col_bool']);
         $this->assertEquals('col_bool', $table->columns['col_bool']->name);
-        $this->assertEquals(Schema::TYPE_TINYINT, $table->columns['col_bool']->type);
+        if (defined('yii\db\Schema::TYPE_TINYINT')) {
+            $this->assertInstanceOf(TableColumnTinyInt::className(), $table->columns['col_bool']);
+            $this->assertEquals(Schema::TYPE_TINYINT, $table->columns['col_bool']->type);
+        } else {
+            $this->assertInstanceOf(TableColumnSmallInt::className(), $table->columns['col_bool']);
+            $this->assertEquals(Schema::TYPE_SMALLINT, $table->columns['col_bool']->type);
+        }
         $this->assertEquals(1, $table->columns['col_bool']->size);
         $this->assertEquals(1, $table->columns['col_bool']->precision);
         $this->assertEquals(null, $table->columns['col_bool']->scale);

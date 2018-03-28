@@ -12,6 +12,10 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
         parent::tearDown();
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testDropPrimaryKey()
     {
         $this->dbUp('test_pk_composite');
@@ -23,6 +27,10 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
         $this->assertNotEmpty($updater->plan->dropPrimaryKey);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testAddPrimaryKey()
     {
         $this->dbUp('test_index_single');
@@ -36,6 +44,10 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
         $this->assertEquals(['col'], $updater->plan->addPrimaryKey->columns);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testDropForeignKey()
     {
         $this->dbUp('test_pk');
@@ -48,6 +60,10 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
         $this->assertEquals(['fk-test_fk-pk_id'], $updater->plan->dropForeignKey);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testAddForeignKey()
     {
         $this->dbUp('test_pk');
@@ -58,5 +74,67 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
         $updater = $this->getUpdater('test_columns');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('fk-test_columns-col_int', $updater->plan->addForeignKey);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testDropIndex()
+    {
+        $this->dbUp('test_index_single');
+
+        Yii::$app->db->createCommand()->dropIndex('idx-test_index_single-col', 'test_index_single')->execute();
+
+        $updater = $this->getUpdater('test_index_single');
+        $this->assertTrue($updater->isUpdateRequired());
+        $this->assertEquals(['idx-test_index_single-col'], $updater->plan->dropIndex);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testAddIndex()
+    {
+        $this->dbUp('test_columns');
+
+        Yii::$app->db->createCommand()->createIndex('idx-test_columns-col_int', 'test_columns', 'col_int', true)->execute();
+
+        $updater = $this->getUpdater('test_columns');
+        $this->assertTrue($updater->isUpdateRequired());
+        $this->assertArrayHasKey('idx-test_columns-col_int', $updater->plan->createIndex);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testMultipleMigrations()
+    {
+        $this->dbUp('test_multiple');
+
+        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', 'INT(11)')->execute();
+
+        $updater = $this->getUpdater('test_multiple');
+        $this->assertTrue($updater->isUpdateRequired());
+        $this->assertArrayHasKey('three', $updater->plan->addColumn);
+        $this->assertArrayNotHasKey('one', $updater->oldTable->columns);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testMultipleMigrationsWithSkip()
+    {
+        $this->dbUp('test_multiple_skip');
+
+        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', 'INT(11)')->execute();
+
+        $updater = $this->getUpdater('test_multiple', true, ['bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple']);
+        $this->assertTrue($updater->isUpdateRequired());
+        $this->assertArrayHasKey('three', $updater->plan->addColumn);
+        $this->assertArrayHasKey('one', $updater->oldTable->columns);
     }
 }

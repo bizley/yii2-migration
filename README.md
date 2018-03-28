@@ -14,11 +14,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "*"
+            "bizley/migration": "~2.3.0"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration`
+and run `composer update` or alternatively run `composer require bizley/migration:~2.0.3`
 
 ## Configuration
 
@@ -117,7 +117,7 @@ Once you add renaming migration to the history it's being tracked by the extensi
 
 ## Notes
 
-This extension is tested on MySQL database but should work with all database types supported in Yii 2 core:
+This extension should work with all database types supported in Yii 2 core:
 
 - CUBRID (9.3.x and higher)
 - MS SQL Server (2008 and above)
@@ -136,3 +136,8 @@ Only history of migrations extending `yii\db\Migration` class can be properly sc
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
 `dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
 etc.) are not tracked.
+
+## Tests
+
+Currently only MySQL tests are provided. Database configuration is stored in `tests/config.php` (you can override it by 
+creating `config.local.php` file there).

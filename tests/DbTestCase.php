@@ -10,7 +10,6 @@ use yii\helpers\ArrayHelper;
 abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 {
     public static $params;
-    protected static $driverName;
     protected static $database;
     protected static $runMigrations = true;
 
@@ -18,6 +17,14 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      * @var Connection
      */
     protected static $db;
+
+    public static function getParam($name, $default = null)
+    {
+        if (static::$params === null) {
+            static::$params = require __DIR__ . '/config.php';
+        }
+        return isset(static::$params[$name]) ? static::$params[$name] : $default;
+    }
 
     public static function setUpBeforeClass()
     {

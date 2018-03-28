@@ -13,6 +13,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         parent::tearDown();
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testChangeSizeGeneral()
     {
         $this->dbUp('test_columns');
@@ -23,6 +27,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertFalse($updater->isUpdateRequired());
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testChangeSizeSpecific()
     {
         $this->dbUp('test_columns');
@@ -36,6 +44,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertEquals(9, $updater->plan->alterColumn['col_int']->precision);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testChangeScaleGeneral()
     {
         $this->dbUp('test_columns');
@@ -46,6 +58,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertFalse($updater->isUpdateRequired());
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testChangeScaleSpecific()
     {
         $this->dbUp('test_columns');
@@ -60,6 +76,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertEquals(7, $updater->plan->alterColumn['col_decimal']->scale);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testChangeColumnType()
     {
         $this->dbUp('test_columns');
@@ -72,6 +92,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertEquals(Schema::TYPE_STRING, $updater->plan->alterColumn['col_int']->type);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testDropColumn()
     {
         $this->dbUp('test_columns');
@@ -83,6 +107,10 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
         $this->assertArrayNotHasKey('col_int', $updater->plan->alterColumn);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testAddColumn()
     {
         $this->dbUp('test_columns');

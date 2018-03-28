@@ -266,6 +266,7 @@ class Generator extends Component
     }
 
     /**
+     * Returns normalized namespace.
      * @return null|string
      */
     public function getNormalizedNamespace()
