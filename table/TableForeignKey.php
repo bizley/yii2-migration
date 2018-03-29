@@ -42,7 +42,7 @@ class TableForeignKey extends Object
      */
     public function renderName($table)
     {
-        if ($this->name === null) {
+        if ($this->name === null || is_numeric($this->name)) {
             return "fk-{$table->name}-" . implode('-', $this->columns);
         }
         return $this->name;

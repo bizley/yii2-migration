@@ -39,6 +39,9 @@ class GeneratorTest extends MysqlDbTestCase
 
     public function testIndexSingle()
     {
+        if (!method_exists(Yii::$app->db->schema, 'getTableIndexes')) {
+            $this->markTestSkipped('Non-unique indexes are tracked since Yii 2.0.13.');
+        }
         $table = $this->getGenerator('test_index_single')->table;
         $this->assertArrayHasKey('idx-test_index_single-col', $table->indexes);
         $this->assertEquals(['col'], $table->indexes['idx-test_index_single-col']->columns);
@@ -57,6 +60,9 @@ class GeneratorTest extends MysqlDbTestCase
 
     public function testIndexMulti()
     {
+        if (!method_exists(Yii::$app->db->schema, 'getTableIndexes')) {
+            $this->markTestSkipped('Non-unique indexes are tracked since Yii 2.0.13.');
+        }
         $table = $this->getGenerator('test_index_multi')->table;
         $this->assertArrayHasKey('idx-test_index_multi-cols', $table->indexes);
         $this->assertEquals(['one', 'two'], $table->indexes['idx-test_index_multi-cols']->columns);

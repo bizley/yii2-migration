@@ -117,7 +117,7 @@ class TableStructure extends Object
      */
     public function render()
     {
-        return $this->renderTable() . $this->renderPk() . $this->renderIndexes() . $this->renderForeignKeys();
+        return $this->renderTable() . $this->renderPk() . $this->renderIndexes() . $this->renderForeignKeys() . "\n";
     }
 
     /**
@@ -157,7 +157,7 @@ PHP;
     {
         $output = '';
         if ($this->primaryKey->isComposite()) {
-            $output .= $this->primaryKey->render($this);
+            $output .= "\n" . $this->primaryKey->render($this);
         }
         return $output;
     }

@@ -14,7 +14,7 @@
         "source": "https://github.com/bizley/yii2-migration"
     },
     "require": {
-        "yiisoft/yii2": "~2.0.8"
+        "yiisoft/yii2": ">=2.0.11 <2.1.0"
     },
     "autoload": {
         "psr-4": {"bizley\\migration\\": ""}

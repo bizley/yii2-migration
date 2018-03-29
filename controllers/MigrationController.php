@@ -100,6 +100,7 @@ class MigrationController extends Controller
     /**
      * @var bool|string|int Whether to use general column schema instead of database specific.
      * Alias -g
+     * Since 2.3.0 this property is 1 by default.
      * @since 2.0
      */
     public $generalSchema = 1;
@@ -344,7 +345,7 @@ class MigrationController extends Controller
     }
 
     /**
-     * Creates new migration for a given tables.
+     * Creates new migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
      * @throws InvalidParamException
@@ -370,13 +371,14 @@ class MigrationController extends Controller
 
     /**
      * Creates new migrations for every table in database.
+     * Since 2.3.0 migration history table is skipped.
      * @return int
      * @throws InvalidParamException
      * @since 2.1
      */
     public function actionCreateAll()
     {
-        $tables = $this->db->schema->getTableNames();
+        $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
@@ -393,7 +395,7 @@ class MigrationController extends Controller
     }
 
     /**
-     * Creates new update migration for a given tables.
+     * Creates new update migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
      * @throws InvalidParamException
@@ -432,13 +434,14 @@ class MigrationController extends Controller
 
     /**
      * Creates new update migrations for every table in database.
+     * Since 2.3.0 migration history table is skipped.
      * @return int
      * @throws InvalidParamException
      * @since 2.1
      */
     public function actionUpdateAll()
     {
-        $tables = $this->db->schema->getTableNames();
+        $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
@@ -452,5 +455,26 @@ class MigrationController extends Controller
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
         return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Removes migration history table name from the tables list.
+     * @param array $tables
+     * @return array
+     * @since 2.3.0
+     */
+    public function removeMigrationTable($tables)
+    {
+        if (!$tables) {
+            return [];
+        }
+        $filteredTables = [];
+        foreach ($tables as $table) {
+            if ($this->db->schema->getRawTableName($this->migrationTable) === $table) {
+                continue;
+            }
+            $filteredTables[] = $table;
+        }
+        return $filteredTables;
     }
 }

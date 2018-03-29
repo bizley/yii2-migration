@@ -93,7 +93,7 @@ class TablePlan extends Object
 
         /* @var $index TableIndex */
         foreach ($this->createIndex as $name => $index) {
-            $output .= $index->render($table);
+            $output .= $index->render($table) . "\n";
         }
 
         if (!empty($this->dropPrimaryKey)) {
@@ -101,7 +101,7 @@ class TablePlan extends Object
         }
 
         if ($this->addPrimaryKey) {
-            $output .= $this->addPrimaryKey->render($table);
+            $output .= $this->addPrimaryKey->render($table) . "\n";
         }
 
         return $output;

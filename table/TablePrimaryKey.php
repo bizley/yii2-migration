@@ -33,15 +33,16 @@ class TablePrimaryKey extends Object
     /**
      * Renders the key.
      * @param TableStructure $table
+     * @param int $indent
      * @return string
      */
-    public function render($table)
+    public function render($table, $indent = 8)
     {
-        return "\n        \$this->addPrimaryKey('"
+        return str_repeat(' ', $indent) . "\$this->addPrimaryKey('"
             . ($this->name ?: self::GENERIC_PRIMARY_KEY)
             . "', '" . $table->renderName() . "', ['"
             . implode("', '", $this->columns)
-            . "']);\n";
+            . "']);";
     }
 
     /**

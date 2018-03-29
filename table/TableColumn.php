@@ -157,7 +157,7 @@ class TableColumn extends Object
      * @param int $indent
      * @return string
      */
-    public function render($table, $indent = 8)
+    public function render($table, $indent = 12)
     {
         return str_repeat(' ', $indent) . "'{$this->name}' => " . $this->renderDefinition($table) . ',';
     }
