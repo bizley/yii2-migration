@@ -2,13 +2,7 @@
     "name": "bizley/migration",
     "description": "Migration generator for Yii 2.",
     "type": "yii2-extension",
-    "keywords": [
-        "yii2",
-        "migration",
-        "migrate",
-        "generator",
-        "console"
-    ],
+    "keywords": ["yii2", "migration", "migrate", "generator", "console"],
     "license": "Apache-2.0",
     "authors": [
         {
@@ -20,11 +14,9 @@
         "source": "https://github.com/bizley/yii2-migration"
     },
     "require": {
-        "yiisoft/yii2": "~2.0.8"
+        "yiisoft/yii2": ">=2.0.11 <2.1.0"
     },
     "autoload": {
-        "psr-4": {
-            "bizley\\migration\\": "src/"
-        }
+        "psr-4": {"bizley\\migration\\": ""}
     }
 }

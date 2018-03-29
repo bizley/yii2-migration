@@ -14,13 +14,13 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "*"
+            "bizley/migration": "~2.3.0"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration`
+and run `composer update` or alternatively run `composer require bizley/migration:~2.0.3`
 
-## Basic configuration
+## Configuration
 
 Add the following in your configuration file (preferably console configuration file):
 
@@ -37,29 +37,29 @@ Add the following in your configuration file (preferably console configuration f
 
 The following console command are available:
 
-    php yii migration
+- List all the tables in the database:
+
+      php yii migration
     
-or
+  or
 
-    php yii migration/list
+      php yii migration/list
 
-Lists all the tables in the database.
+- Generate migration to create DB table `table_name`:
 
-    php yii migration/create table_name
+      php yii migration/create table_name
 
-Generates migration to create DB table `table_name`.
+- Generate migrations to create all DB tables:
 
-    php yii migration/create-all
+      php yii migration/create-all
 
-Generates migrations to create all DB tables.
+- Generate migration to update DB table `table_name`:
 
-    php yii migration/update table_name
+      php yii migration/update table_name
 
-Generates migration to update DB table `table_name`.
+- Generate migrations to update all DB tables:
 
-    php yii migration/update-all
-
-Generates migrations to update all DB tables.
+      php yii migration/update-all
 
 You can generate multiple migrations for many tables at once by separating the names with a comma:
 
@@ -77,16 +77,16 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 ## Command line parameters
 
 | command              | alias | description                                                             
-|----------------------|:-----:|-----------------------------------------------------------------------------------------------------------------------
+|----------------------|:-----:|-----------------------------------------------------------------------------------------------------------------
 | `db`                 |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
 | `migrationPath`      | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
 | `migrationNamespace` | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
-| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@vendor/bizley/migration/src/views/create_migration.php'`
-| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@vendor/bizley/migration/src/views/update_migration.php'`
+| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@bizley/migration/views/create_migration.php'`
+| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@bizley/migration/views/update_migration.php'`
 | `useTablePrefix`     | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
 | `migrationTable`     | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
 | `showOnly`           | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
-| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (1). _default:_ `0`
+| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (1). _default:_ `1`
 | `fixHistory`         | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
 | `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
 
@@ -96,6 +96,7 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 > Column `varchar(45)`  
 > generalSchema=0: `$this->string(45)`    
 > generalSchema=1: `$this->string()`  
+
 > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`    
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
 > generalSchema=1: `$this->primaryKey()`
@@ -116,7 +117,7 @@ Once you add renaming migration to the history it's being tracked by the extensi
 
 ## Notes
 
-This extension is tested on MySQL database but should work with all database types supported in Yii 2 core:
+This extension should work with all database types supported in Yii 2 core:
 
 - CUBRID (9.3.x and higher)
 - MS SQL Server (2008 and above)
@@ -127,11 +128,16 @@ This extension is tested on MySQL database but should work with all database typ
 
 Let me know if something is wrong with databases other than MySQL (and in case of MySQL let me know as well).
 
-As far as I know Yii 2 does not keep information about table indexes (except unique ones) and foreign keys' 
-ON UPDATE and ON DELETE actions so unfortunately this can not be tracked and applied to generated migrations - 
-you have to add it on your own.
+Yii 2 limitations:
+- version 2.0.13 is required to track non-unique indexes,
+- version 2.0.14 is required to handle TINYINT and JSON type columns.
 
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
-`dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `delete()`, `truncate()`, etc.) 
-are not tracked.
+`dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
+etc.) are not tracked.
+
+## Tests
+
+Currently only MySQL tests are provided. Database configuration is stored in `tests/config.php` (you can override it by 
+creating `config.local.php` file there).
