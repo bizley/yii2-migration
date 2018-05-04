@@ -2,7 +2,7 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableChange
@@ -10,7 +10,7 @@ use yii\base\Object;
  *
  * @property-read array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex $value
  */
-class TableChange extends Object
+class TableChange extends BaseObject
 {
     /**
      * @var string

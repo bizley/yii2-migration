@@ -3,7 +3,7 @@
 namespace bizley\migration\table;
 
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableStructure
@@ -11,7 +11,7 @@ use yii\base\Object;
  *
  * @property string $schema
  */
-class TableStructure extends Object
+class TableStructure extends BaseObject
 {
     const SCHEMA_MSSQL = 'mssql';
     const SCHEMA_OCI = 'oci';

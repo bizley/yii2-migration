@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TablePlan
  * @package bizley\migration\table
  */
-class TablePlan extends Object
+class TablePlan extends BaseObject
 {
     /**
      * @var array

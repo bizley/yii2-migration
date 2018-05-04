@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TablePrimaryKey
  * @package bizley\migration\table
  */
-class TablePrimaryKey extends Object
+class TablePrimaryKey extends BaseObject
 {
     const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 

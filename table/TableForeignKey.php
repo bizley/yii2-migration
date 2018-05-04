@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableForeignKey
  * @package bizley\migration\table
  */
-class TableForeignKey extends Object
+class TableForeignKey extends BaseObject
 {
     /**
      * @var string

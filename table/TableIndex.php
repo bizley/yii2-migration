@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableIndex
  * @package bizley\migration\table
  */
-class TableIndex extends Object
+class TableIndex extends BaseObject
 {
     /**
      * @var string

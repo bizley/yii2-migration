@@ -2,7 +2,7 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\Expression;
 
 /**
@@ -11,7 +11,7 @@ use yii\db\Expression;
  *
  * @property-read int|string $length
  */
-class TableColumn extends Object
+class TableColumn extends BaseObject
 {
     /**
      * @var string
