@@ -30,7 +30,7 @@ Add the package to your composer.json:
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:~2.0.3`
+and run `composer update` or alternatively run `composer require bizley/migration:~2.3.0`
 
 ## Configuration
 
