@@ -3,7 +3,7 @@
 namespace bizley\migration\tests;
 
 use Yii;
-use yii\console\Controller;
+use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\helpers\ArrayHelper;
 
@@ -23,7 +23,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         if (static::$params === null) {
             static::$params = require __DIR__ . '/config.php';
         }
-        return isset(static::$params[$name]) ? static::$params[$name] : $default;
+        return static::$params[$name] ?? $default;
     }
 
     public static function setUpBeforeClass()
@@ -34,7 +34,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         }
     }
 
-    protected static function mockApplication($config = [], $appClass = '\yii\console\Application')
+    protected static function mockApplication(array $config = [], $appClass = '\yii\console\Application'): void
     {
         new $appClass(ArrayHelper::merge([
             'id' => 'MigrationTest',
@@ -59,10 +59,10 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         ], $config));
     }
 
-    protected static function runSilentMigration($route, $params = [])
+    protected static function runSilentMigration($route, array $params = []): void
     {
         ob_start();
-        if (Yii::$app->runAction($route, $params) === Controller::EXIT_CODE_NORMAL) {
+        if (Yii::$app->runAction($route, $params) === ExitCode::OK) {
             ob_end_clean();
         } else {
             fwrite(STDOUT, "\nMigration failed!\n");

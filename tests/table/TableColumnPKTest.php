@@ -6,13 +6,13 @@ use bizley\migration\table\TableColumnPK;
 
 class TableColumnPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function testDefinitionSpecific(): void
     {
         $column = new TableColumnPK(['size' => 11]);
         $this->assertEquals('$this->primaryKey(11)', $column->renderDefinition($this->getTable(false)));
     }
 
-    public function testDefinitionGeneral()
+    public function testDefinitionGeneral(): void
     {
         $column = new TableColumnPK(['size' => 11]);
         $this->assertEquals('$this->primaryKey()', $column->renderDefinition($this->getTable()));

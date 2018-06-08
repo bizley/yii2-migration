@@ -6,7 +6,7 @@ use bizley\migration\table\TableColumnDate;
 
 class TableColumnDateTest extends TableColumnTestCase
 {
-    public function testDefinition()
+    public function testDefinition(): void
     {
         $column = new TableColumnDate();
         $this->assertEquals('$this->date()', $column->renderDefinition($this->getTable()));

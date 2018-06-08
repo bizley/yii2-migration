@@ -6,7 +6,7 @@ use bizley\migration\table\TableColumnBoolean;
 
 class TableColumnBooleanTest extends TableColumnTestCase
 {
-    public function testDefinition()
+    public function testDefinition(): void
     {
         $column = new TableColumnBoolean();
         $this->assertEquals('$this->boolean()', $column->renderDefinition($this->getTable()));

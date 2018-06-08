@@ -2,15 +2,15 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TablePrimaryKey
  * @package bizley\migration\table
  */
-class TablePrimaryKey extends Object
+class TablePrimaryKey extends BaseObject
 {
-    const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
+    public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 
     /**
      * @var string
@@ -25,9 +25,9 @@ class TablePrimaryKey extends Object
      * Checks if primary key is composite.
      * @return bool
      */
-    public function isComposite()
+    public function isComposite(): bool
     {
-        return count($this->columns) > 1;
+        return \count($this->columns) > 1;
     }
 
     /**
@@ -36,7 +36,7 @@ class TablePrimaryKey extends Object
      * @param int $indent
      * @return string
      */
-    public function render($table, $indent = 8)
+    public function render($table, $indent = 8): string
     {
         return str_repeat(' ', $indent) . "\$this->addPrimaryKey('"
             . ($this->name ?: self::GENERIC_PRIMARY_KEY)
@@ -49,9 +49,9 @@ class TablePrimaryKey extends Object
      * Adds column to the key.
      * @param $name
      */
-    public function addColumn($name)
+    public function addColumn($name): void
     {
-        if (!in_array($name, $this->columns, true)) {
+        if (!\in_array($name, $this->columns, true)) {
             $this->columns[] = $name;
         }
     }

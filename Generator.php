@@ -11,7 +11,6 @@ use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
@@ -79,7 +78,7 @@ class Generator extends Component
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         if (!($this->db instanceof Connection)) {
@@ -93,7 +92,7 @@ class Generator extends Component
      * Returns table schema.
      * @return TableSchema
      */
-    public function getTableSchema()
+    public function getTableSchema(): TableSchema
     {
         if ($this->_tableSchema === null) {
             $this->_tableSchema = $this->db->getTableSchema($this->tableName);
@@ -105,7 +104,7 @@ class Generator extends Component
      * Returns table primary key.
      * @return TablePrimaryKey
      */
-    protected function getTablePrimaryKey()
+    protected function getTablePrimaryKey(): TablePrimaryKey
     {
         $data = [];
         if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
@@ -133,7 +132,7 @@ class Generator extends Component
      * @return TableColumn[]
      * @throws InvalidConfigException
      */
-    protected function getTableColumns($indexes = [])
+    protected function getTableColumns($indexes = []): array
     {
         $columns = [];
         if ($this->tableSchema instanceof TableSchema) {
@@ -141,7 +140,7 @@ class Generator extends Component
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
                 foreach ($indexData as $index) {
-                    if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
+                    if ($index->unique && $index->columns[0] === $column->name && \count($index->columns) === 1) {
                         $isUnique = true;
                         break;
                     }
@@ -170,7 +169,7 @@ class Generator extends Component
      * Returns foreign keys structure.
      * @return TableForeignKey[]
      */
-    protected function getTableForeignKeys()
+    protected function getTableForeignKeys(): array
     {
         $data = [];
         if (method_exists($this->db->schema, 'getTableForeignKeys')) {
@@ -209,7 +208,7 @@ class Generator extends Component
      * @return TableIndex[]
      * @since 2.2.2
      */
-    protected function getTableIndexes()
+    protected function getTableIndexes(): array
     {
         $data = [];
         if (method_exists($this->db->schema, 'getTableIndexes')) {
@@ -246,13 +245,13 @@ class Generator extends Component
      * @return TableStructure
      * @throws InvalidConfigException
      */
-    public function getTable()
+    public function getTable(): TableStructure
     {
         if ($this->_table === null) {
             $indexes = $this->getTableIndexes();
             $this->_table = new TableStructure([
                 'name' => $this->tableName,
-                'schema' => get_class($this->db->schema),
+                'schema' => \get_class($this->db->schema),
                 'generalSchema' => $this->generalSchema,
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
@@ -269,7 +268,7 @@ class Generator extends Component
      * Returns normalized namespace.
      * @return null|string
      */
-    public function getNormalizedNamespace()
+    public function getNormalizedNamespace(): ?string
     {
         return !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null;
     }
@@ -277,9 +276,8 @@ class Generator extends Component
     /**
      * Generates migration content or echoes exception message.
      * @return string
-     * @throws InvalidParamException
      */
-    public function generateMigration()
+    public function generateMigration(): string
     {
         return $this->view->renderFile(Yii::getAlias($this->templateFile), [
             'table' => $this->table,

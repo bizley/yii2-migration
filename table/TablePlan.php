@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TablePlan
  * @package bizley\migration\table
  */
-class TablePlan extends Object
+class TablePlan extends BaseObject
 {
     /**
      * @var array
@@ -60,7 +60,7 @@ class TablePlan extends Object
      * @param TableStructure $table
      * @return string
      */
-    public function render($table)
+    public function render($table): string
     {
         $output = '';
 

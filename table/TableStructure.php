@@ -2,8 +2,8 @@
 
 namespace bizley\migration\table;
 
-use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
+use yii\base\InvalidArgumentException;
 
 /**
  * Class TableStructure
@@ -11,15 +11,15 @@ use yii\base\Object;
  *
  * @property string $schema
  */
-class TableStructure extends Object
+class TableStructure extends BaseObject
 {
-    const SCHEMA_MSSQL = 'mssql';
-    const SCHEMA_OCI = 'oci';
-    const SCHEMA_PGSQL = 'pgsql';
-    const SCHEMA_SQLITE = 'sqlite';
-    const SCHEMA_CUBRID = 'cubrid';
-    const SCHEMA_MYSQL = 'mysql';
-    const SCHEMA_UNSUPPORTED = 'unsupported';
+    public const SCHEMA_MSSQL = 'mssql';
+    public const SCHEMA_OCI = 'oci';
+    public const SCHEMA_PGSQL = 'pgsql';
+    public const SCHEMA_SQLITE = 'sqlite';
+    public const SCHEMA_CUBRID = 'cubrid';
+    public const SCHEMA_MYSQL = 'mysql';
+    public const SCHEMA_UNSUPPORTED = 'unsupported';
 
     /**
      * @var string
@@ -58,7 +58,7 @@ class TableStructure extends Object
      * Returns schema type.
      * @return string
      */
-    public function getSchema()
+    public function getSchema(): string
     {
         return $this->_schema;
     }
@@ -69,7 +69,7 @@ class TableStructure extends Object
      * Sets schema type based on the currently used schema class.
      * @param string $schemaClass
      */
-    public function setSchema($schemaClass)
+    public function setSchema($schemaClass): void
     {
         switch ($schemaClass) {
             case 'yii\db\mssql\Schema':
@@ -97,9 +97,9 @@ class TableStructure extends Object
 
     /**
      * Renders table name.
-     * @return bool|string
+     * @return string
      */
-    public function renderName()
+    public function renderName(): string
     {
         $tableName = $this->name;
         if (!$this->usePrefix) {
@@ -115,7 +115,7 @@ class TableStructure extends Object
      * Renders the migration structure.
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         return $this->renderTable() . $this->renderPk() . $this->renderIndexes() . $this->renderForeignKeys() . "\n";
     }
@@ -124,7 +124,7 @@ class TableStructure extends Object
      * Renders the table.
      * @return string
      */
-    public function renderTable()
+    public function renderTable(): string
     {
         $output = '';
 
@@ -153,7 +153,7 @@ PHP;
      * Renders the primary key.
      * @return string
      */
-    public function renderPk()
+    public function renderPk(): string
     {
         $output = '';
         if ($this->primaryKey->isComposite()) {
@@ -166,7 +166,7 @@ PHP;
      * Renders the indexes.
      * @return string
      */
-    public function renderIndexes()
+    public function renderIndexes(): string
     {
         $output = '';
         if ($this->indexes) {
@@ -186,7 +186,7 @@ PHP;
      * Renders the foreign keys.
      * @return string
      */
-    public function renderForeignKeys()
+    public function renderForeignKeys(): string
     {
         $output = '';
         if ($this->foreignKeys) {
@@ -200,14 +200,14 @@ PHP;
     /**
      * Builds table structure based on the list of changes from the Updater.
      * @param TableChange[] $changes
-     * @throws \yii\base\InvalidParamException
+     * @throws InvalidArgumentException
      */
-    public function applyChanges($changes)
+    public function applyChanges($changes): void
     {
         /* @var $change TableChange */
         foreach ($changes as $change) {
             if (!$change instanceof TableChange) {
-                throw new InvalidParamException('You must provide array of TableChange objects.');
+                throw new InvalidArgumentException('You must provide array of TableChange objects.');
             }
             switch ($change->method) {
                 case 'createTable':

@@ -12,7 +12,7 @@ class TableColumnText extends TableColumn
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         $this->definition[] = 'text(' . ($table->generalSchema ? null : $this->length) . ')';
     }

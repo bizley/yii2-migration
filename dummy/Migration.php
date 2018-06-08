@@ -27,10 +27,14 @@ class Migration extends Component implements MigrationInterface
      */
     public $db = 'db';
 
+    /**
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\NotSupportedException
+     */
     public function init()
     {
         parent::init();
-        $this->db = Instance::ensure($this->db, Connection::className());
+        $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
     }
@@ -295,7 +299,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function addPrimaryKey($name, $table, $columns)
     {
-        $this->addChange($table, 'addPrimaryKey', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)]);
+        $this->addChange($table, 'addPrimaryKey', [$name, \is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)]);
     }
 
     /**
@@ -313,9 +317,9 @@ class Migration extends Component implements MigrationInterface
     {
         $this->addChange($table, 'addForeignKey', [
             $name,
-            is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+            \is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
             $refTable,
-            is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
+            \is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
             $delete,
             $update
         ]);
@@ -334,7 +338,7 @@ class Migration extends Component implements MigrationInterface
      */
     public function createIndex($name, $table, $columns, $unique = false)
     {
-        $this->addChange($table, 'createIndex', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns), $unique]);
+        $this->addChange($table, 'createIndex', [$name, \is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns), $unique]);
     }
 
     /**

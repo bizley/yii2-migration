@@ -21,7 +21,7 @@ class TableColumnTimestamp extends TableColumn
      * Sets length of the column.
      * @param $value
      */
-    public function setLength($value)
+    public function setLength($value): void
     {
         $this->precision = $value;
     }
@@ -30,7 +30,7 @@ class TableColumnTimestamp extends TableColumn
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         $this->definition[] = 'timestamp(' . ($table->generalSchema ? null : $this->length) . ')';
     }

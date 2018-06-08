@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableIndex
  * @package bizley\migration\table
  */
-class TableIndex extends Object
+class TableIndex extends BaseObject
 {
     /**
      * @var string
@@ -32,7 +32,7 @@ class TableIndex extends Object
     public function render($table, $indent = 8)
     {
         return str_repeat(' ', $indent) . "\$this->createIndex('{$this->name}', '" . $table->renderName() . "', "
-            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
+            . (\count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
             . ($this->unique ? ', true' : '') . ');';
     }
 }

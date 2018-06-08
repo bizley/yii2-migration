@@ -12,7 +12,7 @@ class TableColumnBinary extends TableColumn
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         $this->definition[] = 'binary(' . ($table->generalSchema ? null : $this->length) . ')';
     }

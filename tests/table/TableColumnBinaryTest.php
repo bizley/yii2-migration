@@ -6,13 +6,13 @@ use bizley\migration\table\TableColumnBinary;
 
 class TableColumnBinaryTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function testDefinitionSpecific(): void
     {
         $column = new TableColumnBinary(['size' => 1]);
         $this->assertEquals('$this->binary(1)', $column->renderDefinition($this->getTable(false)));
     }
 
-    public function testDefinitionGeneral()
+    public function testDefinitionGeneral(): void
     {
         $column = new TableColumnBinary(['size' => 1]);
         $this->assertEquals('$this->binary()', $column->renderDefinition($this->getTable()));

@@ -2,13 +2,13 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableForeignKey
  * @package bizley\migration\table
  */
-class TableForeignKey extends Object
+class TableForeignKey extends BaseObject
 {
     /**
      * @var string
@@ -40,7 +40,7 @@ class TableForeignKey extends Object
      * @param TableStructure $table
      * @return string
      */
-    public function renderName($table)
+    public function renderName($table): string
     {
         if ($this->name === null || is_numeric($this->name)) {
             return "fk-{$table->name}-" . implode('-', $this->columns);
@@ -53,7 +53,7 @@ class TableForeignKey extends Object
      * @param TableStructure $table
      * @return string
      */
-    public function renderRefTableName($table)
+    public function renderRefTableName($table): string
     {
         $tableName = $this->refTable;
         if (!$table->usePrefix) {
@@ -71,12 +71,12 @@ class TableForeignKey extends Object
      * @param int $indent
      * @return string
      */
-    public function render($table, $indent = 8)
+    public function render($table, $indent = 8): string
     {
         return str_repeat(' ', $indent) . '$this->addForeignKey(\'' . $this->renderName($table) . "', '" . $table->renderName() . "', "
-            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
+            . (\count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
             . ", '" . $this->renderRefTableName($table) . "', "
-            . (count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
+            . (\count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
             . ($this->onDelete ? ", '{$this->onDelete}'" : '')
             . ($this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : '')
             . ');';

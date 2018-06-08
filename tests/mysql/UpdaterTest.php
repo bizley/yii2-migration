@@ -16,7 +16,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testDropPrimaryKey()
+    public function testDropPrimaryKey(): void
     {
         $this->dbUp('test_pk_composite');
 
@@ -31,7 +31,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testAddPrimaryKey()
+    public function testAddPrimaryKey(): void
     {
         $this->dbUp('test_index_single');
 
@@ -48,7 +48,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testDropForeignKey()
+    public function testDropForeignKey(): void
     {
         $this->dbUp('test_pk');
         $this->dbUp('test_fk');
@@ -64,7 +64,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testAddForeignKey()
+    public function testAddForeignKey(): void
     {
         $this->dbUp('test_pk');
         $this->dbUp('test_columns');
@@ -80,7 +80,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testDropIndex()
+    public function testDropIndex(): void
     {
         $this->dbUp('test_index_single');
 
@@ -95,7 +95,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testAddIndex()
+    public function testAddIndex(): void
     {
         $this->dbUp('test_columns');
 
@@ -110,7 +110,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testMultipleMigrations()
+    public function testMultipleMigrations(): void
     {
         $this->dbUp('test_multiple');
 
@@ -126,7 +126,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testMultipleMigrationsWithSkip()
+    public function testMultipleMigrationsWithSkip(): void
     {
         $this->dbUp('test_multiple_skip');
 

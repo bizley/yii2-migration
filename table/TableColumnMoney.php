@@ -21,9 +21,9 @@ class TableColumnMoney extends TableColumn
      * Sets length of the column.
      * @param $value
      */
-    public function setLength($value)
+    public function setLength($value): void
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $length = $value;
         } else {
             $length = preg_split('\s*,\s*', $value);
@@ -40,7 +40,7 @@ class TableColumnMoney extends TableColumn
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         $this->definition[] = 'money(' . ($table->generalSchema ? null : $this->length) . ')';
     }

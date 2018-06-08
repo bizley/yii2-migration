@@ -9,9 +9,9 @@ use Exception;
 use Yii;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
 use yii\console\Controller;
 use yii\console\controllers\MigrateController;
+use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\di\Instance;
 use yii\helpers\Console;
@@ -22,13 +22,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.3.0
+ * @version 3.0.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.3.0';
+    protected $version = '3.0.0';
 
     /**
      * @var string Default command action.
@@ -122,7 +122,7 @@ class MigrationController extends Controller
     /**
      * @inheritdoc
      */
-    public function options($actionID)
+    public function options($actionID): array
     {
         $options = parent::options($actionID);
         $createOptions = ['migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile', 'useTablePrefix', 'fixHistory', 'migrationTable'];
@@ -142,7 +142,7 @@ class MigrationController extends Controller
      * @inheritdoc
      * @since 2.0
      */
-    public function optionAliases()
+    public function optionAliases(): array
     {
         return array_merge(parent::optionAliases(), [
             'p' => 'migrationPath',
@@ -160,7 +160,7 @@ class MigrationController extends Controller
     /**
      * Makes sure boolean properties are boolean.
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $booleanProperties = ['useTablePrefix', 'showOnly', 'generalSchema', 'fixHistory'];
@@ -182,13 +182,12 @@ class MigrationController extends Controller
      * @param Action $action the action to be executed.
      * @return bool whether the action should continue to be executed.
      * @throws InvalidConfigException
-     * @throws InvalidParamException
      * @throws \yii\base\Exception
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         if (parent::beforeAction($action)) {
-            if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
+            if (!$this->showOnly && \in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
                 if ($this->migrationPath !== null) {
                     $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
                 }
@@ -199,7 +198,7 @@ class MigrationController extends Controller
                     $this->workingPath = $this->migrationPath;
                 }
             }
-            $this->db = Instance::ensure($this->db, Connection::className());
+            $this->db = Instance::ensure($this->db, Connection::class);
             $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
             return true;
         }
@@ -211,10 +210,9 @@ class MigrationController extends Controller
      * @param string $path
      * @return string
      * @since 1.1
-     * @throws InvalidParamException
      * @throws \yii\base\Exception
      */
-    public function preparePathDirectory($path)
+    public function preparePathDirectory($path): string
     {
         $translatedPath = Yii::getAlias($path);
         if (!is_dir($translatedPath)) {
@@ -228,12 +226,12 @@ class MigrationController extends Controller
      * @throws \yii\db\Exception
      * @since 2.0
      */
-    protected function createMigrationHistoryTable()
+    protected function createMigrationHistoryTable(): void
     {
         $tableName = $this->db->schema->getRawTableName($this->migrationTable);
         $this->stdout(" > Creating migration history table '{$tableName}' ...", Console::FG_YELLOW);
         $this->db->createCommand()->createTable($this->migrationTable, [
-            'version' => 'varchar(180) NOT NULL PRIMARY KEY',
+            'version' => 'varchar(' . MigrateController::MAX_NAME_LENGTH . ') NOT NULL PRIMARY KEY',
             'apply_time' => 'integer',
         ])->execute();
         $this->db->createCommand()->insert($this->migrationTable, [
@@ -250,7 +248,7 @@ class MigrationController extends Controller
      * @throws \yii\db\Exception
      * @since 2.0
      */
-    protected function addMigrationHistory($version, $namespace = null)
+    protected function addMigrationHistory($version, $namespace = null): void
     {
         $this->stdout(' > Adding migration history entry ...', Console::FG_YELLOW);
         $command = $this->db->createCommand();
@@ -268,7 +266,7 @@ class MigrationController extends Controller
      * @param Closure $actionMethod
      * @since 2.2.0
      */
-    protected function execute($type, $table, $actionMethod)
+    protected function execute($type, $table, $actionMethod): void
     {
         $tables = [$table];
         if (strpos($table, ',') !== false) {
@@ -316,13 +314,13 @@ class MigrationController extends Controller
      * @return int
      * @since 2.1
      */
-    public function actionList()
+    public function actionList(): int
     {
         $tables = $this->db->schema->getTableNames();
         if (!$tables) {
             $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
-            $this->stdout(' > Your database contains ' . count($tables) . " tables:\n");
+            $this->stdout(' > Your database contains ' . \count($tables) . " tables:\n");
             foreach ($tables as $table) {
                 $this->stdout("   - $table\n");
             }
@@ -341,16 +339,16 @@ class MigrationController extends Controller
         $cmd = $this->ansiFormat('migration/update-all', Console::FG_CYAN);
         $this->stdout("   $cmd\n");
         $this->stdout("      to generate updating migrations for all the tables.\n", Console::FG_GREEN);
-        return Controller::EXIT_CODE_NORMAL;
+
+        return ExitCode::OK;
     }
 
     /**
      * Creates new migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
-     * @throws InvalidParamException
      */
-    public function actionCreate($table)
+    public function actionCreate($table): int
     {
         $this->execute('create', $table, function ($name, $className, $file) {
             $generator = new Generator([
@@ -366,42 +364,40 @@ class MigrationController extends Controller
             file_put_contents($file, $generator->generateMigration());
             return true;
         });
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
      * Creates new migrations for every table in database.
      * Since 2.3.0 migration history table is skipped.
      * @return int
-     * @throws InvalidParamException
      * @since 2.1
      */
-    public function actionCreateAll()
+    public function actionCreateAll(): int
     {
         $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
-            return Controller::EXIT_CODE_NORMAL;
+            return ExitCode::OK;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to generate ' . count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
+        $prompt = $this->prompt(' > Are you sure you want to generate ' . \count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
         if (strtolower($prompt) === 'y') {
             $this->actionCreate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
      * Creates new update migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
-     * @throws InvalidParamException
      * @since 2.0
      */
-    public function actionUpdate($table)
+    public function actionUpdate($table): int
     {
         $this->execute('update', $table, function ($name, $className, $file) {
             $updater = new Updater([
@@ -429,32 +425,31 @@ class MigrationController extends Controller
             }
             return false;
         });
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
      * Creates new update migrations for every table in database.
      * Since 2.3.0 migration history table is skipped.
      * @return int
-     * @throws InvalidParamException
      * @since 2.1
      */
-    public function actionUpdateAll()
+    public function actionUpdateAll(): int
     {
         $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
-            return Controller::EXIT_CODE_NORMAL;
+            return ExitCode::OK;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
+        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . \count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
         if (strtolower($prompt) === 'y') {
             $this->actionUpdate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         }
-        return Controller::EXIT_CODE_NORMAL;
+        return ExitCode::OK;
     }
 
     /**
@@ -463,7 +458,7 @@ class MigrationController extends Controller
      * @return array
      * @since 2.3.0
      */
-    public function removeMigrationTable($tables)
+    public function removeMigrationTable($tables): array
     {
         if (!$tables) {
             return [];

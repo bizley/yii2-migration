@@ -7,7 +7,7 @@ use bizley\migration\table\TableStructure;
 
 class TableColumnTestCase extends \PHPUnit\Framework\TestCase
 {
-    public function getTable($generalSchema = true, $composite = false, $schema = null)
+    public function getTable($generalSchema = true, $composite = false, $schema = null): TableStructure
     {
         return new TableStructure([
             'name' => 'table',

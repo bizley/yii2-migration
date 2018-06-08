@@ -10,7 +10,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
 {
     static protected $runMigrations = false;
 
-    protected static function addMigration($name)
+    protected static function addMigration($name): void
     {
         Yii::$app->db->createCommand()->insert('migration', [
             'version' => $name,
@@ -18,12 +18,12 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         ])->execute();
     }
 
-    protected static function deleteMigration($name)
+    protected static function deleteMigration($name): void
     {
         Yii::$app->db->createCommand()->delete('migration', ['version' => $name])->execute();
     }
 
-    protected function getUpdater($tableName, $generalSchema = true, $skip = [])
+    protected function getUpdater($tableName, $generalSchema = true, array $skip = []): Updater
     {
         return new Updater([
             'db' => Yii::$app->db,
@@ -36,7 +36,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-        if (!in_array('migration', Yii::$app->db->schema->tableNames, true)) {
+        if (!\in_array('migration', Yii::$app->db->schema->tableNames, true)) {
             Yii::$app->db->createCommand()->createTable('migration', [
                 'version' => 'VARCHAR(180) NOT NULL PRIMARY KEY',
                 'apply_time' => 'integer',
@@ -45,18 +45,18 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         }
     }
 
-    protected function dbUp($name)
+    protected function dbUp($name): void
     {
         $tableOptions = 'ENGINE=InnoDB';
         $data = [
             'test_pk' => function () use ($tableOptions) {
-                if (!in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_pk', ['id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY'], $tableOptions)->execute();
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180322_212600_create_table_test_pk');
                 }
             },
             'test_columns' => function () use ($tableOptions) {
-                if (!in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_columns', [
                         'id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY',
                         'col_big_int' => 'BIGINT(20) NULL',
@@ -80,14 +80,14 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 }
             },
             'test_index_single' => function () use ($tableOptions) {
-                if (!in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_index_single', ['col' => 'INT(11)'], $tableOptions)->execute();
                     Yii::$app->db->createCommand()->createIndex('idx-test_index_single-col', 'test_index_single', 'col')->execute();
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180322_214400_create_table_test_index_single');
                 }
             },
             'test_pk_composite' => function () use ($tableOptions) {
-                if (!in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_pk_composite', [
                         'one' => 'INT(11)',
                         'two' => 'INT(11)',
@@ -97,14 +97,14 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 }
             },
             'test_fk' => function () use ($tableOptions) {
-                if (!in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_fk', ['pk_id' => 'INT(11)'], $tableOptions)->execute();
                     Yii::$app->db->createCommand()->addForeignKey('fk-test_fk-pk_id', '{{%test_fk}}', 'pk_id', '{{%test_pk}}', 'id', 'CASCADE', 'CASCADE')->execute();
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180324_105400_create_table_test_fk');
                 }
             },
             'test_multiple' => function () use ($tableOptions) {
-                if (!in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_multiple', ['two' => 'INT(11)'], $tableOptions)->execute();
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205600_create_table_test_multiple');
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
@@ -112,7 +112,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 }
             },
             'test_multiple_skip' => function () use ($tableOptions) {
-                if (!in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_multiple', [
                         'one' => 'INT(11)',
                         'two' => 'INT(11)',
@@ -123,15 +123,15 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 }
             },
         ];
-        call_user_func($data[$name]);
+        \call_user_func($data[$name]);
     }
 
-    protected function dbDown($name)
+    protected function dbDown($name): void
     {
         // needs reverse order
         $data = [
             'test_multiple' => function () {
-                if (in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_multiple')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
@@ -139,31 +139,31 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 }
             },
             'test_fk' => function () {
-                if (in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180324_105400_create_table_test_fk');
                 }
             },
             'test_pk_composite' => function () {
-                if (in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
                 }
             },
             'test_index_single' => function () {
-                if (in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_index_single')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_214400_create_table_test_index_single');
                 }
             },
             'test_columns' => function () {
-                if (in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_columns')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180317_093600_create_table_test_columns');
                 }
             },
             'test_pk' => function () {
-                if (in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk')->execute();
                     static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_212600_create_table_test_pk');
                 }
@@ -174,7 +174,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                 $tab();
             }
         } else {
-            call_user_func($data[$name]);
+            \call_user_func($data[$name]);
         }
     }
 }

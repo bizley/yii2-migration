@@ -6,13 +6,13 @@ use bizley\migration\table\TableColumnUPK;
 
 class TableColumnUPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function testDefinitionSpecific(): void
     {
         $column = new TableColumnUPK(['size' => 11]);
         $this->assertEquals('$this->primaryKey(11)', $column->renderDefinition($this->getTable(false)));
     }
 
-    public function testDefinitionGeneral()
+    public function testDefinitionGeneral(): void
     {
         $column = new TableColumnUPK(['size' => 11]);
         $this->assertEquals('$this->primaryKey()->unsigned()', $column->renderDefinition($this->getTable(true)));

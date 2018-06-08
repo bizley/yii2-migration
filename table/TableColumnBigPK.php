@@ -12,7 +12,7 @@ class TableColumnBigPK extends TableColumn
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         $this->definition[] = 'bigPrimaryKey(' . ($table->generalSchema ? null : $this->length) . ')';
         if ($table->generalSchema) {

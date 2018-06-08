@@ -12,7 +12,7 @@ class TableColumnUPK extends TableColumnPK
      * Builds methods chain for column definition.
      * @param TableStructure $table
      */
-    public function buildSpecificDefinition($table)
+    public function buildSpecificDefinition($table): void
     {
         parent::buildSpecificDefinition($table);
         if ($table->generalSchema) {

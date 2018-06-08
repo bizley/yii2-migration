@@ -17,7 +17,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testChangeSizeGeneral()
+    public function testChangeSizeGeneral(): void
     {
         $this->dbUp('test_columns');
 
@@ -31,7 +31,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testChangeSizeSpecific()
+    public function testChangeSizeSpecific(): void
     {
         $this->dbUp('test_columns');
 
@@ -48,7 +48,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testChangeScaleGeneral()
+    public function testChangeScaleGeneral(): void
     {
         $this->dbUp('test_columns');
 
@@ -62,7 +62,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testChangeScaleSpecific()
+    public function testChangeScaleSpecific(): void
     {
         $this->dbUp('test_columns');
 
@@ -80,7 +80,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testChangeColumnType()
+    public function testChangeColumnType(): void
     {
         $this->dbUp('test_columns');
 
@@ -96,7 +96,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testDropColumn()
+    public function testDropColumn(): void
     {
         $this->dbUp('test_columns');
 
@@ -111,7 +111,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testAddColumn()
+    public function testAddColumn(): void
     {
         $this->dbUp('test_columns');
 

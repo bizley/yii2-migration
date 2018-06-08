@@ -8,10 +8,6 @@ class m180317_110000_create_table_test_tinyint extends Migration
 {
     public function up()
     {
-        if (!method_exists($this, 'tinyInteger')) {
-            return true;
-        }
-
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
@@ -24,9 +20,6 @@ class m180317_110000_create_table_test_tinyint extends Migration
 
     public function down()
     {
-        if (!method_exists($this, 'tinyInteger')) {
-            return true;
-        }
         $this->dropTable('{{%test_tinyint}}');
     }
 }

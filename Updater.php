@@ -9,8 +9,8 @@ use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\ErrorException;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
 use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -52,7 +52,7 @@ class Updater extends Generator
      * Sets current table name and clears skipped migrations names.
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->_currentTable = $this->tableName;
@@ -63,9 +63,9 @@ class Updater extends Generator
 
     /**
      * Sets dummy Migration class.
-     * @throws InvalidParamException
+     * @throws InvalidArgumentException
      */
-    protected function setDummyMigrationClass()
+    protected function setDummyMigrationClass(): void
     {
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
     }
@@ -76,7 +76,7 @@ class Updater extends Generator
      * Migrations are fetched from newest to oldest.
      * @return array the migration history
      */
-    public function fetchHistory()
+    public function fetchHistory(): array
     {
         if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
             return [];
@@ -121,7 +121,7 @@ class Updater extends Generator
      * @return bool true if more data can be analysed or false if this must be last one
      * @since 2.3.0
      */
-    protected function gatherChanges($changes)
+    protected function gatherChanges($changes): bool
     {
         if (!isset($changes[$this->_currentTable])) {
             return true;
@@ -148,10 +148,10 @@ class Updater extends Generator
      * Extracts migration data structures.
      * @param string $migration
      * @return array
-     * @throws InvalidParamException
+     * @throws InvalidArgumentException
      * @throws ErrorException
      */
-    protected function extract($migration)
+    protected function extract($migration): array
     {
         if (strpos($migration, '\\') === false) {
             $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
@@ -172,14 +172,15 @@ class Updater extends Generator
 
     /**
      * Returns the table structure as applied in gathered migrations.
+     * @return TableStructure
      * @since 2.3.0
      * @throws \yii\base\InvalidParamException
      */
-    public function getOldTable()
+    public function getOldTable(): TableStructure
     {
         if ($this->_oldTable === null) {
             $this->_oldTable = new TableStructure([
-                'schema' => get_class($this->db->schema),
+                'schema' => \get_class($this->db->schema),
                 'generalSchema' => $this->generalSchema,
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
@@ -194,7 +195,7 @@ class Updater extends Generator
      * @param mixed $value
      * @return string
      */
-    public function displayValue($value)
+    public function displayValue($value): string
     {
         if ($value === null) {
             return 'NULL';
@@ -214,9 +215,9 @@ class Updater extends Generator
      * @return bool
      * @since 2.1.2
      */
-    protected function confirmCompositePrimaryKey($newKeys)
+    protected function confirmCompositePrimaryKey($newKeys): bool
     {
-        if (count($this->table->primaryKey->columns) === 1 && count($newKeys) === 1) {
+        if (\count($this->table->primaryKey->columns) === 1 && \count($newKeys) === 1) {
             /* @var $column TableColumn */
             foreach ($this->plan->addColumn as $name => $column) {
                 if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
@@ -230,7 +231,7 @@ class Updater extends Generator
             }
             return true;
         }
-        if (count($this->table->primaryKey->columns) > 1) {
+        if (\count($this->table->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
                 /* @var $column TableColumn */
                 foreach ($this->plan->addColumn as $name => $column) {
@@ -253,7 +254,7 @@ class Updater extends Generator
     /**
      * @return TablePlan
      */
-    public function getPlan()
+    public function getPlan(): TablePlan
     {
         if ($this->_modifications === null) {
             $this->_modifications = new TablePlan();
@@ -265,7 +266,7 @@ class Updater extends Generator
      * Compares migration structure and database structure and gather required modifications.
      * @return bool whether modification is required or not
      */
-    protected function compareStructures()
+    protected function compareStructures(): bool
     {
         if (empty($this->_appliedChanges)) {
             return true;
@@ -291,10 +292,8 @@ class Updater extends Generator
                         echo "   - different '$name' column property: $property (";
                         echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
                         echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
-                    } else {
-                        if (!isset($this->plan->alterColumn[$name])) {
-                            $this->plan->alterColumn[$name] = $column;
-                        }
+                    } elseif (!isset($this->plan->alterColumn[$name])) {
+                        $this->plan->alterColumn[$name] = $column;
                     }
                     $different = true;
                 }
@@ -323,7 +322,7 @@ class Updater extends Generator
             }
             $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns) ? $this->table->foreignKeys[$name]->columns : [];
             $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns) ? $this->oldTable->foreignKeys[$name]->columns : [];
-            if (count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+            if (\count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
                 array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
@@ -338,7 +337,7 @@ class Updater extends Generator
             }
             $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns) ? $this->table->foreignKeys[$name]->refColumns : [];
             $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns) ? $this->oldTable->foreignKeys[$name]->refColumns : [];
-            if (count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+            if (\count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
                 array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
@@ -366,7 +365,7 @@ class Updater extends Generator
         $oldTablePKColumns = !empty($this->oldTable->primaryKey->columns) ? $this->oldTable->primaryKey->columns : [];
         $newKeys = array_merge(array_diff($tablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)),
             array_diff($oldTablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)));
-        if (count($newKeys)) {
+        if (\count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
             } else {
@@ -404,7 +403,7 @@ class Updater extends Generator
             }
             $tableIndexColumns = !empty($this->table->indexes[$name]->columns) ? $this->table->indexes[$name]->columns : [];
             $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns) ? $this->oldTable->indexes[$name]->columns : [];
-            if (count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+            if (\count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
                 array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))))) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
@@ -434,17 +433,16 @@ class Updater extends Generator
     /**
      * Checks if new updating migration is required.
      * @return bool
-     * @throws InvalidParamException
      * @throws ErrorException
      */
-    public function isUpdateRequired()
+    public function isUpdateRequired(): bool
     {
         $history = $this->fetchHistory();
         if (!empty($history)) {
             $this->setDummyMigrationClass();
             foreach ($history as $migration => $time) {
                 $migration = trim($migration, '\\');
-                if (in_array($migration, $this->skipMigrations, true)) {
+                if (\in_array($migration, $this->skipMigrations, true)) {
                     continue;
                 }
                 if (!$this->gatherChanges($this->extract($migration))) {
@@ -459,9 +457,8 @@ class Updater extends Generator
     /**
      * Generates migration content or echoes exception message.
      * @return string
-     * @throws InvalidParamException
      */
-    public function generateMigration()
+    public function generateMigration(): string
     {
         if (empty($this->_modifications)) {
             return parent::generateMigration();

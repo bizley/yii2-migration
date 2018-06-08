@@ -2,7 +2,7 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Class TableChange
@@ -10,7 +10,7 @@ use yii\base\Object;
  *
  * @property-read array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex $value
  */
-class TableChange extends Object
+class TableChange extends BaseObject
 {
     /**
      * @var string
@@ -39,15 +39,15 @@ class TableChange extends Object
                     $columns[] = TableColumnFactory::build([
                         'name' => $column,
                         'type' => $schema['type'],
-                        'length' => isset($schema['length']) ? $schema['length'] : null,
-                        'isNotNull' => isset($schema['isNotNull']) ? $schema['isNotNull'] : null,
-                        'isUnique' => isset($schema['isUnique']) ? $schema['isUnique'] : null,
-                        'isPrimaryKey' => isset($schema['isPrimaryKey']) ? $schema['isPrimaryKey'] : null,
-                        'check' => isset($schema['check']) ? $schema['check'] : null,
-                        'default' => isset($schema['default']) ? $schema['default'] : null,
-                        'append' => isset($schema['append']) ? $schema['append'] : null,
-                        'isUnsigned' => isset($schema['isUnsigned']) ? $schema['isUnsigned'] : null,
-                        'comment' => isset($schema['comment']) ? $schema['comment'] : null,
+                        'length' => $schema['length'] ?? null,
+                        'isNotNull' => $schema['isNotNull'] ?? null,
+                        'isUnique' => $schema['isUnique'] ?? null,
+                        'isPrimaryKey' => $schema['isPrimaryKey'] ?? null,
+                        'check' => $schema['check'] ?? null,
+                        'default' => $schema['default'] ?? null,
+                        'append' => $schema['append'] ?? null,
+                        'isUnsigned' => $schema['isUnsigned'] ?? null,
+                        'comment' => $schema['comment'] ?? null,
                     ]);
                 }
                 return $columns;
@@ -61,15 +61,15 @@ class TableChange extends Object
                 return TableColumnFactory::build([
                     'name' => $this->data[0],
                     'type' => $this->data[1]['type'],
-                    'length' => isset($this->data[1]['length']) ? $this->data[1]['length'] : null,
-                    'isNotNull' => isset($this->data[1]['isNotNull']) ? $this->data[1]['isNotNull'] : null,
-                    'isUnique' => isset($this->data[1]['isUnique']) ? $this->data[1]['isUnique'] : null,
-                    'isPrimaryKey' => isset($this->data[1]['isPrimaryKey']) ? $this->data[1]['isPrimaryKey'] : null,
-                    'check' => isset($this->data[1]['check']) ? $this->data[1]['check'] : null,
-                    'default' => isset($this->data[1]['default']) ? $this->data[1]['default'] : null,
-                    'append' => isset($this->data[1]['append']) ? $this->data[1]['append'] : null,
-                    'isUnsigned' => isset($this->data[1]['isUnsigned']) ? $this->data[1]['isUnsigned'] : null,
-                    'comment' => isset($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
+                    'length' => $this->data[1]['length'] ?? null,
+                    'isNotNull' => $this->data[1]['isNotNull'] ?? null,
+                    'isUnique' => $this->data[1]['isUnique'] ?? null,
+                    'isPrimaryKey' => $this->data[1]['isPrimaryKey'] ?? null,
+                    'check' => $this->data[1]['check'] ?? null,
+                    'default' => $this->data[1]['default'] ?? null,
+                    'append' => $this->data[1]['append'] ?? null,
+                    'isUnsigned' => $this->data[1]['isUnsigned'] ?? null,
+                    'comment' => $this->data[1]['comment'] ?? null,
                 ]);
             case 'addPrimaryKey':
                 return new TablePrimaryKey([

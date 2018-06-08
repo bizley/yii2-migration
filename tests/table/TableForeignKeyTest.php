@@ -7,31 +7,31 @@ use bizley\migration\table\TableStructure;
 
 class TableForeignKeyTest extends \PHPUnit\Framework\TestCase
 {
-    public function testNameGenerated()
+    public function testNameGenerated(): void
     {
         $fk = new TableForeignKey(['columns' => ['one', 'two']]);
         $this->assertEquals('fk-table-one-two', $fk->renderName(new TableStructure(['name' => 'table'])));
     }
 
-    public function testRenderRefTableUsePrefix()
+    public function testRenderRefTableUsePrefix(): void
     {
         $fk = new TableForeignKey(['refTable' => 'test']);
         $this->assertEquals('{{%test}}', $fk->renderRefTableName(new TableStructure()));
     }
 
-    public function testRenderRefTableDontUsePrefix()
+    public function testRenderRefTableDontUsePrefix(): void
     {
         $fk = new TableForeignKey(['refTable' => 'test']);
         $this->assertEquals('test', $fk->renderRefTableName(new TableStructure(['usePrefix' => false])));
     }
 
-    public function testRenderRefTableDbPrefix()
+    public function testRenderRefTableDbPrefix(): void
     {
         $fk = new TableForeignKey(['refTable' => 'prefix_test']);
         $this->assertEquals('{{%test}}', $fk->renderRefTableName(new TableStructure(['dbPrefix' => 'prefix_'])));
     }
 
-    public function testRender()
+    public function testRender(): void
     {
         $fk = new TableForeignKey([
             'name' => 'fk_test',

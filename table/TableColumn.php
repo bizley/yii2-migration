@@ -2,7 +2,7 @@
 
 namespace bizley\migration\table;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\Expression;
 
 /**
@@ -11,7 +11,7 @@ use yii\db\Expression;
  *
  * @property-read int|string $length
  */
-class TableColumn extends Object
+class TableColumn extends BaseObject
 {
     /**
      * @var string
@@ -74,7 +74,7 @@ class TableColumn extends Object
      * List of all properties to be checked.
      * @return array
      */
-    public static function properties()
+    public static function properties(): array
     {
         return ['type', 'isNotNull', 'size', 'precision', 'scale', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
     }
@@ -92,12 +92,12 @@ class TableColumn extends Object
      * Sets length of the column.
      * @param $value
      */
-    public function setLength($value)
+    public function setLength($value): void
     {
         $this->size = $value;
     }
 
-    protected function buildSpecificDefinition($table) {}
+    protected function buildSpecificDefinition($table): void {}
 
     protected $definition = [];
     protected $isUnsignedPossible = true;
@@ -108,7 +108,7 @@ class TableColumn extends Object
      * Builds general methods chain for column definition.
      * @param TableStructure $table
      */
-    protected function buildGeneralDefinition($table)
+    protected function buildGeneralDefinition($table): void
     {
         array_unshift($this->definition, '$this');
 
@@ -144,7 +144,7 @@ class TableColumn extends Object
      * @param TableStructure $table
      * @return string
      */
-    public function renderDefinition($table)
+    public function renderDefinition($table): string
     {
         $this->buildSpecificDefinition($table);
         $this->buildGeneralDefinition($table);
@@ -157,7 +157,7 @@ class TableColumn extends Object
      * @param int $indent
      * @return string
      */
-    public function render($table, $indent = 12)
+    public function render($table, $indent = 12): string
     {
         return str_repeat(' ', $indent) . "'{$this->name}' => " . $this->renderDefinition($table) . ',';
     }
@@ -167,9 +167,9 @@ class TableColumn extends Object
      * @param TablePrimaryKey $pk
      * @return bool
      */
-    public function isColumnInPK($pk)
+    public function isColumnInPK($pk): bool
     {
-        return in_array($this->name, $pk->columns, true);
+        return \in_array($this->name, $pk->columns, true);
     }
 
     /**
@@ -177,7 +177,7 @@ class TableColumn extends Object
      * @param string $schema
      * @return bool
      */
-    public function isColumnAppendPK($schema)
+    public function isColumnAppendPK($schema): bool
     {
         if (empty($this->append)) {
             return false;
@@ -186,10 +186,8 @@ class TableColumn extends Object
             if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
                 return true;
             }
-        } else {
-            if (stripos($this->append, 'PRIMARY KEY') !== false) {
-                return true;
-            }
+        } elseif (stripos($this->append, 'PRIMARY KEY') !== false) {
+            return true;
         }
         return false;
     }
@@ -201,7 +199,7 @@ class TableColumn extends Object
      * @param bool $autoIncrement
      * @return string
      */
-    public function prepareSchemaAppend($table, $primaryKey, $autoIncrement)
+    public function prepareSchemaAppend($table, $primaryKey, $autoIncrement): string
     {
         switch ($table->schema) {
             case TableStructure::SCHEMA_MSSQL:
@@ -225,9 +223,9 @@ class TableColumn extends Object
     /**
      * Escapes single quotes.
      * @param $value
-     * @return mixed
+     * @return string
      */
-    public function escapeQuotes($value)
+    public function escapeQuotes($value): string
     {
         return str_replace('\'', '\\\'', $value);
     }
@@ -237,7 +235,7 @@ class TableColumn extends Object
      * @param $schema
      * @return null|string
      */
-    public function removePKAppend($schema)
+    public function removePKAppend($schema): ?string
     {
         if (!$this->isColumnAppendPK($schema)) {
             return null;

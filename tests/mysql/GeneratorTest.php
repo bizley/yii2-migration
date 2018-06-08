@@ -7,7 +7,7 @@ use Yii;
 
 class GeneratorTest extends MysqlDbTestCase
 {
-    protected function getGenerator($tableName)
+    protected function getGenerator($tableName): Generator
     {
         return new Generator([
             'db' => Yii::$app->db,
@@ -15,13 +15,13 @@ class GeneratorTest extends MysqlDbTestCase
         ]);
     }
 
-    public function testMysqlSchema()
+    public function testMysqlSchema(): void
     {
         $table = $this->getGenerator('test_pk')->table;
         $this->assertEquals('mysql', $table->schema);
     }
 
-    public function testPrimaryKeyNonComposite()
+    public function testPrimaryKeyNonComposite(): void
     {
         $table = $this->getGenerator('test_pk')->table;
         $this->assertEquals(['id'], $table->primaryKey->columns);
@@ -29,7 +29,7 @@ class GeneratorTest extends MysqlDbTestCase
         $this->assertFalse($table->primaryKey->isComposite());
     }
 
-    public function testPrimaryKeyComposite()
+    public function testPrimaryKeyComposite(): void
     {
         $table = $this->getGenerator('test_pk_composite')->table;
         $this->assertEquals(['one', 'two'], $table->primaryKey->columns);
@@ -37,11 +37,8 @@ class GeneratorTest extends MysqlDbTestCase
         $this->assertTrue($table->primaryKey->isComposite());
     }
 
-    public function testIndexSingle()
+    public function testIndexSingle(): void
     {
-        if (!method_exists(Yii::$app->db->schema, 'getTableIndexes')) {
-            $this->markTestSkipped('Non-unique indexes are tracked since Yii 2.0.13.');
-        }
         $table = $this->getGenerator('test_index_single')->table;
         $this->assertArrayHasKey('idx-test_index_single-col', $table->indexes);
         $this->assertEquals(['col'], $table->indexes['idx-test_index_single-col']->columns);
@@ -49,7 +46,7 @@ class GeneratorTest extends MysqlDbTestCase
         $this->assertFalse($table->indexes['idx-test_index_single-col']->unique);
     }
 
-    public function testIndexUnique()
+    public function testIndexUnique(): void
     {
         $table = $this->getGenerator('test_index_unique')->table;
         $this->assertArrayHasKey('idx-test_index_unique-col', $table->indexes);
@@ -58,11 +55,8 @@ class GeneratorTest extends MysqlDbTestCase
         $this->assertTrue($table->indexes['idx-test_index_unique-col']->unique);
     }
 
-    public function testIndexMulti()
+    public function testIndexMulti(): void
     {
-        if (!method_exists(Yii::$app->db->schema, 'getTableIndexes')) {
-            $this->markTestSkipped('Non-unique indexes are tracked since Yii 2.0.13.');
-        }
         $table = $this->getGenerator('test_index_multi')->table;
         $this->assertArrayHasKey('idx-test_index_multi-cols', $table->indexes);
         $this->assertEquals(['one', 'two'], $table->indexes['idx-test_index_multi-cols']->columns);
@@ -70,7 +64,7 @@ class GeneratorTest extends MysqlDbTestCase
         $this->assertFalse($table->indexes['idx-test_index_multi-cols']->unique);
     }
 
-    public function testForeignKey()
+    public function testForeignKey(): void
     {
         $table = $this->getGenerator('test_fk')->table;
         $this->assertArrayHasKey('fk-test_fk-pk_id', $table->foreignKeys);

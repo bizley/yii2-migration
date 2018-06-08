@@ -6,13 +6,13 @@ use bizley\migration\table\TableColumnTime;
 
 class TableColumnTimeTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function testDefinitionSpecific(): void
     {
         $column = new TableColumnTime(['precision' => 4]);
         $this->assertEquals('$this->time(4)', $column->renderDefinition($this->getTable(false)));
     }
 
-    public function testDefinitionGeneral()
+    public function testDefinitionGeneral(): void
     {
         $column = new TableColumnTime(['precision' => 4]);
         $this->assertEquals('$this->time()', $column->renderDefinition($this->getTable()));
