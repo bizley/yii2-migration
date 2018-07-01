@@ -285,18 +285,23 @@ class Updater extends Generator
                 $different = true;
                 continue;
             }
-            foreach (TableColumn::properties() as $property) {
-                if (!$this->generalSchema && $this->oldTable->columns[$name]->$property !== $column->$property) {
-                    if ($this->showOnly) {
-                        echo "   - different '$name' column property: $property (";
-                        echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
-                        echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
-                    } else {
-                        if (!isset($this->plan->alterColumn[$name])) {
-                            $this->plan->alterColumn[$name] = $column;
-                        }
+            if (!$this->generalSchema) {
+                foreach (TableColumn::properties() as $property) {
+                    if ($property === 'append' && $column->append === null && !$this->table->primaryKey->isComposite() && $column->isColumnInPK($this->table->primaryKey)) {
+                        $column->append = $column->prepareSchemaAppend($this->table, true, $column->autoIncrement);
                     }
-                    $different = true;
+                    if ($this->oldTable->columns[$name]->$property !== $column->$property) {
+                        if ($this->showOnly) {
+                            echo "   - different '$name' column property: $property (";
+                            echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
+                            echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
+                        } else {
+                            if (!isset($this->plan->alterColumn[$name])) {
+                                $this->plan->alterColumn[$name] = $column;
+                            }
+                        }
+                        $different = true;
+                    }
                 }
             }
         }

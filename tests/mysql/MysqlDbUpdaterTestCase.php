@@ -122,6 +122,22 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                     static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
                 }
             },
+            'test_int_size' => function () use ($tableOptions) {
+                if (!in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable('test_int_size', [
+                        'col_int' => 'INT(10) NULL',
+                    ], $tableOptions)->execute();
+                    static::addMigration('bizley\\migration\\tests\\migrations\\m180701_160300_create_table_test_int_size');
+                }
+            },
+            'test_char_pk' => function () use ($tableOptions) {
+                if (!in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable('test_char_pk', [
+                        'id' => 'CHAR(128) NOT NULL PRIMARY KEY',
+                    ], $tableOptions)->execute();
+                    static::addMigration('bizley\\migration\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
+                }
+            },
         ];
         call_user_func($data[$name]);
     }
@@ -130,6 +146,18 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
     {
         // needs reverse order
         $data = [
+            'test_char_pk' => function () {
+                if (in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
+                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
+                }
+            },
+            'test_int_size' => function () {
+                if (in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_int_size')->execute();
+                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180701_160300_create_table_test_int_size');
+                }
+            },
             'test_multiple' => function () {
                 if (in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_multiple')->execute();

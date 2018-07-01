@@ -47,6 +47,32 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * https://github.com/bizley/yii2-migration/issues/30
+     */
+    public function testNoChangeSizeSpecific(): void
+    {
+        $this->dbUp('test_int_size');
+
+        $updater = $this->getUpdater('test_int_size', false);
+        $this->assertFalse($updater->isUpdateRequired());
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * https://github.com/bizley/yii2-migration/issues/30
+     */
+    public function testNoChangePKSpecific(): void
+    {
+        $this->dbUp('test_char_pk');
+
+        $updater = $this->getUpdater('test_char_pk', false);
+        $this->assertFalse($updater->isUpdateRequired());
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function testChangeScaleGeneral()
     {
