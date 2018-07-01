@@ -95,6 +95,7 @@ class TableColumn extends BaseObject
     public function setLength($value): void
     {
         $this->size = $value;
+        $this->precision = $value;
     }
 
     protected function buildSpecificDefinition($table): void {}
