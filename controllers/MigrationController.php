@@ -382,8 +382,8 @@ class MigrationController extends Controller
             return ExitCode::OK;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to generate ' . \count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
-        if (strtolower($prompt) === 'y') {
+        $confirm = $this->confirm(' > Are you sure you want to generate ' . \count($tables) . ' migrations?', false);
+        if ($confirm) {
             $this->actionCreate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
@@ -443,8 +443,8 @@ class MigrationController extends Controller
             return ExitCode::OK;
         }
 
-        $prompt = $this->prompt(' > Are you sure you want to potentially generate ' . \count($tables) . ' migrations? [y]es / [n]o', ['default' => 'n']);
-        if (strtolower($prompt) === 'y') {
+        $confirm = $this->confirm(' > Are you sure you want to potentially generate ' . \count($tables) . ' migrations?', false);
+        if ($confirm) {
             $this->actionUpdate(implode(',', $tables));
         } else {
             $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
