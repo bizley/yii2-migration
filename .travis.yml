@@ -1,0 +1,44 @@
+dist: trusty
+sudo: false
+group: edge
+language: php
+env:
+  global:
+  - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
+
+services:
+- mysql
+
+cache:
+  directories:
+  - vendor
+  - $HOME/.composer/cache
+
+addons:
+  apt:
+    sources:
+    - mysql-5.7-trusty
+    packages:
+    - mysql-server
+
+matrix:
+  fast_finish: true
+  include:
+  - php: 7.2
+  - php: 7.1
+
+install:
+- phpenv config-rm xdebug.ini || echo "xdebug is not installed"
+- travis_retry composer self-update
+- export PATH="$HOME/.composer/vendor/bin:$PATH"
+- travis_retry composer install $DEFAULT_COMPOSER_FLAGS
+
+before_script:
+- sudo mysql_upgrade
+- travis_retry mysql -e 'CREATE DATABASE `podiumtest`;'
+- mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';"
+- mysql -e "CREATE USER 'podium'@'localhost' IDENTIFIED BY 'podium';"
+- mysql -e "GRANT ALL PRIVILEGES ON podiumtest.* TO 'podium'@'localhost';"
+
+script:
+- vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
