@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\migrations;
 
 use yii\db\Migration;
 
 class m180324_153800_create_table_test_addons extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -23,7 +25,7 @@ class m180324_153800_create_table_test_addons extends Migration
         ], $tableOptions);
     }
 
-    public function down()
+    public function down(): void
     {
         $this->dropTable('{{%test_addons}}');
     }

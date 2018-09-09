@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\controllers;
 
 use bizley\migration\Generator;
@@ -22,13 +24,16 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.0.0
+ * @version 3.0.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '3.0.0';
+    /**
+     * @var string
+     */
+    protected $version = '3.0.2';
 
     /**
      * @var string Default command action.
@@ -100,7 +105,7 @@ class MigrationController extends Controller
     /**
      * @var bool|string|int Whether to use general column schema instead of database specific.
      * Alias -g
-     * Since 2.3.0 this property is 1 by default.
+     * Since 3.0.0 this property is 1 by default.
      * @since 2.0
      */
     public $generalSchema = 1;
@@ -369,7 +374,7 @@ class MigrationController extends Controller
 
     /**
      * Creates new migrations for every table in database.
-     * Since 2.3.0 migration history table is skipped.
+     * Since 3.0.0 migration history table is skipped.
      * @return int
      * @since 2.1
      */
@@ -384,10 +389,10 @@ class MigrationController extends Controller
 
         $confirm = $this->confirm(' > Are you sure you want to generate ' . \count($tables) . ' migrations?', false);
         if ($confirm) {
-            $this->actionCreate(implode(',', $tables));
-        } else {
-            $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
+            return $this->actionCreate(implode(',', $tables));
         }
+
+        $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         return ExitCode::OK;
     }
 
@@ -430,7 +435,7 @@ class MigrationController extends Controller
 
     /**
      * Creates new update migrations for every table in database.
-     * Since 2.3.0 migration history table is skipped.
+     * Since 3.0.0 migration history table is skipped.
      * @return int
      * @since 2.1
      */
@@ -445,10 +450,10 @@ class MigrationController extends Controller
 
         $confirm = $this->confirm(' > Are you sure you want to potentially generate ' . \count($tables) . ' migrations?', false);
         if ($confirm) {
-            $this->actionUpdate(implode(',', $tables));
-        } else {
-            $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
+            return $this->actionUpdate(implode(',', $tables));
         }
+
+        $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
         return ExitCode::OK;
     }
 
@@ -456,7 +461,7 @@ class MigrationController extends Controller
      * Removes migration history table name from the tables list.
      * @param array $tables
      * @return array
-     * @since 2.3.0
+     * @since 3.0.0
      */
     public function removeMigrationTable($tables): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests;
 
 use yii\console\controllers\MigrateController;
@@ -12,7 +14,7 @@ class EchoMigrateController extends MigrateController
     /**
      * @inheritdoc
      */
-    public function stdout($string)
+    public function stdout($string): void
     {
         echo $string;
     }

@@ -6,9 +6,9 @@
  */
 $config = [
     'mysql' => [
-        'dsn' => 'mysql:host=127.0.0.1;dbname=test',
-        'username' => 'root',
-        'password' => '',
+        'dsn' => 'mysql:host=127.0.0.1;dbname=migrationtest',
+        'username' => 'migration',
+        'password' => 'migration',
     ],
 ];
 if (is_file(__DIR__ . '/config.local.php')) {

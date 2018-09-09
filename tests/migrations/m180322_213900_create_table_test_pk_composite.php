@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\migrations;
 
 use yii\db\Migration;
 
 class m180322_213900_create_table_test_pk_composite extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -21,7 +23,7 @@ class m180322_213900_create_table_test_pk_composite extends Migration
         $this->addPrimaryKey('PRIMARYKEY', '{{%test_pk_composite}}', ['one', 'two']);
     }
 
-    public function down()
+    public function down(): void
     {
         $this->dropTable('{{%test_pk_composite}}');
     }

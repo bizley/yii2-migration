@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\table;
 
 use bizley\migration\table\TableColumnBigInt;

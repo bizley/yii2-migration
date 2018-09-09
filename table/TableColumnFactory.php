@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\table;
 
 use yii\base\InvalidConfigException;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
@@ -198,9 +200,9 @@ class TableColumn extends BaseObject
      * @param TableStructure $table
      * @param bool $primaryKey
      * @param bool $autoIncrement
-     * @return string
+     * @return string|null
      */
-    public function prepareSchemaAppend($table, $primaryKey, $autoIncrement): string
+    public function prepareSchemaAppend($table, $primaryKey, $autoIncrement): ?string
     {
         switch ($table->schema) {
             case TableStructure::SCHEMA_MSSQL:

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\mysql;
 
 use Yii;
@@ -16,6 +18,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\base\ErrorException
+     * @throws \yii\db\Exception
      */
     public function testChangeSizeGeneral(): void
     {
@@ -30,6 +34,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testChangeSizeSpecific(): void
     {
@@ -48,6 +54,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
+     * @throws \yii\base\ErrorException
      */
     public function testNoChangeSizeSpecific(): void
     {
@@ -61,6 +68,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
+     * @throws \yii\base\ErrorException
      */
     public function testNoChangePKSpecific(): void
     {
@@ -73,6 +81,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testChangeScaleGeneral(): void
     {
@@ -87,6 +97,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testChangeScaleSpecific(): void
     {
@@ -105,6 +117,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testChangeColumnType(): void
     {
@@ -121,6 +135,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testDropColumn(): void
     {
@@ -136,6 +152,8 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testAddColumn(): void
     {

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\mysql;
 
 use Yii;
+use bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
 
 class UpdaterTest extends MysqlDbUpdaterTestCase
 {
@@ -15,6 +18,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testDropPrimaryKey(): void
     {
@@ -30,6 +35,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testAddPrimaryKey(): void
     {
@@ -47,6 +54,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testDropForeignKey(): void
     {
@@ -63,6 +72,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testAddForeignKey(): void
     {
@@ -79,6 +90,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testDropIndex(): void
     {
@@ -94,6 +107,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testAddIndex(): void
     {
@@ -109,6 +124,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testMultipleMigrations(): void
     {
@@ -125,6 +142,8 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
+     * @throws \yii\base\ErrorException
      */
     public function testMultipleMigrationsWithSkip(): void
     {
@@ -132,7 +151,7 @@ class UpdaterTest extends MysqlDbUpdaterTestCase
 
         Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', 'INT(11)')->execute();
 
-        $updater = $this->getUpdater('test_multiple', true, ['bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple']);
+        $updater = $this->getUpdater('test_multiple', true, [m180328_205900_drop_column_one_from_table_test_multiple::class]);
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('three', $updater->plan->addColumn);
         $this->assertArrayHasKey('one', $updater->oldTable->columns);

@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests;
 
 use Yii;
 use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\helpers\ArrayHelper;
+use yii\console\Application;
+use bizley\migration\controllers\MigrationController;
 
 abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 {
@@ -18,7 +22,12 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      */
     protected static $db;
 
-    public static function getParam($name, $default = null)
+    /**
+     * @param string $name
+     * @param null $default
+     * @return mixed
+     */
+    public static function getParam(string $name, $default = null)
     {
         if (static::$params === null) {
             static::$params = require __DIR__ . '/config.php';
@@ -26,6 +35,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         return static::$params[$name] ?? $default;
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     * @throws \yii\db\Exception
+     */
     public static function setUpBeforeClass()
     {
         static::mockApplication();
@@ -34,20 +48,25 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         }
     }
 
-    protected static function mockApplication(array $config = [], $appClass = '\yii\console\Application'): void
+    /**
+     * @param array $config
+     * @param string $appClass
+     * @throws \yii\db\Exception
+     */
+    protected static function mockApplication(array $config = [], $appClass = Application::class): void
     {
         new $appClass(ArrayHelper::merge([
             'id' => 'MigrationTest',
             'basePath' => __DIR__,
-            'vendorPath' => __DIR__ . '/../../../../vendor/',
+            'vendorPath' => __DIR__ . '/../vendor/',
             'controllerMap' => [
                 'migration' => [
-                    'class' => 'bizley\migration\controllers\MigrationController',
+                    'class' => MigrationController::class,
                     'migrationPath' => null,
                     'migrationNamespace' => null,
                 ],
                 'migrate' => [
-                    'class' => 'bizley\migration\tests\EchoMigrateController',
+                    'class' => EchoMigrateController::class,
                     'migrationNamespaces' => ['bizley\migration\tests\migrations'],
                     'migrationPath' => null,
                     'interactive' => false
@@ -59,6 +78,12 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         ], $config));
     }
 
+    /**
+     * @param $route
+     * @param array $params
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
     protected static function runSilentMigration($route, array $params = []): void
     {
         ob_start();
@@ -70,7 +95,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public static function tearDownAfterClass()
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
+    public static function tearDownAfterClass(): void
     {
         static::runSilentMigration('migrate/down', ['all']);
         if (static::$db) {
@@ -79,7 +108,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         Yii::$app = null;
     }
 
-    public static function getConnection()
+    /**
+     * @return Connection
+     * @throws \yii\db\Exception
+     */
+    public static function getConnection(): Connection
     {
         if (static::$db === null) {
             $db = new Connection();

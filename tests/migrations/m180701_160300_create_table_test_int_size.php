@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\migrations;
 
 use yii\db\Migration;
 
 class m180701_160300_create_table_test_int_size extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -18,7 +20,7 @@ class m180701_160300_create_table_test_int_size extends Migration
         ], $tableOptions);
     }
 
-    public function down()
+    public function down(): void
     {
         $this->dropTable('{{%test_int_size}}');
     }

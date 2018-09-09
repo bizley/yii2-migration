@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace bizley\migration\tests\migrations;
 
 use yii\db\Migration;
 
 class m180322_214400_create_table_test_index_single extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -20,7 +22,7 @@ class m180322_214400_create_table_test_index_single extends Migration
         $this->createIndex('idx-test_index_single-col', '{{%test_index_single}}', 'col');
     }
 
-    public function down()
+    public function down(): void
     {
         $this->dropTable('{{%test_index_single}}');
     }

@@ -35,10 +35,10 @@ install:
 
 before_script:
 - sudo mysql_upgrade
-- travis_retry mysql -e 'CREATE DATABASE `podiumtest`;'
+- travis_retry mysql -e 'CREATE DATABASE `migrationtest`;'
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';"
-- mysql -e "CREATE USER 'podium'@'localhost' IDENTIFIED BY 'podium';"
-- mysql -e "GRANT ALL PRIVILEGES ON podiumtest.* TO 'podium'@'localhost';"
+- mysql -e "CREATE USER 'migration'@'localhost' IDENTIFIED BY 'migration';"
+- mysql -e "GRANT ALL PRIVILEGES ON migrationtest.* TO 'migration'@'localhost';"
 
 script:
 - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
