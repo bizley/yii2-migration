@@ -6,8 +6,6 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Generator;
 use bizley\migration\Updater;
-use Closure;
-use Exception;
 use Yii;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
@@ -265,56 +263,6 @@ class MigrationController extends Controller
     }
 
     /**
-     * Handles the execution of the given action.
-     * @param string $type
-     * @param string $table
-     * @param Closure $actionMethod
-     * @since 2.2.0
-     */
-    protected function execute($type, $table, $actionMethod): void
-    {
-        $tables = [$table];
-        if (strpos($table, ',') !== false) {
-            $tables = explode(',', $table);
-        }
-
-        $migrationsGenerated = 0;
-        foreach ($tables as $name) {
-            try {
-                $this->stdout(" > Generating $type migration for table '{$name}' ...", Console::FG_YELLOW);
-
-                $className = 'm' . gmdate('ymd_His') . '_' . $type . '_table_' . $name;
-                $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
-
-                if ($actionMethod($name, $className, $file)) {
-                    $migrationsGenerated++;
-                    $this->stdout("DONE!\n", Console::FG_GREEN);
-                    $this->stdout(" > Saved as '{$file}'\n");
-
-                    if ($this->fixHistory) {
-                        if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
-                            $this->createMigrationHistoryTable();
-                        }
-                        $this->addMigrationHistory($className, $this->migrationNamespace);
-                    }
-
-                    $this->stdout("\n");
-                }
-            } catch (Exception $exc) {
-                $this->stdout("ERROR!\n", Console::FG_RED);
-                $this->stdout(' > ' . $exc->getMessage() . "\n\n", Console::FG_RED);
-            }
-        }
-
-        if ($migrationsGenerated) {
-            $this->stdout("Generated $migrationsGenerated file(s).\n", Console::FG_YELLOW);
-            $this->stdout("(!) Remember to verify files before applying migration.\n\n", Console::FG_YELLOW);
-        } else {
-            $this->stdout("No files generated.\n\n", Console::FG_YELLOW);
-        }
-    }
-
-    /**
      * Lists all tables in the database.
      * @return int
      * @since 2.1
@@ -352,10 +300,22 @@ class MigrationController extends Controller
      * Creates new migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
+     * @throws \yii\db\Exception
      */
     public function actionCreate($table): int
     {
-        $this->execute('create', $table, function ($name, $className, $file) {
+        $tables = [$table];
+        if (strpos($table, ',') !== false) {
+            $tables = explode(',', $table);
+        }
+
+        $migrationsGenerated = 0;
+        foreach ($tables as $name) {
+            $this->stdout(" > Generating create migration for table '{$name}' ...", Console::FG_YELLOW);
+
+            $className = 'm' . gmdate('ymd_His') . '_create_table_' . $name;
+            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+
             $generator = new Generator([
                 'db' => $this->db,
                 'view' => $this->view,
@@ -366,9 +326,38 @@ class MigrationController extends Controller
                 'namespace' => $this->migrationNamespace,
                 'generalSchema' => $this->generalSchema,
             ]);
-            file_put_contents($file, $generator->generateMigration());
-            return true;
-        });
+
+            if ($generator->tableSchema === null) {
+                $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
+                return ExitCode::DATAERR;
+            }
+
+            if (file_put_contents($file, $generator->generateMigration()) === false) {
+                $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+                return ExitCode::SOFTWARE;
+            }
+
+            $migrationsGenerated++;
+            $this->stdout("DONE!\n", Console::FG_GREEN);
+            $this->stdout(" > Saved as '{$file}'\n");
+
+            if ($this->fixHistory) {
+                if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
+                    $this->createMigrationHistoryTable();
+                }
+                $this->addMigrationHistory($className, $this->migrationNamespace);
+            }
+
+            $this->stdout("\n");
+        }
+
+        if ($migrationsGenerated) {
+            $this->stdout(" Generated $migrationsGenerated file(s).\n", Console::FG_YELLOW);
+            $this->stdout(" (!) Remember to verify files before applying migration.\n\n", Console::FG_YELLOW);
+        } else {
+            $this->stdout(" No files generated.\n\n", Console::FG_YELLOW);
+        }
+
         return ExitCode::OK;
     }
 
@@ -377,6 +366,7 @@ class MigrationController extends Controller
      * Since 3.0.0 migration history table is skipped.
      * @return int
      * @since 2.1
+     * @throws \yii\db\Exception
      */
     public function actionCreateAll(): int
     {
@@ -392,7 +382,7 @@ class MigrationController extends Controller
             return $this->actionCreate(implode(',', $tables));
         }
 
-        $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
+        $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
         return ExitCode::OK;
     }
 
@@ -401,10 +391,23 @@ class MigrationController extends Controller
      * @param string $table Table names separated by commas.
      * @return int
      * @since 2.0
+     * @throws \yii\base\ErrorException
+     * @throws \yii\db\Exception
      */
     public function actionUpdate($table): int
     {
-        $this->execute('update', $table, function ($name, $className, $file) {
+        $tables = [$table];
+        if (strpos($table, ',') !== false) {
+            $tables = explode(',', $table);
+        }
+
+        $migrationsGenerated = 0;
+        foreach ($tables as $name) {
+            $this->stdout(" > Generating update migration for table '{$name}' ...", Console::FG_YELLOW);
+
+            $className = 'm' . gmdate('ymd_His') . '_update_table_' . $name;
+            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+
             $updater = new Updater([
                 'db' => $this->db,
                 'view' => $this->view,
@@ -420,16 +423,46 @@ class MigrationController extends Controller
                 'generalSchema' => $this->generalSchema,
                 'skipMigrations' => $this->skipMigrations,
             ]);
-            if ($updater->isUpdateRequired()) {
-                if (!$this->showOnly) {
-                    file_put_contents($file, $updater->generateMigration());
-                    return true;
-                }
-            } else {
-                $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+
+            if ($updater->tableSchema === null) {
+                $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
+                return ExitCode::DATAERR;
             }
-            return false;
-        });
+
+            if (!$updater->isUpdateRequired()) {
+                $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+                continue;
+            }
+
+            if (!$this->showOnly) {
+                if (file_put_contents($file, $updater->generateMigration()) === false) {
+                    $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+                    return ExitCode::SOFTWARE;
+                }
+
+                $migrationsGenerated++;
+
+                $this->stdout("DONE!\n", Console::FG_GREEN);
+                $this->stdout(" > Saved as '{$file}'\n");
+
+                if ($this->fixHistory) {
+                    if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
+                        $this->createMigrationHistoryTable();
+                    }
+                    $this->addMigrationHistory($className, $this->migrationNamespace);
+                }
+            }
+
+            $this->stdout("\n");
+        }
+
+        if ($migrationsGenerated) {
+            $this->stdout(" Generated $migrationsGenerated file(s).\n", Console::FG_YELLOW);
+            $this->stdout(" (!) Remember to verify files before applying migration.\n\n", Console::FG_YELLOW);
+        } else {
+            $this->stdout(" No files generated.\n\n", Console::FG_YELLOW);
+        }
+
         return ExitCode::OK;
     }
 
@@ -438,6 +471,8 @@ class MigrationController extends Controller
      * Since 3.0.0 migration history table is skipped.
      * @return int
      * @since 2.1
+     * @throws \yii\base\ErrorException
+     * @throws \yii\db\Exception
      */
     public function actionUpdateAll(): int
     {
@@ -453,7 +488,7 @@ class MigrationController extends Controller
             return $this->actionUpdate(implode(',', $tables));
         }
 
-        $this->stdout("Operation cancelled by user.\n\n", Console::FG_YELLOW);
+        $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
         return ExitCode::OK;
     }
 

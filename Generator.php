@@ -92,9 +92,9 @@ class Generator extends Component
 
     /**
      * Returns table schema.
-     * @return TableSchema
+     * @return TableSchema|null
      */
-    public function getTableSchema(): TableSchema
+    public function getTableSchema(): ?TableSchema
     {
         if ($this->_tableSchema === null) {
             $this->_tableSchema = $this->db->getTableSchema($this->tableName);
