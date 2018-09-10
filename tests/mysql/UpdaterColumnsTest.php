@@ -9,7 +9,7 @@ use yii\db\Schema;
 
 class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
 {
-    protected function tearDown()
+    protected function tearDown() // BC declaration
     {
         $this->dbDown('ALL');
         parent::tearDown();

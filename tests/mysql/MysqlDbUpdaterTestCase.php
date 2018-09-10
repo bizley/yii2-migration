@@ -54,9 +54,11 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
     }
 
     /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
      * @throws \yii\db\Exception
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() // BC declaration
     {
         parent::setUpBeforeClass();
         if (!\in_array('migration', Yii::$app->db->schema->tableNames, true)) {

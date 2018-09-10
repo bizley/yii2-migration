@@ -9,6 +9,7 @@ $config = [
         'dsn' => 'mysql:host=127.0.0.1;dbname=migrationtest',
         'username' => 'migration',
         'password' => 'migration',
+        'charset' => 'utf8',
     ],
 ];
 if (is_file(__DIR__ . '/config.local.php')) {

@@ -8,7 +8,7 @@ use bizley\migration\tests\DbTestCase;
 
 abstract class MysqlDbTestCase extends DbTestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() // BC declaration
     {
         static::$database = static::getParam('mysql');
         parent::setUpBeforeClass();

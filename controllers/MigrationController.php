@@ -297,6 +297,17 @@ class MigrationController extends Controller
     }
 
     /**
+     * @param $path
+     * @param $content
+     * @return bool|int
+     * @since 3.0.2
+     */
+    public function generateFile($path, $content)
+    {
+        return file_put_contents($path, $content);
+    }
+
+    /**
      * Creates new migration for the given tables.
      * @param string $table Table names separated by commas.
      * @return int
@@ -332,7 +343,7 @@ class MigrationController extends Controller
                 return ExitCode::DATAERR;
             }
 
-            if (file_put_contents($file, $generator->generateMigration()) === false) {
+            if ($this->generateFile($file, $generator->generateMigration()) === false) {
                 $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
                 return ExitCode::SOFTWARE;
             }
@@ -435,7 +446,7 @@ class MigrationController extends Controller
             }
 
             if (!$this->showOnly) {
-                if (file_put_contents($file, $updater->generateMigration()) === false) {
+                if ($this->generateFile($file, $updater->generateMigration()) === false) {
                     $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
                     return ExitCode::SOFTWARE;
                 }

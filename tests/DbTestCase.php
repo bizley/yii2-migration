@@ -40,7 +40,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      * @throws \yii\console\Exception
      * @throws \yii\db\Exception
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() // BC declaration
     {
         static::mockApplication();
         if (static::$runMigrations) {
@@ -99,7 +99,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      * @throws \yii\base\InvalidRouteException
      * @throws \yii\console\Exception
      */
-    public static function tearDownAfterClass(): void
+    public static function tearDownAfterClass() // BC declaration
     {
         static::runSilentMigration('migrate/down', ['all']);
         if (static::$db) {
@@ -117,6 +117,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         if (static::$db === null) {
             $db = new Connection();
             $db->dsn = static::$database['dsn'];
+            $db->charset = static::$database['charset'];
             if (isset(static::$database['username'])) {
                 $db->username = static::$database['username'];
                 $db->password = static::$database['password'];

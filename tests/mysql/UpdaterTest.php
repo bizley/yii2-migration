@@ -9,7 +9,7 @@ use bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_
 
 class UpdaterTest extends MysqlDbUpdaterTestCase
 {
-    protected function tearDown()
+    protected function tearDown() // BC declaration
     {
         $this->dbDown('ALL');
         parent::tearDown();
