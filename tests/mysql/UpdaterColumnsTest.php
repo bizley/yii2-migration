@@ -49,7 +49,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
      */
-    public function testNoChangeSizeSpecific(): void
+    public function testNoChangeSizeSpecific()
     {
         $this->dbUp('test_int_size');
 
@@ -62,7 +62,7 @@ class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
      */
-    public function testNoChangePKSpecific(): void
+    public function testNoChangePKSpecific()
     {
         $this->dbUp('test_char_pk');
 
