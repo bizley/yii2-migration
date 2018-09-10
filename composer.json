@@ -24,5 +24,11 @@
     },
     "autoload": {
         "psr-4": {"bizley\\migration\\": ""}
-    }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
 }
