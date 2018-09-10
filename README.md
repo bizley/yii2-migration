@@ -3,6 +3,7 @@
 ![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)](https://packagist.org/packages/bizley/migration)
 ![License](https://img.shields.io/packagist/l/bizley/migration.svg)
+[![Build Status](https://travis-ci.org/bizley/yii2-migration.svg?branch=2.x)](https://travis-ci.org/bizley/yii2-migration)
 
 ## Migration creator and updater
 

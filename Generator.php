@@ -91,7 +91,7 @@ class Generator extends Component
 
     /**
      * Returns table schema.
-     * @return TableSchema
+     * @return TableSchema|null
      */
     public function getTableSchema()
     {

@@ -10,6 +10,10 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
 {
     static protected $runMigrations = false;
 
+    /**
+     * @param string $name
+     * @throws \yii\db\Exception
+     */
     protected static function addMigration($name)
     {
         Yii::$app->db->createCommand()->insert('migration', [
@@ -18,11 +22,21 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         ])->execute();
     }
 
+    /**
+     * @param string $name
+     * @throws \yii\db\Exception
+     */
     protected static function deleteMigration($name)
     {
         Yii::$app->db->createCommand()->delete('migration', ['version' => $name])->execute();
     }
 
+    /**
+     * @param string $tableName
+     * @param bool $generalSchema
+     * @param array $skip
+     * @return Updater
+     */
     protected function getUpdater($tableName, $generalSchema = true, $skip = [])
     {
         return new Updater([
@@ -45,6 +59,9 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         }
     }
 
+    /**
+     * @param string $name
+     */
     protected function dbUp($name)
     {
         $tableOptions = 'ENGINE=InnoDB';
@@ -142,6 +159,9 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         call_user_func($data[$name]);
     }
 
+    /**
+     * @param string $name
+     */
     protected function dbDown($name)
     {
         // needs reverse order

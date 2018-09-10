@@ -200,7 +200,7 @@ class TableColumn extends Object
      * @param TableStructure $table
      * @param bool $primaryKey
      * @param bool $autoIncrement
-     * @return string
+     * @return string|null
      */
     public function prepareSchemaAppend($table, $primaryKey, $autoIncrement)
     {

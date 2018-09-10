@@ -18,6 +18,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      */
     protected static $db;
 
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
     public static function getParam($name, $default = null)
     {
         if (static::$params === null) {
@@ -26,6 +31,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         return isset(static::$params[$name]) ? static::$params[$name] : $default;
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     * @throws \yii\db\Exception
+     */
     public static function setUpBeforeClass()
     {
         static::mockApplication();
@@ -34,12 +44,17 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         }
     }
 
+    /**
+     * @param array $config
+     * @param string $appClass
+     * @throws \yii\db\Exception
+     */
     protected static function mockApplication($config = [], $appClass = '\yii\console\Application')
     {
         new $appClass(ArrayHelper::merge([
             'id' => 'MigrationTest',
             'basePath' => __DIR__,
-            'vendorPath' => __DIR__ . '/../../../../vendor/',
+            'vendorPath' => __DIR__ . '/../vendor/',
             'controllerMap' => [
                 'migration' => [
                     'class' => 'bizley\migration\controllers\MigrationController',
@@ -59,6 +74,12 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         ], $config));
     }
 
+    /**
+     * @param $route
+     * @param array $params
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
     protected static function runSilentMigration($route, $params = [])
     {
         ob_start();
@@ -70,6 +91,10 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         }
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
     public static function tearDownAfterClass()
     {
         static::runSilentMigration('migrate/down', ['all']);
@@ -79,11 +104,16 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
         Yii::$app = null;
     }
 
+    /**
+     * @return Connection
+     * @throws \yii\db\Exception
+     */
     public static function getConnection()
     {
         if (static::$db === null) {
             $db = new Connection();
             $db->dsn = static::$database['dsn'];
+            $db->charset = static::$database['charset'];
             if (isset(static::$database['username'])) {
                 $db->username = static::$database['username'];
                 $db->password = static::$database['password'];
