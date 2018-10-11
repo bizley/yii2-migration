@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\tests\table;
+namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnBigUPK;
 

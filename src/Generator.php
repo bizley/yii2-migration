@@ -129,7 +129,7 @@ class Generator extends Component
 
     /**
      * Returns columns structure.
-     * @param $indexes TableIndex[]
+     * @param TableIndex[] $indexes
      * @return TableColumn[]
      * @throws InvalidConfigException
      */

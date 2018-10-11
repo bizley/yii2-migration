@@ -47,7 +47,7 @@ class TablePrimaryKey extends Object
 
     /**
      * Adds column to the key.
-     * @param $name
+     * @param string $name
      */
     public function addColumn($name)
     {

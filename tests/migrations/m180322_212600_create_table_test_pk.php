@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\tests\migrations;
+namespace bizley\tests\migrations;
 
 use yii\db\Migration;
 

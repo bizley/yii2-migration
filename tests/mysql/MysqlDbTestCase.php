@@ -1,8 +1,8 @@
 <?php
 
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
-use bizley\migration\tests\DbTestCase;
+use bizley\tests\DbTestCase;
 
 abstract class MysqlDbTestCase extends DbTestCase
 {

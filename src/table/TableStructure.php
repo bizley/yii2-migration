@@ -67,7 +67,7 @@ class TableStructure extends Object
 
     /**
      * Sets schema type based on the currently used schema class.
-     * @param string $schemaClass
+     * @param string|null $schemaClass
      */
     public function setSchema($schemaClass)
     {

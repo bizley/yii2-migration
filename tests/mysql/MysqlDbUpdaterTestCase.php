@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
 use bizley\migration\Updater;
 use Yii;

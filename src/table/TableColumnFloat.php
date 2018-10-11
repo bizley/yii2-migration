@@ -19,7 +19,7 @@ class TableColumnFloat extends TableColumn
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param int|string $value
      */
     public function setLength($value)
     {
