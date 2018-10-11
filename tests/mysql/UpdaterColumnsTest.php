@@ -1,15 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
 use Yii;
 use yii\db\Schema;
 
 class UpdaterColumnsTest extends MysqlDbUpdaterTestCase
 {
-    protected function tearDown() // BC declaration
+    protected function tearDown(): void
     {
         $this->dbDown('ALL');
         parent::tearDown();

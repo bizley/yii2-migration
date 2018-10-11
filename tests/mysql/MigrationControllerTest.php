@@ -1,16 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+namespace bizley\tests\mysql;
 
-namespace bizley\migration\tests\mysql;
-
-use bizley\migration\tests\MockMigrationController;
+use bizley\tests\MockMigrationController;
 use Yii;
 use yii\console\ExitCode;
 
 class MigrationControllerTest extends MysqlDbUpdaterTestCase
 {
-    protected function tearDown() // BC declaration
+    protected function tearDown(): void
     {
         $this->dbDown('ALL');
         parent::tearDown();

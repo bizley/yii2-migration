@@ -1,15 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests;
+namespace bizley\tests;
 
 use bizley\migration\controllers\MigrationController;
 
-/**
- * Class MockMigrationController
- * @package bizley\migration\tests
- */
 class MockMigrationController extends MigrationController
 {
     /**

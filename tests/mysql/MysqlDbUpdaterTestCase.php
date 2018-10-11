@@ -1,32 +1,30 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
 use bizley\migration\Updater;
 use Yii;
 use yii\console\controllers\MigrateController;
-use bizley\migration\tests\migrations\m180322_212600_create_table_test_pk;
-use bizley\migration\tests\migrations\m180317_093600_create_table_test_columns;
-use bizley\migration\tests\migrations\m180322_214400_create_table_test_index_single;
-use bizley\migration\tests\migrations\m180322_213900_create_table_test_pk_composite;
-use bizley\migration\tests\migrations\m180324_105400_create_table_test_fk;
-use bizley\migration\tests\migrations\m180328_205600_create_table_test_multiple;
-use bizley\migration\tests\migrations\m180328_205700_add_column_two_to_table_test_multiple;
-use bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
-use bizley\migration\tests\migrations\m180701_160300_create_table_test_int_size;
-use bizley\migration\tests\migrations\m180701_160900_create_table_test_char_pk;
+use bizley\tests\migrations\m180322_212600_create_table_test_pk;
+use bizley\tests\migrations\m180317_093600_create_table_test_columns;
+use bizley\tests\migrations\m180322_214400_create_table_test_index_single;
+use bizley\tests\migrations\m180322_213900_create_table_test_pk_composite;
+use bizley\tests\migrations\m180324_105400_create_table_test_fk;
+use bizley\tests\migrations\m180328_205600_create_table_test_multiple;
+use bizley\tests\migrations\m180328_205700_add_column_two_to_table_test_multiple;
+use bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
+use bizley\tests\migrations\m180701_160300_create_table_test_int_size;
+use bizley\tests\migrations\m180701_160900_create_table_test_char_pk;
 
 abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
 {
     static protected $runMigrations = false;
 
     /**
-     * @param $name
+     * @param string $name
      * @throws \yii\db\Exception
      */
-    protected static function addMigration($name): void
+    protected static function addMigration(string $name): void
     {
         Yii::$app->db->createCommand()->insert('migration', [
             'version' => $name,
@@ -35,15 +33,21 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @throws \yii\db\Exception
      */
-    protected static function deleteMigration($name): void
+    protected static function deleteMigration(string $name): void
     {
         Yii::$app->db->createCommand()->delete('migration', ['version' => $name])->execute();
     }
 
-    protected function getUpdater($tableName, $generalSchema = true, array $skip = []): Updater
+    /**
+     * @param string $tableName
+     * @param bool $generalSchema
+     * @param array $skip
+     * @return Updater
+     */
+    protected function getUpdater(string $tableName, bool $generalSchema = true, array $skip = []): Updater
     {
         return new Updater([
             'db' => Yii::$app->db,
@@ -58,7 +62,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
      * @throws \yii\console\Exception
      * @throws \yii\db\Exception
      */
-    public static function setUpBeforeClass() // BC declaration
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         if (!\in_array('migration', Yii::$app->db->schema->tableNames, true)) {
@@ -70,7 +74,10 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         }
     }
 
-    protected function dbUp($name): void
+    /**
+     * @param string $name
+     */
+    protected function dbUp(string $name): void
     {
         $tableOptions = 'ENGINE=InnoDB';
         $data = [
@@ -167,7 +174,10 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
         \call_user_func($data[$name]);
     }
 
-    protected function dbDown($name): void
+    /**
+     * @param string $name
+     */
+    protected function dbDown(string $name): void
     {
         // needs reverse order
         $data = [

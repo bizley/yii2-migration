@@ -1,15 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
 use Yii;
-use bizley\migration\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
+use bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
 
 class UpdaterTest extends MysqlDbUpdaterTestCase
 {
-    protected function tearDown() // BC declaration
+    protected function tearDown(): void
     {
         $this->dbDown('ALL');
         parent::tearDown();
