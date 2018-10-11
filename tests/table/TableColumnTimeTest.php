@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests\table;
+namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnTime;
 

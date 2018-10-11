@@ -1,14 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+namespace bizley\tests\mysql;
 
-namespace bizley\migration\tests\mysql;
-
-use bizley\migration\tests\DbTestCase;
+use bizley\tests\DbTestCase;
 
 abstract class MysqlDbTestCase extends DbTestCase
 {
-    public static function setUpBeforeClass() // BC declaration
+    public static function setUpBeforeClass(): void
     {
         static::$database = static::getParam('mysql');
         parent::setUpBeforeClass();

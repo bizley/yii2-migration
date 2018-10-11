@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
 use bizley\migration\Generator;
 use bizley\migration\table\TableColumnBigInt;

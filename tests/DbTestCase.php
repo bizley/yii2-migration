@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace bizley\migration\tests;
+namespace bizley\tests;
 
 use Yii;
 use yii\console\ExitCode;
@@ -24,7 +22,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * @param string $name
-     * @param null $default
+     * @param mixed|null $default
      * @return mixed
      */
     public static function getParam(string $name, $default = null)
@@ -40,7 +38,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      * @throws \yii\console\Exception
      * @throws \yii\db\Exception
      */
-    public static function setUpBeforeClass() // BC declaration
+    public static function setUpBeforeClass(): void
     {
         static::mockApplication();
         if (static::$runMigrations) {
@@ -67,7 +65,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
                 ],
                 'migrate' => [
                     'class' => EchoMigrateController::class,
-                    'migrationNamespaces' => ['bizley\migration\tests\migrations'],
+                    'migrationNamespaces' => ['bizley\tests\migrations'],
                     'migrationPath' => null,
                     'interactive' => false
                 ],
@@ -79,12 +77,12 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param $route
+     * @param string $route
      * @param array $params
      * @throws \yii\base\InvalidRouteException
      * @throws \yii\console\Exception
      */
-    protected static function runSilentMigration($route, array $params = []): void
+    protected static function runSilentMigration(string $route, array $params = []): void
     {
         ob_start();
         if (Yii::$app->runAction($route, $params) === ExitCode::OK) {
@@ -99,7 +97,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      * @throws \yii\base\InvalidRouteException
      * @throws \yii\console\Exception
      */
-    public static function tearDownAfterClass() // BC declaration
+    public static function tearDownAfterClass(): void
     {
         static::runSilentMigration('migrate/down', ['all']);
         if (static::$db) {
