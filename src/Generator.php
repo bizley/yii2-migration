@@ -108,7 +108,7 @@ class Generator extends Component
     protected function getTablePrimaryKey()
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
+        if (method_exists($this->db->schema, 'getTablePrimaryKey')) { // requires Yii 2.0.13
             /* @var $constraint \yii\db\Constraint */
             $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
             if ($constraint) {
@@ -129,7 +129,7 @@ class Generator extends Component
 
     /**
      * Returns columns structure.
-     * @param $indexes TableIndex[]
+     * @param TableIndex[] $indexes
      * @return TableColumn[]
      * @throws InvalidConfigException
      */
@@ -173,7 +173,7 @@ class Generator extends Component
     protected function getTableForeignKeys()
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTableForeignKeys')) {
+        if (method_exists($this->db->schema, 'getTableForeignKeys')) { // requires Yii 2.0.13
             $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
             /* @var $fk \yii\db\ForeignKeyConstraint */
             foreach ($fks as $fk) {
@@ -212,7 +212,7 @@ class Generator extends Component
     protected function getTableIndexes()
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTableIndexes')) {
+        if (method_exists($this->db->schema, 'getTableIndexes')) { // requires Yii 2.0.13
             $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
             /* @var $idx \yii\db\IndexConstraint */
             foreach ($idxs as $idx) {

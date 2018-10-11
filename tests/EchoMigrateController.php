@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\tests;
+namespace bizley\tests;
 
 use yii\console\controllers\MigrateController;
 

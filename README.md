@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "~3.0.0"
+            "bizley/migration": "^3.0"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:~3.0.0`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.0`
 
 ## Installation for PHP < 7.1
 
@@ -27,11 +27,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "~2.3.0"
+            "bizley/migration": "^2.3"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:~2.3.0`
+and run `composer update` or alternatively run `composer require bizley/migration:^2.3`
 
 ## Configuration
 

@@ -19,7 +19,7 @@ class TableColumnMoney extends TableColumn
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param array|int|string $value
      */
     public function setLength($value)
     {

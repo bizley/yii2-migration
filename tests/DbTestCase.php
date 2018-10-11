@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\migration\tests;
+namespace bizley\tests;
 
 use Yii;
 use yii\console\Controller;
@@ -62,8 +62,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
                     'migrationNamespace' => null,
                 ],
                 'migrate' => [
-                    'class' => 'bizley\migration\tests\EchoMigrateController',
-                    'migrationNamespaces' => ['bizley\migration\tests\migrations'],
+                    'class' => 'bizley\tests\EchoMigrateController',
+                    'migrationNamespaces' => ['bizley\tests\migrations'],
                     'migrationPath' => null,
                     'interactive' => false
                 ],
@@ -75,7 +75,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param $route
+     * @param string $route
      * @param array $params
      * @throws \yii\base\InvalidRouteException
      * @throws \yii\console\Exception

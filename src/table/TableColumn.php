@@ -90,7 +90,7 @@ class TableColumn extends Object
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param int|string $value
      */
     public function setLength($value)
     {
@@ -225,7 +225,7 @@ class TableColumn extends Object
 
     /**
      * Escapes single quotes.
-     * @param $value
+     * @param string $value
      * @return mixed
      */
     public function escapeQuotes($value)
@@ -235,7 +235,7 @@ class TableColumn extends Object
 
     /**
      * Removes information of primary key in append property.
-     * @param $schema
+     * @param string $schema
      * @return null|string
      */
     public function removePKAppend($schema)

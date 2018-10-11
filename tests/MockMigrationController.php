@@ -1,12 +1,12 @@
 <?php
 
-namespace bizley\migration\tests;
+namespace bizley\tests;
 
 use bizley\migration\controllers\MigrationController;
 
 /**
  * Class MockMigrationController
- * @package bizley\migration\tests
+ * @package bizley\tests
  */
 class MockMigrationController extends MigrationController
 {

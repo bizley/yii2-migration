@@ -1,8 +1,8 @@
 <?php
 
-namespace bizley\migration\tests\mysql;
+namespace bizley\tests\mysql;
 
-use bizley\migration\tests\MockMigrationController;
+use bizley\tests\MockMigrationController;
 use Yii;
 use yii\console\Controller;
 
@@ -50,7 +50,7 @@ class MigrationControllerTest extends MysqlDbUpdaterTestCase
     {
         $this->dbUp('test_pk');
 
-        $mock = $this->getMockBuilder('bizley\migration\tests\MockMigrationController')
+        $mock = $this->getMockBuilder('bizley\tests\MockMigrationController')
             ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
         $mock->method('generateFile')->willReturn(false);
 
@@ -72,7 +72,7 @@ class MigrationControllerTest extends MysqlDbUpdaterTestCase
         $this->dbUp('test_pk');
         Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', 'INT(11)')->execute();
 
-        $mock = $this->getMockBuilder('bizley\migration\tests\MockMigrationController')
+        $mock = $this->getMockBuilder('bizley\tests\MockMigrationController')
             ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
         $mock->method('generateFile')->willReturn(false);
 
@@ -88,7 +88,7 @@ class MigrationControllerTest extends MysqlDbUpdaterTestCase
     {
         $this->dbUp('test_pk');
 
-        $mock = $this->getMockBuilder('bizley\migration\tests\MockMigrationController')
+        $mock = $this->getMockBuilder('bizley\tests\MockMigrationController')
             ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
         $mock->method('generateFile')->willReturn(true);
 
@@ -130,7 +130,7 @@ class MigrationControllerTest extends MysqlDbUpdaterTestCase
         $this->dbUp('test_pk');
         Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', 'INT(11)')->execute();
 
-        $mock = $this->getMockBuilder('bizley\migration\tests\MockMigrationController')
+        $mock = $this->getMockBuilder('bizley\tests\MockMigrationController')
             ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
         $mock->method('generateFile')->willReturn(true);
 

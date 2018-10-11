@@ -3,10 +3,10 @@
 namespace bizley\migration\table;
 
 /**
- * Class TableColumnFloat
+ * Class TableColumnDateTime
  * @package bizley\migration\table
  */
-class TableColumnFloat extends TableColumn
+class TableColumnDateTime extends TableColumn
 {
     /**
      * Returns length of the column.
@@ -19,7 +19,7 @@ class TableColumnFloat extends TableColumn
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param int|string $value
      */
     public function setLength($value)
     {
@@ -32,6 +32,6 @@ class TableColumnFloat extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'float(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'dateTime(' . ($table->generalSchema ? null : $this->length) . ')';
     }
 }

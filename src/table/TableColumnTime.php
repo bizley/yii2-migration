@@ -3,10 +3,10 @@
 namespace bizley\migration\table;
 
 /**
- * Class TableColumnTimestamp
+ * Class TableColumnTime
  * @package bizley\migration\table
  */
-class TableColumnTimestamp extends TableColumn
+class TableColumnTime extends TableColumn
 {
     /**
      * Returns length of the column.
@@ -19,7 +19,7 @@ class TableColumnTimestamp extends TableColumn
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param int|string $value
      */
     public function setLength($value)
     {
@@ -32,6 +32,6 @@ class TableColumnTimestamp extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'timestamp(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'time(' . ($table->generalSchema ? null : $this->length) . ')';
     }
 }

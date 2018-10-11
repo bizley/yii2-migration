@@ -4,8 +4,6 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Generator;
 use bizley\migration\Updater;
-use Closure;
-use Exception;
 use Yii;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
@@ -22,13 +20,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.3.2
+ * @version 2.3.3
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.3.2';
+    protected $version = '2.3.3';
 
     /**
      * @var string Default command action.
@@ -48,7 +46,6 @@ class MigrationController extends Controller
      * Migration namespace should be resolvable as a path alias if prefixed with @, e.g. if you specify the namespace
      * 'app\migrations', the code Yii::getAlias('@app/migrations') should be able to return the file path to
      * the directory this namespace refers to.
-     * Namespaced migrations have been added in Yii 2.0.10.
      * Alias -n
      * @since 1.1
      */
@@ -76,9 +73,8 @@ class MigrationController extends Controller
     public $useTablePrefix = 1;
 
     /**
-     * @var Connection|array|string DB connection object or the application component ID of the DB connection to use
-     * when creating migrations.
-     * Starting from Yii 2.0.3, this can also be a configuration array for creating the object.
+     * @var Connection|array|string DB connection object, configuration array, or the application component ID of
+     * the DB connection to use when generating migrations.
      */
     public $db = 'db';
 
@@ -91,7 +87,7 @@ class MigrationController extends Controller
     public $migrationTable = '{{%migration}}';
 
     /**
-     * @var bool|string|int Whether to only display changes instead of create update migration.
+     * @var bool|string|int Whether to only display changes instead of creating update migration.
      * Alias -s
      * @since 2.0
      */
@@ -100,8 +96,8 @@ class MigrationController extends Controller
     /**
      * @var bool|string|int Whether to use general column schema instead of database specific.
      * Alias -g
-     * Since 2.3.0 this property is 1 by default.
      * @since 2.0
+     * Since 2.3.0 this property is 1 by default.
      */
     public $generalSchema = 1;
 
@@ -124,8 +120,8 @@ class MigrationController extends Controller
      */
     public function options($actionID)
     {
-        $options = parent::options($actionID);
-        $createOptions = ['migrationPath', 'migrationNamespace', 'db', 'generalSchema', 'templateFile', 'useTablePrefix', 'fixHistory', 'migrationTable'];
+        $options = array_merge(parent::options($actionID), ['db']);
+        $createOptions = ['migrationPath', 'migrationNamespace', 'generalSchema', 'templateFile', 'useTablePrefix', 'fixHistory', 'migrationTable'];
         $updateOptions = ['showOnly', 'templateFileUpdate', 'skipMigrations'];
         switch ($actionID) {
             case 'create':

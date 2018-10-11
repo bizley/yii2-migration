@@ -1,34 +1,41 @@
 {
-    "name": "bizley/migration",
-    "description": "Migration generator for Yii 2.",
-    "type": "yii2-extension",
-    "keywords": ["yii2", "migration", "migrate", "generator", "console"],
-    "license": "Apache-2.0",
-    "authors": [
-        {
-            "name": "Pawel Bizley Brzozowski",
-            "email": "pawel@positive.codes"
-        }
-    ],
-    "support": {
-        "source": "https://github.com/bizley/yii2-migration"
-    },
-    "require": {
-        "ext-mbstring": "*",
-        "php": ">=5.4.0 <7.1.0",
-        "yiisoft/yii2": ">=2.0.11 <2.1.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~4.8.36",
-        "roave/security-advisories": "dev-master"
-    },
-    "autoload": {
-        "psr-4": {"bizley\\migration\\": ""}
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ]
+  "name": "bizley/migration",
+  "description": "Migration generator for Yii 2.",
+  "type": "yii2-extension",
+  "keywords": ["yii2", "migration", "migrate", "generator", "console"],
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Pawel Bizley Brzozowski",
+      "email": "pawel@positive.codes"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/bizley/yii2-migration"
+  },
+  "require": {
+    "ext-mbstring": "*",
+    "php": ">=5.4.0 <7.1.0",
+    "yiisoft/yii2": ">=2.0.11 <2.1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8.36",
+    "roave/security-advisories": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "bizley\\migration\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "bizley\\tests\\": "tests/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
 }

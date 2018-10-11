@@ -3,10 +3,10 @@
 namespace bizley\migration\table;
 
 /**
- * Class TableColumnDateTime
+ * Class TableColumnDouble
  * @package bizley\migration\table
  */
-class TableColumnDateTime extends TableColumn
+class TableColumnDouble extends TableColumn
 {
     /**
      * Returns length of the column.
@@ -19,7 +19,7 @@ class TableColumnDateTime extends TableColumn
 
     /**
      * Sets length of the column.
-     * @param $value
+     * @param int|string $value
      */
     public function setLength($value)
     {
@@ -32,6 +32,6 @@ class TableColumnDateTime extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'dateTime(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'double(' . ($table->generalSchema ? null : $this->length) . ')';
     }
 }
