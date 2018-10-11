@@ -69,7 +69,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
             'test_pk' => function () use ($tableOptions) {
                 if (!in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_pk', ['id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY'], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180322_212600_create_table_test_pk');
+                    static::addMigration('bizley\\tests\\migrations\\m180322_212600_create_table_test_pk');
                 }
             },
             'test_columns' => function () use ($tableOptions) {
@@ -93,14 +93,14 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                         'col_time' => 'TIME NULL',
                         'col_timestamp' => 'TIMESTAMP NULL',
                     ], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180317_093600_create_table_test_columns');
+                    static::addMigration('bizley\\tests\\migrations\\m180317_093600_create_table_test_columns');
                 }
             },
             'test_index_single' => function () use ($tableOptions) {
                 if (!in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_index_single', ['col' => 'INT(11)'], $tableOptions)->execute();
                     Yii::$app->db->createCommand()->createIndex('idx-test_index_single-col', 'test_index_single', 'col')->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180322_214400_create_table_test_index_single');
+                    static::addMigration('bizley\\tests\\migrations\\m180322_214400_create_table_test_index_single');
                 }
             },
             'test_pk_composite' => function () use ($tableOptions) {
@@ -110,22 +110,22 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                         'two' => 'INT(11)',
                     ], $tableOptions)->execute();
                     Yii::$app->db->createCommand()->addPrimaryKey('PRIMARYKEY', 'test_pk_composite', ['one', 'two'])->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
+                    static::addMigration('bizley\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
                 }
             },
             'test_fk' => function () use ($tableOptions) {
                 if (!in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_fk', ['pk_id' => 'INT(11)'], $tableOptions)->execute();
                     Yii::$app->db->createCommand()->addForeignKey('fk-test_fk-pk_id', '{{%test_fk}}', 'pk_id', '{{%test_pk}}', 'id', 'CASCADE', 'CASCADE')->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180324_105400_create_table_test_fk');
+                    static::addMigration('bizley\\tests\\migrations\\m180324_105400_create_table_test_fk');
                 }
             },
             'test_multiple' => function () use ($tableOptions) {
                 if (!in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable('test_multiple', ['two' => 'INT(11)'], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205600_create_table_test_multiple');
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
                 }
             },
             'test_multiple_skip' => function () use ($tableOptions) {
@@ -134,9 +134,9 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                         'one' => 'INT(11)',
                         'two' => 'INT(11)',
                     ], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205600_create_table_test_multiple');
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
+                    static::addMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
                 }
             },
             'test_int_size' => function () use ($tableOptions) {
@@ -144,7 +144,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                     Yii::$app->db->createCommand()->createTable('test_int_size', [
                         'col_int' => 'INT(10) NULL',
                     ], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180701_160300_create_table_test_int_size');
+                    static::addMigration('bizley\\tests\\migrations\\m180701_160300_create_table_test_int_size');
                 }
             },
             'test_char_pk' => function () use ($tableOptions) {
@@ -152,7 +152,7 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
                     Yii::$app->db->createCommand()->createTable('test_char_pk', [
                         'id' => 'CHAR(128) NOT NULL PRIMARY KEY',
                     ], $tableOptions)->execute();
-                    static::addMigration('bizley\\migration\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
+                    static::addMigration('bizley\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
                 }
             },
         ];
@@ -169,51 +169,51 @@ abstract class MysqlDbUpdaterTestCase extends MysqlDbTestCase
             'test_char_pk' => function () {
                 if (in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
                 }
             },
             'test_int_size' => function () {
                 if (in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_int_size')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180701_160300_create_table_test_int_size');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180701_160300_create_table_test_int_size');
                 }
             },
             'test_multiple' => function () {
                 if (in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_multiple')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180328_205600_create_table_test_multiple');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
                 }
             },
             'test_fk' => function () {
                 if (in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180324_105400_create_table_test_fk');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180324_105400_create_table_test_fk');
                 }
             },
             'test_pk_composite' => function () {
                 if (in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
                 }
             },
             'test_index_single' => function () {
                 if (in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_index_single')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_214400_create_table_test_index_single');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180322_214400_create_table_test_index_single');
                 }
             },
             'test_columns' => function () {
                 if (in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_columns')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180317_093600_create_table_test_columns');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180317_093600_create_table_test_columns');
                 }
             },
             'test_pk' => function () {
                 if (in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk')->execute();
-                    static::deleteMigration('bizley\\migration\\tests\\migrations\\m180322_212600_create_table_test_pk');
+                    static::deleteMigration('bizley\\tests\\migrations\\m180322_212600_create_table_test_pk');
                 }
             },
         ];
