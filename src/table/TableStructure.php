@@ -53,6 +53,15 @@ class TableStructure extends Object
      * @var string
      */
     public $dbPrefix;
+    /**
+     * @var string
+     */
+    public $tableOptionsInit = <<<'PHP'
+$tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+        }
+PHP;
 
     /**
      * Returns schema type.
