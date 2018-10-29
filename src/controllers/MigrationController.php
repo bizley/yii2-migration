@@ -20,7 +20,7 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.0.3
+ * @version 3.0.4
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -29,7 +29,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.0.3';
+    protected $version = '3.0.4';
 
     /**
      * @var string Default command action.
@@ -119,6 +119,27 @@ class MigrationController extends Controller
     public $skipMigrations = [];
 
     /**
+     * @var string|null String rendered in the create migration template to initialize table options.
+     * By default it adds variable "$tableOptions" with optional collate configuration for MySQL DBMS to be used with
+     * default $tableOptions.
+     * Alias -O
+     * @since 3.0.4
+     */
+    public $tableOptionsInit = '$tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }';
+
+    /**
+     * @var string|null String rendered in the create migration template for table options.
+     * By default it renders "$tableOptions" to indicate that options should be taken from variable
+     * set in $tableOptionsInit property.
+     * Alias -o
+     * @since 3.0.4
+     */
+    public $tableOptions = '$tableOptions';
+
+    /**
      * @inheritdoc
      */
     public function options($actionID): array // BC declaration
@@ -129,7 +150,7 @@ class MigrationController extends Controller
         switch ($actionID) {
             case 'create':
             case 'create-all':
-                return array_merge($options, $createOptions);
+                return array_merge($options, $createOptions, ['tableOptionsInit', 'tableOptions']);
             case 'update':
             case 'update-all':
                 return array_merge($options, $createOptions, $updateOptions);
@@ -153,6 +174,8 @@ class MigrationController extends Controller
             'P' => 'useTablePrefix',
             'h' => 'fixHistory',
             's' => 'showOnly',
+            'O' => 'tableOptionsInit',
+            'o' => 'tableOptions',
         ]);
     }
 
@@ -332,6 +355,8 @@ class MigrationController extends Controller
                 'className' => $className,
                 'namespace' => $this->migrationNamespace,
                 'generalSchema' => $this->generalSchema,
+                'tableOptionsInit' => $this->tableOptionsInit,
+                'tableOptions' => $this->tableOptions,
             ]);
 
             if ($generator->tableSchema === null) {

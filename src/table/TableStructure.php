@@ -53,6 +53,16 @@ class TableStructure extends BaseObject
      * @var string
      */
     public $dbPrefix;
+    /**
+     * @var string|null
+     * @since 3.0.4
+     */
+    public $tableOptionsInit;
+    /**
+     * @var string|null
+     * @since 3.0.4
+     */
+    public $tableOptions;
 
     protected $_schema;
 
@@ -128,23 +138,14 @@ class TableStructure extends BaseObject
     {
         $output = '';
 
-        $tableOptionsSet = false;
-        if ($this->generalSchema || $this->schema === self::SCHEMA_MYSQL) {
-            $output .= <<<'PHP'
-        $tableOptions = null;
-        if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
-        }
-
-
-PHP;
-            $tableOptionsSet = true;
+        if ($this->tableOptionsInit !== null) {
+            $output .= "        {$this->tableOptionsInit}\n\n";
         }
         $output .= "        \$this->createTable('" . $this->renderName() . "', [";
         foreach ($this->columns as $column) {
             $output .= "\n" . $column->render($this);
         }
-        $output .= "\n        ]" . ($tableOptionsSet ? ', $tableOptions' : '') . ");\n";
+        $output .= "\n        ]" . ($this->tableOptions !== null ? ", {$this->tableOptions}" : '') . ");\n";
 
         return $output;
     }

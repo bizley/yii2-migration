@@ -75,6 +75,18 @@ class Generator extends Component
     public $generalSchema = true;
 
     /**
+     * @var string|null
+     * @since 3.0.4
+     */
+    public $tableOptionsInit;
+
+    /**
+     * @var string|null
+     * @since 3.0.4
+     */
+    public $tableOptions;
+
+    /**
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
      */
@@ -258,7 +270,9 @@ class Generator extends Component
                 'primaryKey' => $this->getTablePrimaryKey(),
                 'columns' => $this->getTableColumns($indexes),
                 'foreignKeys' => $this->getTableForeignKeys(),
-                'indexes' => $indexes
+                'indexes' => $indexes,
+                'tableOptionsInit' => $this->tableOptionsInit,
+                'tableOptions' => $this->tableOptions,
             ]);
         }
         return $this->_table;
