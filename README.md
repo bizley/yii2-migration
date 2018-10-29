@@ -102,6 +102,8 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 | `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (1). _default:_ `1`
 | `fixHistory`         | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
 | `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
+| `tableOptionsInit`   | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
+| `tableOptions`       | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
 
 (1) Remember that with different database types general column schemas may be generated with different length.
 

@@ -54,14 +54,15 @@ class TableStructure extends Object
      */
     public $dbPrefix;
     /**
-     * @var string
+     * @var string|null
+     * @since 2.3.4
      */
-    public $tableOptionsInit = <<<'PHP'
-$tableOptions = null;
-        if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
-        }
-PHP;
+    public $tableOptionsInit;
+    /**
+     * @var string|null
+     * @since 2.3.4
+     */
+    public $tableOptions;
 
     /**
      * Returns schema type.
@@ -137,23 +138,14 @@ PHP;
     {
         $output = '';
 
-        $tableOptionsSet = false;
-        if ($this->generalSchema || $this->schema === self::SCHEMA_MYSQL) {
-            $output .= <<<'PHP'
-        $tableOptions = null;
-        if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
-        }
-
-
-PHP;
-            $tableOptionsSet = true;
+        if ($this->tableOptionsInit !== null) {
+            $output .= "        {$this->tableOptionsInit}\n\n";
         }
         $output .= "        \$this->createTable('" . $this->renderName() . "', [";
         foreach ($this->columns as $column) {
             $output .= "\n" . $column->render($this);
         }
-        $output .= "\n        ]" . ($tableOptionsSet ? ', $tableOptions' : '') . ");\n";
+        $output .= "\n        ]" . ($this->tableOptions !== null ? ", {$this->tableOptions}" : '') . ");\n";
 
         return $output;
     }
