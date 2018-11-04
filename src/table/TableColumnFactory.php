@@ -37,8 +37,7 @@ class TableColumnFactory
                 return new TableColumnString($configuration);
             case Schema::TYPE_TEXT:
                 return new TableColumnText($configuration);
-            case \defined('yii\db\Schema::TYPE_TINYINT') ? Schema::TYPE_TINYINT : 'nottinyint':
-                // TinyInt support since Yii 2.0.14
+            case Schema::TYPE_TINYINT:
                 return new TableColumnTinyInt($configuration);
             case Schema::TYPE_SMALLINT:
                 return new TableColumnSmallInt($configuration);
@@ -66,8 +65,7 @@ class TableColumnFactory
                 return new TableColumnBoolean($configuration);
             case Schema::TYPE_MONEY:
                 return new TableColumnMoney($configuration);
-            case \defined('yii\db\Schema::TYPE_JSON') ? Schema::TYPE_JSON : 'notjson':
-                // Json support since Yii 2.0.14
+            case Schema::TYPE_JSON:
                 return new TableColumnJson($configuration);
             default:
                 throw new InvalidConfigException("Unsupported schema type '{$configuration['type']}' for TableColumnFactory.");

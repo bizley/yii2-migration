@@ -119,22 +119,16 @@ class Generator extends Component
     protected function getTablePrimaryKey(): TablePrimaryKey
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTablePrimaryKey')) {
-            /* @var $constraint \yii\db\Constraint */
-            $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
-            if ($constraint) {
-                $data = [
-                    'columns' => $constraint->columnNames,
-                    'name' => $constraint->name,
-                ];
-            }
-        } elseif ($this->tableSchema instanceof TableSchema) {
-            if ($this->tableSchema->primaryKey) {
-                $data = [
-                    'columns' => $this->tableSchema->primaryKey,
-                ];
-            }
+
+        /* @var $constraint \yii\db\Constraint */
+        $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
+        if ($constraint) {
+            $data = [
+                'columns' => $constraint->columnNames,
+                'name' => $constraint->name,
+            ];
         }
+
         return new TablePrimaryKey($data);
     }
 
@@ -184,34 +178,20 @@ class Generator extends Component
     protected function getTableForeignKeys(): array
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTableForeignKeys')) {
-            $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
-            /* @var $fk \yii\db\ForeignKeyConstraint */
-            foreach ($fks as $fk) {
-                $data[$fk->name] = new TableForeignKey([
-                    'name' => $fk->name,
-                    'columns' => $fk->columnNames,
-                    'refTable' => $fk->foreignTableName,
-                    'refColumns' => $fk->foreignColumnNames,
-                    'onDelete' => $fk->onDelete,
-                    'onUpdate' => $fk->onUpdate,
-                ]);
-            }
-        } elseif ($this->tableSchema instanceof TableSchema) {
-            foreach ($this->tableSchema->foreignKeys as $name => $key) {
-                $fk = new TableForeignKey([
-                    'name' => $name,
-                    'refTable' => ArrayHelper::remove($key, 0),
-                    'onDelete' => null,
-                    'onUpdate' => null,
-                ]);
-                foreach ($key as $col => $ref) {
-                    $fk->columns[] = $col;
-                    $fk->refColumns[] = $ref;
-                }
-                $data[$name] = $fk;
-            }
+
+        $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
+        /* @var $fk \yii\db\ForeignKeyConstraint */
+        foreach ($fks as $fk) {
+            $data[$fk->name] = new TableForeignKey([
+                'name' => $fk->name,
+                'columns' => $fk->columnNames,
+                'refTable' => $fk->foreignTableName,
+                'refColumns' => $fk->foreignColumnNames,
+                'onDelete' => $fk->onDelete,
+                'onUpdate' => $fk->onUpdate,
+            ]);
         }
+
         return $data;
     }
 
@@ -223,30 +203,19 @@ class Generator extends Component
     protected function getTableIndexes(): array
     {
         $data = [];
-        if (method_exists($this->db->schema, 'getTableIndexes')) {
-            $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
-            /* @var $idx \yii\db\IndexConstraint */
-            foreach ($idxs as $idx) {
-                if (!$idx->isPrimary) {
-                    $data[$idx->name] = new TableIndex([
-                        'name' => $idx->name,
-                        'unique' => $idx->isUnique,
-                        'columns' => $idx->columnNames
-                    ]);
-                }
+
+        $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
+        /* @var $idx \yii\db\IndexConstraint */
+        foreach ($idxs as $idx) {
+            if (!$idx->isPrimary) {
+                $data[$idx->name] = new TableIndex([
+                    'name' => $idx->name,
+                    'unique' => $idx->isUnique,
+                    'columns' => $idx->columnNames
+                ]);
             }
-        } else {
-            try {
-                $uidxs = $this->db->schema->findUniqueIndexes($this->tableSchema);
-                foreach ($uidxs as $name => $cols) {
-                    $data[$name] = new TableIndex([
-                        'name' => $name,
-                        'unique' => true,
-                        'columns' => $cols
-                    ]);
-                }
-            } catch (NotSupportedException $exc) {}
         }
+
         return $data;
     }
 

@@ -191,7 +191,7 @@ class MigrationController extends Controller
                 if ($this->$property === 'true' || $this->$property === 1) {
                     $this->$property = true;
                 }
-                $this->$property = (bool)$this->$property;
+                $this->$property = (bool) $this->$property;
             }
         }
     }
