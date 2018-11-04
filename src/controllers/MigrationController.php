@@ -20,7 +20,7 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.0.4
+ * @version 3.0.5
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -29,7 +29,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.0.4';
+    protected $version = '3.0.5';
 
     /**
      * @var string Default command action.
