@@ -187,10 +187,8 @@ class TableColumn extends Object
             if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
                 return true;
             }
-        } else {
-            if (stripos($this->append, 'PRIMARY KEY') !== false) {
-                return true;
-            }
+        } elseif (stripos($this->append, 'PRIMARY KEY') !== false) {
+            return true;
         }
         return false;
     }
