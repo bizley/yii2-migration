@@ -123,7 +123,7 @@ class TableColumn extends Object
             if ($this->default instanceof Expression) {
                 $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
             } else {
-                $this->definition[] = "defaultValue('" . $this->escapeQuotes($this->default) . "')";
+                $this->definition[] = "defaultValue('" . $this->escapeQuotes((string) $this->default) . "')";
             }
         }
         if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
@@ -131,12 +131,12 @@ class TableColumn extends Object
             if (!empty($this->append)) {
                 $append .= ' ' . $this->append;
             }
-            $this->definition[] = "append('" . $this->escapeQuotes($append) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes((string) $append) . "')";
         } elseif (!empty($this->append)) {
-            $this->definition[] = "append('" . $this->escapeQuotes($this->append) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes((string) $this->append) . "')";
         }
         if ($this->comment) {
-            $this->definition[] = "comment('" . $this->escapeQuotes($this->comment) . "')";
+            $this->definition[] = "comment('" . $this->escapeQuotes((string) $this->comment) . "')";
         }
     }
 
