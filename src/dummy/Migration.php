@@ -34,6 +34,7 @@ class Migration extends Component implements MigrationInterface
     public function init()
     {
         parent::init();
+
         $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
@@ -52,6 +53,7 @@ class Migration extends Component implements MigrationInterface
         if ($this->safeUp() === false) {
             return false;
         }
+
         return null;
     }
 
@@ -73,20 +75,12 @@ class Migration extends Component implements MigrationInterface
     protected function extractColumns($columns)
     {
         $schema = [];
+
         foreach ($columns as $name => $data) {
             $schema[$name] = $this->extractColumn($data);
         }
-        return $schema;
-    }
 
-    /**
-     * Returns type map for current schema query builder.
-     * @param ColumnSchemaBuilder $type
-     * @return array
-     */
-    public function getKeysMap($type)
-    {
-        return $type->db->schema->createQueryBuilder()->typeMap;
+        return $schema;
     }
 
     /**
@@ -99,42 +93,54 @@ class Migration extends Component implements MigrationInterface
     public function fillTypeMapProperties($type, $keyToDb, $dbToKey)
     {
         $schema = [];
+
         if (!array_key_exists($type, $keyToDb)) {
             $schema['type'] = $type;
             return $schema;
         }
+
         $builder = $keyToDb[$type];
+
         if (strpos($builder, 'NOT NULL') !== false) {
             $schema['isNotNull'] = true;
             $builder = trim(str_replace('NOT NULL', '', $builder));
         }
+
         if (strpos($builder, 'AUTO_INCREMENT') !== false) {
             $schema['autoIncrement'] = true;
             $builder = trim(str_replace('AUTO_INCREMENT', '', $builder));
         }
+
         if (strpos($builder, 'AUTOINCREMENT') !== false) {
             $schema['autoIncrement'] = true;
             $builder = trim(str_replace('AUTOINCREMENT', '', $builder));
         }
+
         if (strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
             $schema['isPrimaryKey'] = true;
             $builder = trim(str_replace('IDENTITY PRIMARY KEY', '', $builder));
         }
+
         if (strpos($builder, 'PRIMARY KEY') !== false) {
             $schema['isPrimaryKey'] = true;
             $builder = trim(str_replace('PRIMARY KEY', '', $builder));
         }
+
         if (strpos($builder, 'UNSIGNED') !== false) {
             $schema['isUnsigned'] = true;
             $builder = trim(str_replace('UNSIGNED', '', $builder));
         }
+
         preg_match('/^([a-z]+)(\(([0-9,]+)\))?$/', $builder, $matches);
+
         if (array_key_exists($matches[1], $dbToKey)) {
             if (!empty($matches[3])) {
                 $schema['length'] = $matches[3];
             }
+
             $schema['type'] = $dbToKey[$matches[1]];
         }
+
         return $schema;
     }
 
@@ -146,22 +152,30 @@ class Migration extends Component implements MigrationInterface
      */
     protected function extractColumn($type)
     {
-        $keyToDb = $this->getKeysMap($type);
-        $dbToKey = $type->db->schema->typeMap;
         $properties = ['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'];
+
         $reflectionClass = new \ReflectionClass($type);
         $reflectionProperty = $reflectionClass->getProperty('type');
         $reflectionProperty->setAccessible(true);
-        $schema = $this->fillTypeMapProperties($reflectionProperty->getValue($type), $keyToDb, $dbToKey);
+
+        $schema = $this->fillTypeMapProperties(
+            $reflectionProperty->getValue($type),
+            $this->db->schema->createQueryBuilder()->typeMap,
+            $this->db->schema->typeMap
+        );
+
         foreach ($properties as $property) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
+
             $value = $reflectionProperty->getValue($type);
             if ($value !== null || !isset($schema[$property])) {
                 $schema[$property] = $value;
             }
         }
+
         $schema['comment'] = empty($type->comment) ? '' : $type->comment;
+
         return $schema;
     }
 
@@ -184,9 +198,11 @@ class Migration extends Component implements MigrationInterface
     public function addChange($table, $method, $data)
     {
         $table = $this->getRawTableName($table);
+
         if (!isset($this->changes[$table])) {
             $this->changes[$table] = [];
         }
+
         $this->changes[$table][] = new TableChange(['table' => $table, 'method' => $method, 'data' => $data]);
     }
 

@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnDouble;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnDoubleTest extends TableColumnTestCase
 {

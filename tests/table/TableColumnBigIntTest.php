@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnBigInt;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigIntTest extends TableColumnTestCase
 {

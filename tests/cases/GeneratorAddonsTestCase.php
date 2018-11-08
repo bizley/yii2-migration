@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace bizley\tests\mysql;
+namespace bizley\tests\cases;
 
 use bizley\migration\Generator;
 use Yii;
 use yii\db\Expression;
 
-class GeneratorColumnsAddonsTest extends MysqlDbTestCase
+class GeneratorAddonsTestCase extends DbTestCase
 {
     protected function getGenerator(): Generator
     {

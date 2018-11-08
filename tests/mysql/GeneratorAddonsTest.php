@@ -2,7 +2,7 @@
 
 namespace bizley\tests\mysql;
 
-class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
+class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
 {
     public static $schema = 'mysql';
 }

@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnTimestamp;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnTimestampTest extends TableColumnTestCase
 {

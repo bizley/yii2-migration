@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnTime;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnTimeTest extends TableColumnTestCase
 {

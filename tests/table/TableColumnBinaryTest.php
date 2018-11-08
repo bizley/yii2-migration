@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnBinary;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBinaryTest extends TableColumnTestCase
 {

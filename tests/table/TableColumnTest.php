@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumn;
+use bizley\tests\cases\TableColumnTestCase;
 use yii\db\Expression;
 
 class TableColumnTest extends TableColumnTestCase

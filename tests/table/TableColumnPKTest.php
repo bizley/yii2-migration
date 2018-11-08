@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnPK;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnPKTest extends TableColumnTestCase
 {

@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnFloat;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnFloatTest extends TableColumnTestCase
 {

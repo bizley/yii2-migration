@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnDecimal;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnDecimalTest extends TableColumnTestCase
 {

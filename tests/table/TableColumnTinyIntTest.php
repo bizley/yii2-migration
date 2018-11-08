@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnTinyInt;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnTinyIntTest extends TableColumnTestCase
 {

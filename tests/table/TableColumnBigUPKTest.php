@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnBigUPK;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigUPKTest extends TableColumnTestCase
 {

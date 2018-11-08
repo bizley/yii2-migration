@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnInt;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnIntTest extends TableColumnTestCase
 {
