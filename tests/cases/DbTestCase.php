@@ -138,4 +138,14 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 
         return static::$db;
     }
+
+    /**
+     * @return Connection
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function getDb(): Connection
+    {
+        return static::getConnection();
+    }
 }

@@ -15,9 +15,13 @@ use bizley\tests\migrations\m180701_160300_create_table_test_int_size;
 use bizley\tests\migrations\m180701_160900_create_table_test_char_pk;
 use Yii;
 use yii\console\controllers\MigrateController;
+use yii\db\Migration;
+use yii\db\SchemaBuilderTrait;
 
 abstract class DbMigrationsTestCase extends DbTestCase
 {
+    use SchemaBuilderTrait;
+
     static protected $runMigrations = false;
 
     /**
@@ -73,10 +77,15 @@ abstract class DbMigrationsTestCase extends DbTestCase
         parent::setUpBeforeClass();
 
         if (!\in_array('migration', Yii::$app->db->schema->tableNames, true)) {
+
+            $migration = new Migration(['db' => static::getConnection()]);
+
             Yii::$app->db->createCommand()->createTable('migration', [
-                'version' => 'VARCHAR(180) NOT NULL PRIMARY KEY',
-                'apply_time' => 'integer',
+                'version' => $migration->string(180)->notNull(),
+                'apply_time' => $migration->integer(),
             ])->execute();
+
+            Yii::$app->db->createCommand()->addPrimaryKey('PKmigration', 'migration', 'version')->execute();
 
             static::addMigration(MigrateController::BASE_MIGRATION);
         }
@@ -90,66 +99,108 @@ abstract class DbMigrationsTestCase extends DbTestCase
         $data = [
             'test_pk' => function () {
                 if (!\in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_pk', ['id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY'], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_pk',
+                        ['id' => $this->primaryKey()],
+                        static::$tableOptions
+                    )->execute();
 
                     static::addMigration(m180322_212600_create_table_test_pk::class);
                 }
             },
             'test_columns' => function () {
                 if (!\in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_columns', [
-                        'id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY',
-                        'col_big_int' => 'BIGINT(20) NULL',
-                        'col_int' => 'INT(11) NULL',
-                        'col_small_int' => 'SMALLINT(6) NULL',
-                        'col_bin' => 'BINARY NULL',
-                        'col_bool' => 'TINYINT(1) NULL',
-                        'col_char' => 'CHAR(1) NULL',
-                        'col_date' => 'DATE NULL',
-                        'col_date_time' => 'DATETIME NULL',
-                        'col_decimal' => 'DECIMAL(10) NULL',
-                        'col_double' => 'DOUBLE NULL',
-                        'col_float' => 'FLOAT NULL',
-                        'col_money' => 'DECIMAL(19,4) NULL',
-                        'col_string' => 'VARCHAR(255) NULL',
-                        'col_text' => 'TEXT NULL',
-                        'col_time' => 'TIME NULL',
-                        'col_timestamp' => 'TIMESTAMP NULL',
-                    ], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_columns',
+                        [
+                            'id' => $this->primaryKey(),
+                            'col_big_int' => $this->bigInteger(),
+                            'col_int' => $this->integer(),
+                            'col_small_int' => $this->smallInteger(),
+                            'col_bin' => $this->binary(),
+                            'col_bool' => $this->boolean(),
+                            'col_char' => $this->char(),
+                            'col_date' => $this->date(),
+                            'col_date_time' => $this->dateTime(),
+                            'col_decimal' => $this->decimal(),
+                            'col_double' => $this->double(),
+                            'col_float' => $this->float(),
+                            'col_money' => $this->money(),
+                            'col_string' => $this->string(),
+                            'col_text' => $this->text(),
+                            'col_time' => $this->time(),
+                            'col_timestamp' => $this->timestamp(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
 
                     static::addMigration(m180317_093600_create_table_test_columns::class);
                 }
             },
             'test_index_single' => function () {
                 if (!\in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_index_single', ['col' => 'INT(11)'], static::$tableOptions)->execute();
-                    Yii::$app->db->createCommand()->createIndex('idx-test_index_single-col', 'test_index_single', 'col')->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_index_single',
+                        ['col' => $this->integer()],
+                        static::$tableOptions
+                    )->execute();
+                    Yii::$app->db->createCommand()->createIndex(
+                        'idx-test_index_single-col',
+                        'test_index_single',
+                        'col'
+                    )->execute();
 
                     static::addMigration(m180322_214400_create_table_test_index_single::class);
                 }
             },
             'test_pk_composite' => function () {
                 if (!\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_pk_composite', [
-                        'one' => 'INT(11)',
-                        'two' => 'INT(11)',
-                    ], static::$tableOptions)->execute();
-                    Yii::$app->db->createCommand()->addPrimaryKey('PRIMARYKEY', 'test_pk_composite', ['one', 'two'])->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_pk_composite',
+                        [
+                            'one' => $this->integer(),
+                            'two' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+                    Yii::$app->db->createCommand()->addPrimaryKey(
+                        'PRIMARYKEY',
+                        'test_pk_composite',
+                        ['one', 'two']
+                    )->execute();
 
                     static::addMigration(m180322_213900_create_table_test_pk_composite::class);
                 }
             },
             'test_fk' => function () {
                 if (!\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_fk', ['pk_id' => 'INT(11)'], static::$tableOptions)->execute();
-                    Yii::$app->db->createCommand()->addForeignKey('fk-test_fk-pk_id', '{{%test_fk}}', 'pk_id', '{{%test_pk}}', 'id', 'CASCADE', 'CASCADE')->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_fk',
+                        ['pk_id' => $this->integer()],
+                        static::$tableOptions
+                    )->execute();
+
+                    Yii::$app->db->createCommand()->addForeignKey(
+                        'fk-test_fk-pk_id',
+                        'test_fk',
+                        'pk_id',
+                        'test_pk',
+                        'id',
+                        'CASCADE',
+                        'CASCADE'
+                    )->execute();
 
                     static::addMigration(m180324_105400_create_table_test_fk::class);
                 }
             },
             'test_multiple' => function () {
                 if (!\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_multiple', ['two' => 'INT(11)'], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_multiple',
+                        ['two' => $this->integer()],
+                        static::$tableOptions
+                    )->execute();
+
                     static::addMigration(m180328_205600_create_table_test_multiple::class);
                     static::addMigration(m180328_205700_add_column_two_to_table_test_multiple::class);
                     static::addMigration(m180328_205900_drop_column_one_from_table_test_multiple::class);
@@ -157,10 +208,15 @@ abstract class DbMigrationsTestCase extends DbTestCase
             },
             'test_multiple_skip' => function () {
                 if (!\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_multiple', [
-                        'one' => 'INT(11)',
-                        'two' => 'INT(11)',
-                    ], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_multiple',
+                        [
+                            'one' => $this->integer(),
+                            'two' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+
                     static::addMigration(m180328_205600_create_table_test_multiple::class);
                     static::addMigration(m180328_205700_add_column_two_to_table_test_multiple::class);
                     static::addMigration(m180328_205900_drop_column_one_from_table_test_multiple::class);
@@ -168,17 +224,28 @@ abstract class DbMigrationsTestCase extends DbTestCase
             },
             'test_int_size' => function () {
                 if (!\in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_int_size', [
-                        'col_int' => 'INT(10) NULL',
-                    ], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_int_size',
+                        ['col_int' => $this->integer(10)],
+                        static::$tableOptions
+                    )->execute();
+
                     static::addMigration(m180701_160300_create_table_test_int_size::class);
                 }
             },
             'test_char_pk' => function () {
                 if (!\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->createTable('test_char_pk', [
-                        'id' => 'CHAR(128) NOT NULL PRIMARY KEY',
-                    ], static::$tableOptions)->execute();
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_char_pk',
+                        ['id' => $this->char(128)->notNull()],
+                        static::$tableOptions
+                    )->execute();
+                    Yii::$app->db->createCommand()->addPrimaryKey(
+                        'PKTestChar',
+                        'test_char_pk',
+                        'id'
+                    )->execute();
+
                     static::addMigration(m180701_160900_create_table_test_char_pk::class);
                 }
             },
@@ -196,18 +263,21 @@ abstract class DbMigrationsTestCase extends DbTestCase
             'test_char_pk' => function () {
                 if (\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
+
                     static::deleteMigration(m180701_160900_create_table_test_char_pk::class);
                 }
             },
             'test_int_size' => function () {
                 if (\in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_int_size')->execute();
+
                     static::deleteMigration(m180701_160300_create_table_test_int_size::class);
                 }
             },
             'test_multiple' => function () {
                 if (\in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_multiple')->execute();
+
                     static::deleteMigration(m180328_205900_drop_column_one_from_table_test_multiple::class);
                     static::deleteMigration(m180328_205700_add_column_two_to_table_test_multiple::class);
                     static::deleteMigration(m180328_205600_create_table_test_multiple::class);
@@ -216,30 +286,35 @@ abstract class DbMigrationsTestCase extends DbTestCase
             'test_fk' => function () {
                 if (\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
+
                     static::deleteMigration(m180324_105400_create_table_test_fk::class);
                 }
             },
             'test_pk_composite' => function () {
                 if (\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
+
                     static::deleteMigration(m180322_213900_create_table_test_pk_composite::class);
                 }
             },
             'test_index_single' => function () {
                 if (\in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_index_single')->execute();
+
                     static::deleteMigration(m180322_214400_create_table_test_index_single::class);
                 }
             },
             'test_columns' => function () {
                 if (\in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_columns')->execute();
+
                     static::deleteMigration(m180317_093600_create_table_test_columns::class);
                 }
             },
             'test_pk' => function () {
                 if (\in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk')->execute();
+
                     static::deleteMigration(m180322_212600_create_table_test_pk::class);
                 }
             },
