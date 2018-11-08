@@ -2,6 +2,9 @@
 
 namespace bizley\tests\mysql;
 
+/**
+ * @group mysql
+ */
 class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
 {
     public static $schema = 'mysql';

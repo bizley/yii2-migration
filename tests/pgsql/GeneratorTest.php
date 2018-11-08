@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace bizley\tests\mysql;
+namespace bizley\tests\pgsql;
 
 /**
- * @group mysql
+ * @group pgsql
  */
 class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
 {
-    public static $schema = 'mysql';
+    public static $schema = 'pgsql';
 }
