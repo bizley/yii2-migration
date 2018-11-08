@@ -160,8 +160,8 @@ class Migration extends Component implements MigrationInterface
 
         $schema = $this->fillTypeMapProperties(
             $reflectionProperty->getValue($type),
-            $type->db->schema->createQueryBuilder()->typeMap,
-            $type->db->schema->typeMap
+            $this->db->schema->createQueryBuilder()->typeMap,
+            $this->db->schema->typeMap
         );
 
         foreach ($properties as $property) {
