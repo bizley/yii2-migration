@@ -43,8 +43,12 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_pk');
 
-        $mock = $this->getMockBuilder(MockMigrationController::class)
-            ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
+        $mock = $this
+                ->getMockBuilder(MockMigrationController::class)
+                ->setConstructorArgs(['migration', Yii::$app])
+                ->setMethods(['generateFile'])
+                ->getMock();
+
         $mock->method('generateFile')->willReturn(false);
 
         $this->assertEquals(ExitCode::SOFTWARE, $mock->runAction('create', ['test_pk']));
@@ -62,10 +66,14 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     public function testUpdateFileFail(): void
     {
         $this->dbUp('test_pk');
-        Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', 'INT(11)')->execute();
+        Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', $this->integer())->execute();
 
-        $mock = $this->getMockBuilder(MockMigrationController::class)
-            ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
+        $mock = $this
+                ->getMockBuilder(MockMigrationController::class)
+                ->setConstructorArgs(['migration', Yii::$app])
+                ->setMethods(['generateFile'])
+                ->getMock();
+
         $mock->method('generateFile')->willReturn(false);
 
         $this->assertEquals(ExitCode::SOFTWARE, $mock->runAction('update', ['test_pk']));
@@ -80,8 +88,12 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_pk');
 
-        $mock = $this->getMockBuilder(MockMigrationController::class)
-            ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
+        $mock = $this
+                ->getMockBuilder(MockMigrationController::class)
+                ->setConstructorArgs(['migration', Yii::$app])
+                ->setMethods(['generateFile'])
+                ->getMock();
+
         $mock->method('generateFile')->willReturn(true);
 
         $this->assertEquals(ExitCode::OK, $mock->runAction('create', ['test_pk']));
@@ -117,10 +129,14 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     public function testUpdateSuccess(): void
     {
         $this->dbUp('test_pk');
-        Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', 'INT(11)')->execute();
+        Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', $this->integer())->execute();
 
-        $mock = $this->getMockBuilder(MockMigrationController::class)
-            ->setConstructorArgs(['migration', Yii::$app])->setMethods(['generateFile'])->getMock();
+        $mock = $this
+                ->getMockBuilder(MockMigrationController::class)
+                ->setConstructorArgs(['migration', Yii::$app])
+                ->setMethods(['generateFile'])
+                ->getMock();
+
         $mock->method('generateFile')->willReturn(true);
 
         $this->assertEquals(ExitCode::OK, $mock->runAction('update', ['test_pk']));

@@ -129,7 +129,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_multiple');
 
-        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', 'INT(11)')->execute();
+        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', $this->integer())->execute();
 
         $updater = $this->getUpdater('test_multiple');
         $this->assertTrue($updater->isUpdateRequired());
@@ -147,7 +147,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_multiple_skip');
 
-        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', 'INT(11)')->execute();
+        Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', $this->integer())->execute();
 
         $updater = $this->getUpdater('test_multiple', true, [m180328_205900_drop_column_one_from_table_test_multiple::class]);
         $this->assertTrue($updater->isUpdateRequired());

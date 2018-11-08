@@ -24,7 +24,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', 'INT(9)')->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(9))->execute();
 
         $updater = $this->getUpdater('test_columns');
         $this->assertFalse($updater->isUpdateRequired());
@@ -40,7 +40,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', 'INT(9)')->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(9))->execute();
 
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
@@ -87,7 +87,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', 'DECIMAL(11,7)')->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', $this->decimal(11, 7))->execute();
 
         $updater = $this->getUpdater('test_columns');
         $this->assertFalse($updater->isUpdateRequired());
@@ -103,7 +103,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', 'DECIMAL(11,7)')->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', $this->decimal(11, 7))->execute();
 
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
@@ -123,7 +123,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', 'VARCHAR(255)')->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->string(255))->execute();
 
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
@@ -158,7 +158,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->addColumn('test_columns', 'col_new', 'INT')->execute();
+        Yii::$app->db->createCommand()->addColumn('test_columns', 'col_new', $this->integer())->execute();
 
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());

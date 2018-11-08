@@ -38,7 +38,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     {
         new Application([
             'id' => 'MigrationTest',
-            'basePath' => __DIR__,
+            'basePath' => __DIR__ . '/../',
             'vendorPath' => __DIR__ . '/../../vendor/',
             'controllerMap' => [
                 'migration' => [
