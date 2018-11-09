@@ -12,7 +12,7 @@ $config = [
         'charset' => 'utf8',
     ],
     'pgsql' => [
-        'dsn' => 'pgsql:host=127.0.0.1;dbname=migrationtest;port=5432;',
+        'dsn' => 'pgsql:host=127.0.0.1;dbname=migrationtest;port=5432',
         'username' => 'postgres',
         'password' => 'postgres',
         'charset' => 'utf8',

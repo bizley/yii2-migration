@@ -15,28 +15,6 @@ class GeneratorTestCase extends DbTestCase
         ]);
     }
 
-    public function testMysqlSchema(): void
-    {
-        $table = $this->getGenerator('test_pk')->table;
-        $this->assertEquals('mysql', $table->schema);
-    }
-
-    public function testPrimaryKeyNonComposite(): void
-    {
-        $table = $this->getGenerator('test_pk')->table;
-        $this->assertEquals(['id'], $table->primaryKey->columns);
-        $this->assertEquals(null, $table->primaryKey->name);
-        $this->assertFalse($table->primaryKey->isComposite());
-    }
-
-    public function testPrimaryKeyComposite(): void
-    {
-        $table = $this->getGenerator('test_pk_composite')->table;
-        $this->assertEquals(['one', 'two'], $table->primaryKey->columns);
-        $this->assertEquals(null, $table->primaryKey->name);
-        $this->assertTrue($table->primaryKey->isComposite());
-    }
-
     public function testIndexSingle(): void
     {
         $table = $this->getGenerator('test_index_single')->table;

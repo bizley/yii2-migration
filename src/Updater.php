@@ -55,7 +55,9 @@ class Updater extends Generator
     public function init(): void
     {
         parent::init();
+
         $this->_currentTable = $this->tableName;
+
         foreach ($this->skipMigrations as $index => $migration) {
             $this->skipMigrations[$index] = trim($migration, '\\');
         }
@@ -81,23 +83,28 @@ class Updater extends Generator
         if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
             return [];
         }
+
         $rows = (new Query())
-            ->select(['version', 'apply_time'])
-            ->from($this->migrationTable)
-            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
-            ->all($this->db);
+                ->select(['version', 'apply_time'])
+                ->from($this->migrationTable)
+                ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+                ->all($this->db);
+
         $history = [];
+
         foreach ($rows as $key => $row) {
             if ($row['version'] === MigrateController::BASE_MIGRATION) {
                 continue;
             }
+
             if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?$/is', $row['version'], $matches)) {
-                $time = str_replace('_', '', $matches[1]);
-                $row['canonicalVersion'] = $time;
+                $row['canonicalVersion'] = str_replace('_', '', $matches[1]);
             } else {
                 $row['canonicalVersion'] = $row['version'];
             }
-            $row['apply_time'] = (int)$row['apply_time'];
+
+            $row['apply_time'] = (int) $row['apply_time'];
+
             $history[] = $row;
         }
 
@@ -106,10 +113,13 @@ class Updater extends Generator
                 if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
                     return $compareResult;
                 }
+
                 return strcasecmp($b['version'], $a['version']);
             }
+
             return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
         });
+
         return ArrayHelper::map($history, 'version', 'apply_time');
     }
 
@@ -126,21 +136,27 @@ class Updater extends Generator
         if (!isset($changes[$this->_currentTable])) {
             return true;
         }
+
         $data = array_reverse($changes[$this->_currentTable]);
+
         /* @var $tableChange TableChange */
         foreach ($data as $tableChange) {
             if ($tableChange->method === 'dropTable') {
                 return false;
             }
+
             if ($tableChange->method === 'renameTable') {
                 $this->_currentTable = $tableChange->value;
                 return $this->gatherChanges($changes);
             }
+
             $this->_appliedChanges[] = $tableChange;
+
             if ($tableChange->method === 'createTable') {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -155,9 +171,11 @@ class Updater extends Generator
     {
         if (strpos($migration, '\\') === false) {
             $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
+
             if (!file_exists($file)) {
                 throw new ErrorException("File '{$file}' can not be found! Check migration history table.");
             }
+
             require_once $file;
         }
 
@@ -187,6 +205,7 @@ class Updater extends Generator
             ]);
             $this->_oldTable->applyChanges(array_reverse($this->_appliedChanges));
         }
+
         return $this->_oldTable;
     }
 
@@ -200,12 +219,15 @@ class Updater extends Generator
         if ($value === null) {
             return 'NULL';
         }
+
         if ($value === true) {
             return 'TRUE';
         }
+
         if ($value === false) {
             return 'FALSE';
         }
+
         return '"' . str_replace('"', '\"', $value) . '"';
     }
 
@@ -224,13 +246,16 @@ class Updater extends Generator
                     return false;
                 }
             }
+
             foreach ($this->plan->alterColumn as $name => $column) {
                 if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
                     return false;
                 }
             }
+
             return true;
         }
+
         if (\count($this->table->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
                 /* @var $column TableColumn */
@@ -239,6 +264,7 @@ class Updater extends Generator
                         $column->append = $column->removePKAppend($this->table->schema);
                     }
                 }
+
                 foreach ($this->plan->alterColumn as $name => $column) {
                     if ($name === $key) {
                         $column->append = $column->removePKAppend($this->table->schema);
@@ -246,6 +272,7 @@ class Updater extends Generator
                 }
             }
         }
+
         return true;
     }
 
@@ -259,6 +286,7 @@ class Updater extends Generator
         if ($this->_modifications === null) {
             $this->_modifications = new TablePlan();
         }
+
         return $this->_modifications;
     }
 
@@ -271,7 +299,9 @@ class Updater extends Generator
         if (empty($this->_appliedChanges)) {
             return true;
         }
+
         $different = false;
+
         if ($this->showOnly) {
             echo "SHOWING DIFFERENCES:\n";
         }
@@ -283,14 +313,18 @@ class Updater extends Generator
                 } else {
                     $this->plan->addColumn[$name] = $column;
                 }
+
                 $different = true;
+
                 continue;
             }
+
             if (!$this->generalSchema) {
                 foreach (TableColumn::properties() as $property) {
                     if ($property === 'append' && $column->append === null && !$this->table->primaryKey->isComposite() && $column->isColumnInPK($this->table->primaryKey)) {
                         $column->append = $column->prepareSchemaAppend($this->table, true, $column->autoIncrement);
                     }
+
                     if ($this->oldTable->columns[$name]->$property !== $column->$property) {
                         if ($this->showOnly) {
                             echo "   - different '$name' column property: $property (";
@@ -299,11 +333,13 @@ class Updater extends Generator
                         } elseif (!isset($this->plan->alterColumn[$name])) {
                             $this->plan->alterColumn[$name] = $column;
                         }
+
                         $different = true;
                     }
                 }
             }
         }
+
         foreach ($this->oldTable->columns as $name => $column) {
             if (!isset($this->table->columns[$name])) {
                 if ($this->showOnly) {
@@ -311,6 +347,7 @@ class Updater extends Generator
                 } else {
                     $this->plan->dropColumn[] = $name;
                 }
+
                 $different = true;
             }
         }
@@ -322,13 +359,18 @@ class Updater extends Generator
                 } else {
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
+
                 $different = true;
+
                 continue;
             }
+
             $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns) ? $this->table->foreignKeys[$name]->columns : [];
             $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns) ? $this->oldTable->foreignKeys[$name]->columns : [];
+
             if (\count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
                 array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))))) {
+
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
@@ -337,13 +379,18 @@ class Updater extends Generator
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
+
                 $different = true;
+
                 continue;
             }
+
             $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns) ? $this->table->foreignKeys[$name]->refColumns : [];
             $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns) ? $this->oldTable->foreignKeys[$name]->refColumns : [];
+
             if (\count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
                 array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))))) {
+
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
@@ -352,9 +399,11 @@ class Updater extends Generator
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
+
                 $different = true;
             }
         }
+
         foreach ($this->oldTable->foreignKeys as $name => $foreignKey) {
             if (!isset($this->table->foreignKeys[$name])) {
                 if ($this->showOnly) {
@@ -362,14 +411,19 @@ class Updater extends Generator
                 } else {
                     $this->plan->dropForeignKey[] = $name;
                 }
+
                 $different = true;
             }
         }
 
         $tablePKColumns = !empty($this->table->primaryKey->columns) ? $this->table->primaryKey->columns : [];
         $oldTablePKColumns = !empty($this->oldTable->primaryKey->columns) ? $this->oldTable->primaryKey->columns : [];
-        $newKeys = array_merge(array_diff($tablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)),
-            array_diff($oldTablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)));
+
+        $newKeys = array_merge(
+            array_diff($tablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)),
+            array_diff($oldTablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns))
+        );
+
         if (\count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
@@ -377,10 +431,12 @@ class Updater extends Generator
                 if (!empty($this->oldTable->primaryKey->columns)) {
                     $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
                 }
+
                 if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
                     $this->plan->addPrimaryKey = $this->table->primaryKey;
                 }
             }
+
             $different = true;
         }
 
@@ -391,9 +447,12 @@ class Updater extends Generator
                 } else {
                     $this->plan->createIndex[$name] = $index;
                 }
+
                 $different = true;
+
                 continue;
             }
+
             if ($this->oldTable->indexes[$name]->unique !== $this->table->indexes[$name]->unique) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' definition (";
@@ -403,13 +462,18 @@ class Updater extends Generator
                     $this->plan->dropIndex[] = $name;
                     $this->plan->createIndex[$name] = $index;
                 }
+
                 $different = true;
+
                 continue;
             }
+
             $tableIndexColumns = !empty($this->table->indexes[$name]->columns) ? $this->table->indexes[$name]->columns : [];
             $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns) ? $this->oldTable->indexes[$name]->columns : [];
+
             if (\count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
                 array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))))) {
+
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';
@@ -418,9 +482,11 @@ class Updater extends Generator
                     $this->plan->dropIndex[] = $name;
                     $this->plan->createIndex[$name] = $index;
                 }
+
                 $different = true;
             }
         }
+
         foreach ($this->oldTable->indexes as $name => $index) {
             if (!isset($this->table->indexes[$name])) {
                 if ($this->showOnly) {
@@ -428,6 +494,7 @@ class Updater extends Generator
                 } else {
                     $this->plan->dropIndex[] = $name;
                 }
+
                 $different = true;
             }
         }
@@ -443,19 +510,24 @@ class Updater extends Generator
     public function isUpdateRequired(): bool
     {
         $history = $this->fetchHistory();
+
         if (!empty($history)) {
             $this->setDummyMigrationClass();
+
             foreach ($history as $migration => $time) {
                 $migration = trim($migration, '\\');
                 if (\in_array($migration, $this->skipMigrations, true)) {
                     continue;
                 }
+
                 if (!$this->gatherChanges($this->extract($migration))) {
                     break;
                 }
             }
+
             return $this->compareStructures();
         }
+
         return true;
     }
 
@@ -468,6 +540,7 @@ class Updater extends Generator
         if (empty($this->_modifications)) {
             return parent::generateMigration();
         }
+
         return $this->view->renderFile(Yii::getAlias($this->templateFileUpdate), [
             'className' => $this->className,
             'table' => $this->table,

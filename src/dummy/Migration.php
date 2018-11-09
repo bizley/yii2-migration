@@ -131,7 +131,7 @@ class Migration extends Component implements MigrationInterface
             $builder = trim(str_replace('UNSIGNED', '', $builder));
         }
 
-        preg_match('/^([a-z]+)(\(([0-9,]+)\))?$/', $builder, $matches);
+        preg_match('/^([a-zA-Z ]+)(\(([0-9,]+)\))?$/', $builder, $matches);
 
         if (array_key_exists($matches[1], $dbToKey)) {
             if (!empty($matches[3])) {
