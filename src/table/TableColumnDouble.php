@@ -23,7 +23,9 @@ class TableColumnDouble extends TableColumn
      */
     public function setLength($value): void
     {
-        $this->precision = $value;
+        if ($this->schema === TableStructure::SCHEMA_CUBRID) {
+            $this->precision = $value;
+        }
     }
 
     /**

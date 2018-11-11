@@ -23,16 +23,28 @@ class TableColumnDecimal extends TableColumn
      */
     public function setLength($value): void
     {
-        if (\is_array($value)) {
-            $length = $value;
-        } else {
-            $length = preg_split('\s*,\s*', $value);
-        }
-        if (isset($length[0]) && !empty($length[0])) {
-            $this->precision = $length[0];
-        }
-        if (isset($length[1]) && !empty($length[1])) {
-            $this->scale = $length[1];
+        if (\in_array(
+            $this->schema,
+            [
+                TableStructure::SCHEMA_MYSQL,
+                TableStructure::SCHEMA_CUBRID,
+                TableStructure::SCHEMA_PGSQL,
+                TableStructure::SCHEMA_SQLITE,
+                TableStructure::SCHEMA_MSSQL,
+            ],
+            true
+        )) {
+            if (\is_array($value)) {
+                $length = $value;
+            } else {
+                $length = preg_split('\s*,\s*', $value);
+            }
+            if (isset($length[0]) && !empty($length[0])) {
+                $this->precision = $length[0];
+            }
+            if (isset($length[1]) && !empty($length[1])) {
+                $this->scale = $length[1];
+            }
         }
     }
 

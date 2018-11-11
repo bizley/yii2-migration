@@ -242,13 +242,13 @@ class Updater extends Generator
         if (\count($this->table->primaryKey->columns) === 1 && \count($newKeys) === 1) {
             /* @var $column TableColumn */
             foreach ($this->plan->addColumn as $name => $column) {
-                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
+                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK())) {
                     return false;
                 }
             }
 
             foreach ($this->plan->alterColumn as $name => $column) {
-                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK($this->table->schema))) {
+                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK())) {
                     return false;
                 }
             }
@@ -261,13 +261,13 @@ class Updater extends Generator
                 /* @var $column TableColumn */
                 foreach ($this->plan->addColumn as $name => $column) {
                     if ($name === $key) {
-                        $column->append = $column->removePKAppend($this->table->schema);
+                        $column->append = $column->removePKAppend();
                     }
                 }
 
                 foreach ($this->plan->alterColumn as $name => $column) {
                     if ($name === $key) {
-                        $column->append = $column->removePKAppend($this->table->schema);
+                        $column->append = $column->removePKAppend();
                     }
                 }
             }
@@ -322,7 +322,7 @@ class Updater extends Generator
             if (!$this->generalSchema) {
                 foreach (TableColumn::properties() as $property) {
                     if ($property === 'append' && $column->append === null && !$this->table->primaryKey->isComposite() && $column->isColumnInPK($this->table->primaryKey)) {
-                        $column->append = $column->prepareSchemaAppend($this->table, true, $column->autoIncrement);
+                        $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                     }
 
                     if ($this->oldTable->columns[$name]->$property !== $column->$property) {

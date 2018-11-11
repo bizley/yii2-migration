@@ -23,7 +23,9 @@ class TableColumnDateTime extends TableColumn
      */
     public function setLength($value): void
     {
-        $this->precision = $value;
+        if ($this->schema === TableStructure::SCHEMA_PGSQL) {
+            $this->precision = $value;
+        }
     }
 
     /**

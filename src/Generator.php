@@ -11,11 +11,9 @@ use bizley\migration\table\TableStructure;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
 use yii\db\TableSchema;
-use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
 /**
@@ -135,10 +133,11 @@ class Generator extends Component
     /**
      * Returns columns structure.
      * @param TableIndex[] $indexes
+     * @param string $schema
      * @return TableColumn[]
      * @throws InvalidConfigException
      */
-    protected function getTableColumns(array $indexes = []): array
+    protected function getTableColumns(array $indexes = [], ?string $schema = null): array
     {
         $columns = [];
         if ($this->tableSchema instanceof TableSchema) {
@@ -152,6 +151,7 @@ class Generator extends Component
                     }
                 }
                 $columns[$column->name] = TableColumnFactory::build([
+                    'schema' => $schema,
                     'name' => $column->name,
                     'type' => $column->type,
                     'size' => $column->size,
@@ -237,12 +237,12 @@ class Generator extends Component
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
                 'primaryKey' => $this->getTablePrimaryKey(),
-                'columns' => $this->getTableColumns($indexes),
                 'foreignKeys' => $this->getTableForeignKeys(),
                 'indexes' => $indexes,
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
             ]);
+            $this->_table->columns = $this->getTableColumns($indexes, $this->_table->schema);
         }
         return $this->_table;
     }

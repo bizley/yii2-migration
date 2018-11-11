@@ -3,6 +3,7 @@
 namespace yii\db;
 
 use bizley\migration\table\TableChange;
+use bizley\migration\table\TableStructure;
 use yii\base\Component;
 use yii\di\Instance;
 
@@ -203,7 +204,12 @@ class Migration extends Component implements MigrationInterface
             $this->changes[$table] = [];
         }
 
-        $this->changes[$table][] = new TableChange(['table' => $table, 'method' => $method, 'data' => $data]);
+        $this->changes[$table][] = new TableChange([
+            'schema' => TableStructure::identifySchema(\get_class($this->db->schema)),
+            'table' => $table,
+            'method' => $method,
+            'data' => $data,
+        ]);
     }
 
     /**

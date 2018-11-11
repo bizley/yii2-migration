@@ -24,6 +24,11 @@ class TableChange extends BaseObject
      * @var array|string
      */
     public $data;
+    /**
+     * @var string
+     * @since 3.1
+     */
+    public $schema;
 
     /**
      * Returns change value.
@@ -37,6 +42,7 @@ class TableChange extends BaseObject
                 $columns = [];
                 foreach ((array)$this->data as $column => $schema) {
                     $columns[] = TableColumnFactory::build([
+                        'schema' => $this->schema,
                         'name' => $column,
                         'type' => $schema['type'],
                         'length' => $schema['length'] ?? null,
@@ -59,6 +65,7 @@ class TableChange extends BaseObject
             case 'addColumn':
             case 'alterColumn':
                 return TableColumnFactory::build([
+                    'schema' => $this->schema,
                     'name' => $this->data[0],
                     'type' => $this->data[1]['type'],
                     'length' => $this->data[1]['length'] ?? null,
