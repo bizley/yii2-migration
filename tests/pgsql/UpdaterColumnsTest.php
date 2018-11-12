@@ -12,7 +12,7 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
     public static $schema = 'pgsql';
 
     /**
-     * #runInSeparateProcess
+     * @runInSeparateProcess
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
@@ -21,12 +21,11 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(9))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_char', $this->char(2))->execute();
 
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayHasKey('col_int', $updater->plan->alterColumn);
-        $this->assertEquals(null, $updater->plan->alterColumn['col_int']->size);
-        $this->assertEquals(32, $updater->plan->alterColumn['col_int']->precision);
+        $this->assertArrayHasKey('col_char', $updater->plan->alterColumn);
+        $this->assertEquals(2, $updater->plan->alterColumn['col_char']->length);
     }
 }

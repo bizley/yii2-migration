@@ -27,7 +27,6 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('col_int', $updater->plan->alterColumn);
-        $this->assertEquals(9, $updater->plan->alterColumn['col_int']->size);
-        $this->assertEquals(9, $updater->plan->alterColumn['col_int']->precision);
+        $this->assertEquals(9, $updater->plan->alterColumn['col_int']->length);
     }
 }

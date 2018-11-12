@@ -9,12 +9,24 @@ namespace bizley\migration\table;
 class TableColumnDecimal extends TableColumn
 {
     /**
+     * @var array Schemas using length for this column
+     * @since 3.1
+     */
+    public $lengthSchemas = [
+        TableStructure::SCHEMA_MYSQL,
+        TableStructure::SCHEMA_CUBRID,
+        TableStructure::SCHEMA_PGSQL,
+        TableStructure::SCHEMA_SQLITE,
+        TableStructure::SCHEMA_MSSQL,
+    ];
+
+    /**
      * Returns length of the column.
      * @return int|string
      */
     public function getLength()
     {
-        return $this->precision . ($this->scale ? ', ' . $this->scale : null);
+        return \in_array($this->schema, $this->lengthSchemas, true) ? ($this->precision . ($this->scale ? ', ' . $this->scale : null)) : null;
     }
 
     /**
@@ -23,17 +35,7 @@ class TableColumnDecimal extends TableColumn
      */
     public function setLength($value): void
     {
-        if (\in_array(
-            $this->schema,
-            [
-                TableStructure::SCHEMA_MYSQL,
-                TableStructure::SCHEMA_CUBRID,
-                TableStructure::SCHEMA_PGSQL,
-                TableStructure::SCHEMA_SQLITE,
-                TableStructure::SCHEMA_MSSQL,
-            ],
-            true
-        )) {
+        if (\in_array($this->schema, $this->lengthSchemas, true)) {
             if (\is_array($value)) {
                 $length = $value;
             } else {

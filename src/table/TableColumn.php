@@ -82,12 +82,21 @@ class TableColumn extends BaseObject
     public function setLength($value): void {}
 
     /**
+     * Returns length of the column.
+     * @return int|string|null
+     */
+    public function getLength()
+    {
+        return null;
+    }
+
+    /**
      * List of all properties to be checked.
      * @return array
      */
     public static function properties(): array
     {
-        return ['type', 'isNotNull', 'size', 'precision', 'scale', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
+        return ['type', 'isNotNull', 'length', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
     }
 
     protected function buildSpecificDefinition(TableStructure $table): void {}

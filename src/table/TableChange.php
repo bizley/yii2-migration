@@ -50,10 +50,10 @@ class TableChange extends BaseObject
                         'isUnique' => $schema['isUnique'] ?? null,
                         'isPrimaryKey' => $schema['isPrimaryKey'] ?? null,
                         'check' => $schema['check'] ?? null,
-                        'default' => $schema['default'] ?? null,
+                        'default' => !empty($schema['default']) ? $schema['default'] : null,
                         'append' => $schema['append'] ?? null,
                         'isUnsigned' => $schema['isUnsigned'] ?? null,
-                        'comment' => $schema['comment'] ?? null,
+                        'comment' => !empty($schema['comment']) ? $schema['comment'] : null,
                     ]);
                 }
                 return $columns;
@@ -73,10 +73,10 @@ class TableChange extends BaseObject
                     'isUnique' => $this->data[1]['isUnique'] ?? null,
                     'isPrimaryKey' => $this->data[1]['isPrimaryKey'] ?? null,
                     'check' => $this->data[1]['check'] ?? null,
-                    'default' => $this->data[1]['default'] ?? null,
+                    'default' => !empty($this->data[1]['default']) ? $this->data[1]['default'] : null,
                     'append' => $this->data[1]['append'] ?? null,
                     'isUnsigned' => $this->data[1]['isUnsigned'] ?? null,
-                    'comment' => $this->data[1]['comment'] ?? null,
+                    'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
                 ]);
             case 'addPrimaryKey':
                 return new TablePrimaryKey([

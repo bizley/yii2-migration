@@ -160,11 +160,11 @@ class Generator extends Component
                     'isNotNull' => $column->allowNull ? null : true,
                     'isUnique' => $isUnique,
                     'check' => null,
-                    'default' => $column->defaultValue,
+                    'default' => $column->defaultValue ?: null,
                     'isPrimaryKey' => $column->isPrimaryKey,
                     'autoIncrement' => $column->autoIncrement,
                     'isUnsigned' => $column->unsigned,
-                    'comment' => $column->comment,
+                    'comment' => $column->comment ?: null,
                 ]);
             }
         }

@@ -9,12 +9,18 @@ namespace bizley\migration\table;
 class TableColumnBinary extends TableColumn
 {
     /**
+     * @var array Schemas using length for this column
+     * @since 3.1
+     */
+    public $lengthSchemas = [TableStructure::SCHEMA_MSSQL];
+
+    /**
      * Returns length of the column.
      * @return int|string
      */
     public function getLength()
     {
-        return $this->size;
+        return \in_array($this->schema, $this->lengthSchemas, true) ? $this->size : null;
     }
 
     /**
@@ -23,7 +29,7 @@ class TableColumnBinary extends TableColumn
      */
     public function setLength($value): void
     {
-        if ($this->schema === TableStructure::SCHEMA_MSSQL) {
+        if (\in_array($this->schema, $this->lengthSchemas, true)) {
             $this->size = $value;
             $this->precision = $value;
         }
