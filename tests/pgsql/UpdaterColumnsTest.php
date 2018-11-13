@@ -28,4 +28,6 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
         $this->assertArrayHasKey('col_char', $updater->plan->alterColumn);
         $this->assertEquals(2, $updater->plan->alterColumn['col_char']->length);
     }
+
+
 }

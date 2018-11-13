@@ -23,30 +23,11 @@ class UpdaterTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_pk_composite');
 
-        Yii::$app->db->createCommand()->dropPrimaryKey(null, 'test_pk_composite')->execute();
+        Yii::$app->db->createCommand()->dropPrimaryKey('PRIMARYKEY', 'test_pk_composite')->execute();
 
         $updater = $this->getUpdater('test_pk_composite');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertNotEmpty($updater->plan->dropPrimaryKey);
-    }
-
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     */
-    public function testAddPrimaryKey(): void
-    {
-        $this->dbUp('test_index_single');
-
-        Yii::$app->db->createCommand()->addPrimaryKey(null, 'test_index_single', 'col')->execute();
-
-        $updater = $this->getUpdater('test_index_single');
-        $this->assertTrue($updater->isUpdateRequired());
-        $this->assertNotEmpty($updater->plan->addPrimaryKey);
-        $this->assertEmpty($updater->plan->addPrimaryKey->name);
-        $this->assertEquals(['col'], $updater->plan->addPrimaryKey->columns);
     }
 
     /**

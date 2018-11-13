@@ -23,13 +23,6 @@ class GeneratorAddonsTestCase extends DbTestCase
         $this->assertEquals(true, $table->columns['col_unique']->isUnique);
     }
 
-    public function testColumnUnsigned(): void
-    {
-        $table = $this->getGenerator()->table;
-        $this->assertArrayHasKey('col_unsigned', $table->columns);
-        $this->assertEquals(true, $table->columns['col_unsigned']->isUnsigned);
-    }
-
     public function testColumnNotNull(): void
     {
         $table = $this->getGenerator()->table;

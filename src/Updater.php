@@ -321,6 +321,10 @@ class Updater extends Generator
 
             if (!$this->generalSchema) {
                 foreach (TableColumn::properties() as $property) {
+                    if ($property === 'append' && $column->append === null && !$this->table->primaryKey->isComposite() && $column->isColumnInPK($this->table->primaryKey)) {
+                        $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
+                    }
+
                     if ($this->oldTable->columns[$name]->$property !== $column->$property) {
                         if ($this->showOnly) {
                             echo "   - different '$name' column property: $property (";

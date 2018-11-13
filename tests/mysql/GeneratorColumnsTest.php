@@ -30,9 +30,7 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
         $this->assertInstanceOf(TableColumnBigInt::class, $table->columns['col_big_int']);
         $this->assertEquals('col_big_int', $table->columns['col_big_int']->name);
         $this->assertEquals(Schema::TYPE_BIGINT, $table->columns['col_big_int']->type);
-        $this->assertEquals(20, $table->columns['col_big_int']->size);
-        $this->assertEquals(20, $table->columns['col_big_int']->precision);
-        $this->assertEquals(null, $table->columns['col_big_int']->scale);
+        $this->assertEquals(20, $table->columns['col_big_int']->length);
     }
 
     public function testColumnInt(): void
@@ -42,9 +40,7 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
         $this->assertInstanceOf(TableColumnInt::class, $table->columns['col_int']);
         $this->assertEquals('col_int', $table->columns['col_int']->name);
         $this->assertEquals(Schema::TYPE_INTEGER, $table->columns['col_int']->type);
-        $this->assertEquals(11, $table->columns['col_int']->size);
-        $this->assertEquals(11, $table->columns['col_int']->precision);
-        $this->assertEquals(null, $table->columns['col_int']->scale);
+        $this->assertEquals(11, $table->columns['col_int']->length);
     }
 
     public function testColumnSmallInt(): void
@@ -54,9 +50,7 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
         $this->assertInstanceOf(TableColumnSmallInt::class, $table->columns['col_small_int']);
         $this->assertEquals('col_small_int', $table->columns['col_small_int']->name);
         $this->assertEquals(Schema::TYPE_SMALLINT, $table->columns['col_small_int']->type);
-        $this->assertEquals(6, $table->columns['col_small_int']->size);
-        $this->assertEquals(6, $table->columns['col_small_int']->precision);
-        $this->assertEquals(null, $table->columns['col_small_int']->scale);
+        $this->assertEquals(6, $table->columns['col_small_int']->length);
     }
 
     public function testColumnTinyInt(): void
@@ -70,9 +64,7 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
         $this->assertInstanceOf(TableColumnTinyInt::class, $table->columns['col_tiny_int']);
         $this->assertEquals('col_tiny_int', $table->columns['col_tiny_int']->name);
         $this->assertEquals(Schema::TYPE_TINYINT, $table->columns['col_tiny_int']->type);
-        $this->assertEquals(3, $table->columns['col_tiny_int']->size);
-        $this->assertEquals(3, $table->columns['col_tiny_int']->precision);
-        $this->assertEquals(null, $table->columns['col_tiny_int']->scale);
+        $this->assertEquals(3, $table->columns['col_tiny_int']->length);
     }
 
     public function testColumnBool(): void

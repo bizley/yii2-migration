@@ -89,9 +89,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
         $updater = $this->getUpdater('test_columns', false);
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('col_decimal', $updater->plan->alterColumn);
-        $this->assertEquals(11, $updater->plan->alterColumn['col_decimal']->size);
-        $this->assertEquals(11, $updater->plan->alterColumn['col_decimal']->precision);
-        $this->assertEquals(7, $updater->plan->alterColumn['col_decimal']->scale);
+        $this->assertEquals('11, 7', $updater->plan->alterColumn['col_decimal']->length);
     }
 
     /**

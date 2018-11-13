@@ -91,6 +91,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 
         if (static::$db) {
             static::$db->close();
+            static::$db = null;
         }
 
         Yii::$app = null;
