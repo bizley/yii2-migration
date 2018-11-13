@@ -24,4 +24,11 @@ class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
         $this->assertArrayHasKey('col_default_expression', $table->columns);
         $this->assertEquals(new Expression('CURRENT_TIMESTAMP'), $table->columns['col_default_expression']->default);
     }
+
+    public function testColumnComment(): void
+    {
+        $table = $this->getGenerator()->table;
+        $this->assertArrayHasKey('col_comment', $table->columns);
+        $this->assertEquals('comment', $table->columns['col_comment']->comment);
+    }
 }

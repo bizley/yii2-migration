@@ -1,27 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace bizley\tests\pgsql;
+namespace bizley\tests\sqlite;
 
 use bizley\migration\Generator;
 use bizley\migration\table\TableColumnBigInt;
 use bizley\migration\table\TableColumnBoolean;
 use bizley\migration\table\TableColumnChar;
+use bizley\migration\table\TableColumnDateTime;
 use bizley\migration\table\TableColumnDecimal;
 use bizley\migration\table\TableColumnDouble;
+use bizley\migration\table\TableColumnFloat;
 use bizley\migration\table\TableColumnInt;
-use bizley\migration\table\TableColumnJson;
 use bizley\migration\table\TableColumnSmallInt;
 use bizley\migration\table\TableColumnString;
-use bizley\migration\table\TableColumnTimestamp;
+use bizley\migration\table\TableColumnTinyInt;
 use Yii;
-use yii\db\pgsql\Schema;
+use yii\db\mysql\Schema;
 
 /**
- * @group pgsql
+ * @group sqlite
  */
 class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
 {
-    public static $schema = 'pgsql';
+    public static $schema = 'sqlite';
 
     public function testColumnBigInt(): void
     {
@@ -61,9 +62,9 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
         ]))->table;
 
         $this->assertArrayHasKey('col_tiny_int', $table->columns);
-        $this->assertInstanceOf(TableColumnSmallInt::class, $table->columns['col_tiny_int']);
+        $this->assertInstanceOf(TableColumnTinyInt::class, $table->columns['col_tiny_int']);
         $this->assertEquals('col_tiny_int', $table->columns['col_tiny_int']->name);
-        $this->assertEquals(Schema::TYPE_SMALLINT, $table->columns['col_tiny_int']->type);
+        $this->assertEquals(Schema::TYPE_TINYINT, $table->columns['col_tiny_int']->type);
         $this->assertEquals(null, $table->columns['col_tiny_int']->length);
     }
 
@@ -91,10 +92,10 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
     {
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_date_time', $table->columns);
-        $this->assertInstanceOf(TableColumnTimestamp::class, $table->columns['col_date_time']);
+        $this->assertInstanceOf(TableColumnDateTime::class, $table->columns['col_date_time']);
         $this->assertEquals('col_date_time', $table->columns['col_date_time']->name);
-        $this->assertEquals(Schema::TYPE_TIMESTAMP, $table->columns['col_date_time']->type);
-        $this->assertEquals(0, $table->columns['col_date_time']->length);
+        $this->assertEquals(Schema::TYPE_DATETIME, $table->columns['col_date_time']->type);
+        $this->assertEquals(null, $table->columns['col_date_time']->length);
     }
 
     public function testColumnDecimal(): void
@@ -121,9 +122,9 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
     {
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_float', $table->columns);
-        $this->assertInstanceOf(TableColumnDouble::class, $table->columns['col_float']);
+        $this->assertInstanceOf(TableColumnFloat::class, $table->columns['col_float']);
         $this->assertEquals('col_float', $table->columns['col_float']->name);
-        $this->assertEquals(Schema::TYPE_DOUBLE, $table->columns['col_float']->type);
+        $this->assertEquals(Schema::TYPE_FLOAT, $table->columns['col_float']->type);
         $this->assertEquals(null, $table->columns['col_float']->length);
     }
 
@@ -154,9 +155,9 @@ class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
             'tableName' => 'test_json',
         ]))->table;
         $this->assertArrayHasKey('col_json', $table->columns);
-        $this->assertInstanceOf(TableColumnJson::class, $table->columns['col_json']);
+        $this->assertInstanceOf(TableColumnString::class, $table->columns['col_json']);
         $this->assertEquals('col_json', $table->columns['col_json']->name);
-        $this->assertEquals(Schema::TYPE_JSON, $table->columns['col_json']->type);
+        $this->assertEquals(Schema::TYPE_STRING, $table->columns['col_json']->type);
         $this->assertEquals(null, $table->columns['col_json']->length);
     }
 }

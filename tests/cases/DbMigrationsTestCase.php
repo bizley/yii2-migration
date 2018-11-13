@@ -15,7 +15,6 @@ use bizley\tests\migrations\m180701_160300_create_table_test_int_size;
 use bizley\tests\migrations\m180701_160900_create_table_test_char_pk;
 use Yii;
 use yii\console\controllers\MigrateController;
-use yii\db\Migration;
 use yii\db\SchemaBuilderTrait;
 
 abstract class DbMigrationsTestCase extends DbTestCase
@@ -78,14 +77,10 @@ abstract class DbMigrationsTestCase extends DbTestCase
 
         if (!\in_array('migration', Yii::$app->db->schema->tableNames, true)) {
 
-            $migration = new Migration(['db' => static::getConnection()]);
-
             Yii::$app->db->createCommand()->createTable('migration', [
-                'version' => $migration->string(180)->notNull(),
-                'apply_time' => $migration->integer(),
+                'version' => 'varchar(180) NOT NULL PRIMARY KEY',
+                'apply_time' => 'integer',
             ])->execute();
-
-            Yii::$app->db->createCommand()->addPrimaryKey('PKmigration', 'migration', 'version')->execute();
 
             static::addMigration(MigrateController::BASE_MIGRATION);
         }
@@ -154,7 +149,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_pk_composite' => function () {
-                if (!\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_pk_composite',
                         [
@@ -173,7 +168,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_fk' => function () {
-                if (!\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_fk',
                         ['pk_id' => $this->integer()],
@@ -234,7 +229,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_char_pk' => function () {
-                if (!\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_char_pk',
                         ['id' => $this->char(128)->notNull()],
@@ -261,7 +256,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
         // needs reverse order
         $data = [
             'test_char_pk' => function () {
-                if (\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
 
                     static::deleteMigration(m180701_160900_create_table_test_char_pk::class);
@@ -284,14 +279,14 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_fk' => function () {
-                if (\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
 
                     static::deleteMigration(m180324_105400_create_table_test_fk::class);
                 }
             },
             'test_pk_composite' => function () {
-                if (\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
 
                     static::deleteMigration(m180322_213900_create_table_test_pk_composite::class);

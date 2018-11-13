@@ -30,4 +30,14 @@ class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
         $this->assertEquals('PRIMARYKEY', $table->primaryKey->name);
         $this->assertTrue($table->primaryKey->isComposite());
     }
+
+    public function testForeignKey(): void
+    {
+        $table = $this->getGenerator('test_fk')->table;
+        $this->assertArrayHasKey('fk-test_fk-pk_id', $table->foreignKeys);
+        $this->assertEquals(['pk_id'], $table->foreignKeys['fk-test_fk-pk_id']->columns);
+        $this->assertEquals('test_pk', $table->foreignKeys['fk-test_fk-pk_id']->refTable);
+        $this->assertEquals(['id'], $table->foreignKeys['fk-test_fk-pk_id']->refColumns);
+        $this->assertEquals('fk-test_fk-pk_id', $table->foreignKeys['fk-test_fk-pk_id']->name);
+    }
 }

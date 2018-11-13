@@ -39,6 +39,24 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains('Table \'non-existing-table\' does not exist!', $output);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testUpdateNoNeeded(): void
+    {
+        $this->dbUp('test_index_single');
+
+        $controller = new MockMigrationController('migration', \Yii::$app);
+
+        $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_index_single']));
+
+        $output = $controller->flushStdOutBuffer();
+
+        $this->assertContains('> Generating update migration for table \'test_index_single\' ...UPDATE NOT REQUIRED.', $output);
+        $this->assertContains('No files generated.', $output);
+    }
+
     public function testCreateFileFail(): void
     {
         $this->dbUp('test_pk');
@@ -104,23 +122,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains('Generated 1 file(s).', $output);
     }
 
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
-    public function testUpdateNoNeeded(): void
-    {
-        $this->dbUp('test_pk');
 
-        $controller = new MockMigrationController('migration', Yii::$app);
-
-        $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_pk']));
-
-        $output = $controller->flushStdOutBuffer();
-
-        $this->assertContains('> Generating update migration for table \'test_pk\' ...UPDATE NOT REQUIRED.', $output);
-        $this->assertContains('No files generated.', $output);
-    }
 
     /**
      * @runInSeparateProcess

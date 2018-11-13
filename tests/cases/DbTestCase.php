@@ -119,7 +119,10 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 
             $db = new Connection();
             $db->dsn = $database['dsn'];
-            $db->charset = $database['charset'];
+
+            if (isset($database['charset'])) {
+                $db->charset = $database['charset'];
+            }
 
             if (isset($database['username'])) {
                 $db->username = $database['username'];

@@ -17,6 +17,9 @@ $config = [
         'password' => 'postgres',
         'charset' => 'utf8',
     ],
+    'sqlite' => [
+        'dsn' => 'sqlite::memory:',
+    ],
 ];
 if (is_file(__DIR__ . '/config.local.php')) {
     include __DIR__ . '/config.local.php';

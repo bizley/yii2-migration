@@ -29,13 +29,6 @@ class GeneratorAddonsTestCase extends DbTestCase
         $this->assertEquals(true, $table->columns['col_not_null']->isNotNull);
     }
 
-    public function testColumnComment(): void
-    {
-        $table = $this->getGenerator()->table;
-        $this->assertArrayHasKey('col_comment', $table->columns);
-        $this->assertEquals('comment', $table->columns['col_comment']->comment);
-    }
-
     public function testColumnDefaultValue(): void
     {
         $table = $this->getGenerator()->table;
