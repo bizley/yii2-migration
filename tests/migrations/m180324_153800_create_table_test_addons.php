@@ -19,7 +19,7 @@ class m180324_153800_create_table_test_addons extends Migration
             'col_not_null' => $this->integer()->notNull(),
             'col_comment' => $this->string()->comment('comment'),
             'col_default_value' => $this->integer()->defaultValue(1),
-            'col_default_expression' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
+            'col_default_expression' => $this->timestamp()->defaultExpression('now()'),
         ], $tableOptions);
     }
 

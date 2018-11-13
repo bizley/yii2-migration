@@ -4,7 +4,6 @@ namespace bizley\tests\cases;
 
 use bizley\migration\Generator;
 use Yii;
-use yii\db\Expression;
 
 class GeneratorAddonsTestCase extends DbTestCase
 {
@@ -42,12 +41,5 @@ class GeneratorAddonsTestCase extends DbTestCase
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_default_value', $table->columns);
         $this->assertEquals(1, $table->columns['col_default_value']->default);
-    }
-
-    public function testColumnDefaultExpression(): void
-    {
-        $table = $this->getGenerator()->table;
-        $this->assertArrayHasKey('col_default_expression', $table->columns);
-        $this->assertEquals(new Expression('CURRENT_TIMESTAMP'), $table->columns['col_default_expression']->default);
     }
 }

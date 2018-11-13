@@ -2,6 +2,8 @@
 
 namespace bizley\tests\mysql;
 
+use yii\db\Expression;
+
 /**
  * @group mysql
  */
@@ -14,5 +16,12 @@ class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_unsigned', $table->columns);
         $this->assertEquals(true, $table->columns['col_unsigned']->isUnsigned);
+    }
+
+    public function testColumnDefaultExpression(): void
+    {
+        $table = $this->getGenerator()->table;
+        $this->assertArrayHasKey('col_default_expression', $table->columns);
+        $this->assertEquals(new Expression('CURRENT_TIMESTAMP'), $table->columns['col_default_expression']->default);
     }
 }
