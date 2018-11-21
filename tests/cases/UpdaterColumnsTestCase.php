@@ -19,6 +19,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\base\ErrorException
      * @throws \yii\db\Exception
+     * @throws \yii\base\NotSupportedException
      */
     public function testChangeSizeGeneral(): void
     {
@@ -35,6 +36,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @runInSeparateProcess
      * https://github.com/bizley/yii2-migration/issues/30
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testNoChangeSizeSpecific(): void
     {
@@ -49,6 +51,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testNoChangePKSpecific(): void
     {
@@ -63,6 +66,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testChangeScaleGeneral(): void
     {
@@ -79,6 +83,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testChangeScaleSpecific(): void
     {
@@ -97,6 +102,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testChangeColumnType(): void
     {
@@ -115,6 +121,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testDropColumn(): void
     {
@@ -132,6 +139,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testAddColumn(): void
     {

@@ -9,22 +9,20 @@ class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
 {
     public static $schema = 'sqlite';
 
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     */
-    public function testAddPrimaryKey(): void
+    public function testDropPrimaryKey(): void
     {
-        $this->dbUp('test_index_single');
-
-        \Yii::$app->db->createCommand()->addPrimaryKey('PRIMARYKEY', 'test_index_single', 'col')->execute();
-
-        $updater = $this->getUpdater('test_index_single');
-        $this->assertTrue($updater->isUpdateRequired());
-        $this->assertNotEmpty($updater->plan->addPrimaryKey);
-        $this->assertEmpty($updater->plan->addPrimaryKey->name);
-        $this->assertEquals(['col'], $updater->plan->addPrimaryKey->columns);
+        $this->markTestSkipped('SQLite does not support DROP PRIMARY KEY');
     }
+
+    public function testDropForeignKey(): void
+    {
+        $this->markTestSkipped('SQLite does not support DROP FOREIGN KEY');
+    }
+
+    public function testAddForeignKey(): void
+    {
+        $this->markTestSkipped('SQLite does not support ADD FOREIGN KEY');
+    }
+
+
 }

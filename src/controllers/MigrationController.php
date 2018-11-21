@@ -7,6 +7,7 @@ use bizley\migration\Updater;
 use Yii;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\console\Controller;
 use yii\console\controllers\MigrateController;
 use yii\console\ExitCode;
@@ -461,8 +462,14 @@ class MigrationController extends Controller
                 return ExitCode::DATAERR;
             }
 
-            if (!$updater->isUpdateRequired()) {
-                $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+            try {
+                if (!$updater->isUpdateRequired()) {
+                    $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+                    continue;
+                }
+            } catch (NotSupportedException $exception) {
+                $this->stdout("WARNING!\n > Updating table '{$name}' requires manual migration!\n", Console::FG_RED);
+                $this->stdout(' > ' . $exception->getMessage() . "\n\n", Console::FG_RED);
                 continue;
             }
 

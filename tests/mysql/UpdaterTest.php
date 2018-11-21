@@ -15,6 +15,7 @@ class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testAddPrimaryKey(): void
     {

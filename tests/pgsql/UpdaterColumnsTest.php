@@ -16,6 +16,7 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testChangeSizeSpecific(): void
     {
@@ -28,6 +29,4 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
         $this->assertArrayHasKey('col_char', $updater->plan->alterColumn);
         $this->assertEquals(2, $updater->plan->alterColumn['col_char']->length);
     }
-
-
 }

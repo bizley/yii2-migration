@@ -18,6 +18,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testDropPrimaryKey(): void
     {
@@ -35,6 +36,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testDropForeignKey(): void
     {
@@ -53,6 +55,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testAddForeignKey(): void
     {
@@ -71,6 +74,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testDropIndex(): void
     {
@@ -88,6 +92,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testAddIndex(): void
     {
@@ -105,6 +110,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testMultipleMigrations(): void
     {
@@ -123,6 +129,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @throws \yii\db\Exception
      * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
      */
     public function testMultipleMigrationsWithSkip(): void
     {

@@ -15,6 +15,10 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         parent::tearDown();
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
     public function testCreateNonExisting(): void
     {
         $controller = new MockMigrationController('migration', Yii::$app);
@@ -27,6 +31,10 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains('Table \'non-existing-table\' does not exist!', $output);
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
+     */
     public function testUpdateNonExisting(): void
     {
         $controller = new MockMigrationController('migration', Yii::$app);
@@ -42,6 +50,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\base\InvalidRouteException
+     * @throws \yii\console\Exception
      */
     public function testUpdateNoNeeded(): void
     {
@@ -80,6 +90,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     * @throws \yii\db\Exception
      */
     public function testUpdateFileFail(): void
     {
@@ -121,8 +132,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains('> Generating create migration for table \'test_pk\' ...DONE!', $output);
         $this->assertContains('Generated 1 file(s).', $output);
     }
-
-
 
     /**
      * @runInSeparateProcess

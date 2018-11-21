@@ -11,6 +11,7 @@ use Yii;
 use yii\base\ErrorException;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -293,6 +294,7 @@ class Updater extends Generator
     /**
      * Compares migration structure and database structure and gather required modifications.
      * @return bool whether modification is required or not
+     * @throws NotSupportedException
      */
     protected function compareStructures(): bool
     {
@@ -330,7 +332,15 @@ class Updater extends Generator
                             echo "   - different '$name' column property: $property (";
                             echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
                             echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
+
+                            if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                                echo "   (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually\n";
+                            }
                         } elseif (!isset($this->plan->alterColumn[$name])) {
+                            if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                                throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
+                            }
+
                             $this->plan->alterColumn[$name] = $column;
                         }
 
@@ -344,7 +354,15 @@ class Updater extends Generator
             if (!isset($this->table->columns[$name])) {
                 if ($this->showOnly) {
                     echo "   - excessive column '$name'\n";
+
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        echo "   (!) DROP COLUMN is not supported by SQLite: Migration must be created manually\n";
+                    }
                 } else {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('DROP COLUMN is not supported by SQLite.');
+                    }
+
                     $this->plan->dropColumn[] = $name;
                 }
 
@@ -356,7 +374,15 @@ class Updater extends Generator
             if (!isset($this->oldTable->foreignKeys[$name])) {
                 if ($this->showOnly) {
                     echo "   - missing foreign key '$name'\n";
+
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        echo "   (!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
+                    }
                 } else {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
 
@@ -375,7 +401,15 @@ class Updater extends Generator
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
                     echo 'MIG: (' . implode(', ', $oldTableFKColumns) . "))\n";
+
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        echo "   (!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
+                    }
                 } else {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
@@ -395,7 +429,15 @@ class Updater extends Generator
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
                     echo 'MIG: (' . implode(', ', $oldTableFKRefColumns) . "))\n";
+
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        echo "   (!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
+                    }
                 } else {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->dropForeignKey[] = $name;
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
@@ -408,7 +450,15 @@ class Updater extends Generator
             if (!isset($this->table->foreignKeys[$name])) {
                 if ($this->showOnly) {
                     echo "   - excessive foreign key '$name'\n";
+
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        echo "   (!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
+                    }
                 } else {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->dropForeignKey[] = $name;
                 }
 
@@ -427,12 +477,24 @@ class Updater extends Generator
         if (\count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
+
+                if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    echo "   (!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually\n";
+                }
             } else {
                 if (!empty($this->oldTable->primaryKey->columns)) {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
                 }
 
                 if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
+                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
+                    }
+
                     $this->plan->addPrimaryKey = $this->table->primaryKey;
                 }
             }
@@ -506,6 +568,7 @@ class Updater extends Generator
      * Checks if new updating migration is required.
      * @return bool
      * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function isUpdateRequired(): bool
     {
