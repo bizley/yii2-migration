@@ -125,6 +125,14 @@ class Generator extends Component
                 'columns' => $constraint->columnNames,
                 'name' => $constraint->name,
             ];
+        } elseif ($this->db->schema instanceof \yii\db\sqlite\Schema) {
+            // SQLite bug-case fixed in Yii 2.0.16 https://github.com/yiisoft/yii2/issues/16897
+
+            if ($this->tableSchema !== null && $this->tableSchema->primaryKey) {
+                $data = [
+                    'columns' => $this->tableSchema->primaryKey,
+                ];
+            }
         }
 
         return new TablePrimaryKey($data);
