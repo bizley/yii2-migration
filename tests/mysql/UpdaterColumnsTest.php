@@ -59,13 +59,13 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
             'append' => $updater->plan->alterColumn['col_timestamp']->append,
             'comment' => $updater->plan->alterColumn['col_timestamp']->comment
         ], [
-            'type' => $updater->table->columns['col_timestamp']->type,
-            'isNotNull' => $updater->table->columns['col_timestamp']->isNotNull,
-            'isUnique' => $updater->table->columns['col_timestamp']->isUnique,
-            'isUnsigned' => $updater->table->columns['col_timestamp']->isUnsigned,
-            'default' => $updater->table->columns['col_timestamp']->default,
-            'append' => $updater->table->columns['col_timestamp']->append,
-            'comment' => $updater->table->columns['col_timestamp']->comment
+            'type' => $updater->oldTable->columns['col_timestamp']->type,
+            'isNotNull' => $updater->oldTable->columns['col_timestamp']->isNotNull,
+            'isUnique' => $updater->oldTable->columns['col_timestamp']->isUnique,
+            'isUnsigned' => $updater->oldTable->columns['col_timestamp']->isUnsigned,
+            'default' => $updater->oldTable->columns['col_timestamp']->default,
+            'append' => $updater->oldTable->columns['col_timestamp']->append,
+            'comment' => $updater->oldTable->columns['col_timestamp']->comment
         ]);
     }
 }
