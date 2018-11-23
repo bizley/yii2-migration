@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^3.0"
+            "bizley/migration": "^3.1"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.0`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.1`
 
 ## Installation for PHP < 7.1
 
@@ -141,8 +141,6 @@ This extension should work with all database types supported in Yii 2 core:
 - PostgreSQL (9.x and above)
 - SQLite (2/3)
 
-Let me know if something is wrong with databases other than MySQL (and in case of MySQL let me know as well).
-
 Yii 2 limitations:
 - version 2.0.13 is required to track non-unique indexes,
 - version 2.0.14 is required to handle TINYINT and JSON type columns.
@@ -154,5 +152,5 @@ etc.) are not tracked.
 
 ## Tests
 
-Currently only MySQL tests are provided. Database configuration is stored in `tests/config.php` (you can override it by 
+Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can override it by 
 creating `config.local.php` file there).
