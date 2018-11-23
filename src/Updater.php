@@ -243,13 +243,13 @@ class Updater extends Generator
         if (\count($this->table->primaryKey->columns) === 1 && \count($newKeys) === 1) {
             /* @var $column TableColumn */
             foreach ($this->plan->addColumn as $name => $column) {
-                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK())) {
+                if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
                     return false;
                 }
             }
 
             foreach ($this->plan->alterColumn as $name => $column) {
-                if ($name === $newKeys[0] && ($column->isPrimaryKey || $column->isColumnAppendPK())) {
+                if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
                     return false;
                 }
             }
@@ -321,31 +321,37 @@ class Updater extends Generator
                 continue;
             }
 
-            if (!$this->generalSchema) {
-                foreach (TableColumn::properties() as $property) {
-                    if ($property === 'append' && $column->append === null && !$this->table->primaryKey->isComposite() && $column->isColumnInPK($this->table->primaryKey)) {
-                        $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
-                    }
+            foreach (['type', 'isNotNull', 'length', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'] as $property) {
+                if ($this->generalSchema && $property === 'length') {
+                    continue;
+                }
 
-                    if ($this->oldTable->columns[$name]->$property !== $column->$property) {
-                        if ($this->showOnly) {
-                            echo "   - different '$name' column property: $property (";
-                            echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
-                            echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
+                if (!$this->generalSchema
+                    && $property === 'append'
+                    && $column->append === null
+                    && !$this->table->primaryKey->isComposite()
+                    && $column->isColumnInPK($this->table->primaryKey)) {
+                    $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
+                }
 
-                            if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
-                                echo "   (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually\n";
-                            }
-                        } elseif (!isset($this->plan->alterColumn[$name])) {
-                            if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
-                                throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
-                            }
+                if ($this->oldTable->columns[$name]->$property !== $column->$property) {
+                    if ($this->showOnly) {
+                        echo "   - different '$name' column property: $property (";
+                        echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
+                        echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
 
-                            $this->plan->alterColumn[$name] = $column;
+                        if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                            echo "   (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually\n";
+                        }
+                    } elseif (!isset($this->plan->alterColumn[$name])) {
+                        if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                            throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
                         }
 
-                        $different = true;
+                        $this->plan->alterColumn[$name] = $column;
                     }
+
+                    $different = true;
                 }
             }
         }

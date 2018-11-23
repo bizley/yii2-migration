@@ -22,6 +22,8 @@ class m180324_153800_create_table_test_addons extends Migration
         if ($this->db->driverName !== 'sqlite') {
             $structure['col_comment'] = $this->string()->comment('comment');
             $structure['col_default_expression'] = $this->timestamp()->defaultExpression('now()');
+        } else {
+            $structure['col_default_expression'] = $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP');
         }
 
         $this->createTable('{{%test_addons}}', $structure, $tableOptions);

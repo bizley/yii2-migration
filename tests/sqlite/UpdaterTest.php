@@ -24,5 +24,8 @@ class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
         $this->markTestSkipped('SQLite does not support ADD FOREIGN KEY');
     }
 
-
+    public function testMultipleMigrations(): void
+    {
+        $this->markTestSkipped('SQLite does not support DROP COLUMN');
+    }
 }

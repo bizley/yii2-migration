@@ -147,7 +147,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
 
         Yii::$app->db->createCommand()->addColumn('test_columns', 'col_new', $this->integer())->execute();
 
-        $updater = $this->getUpdater('test_columns', false);
+        $updater = $this->getUpdater('test_columns');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('col_new', $updater->plan->addColumn);
         $this->assertEquals(Schema::TYPE_INTEGER, $updater->plan->addColumn['col_new']->type);

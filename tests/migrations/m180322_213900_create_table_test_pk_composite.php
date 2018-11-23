@@ -8,27 +8,28 @@ class m180322_213900_create_table_test_pk_composite extends Migration
 {
     public function up(): void
     {
-        if ($this->db->driverName === 'sqlite') {
-            return;
-        }
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->createTable('{{%test_pk_composite}}', [
+        $columns = [
             'one' => $this->integer(),
             'two' => $this->integer(),
-        ], $tableOptions);
+        ];
+        if ($this->db->driverName === 'sqlite') {
+            $columns[] = 'PRIMARY KEY(one, two)';
+        }
 
-        $this->addPrimaryKey('PRIMARYKEY', '{{%test_pk_composite}}', ['one', 'two']);
+        $this->createTable('{{%test_pk_composite}}', $columns, $tableOptions);
+
+        if ($this->db->driverName !== 'sqlite') {
+            $this->addPrimaryKey('PRIMARYKEY', '{{%test_pk_composite}}', ['one', 'two']);
+        }
     }
 
     public function down(): void
     {
-        if ($this->db->driverName === 'sqlite') {
-            return;
-        }
         $this->dropTable('{{%test_pk_composite}}');
     }
 }

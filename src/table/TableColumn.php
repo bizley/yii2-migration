@@ -90,15 +90,6 @@ class TableColumn extends BaseObject
         return null;
     }
 
-    /**
-     * List of all properties to be checked.
-     * @return array
-     */
-    public static function properties(): array
-    {
-        return ['type', 'isNotNull', 'length', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
-    }
-
     protected function buildSpecificDefinition(TableStructure $table): void {}
 
     protected $definition = [];

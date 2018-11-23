@@ -20,19 +20,34 @@ class MigrationControllerTest extends \bizley\tests\cases\MigrationControllerTes
      * @throws \yii\console\Exception
      * @throws \yii\db\Exception
      */
-    public function testUpdateFileFail(): void
+    public function testUpdateWarning(): void
     {
-        $this->dbUp('test_pk');
-        Yii::$app->db->createCommand()->addColumn('test_pk', 'col_new', $this->integer())->execute();
+        $this->dbUp('test_int_size');
+
+        /*
+         * In order to alter column in SQLite you must create new table like the old one but with altered column,
+         * copy the data from old one to new one, remove old one and rename new one to old one.
+         */
+        Yii::$app->db->createCommand()->createTable(
+            'test_replica',
+            [
+                'col_int' => $this->string(),
+            ]
+        )->execute();
+
+        Yii::$app->db->createCommand()->dropTable('test_int_size')->execute();
+
+        Yii::$app->db->createCommand()->renameTable('test_replica', 'test_int_size')->execute();
 
         $controller = new MockMigrationController('migration', \Yii::$app);
 
-        $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_pk']));
+        $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_int_size']));
 
         $output = $controller->flushStdOutBuffer();
 
-        $this->assertContains('> Generating update migration for table \'test_pk\' ...WARNING!', $output);
-        $this->assertContains('Updating table \'test_pk\' requires manual migration!', $output);
-        $this->assertContains('DROP PRIMARY KEY is not supported by SQLite.', $output);
+        $this->assertContains('> Generating update migration for table \'test_int_size\' ...WARNING!', $output);
+        $this->assertContains('> Updating table \'test_int_size\' requires manual migration!', $output);
+        $this->assertContains('> ALTER COLUMN is not supported by SQLite.', $output);
+        $this->assertContains('No files generated.', $output);
     }
 }

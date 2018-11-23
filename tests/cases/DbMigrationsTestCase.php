@@ -149,41 +149,53 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_pk_composite' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                    $columns = [
+                        'one' => $this->integer(),
+                        'two' => $this->integer(),
+                    ];
+                    if (Yii::$app->db->driverName === 'sqlite') {
+                        $columns[] = 'PRIMARY KEY(one, two)';
+                    }
                     Yii::$app->db->createCommand()->createTable(
                         'test_pk_composite',
-                        [
-                            'one' => $this->integer(),
-                            'two' => $this->integer(),
-                        ],
+                        $columns,
                         static::$tableOptions
                     )->execute();
-                    Yii::$app->db->createCommand()->addPrimaryKey(
-                        'PRIMARYKEY',
-                        'test_pk_composite',
-                        ['one', 'two']
-                    )->execute();
+                    if (Yii::$app->db->driverName !== 'sqlite') {
+                        Yii::$app->db->createCommand()->addPrimaryKey(
+                            'PRIMARYKEY',
+                            'test_pk_composite',
+                            ['one', 'two']
+                        )->execute();
+                    }
 
                     static::addMigration(m180322_213900_create_table_test_pk_composite::class);
                 }
             },
             'test_fk' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                    $columns = ['pk_id' => $this->integer()];
+                    if (Yii::$app->db->driverName === 'sqlite') {
+                        $columns[] = 'FOREIGN KEY(pk_id) REFERENCES test_pk(id)';
+                    }
+
                     Yii::$app->db->createCommand()->createTable(
                         'test_fk',
-                        ['pk_id' => $this->integer()],
+                        $columns,
                         static::$tableOptions
                     )->execute();
-
-                    Yii::$app->db->createCommand()->addForeignKey(
-                        'fk-test_fk-pk_id',
-                        'test_fk',
-                        'pk_id',
-                        'test_pk',
-                        'id',
-                        'CASCADE',
-                        'CASCADE'
-                    )->execute();
+                    if (Yii::$app->db->driverName !== 'sqlite') {
+                        Yii::$app->db->createCommand()->addForeignKey(
+                            'fk-test_fk-pk_id',
+                            'test_fk',
+                            'pk_id',
+                            'test_pk',
+                            'id',
+                            'CASCADE',
+                            'CASCADE'
+                        )->execute();
+                    }
 
                     static::addMigration(m180324_105400_create_table_test_fk::class);
                 }
@@ -229,16 +241,11 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_char_pk' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && !\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (!\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_char_pk',
-                        ['id' => $this->char(128)->notNull()],
+                        ['id' => $this->char(128)->notNull()->append('PRIMARY KEY')],
                         static::$tableOptions
-                    )->execute();
-                    Yii::$app->db->createCommand()->addPrimaryKey(
-                        'PKTestChar',
-                        'test_char_pk',
-                        'id'
                     )->execute();
 
                     static::addMigration(m180701_160900_create_table_test_char_pk::class);
@@ -256,7 +263,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
         // needs reverse order
         $data = [
             'test_char_pk' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
 
                     static::deleteMigration(m180701_160900_create_table_test_char_pk::class);
@@ -279,14 +286,14 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 }
             },
             'test_fk' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
 
                     static::deleteMigration(m180324_105400_create_table_test_fk::class);
                 }
             },
             'test_pk_composite' => function () {
-                if (Yii::$app->db->driverName !== 'sqlite' && \in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
+                if (\in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
 
                     static::deleteMigration(m180322_213900_create_table_test_pk_composite::class);

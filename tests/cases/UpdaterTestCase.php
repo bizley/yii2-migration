@@ -98,7 +98,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->createIndex('idx-test_columns-col_int', 'test_columns', 'col_int', true)->execute();
+        Yii::$app->db->createCommand()->createIndex('idx-test_columns-col_int', 'test_columns', 'col_int')->execute();
 
         $updater = $this->getUpdater('test_columns');
         $this->assertTrue($updater->isUpdateRequired());

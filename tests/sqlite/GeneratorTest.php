@@ -18,7 +18,7 @@ class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
     public function testPrimaryKeyNonComposite(): void
     {
         $table = $this->getGenerator('test_pk')->table;
-        $this->assertEquals([], $table->primaryKey->columns);
+        $this->assertEquals(['id'], $table->primaryKey->columns);
         $this->assertEquals(null, $table->primaryKey->name);
         $this->assertFalse($table->primaryKey->isComposite());
     }
@@ -26,8 +26,8 @@ class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
     public function testPrimaryKeyComposite(): void
     {
         $table = $this->getGenerator('test_pk_composite')->table;
-        $this->assertEquals([], $table->primaryKey->columns);
+        $this->assertEquals(['one', 'two'], $table->primaryKey->columns);
         $this->assertEquals(null, $table->primaryKey->name);
-        $this->assertFalse($table->primaryKey->isComposite());
+        $this->assertTrue($table->primaryKey->isComposite());
     }
 }
