@@ -47,15 +47,11 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
         $updater = $this->getUpdater('test_columns');
 
         $updater->isUpdateRequired();
+
 // Travis frakery
-        $this->assertEmpty($updater->plan->addColumn);
-        $this->assertEmpty($updater->plan->addForeignKey);
-        $this->assertEmpty($updater->plan->addPrimaryKey);
-        $this->assertEmpty($updater->plan->alterColumn);
-        $this->assertEmpty($updater->plan->createIndex);
-        $this->assertEmpty($updater->plan->dropColumn);
-        $this->assertEmpty($updater->plan->dropForeignKey);
-        $this->assertEmpty($updater->plan->dropIndex);
-        $this->assertEmpty($updater->plan->dropPrimaryKey);
+
+        $this->assertEquals([
+
+        ], array_keys($updater->plan->alterColumn));
     }
 }
