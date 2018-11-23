@@ -51,7 +51,21 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
 // Travis frakery
 
         $this->assertEquals([
-
-        ], array_keys($updater->plan->alterColumn));
+            'type' => $updater->plan->alterColumn['col_timestamp']->type,
+            'isNotNull' => $updater->plan->alterColumn['col_timestamp']->isNotNull,
+            'isUnique' => $updater->plan->alterColumn['col_timestamp']->isUnique,
+            'isUnsigned' => $updater->plan->alterColumn['col_timestamp']->isUnsigned,
+            'default' => $updater->plan->alterColumn['col_timestamp']->default,
+            'append' => $updater->plan->alterColumn['col_timestamp']->append,
+            'comment' => $updater->plan->alterColumn['col_timestamp']->comment
+        ], [
+            'type' => $updater->table->columns['col_timestamp']->type,
+            'isNotNull' => $updater->table->columns['col_timestamp']->isNotNull,
+            'isUnique' => $updater->table->columns['col_timestamp']->isUnique,
+            'isUnsigned' => $updater->table->columns['col_timestamp']->isUnsigned,
+            'default' => $updater->table->columns['col_timestamp']->default,
+            'append' => $updater->table->columns['col_timestamp']->append,
+            'comment' => $updater->table->columns['col_timestamp']->comment
+        ]);
     }
 }
