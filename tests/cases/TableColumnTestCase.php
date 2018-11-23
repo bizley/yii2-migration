@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace bizley\tests\table;
+namespace bizley\tests\cases;
 
 use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;

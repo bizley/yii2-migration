@@ -69,33 +69,25 @@ class TableColumn extends BaseObject
      * @var string
      */
     public $comment;
-
     /**
-     * List of all properties to be checked.
-     * @return array
+     * @var string
+     * @since 3.1
      */
-    public static function properties(): array
-    {
-        return ['type', 'isNotNull', 'size', 'precision', 'scale', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'];
-    }
-
-    /**
-     * Returns length of the column.
-     * @return int|string
-     */
-    public function getLength()
-    {
-        return $this->size;
-    }
+    public $schema;
 
     /**
      * Sets length of the column.
      * @param string|int $value
      */
-    public function setLength($value): void
+    public function setLength($value): void {}
+
+    /**
+     * Returns length of the column.
+     * @return int|string|null
+     */
+    public function getLength()
     {
-        $this->size = $value;
-        $this->precision = $value;
+        return null;
     }
 
     protected function buildSpecificDefinition(TableStructure $table): void {}
@@ -127,7 +119,7 @@ class TableColumn extends BaseObject
             }
         }
         if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
-            $append = $this->prepareSchemaAppend($table, true, $this->autoIncrement);
+            $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
             if (!empty($this->append)) {
                 $append .= ' ' . $this->append;
             }
@@ -175,15 +167,14 @@ class TableColumn extends BaseObject
 
     /**
      * Checks if information of primary key is set in append property.
-     * @param string $schema
      * @return bool
      */
-    public function isColumnAppendPK(string $schema): bool
+    public function isColumnAppendPK(): bool
     {
         if (empty($this->append)) {
             return false;
         }
-        if ($schema === TableStructure::SCHEMA_MSSQL) {
+        if ($this->schema === TableStructure::SCHEMA_MSSQL) {
             if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
                 return true;
             }
@@ -195,14 +186,13 @@ class TableColumn extends BaseObject
 
     /**
      * Prepares append SQL based on schema.
-     * @param TableStructure $table
      * @param bool $primaryKey
      * @param bool $autoIncrement
      * @return string|null
      */
-    public function prepareSchemaAppend(TableStructure $table, bool $primaryKey, bool $autoIncrement): ?string
+    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement): ?string
     {
-        switch ($table->schema) {
+        switch ($this->schema) {
             case TableStructure::SCHEMA_MSSQL:
                 $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
                 break;
@@ -233,18 +223,17 @@ class TableColumn extends BaseObject
 
     /**
      * Removes information of primary key in append property.
-     * @param string $schema
      * @return null|string
      */
-    public function removePKAppend(string $schema): ?string
+    public function removePKAppend(): ?string
     {
-        if (!$this->isColumnAppendPK($schema)) {
+        if (!$this->isColumnAppendPK()) {
             return null;
         }
 
         $uppercaseAppend = preg_replace('/\s+/', ' ', mb_strtoupper($this->append, 'UTF-8'));
 
-        switch ($schema) {
+        switch ($this->schema) {
             case TableStructure::SCHEMA_MSSQL:
                 $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
                 break;

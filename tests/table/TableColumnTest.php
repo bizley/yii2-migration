@@ -3,6 +3,8 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumn;
+use bizley\migration\table\TableStructure;
+use bizley\tests\cases\TableColumnTestCase;
 use yii\db\Expression;
 
 class TableColumnTest extends TableColumnTestCase
@@ -51,19 +53,19 @@ class TableColumnTest extends TableColumnTestCase
 
     public function testDefinitionPKAppendMSSQL(): void
     {
-        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true]);
-        $this->assertEquals('$this->append(\'IDENTITY PRIMARY KEY\')', $column->renderDefinition($this->getTable(true, false, 'yii\db\mssql\Schema')));
+        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true, 'schema' => TableStructure::SCHEMA_MSSQL]);
+        $this->assertEquals('$this->append(\'IDENTITY PRIMARY KEY\')', $column->renderDefinition($this->getTable()));
     }
 
     public function testDefinitionPKAppendPGSQL(): void
     {
-        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true]);
-        $this->assertEquals('$this->append(\'PRIMARY KEY\')', $column->renderDefinition($this->getTable(true, false, 'yii\db\pgsql\Schema')));
+        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true, 'schema' => TableStructure::SCHEMA_PGSQL]);
+        $this->assertEquals('$this->append(\'PRIMARY KEY\')', $column->renderDefinition($this->getTable()));
     }
 
     public function testDefinitionPKAppendSQLITE(): void
     {
-        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true]);
-        $this->assertEquals('$this->append(\'PRIMARY KEY AUTOINCREMENT\')', $column->renderDefinition($this->getTable(true, false, 'yii\db\sqlite\Schema')));
+        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true, 'schema' => TableStructure::SCHEMA_SQLITE]);
+        $this->assertEquals('$this->append(\'PRIMARY KEY AUTOINCREMENT\')', $column->renderDefinition($this->getTable()));
     }
 }

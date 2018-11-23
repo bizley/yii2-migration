@@ -9,12 +9,18 @@ namespace bizley\migration\table;
 class TableColumnTime extends TableColumn
 {
     /**
+     * @var array Schemas using length for this column
+     * @since 3.1
+     */
+    public $lengthSchemas = [TableStructure::SCHEMA_PGSQL];
+
+    /**
      * Returns length of the column.
      * @return int|string
      */
     public function getLength()
     {
-        return $this->precision;
+        return \in_array($this->schema, $this->lengthSchemas, true) ? $this->precision : null;
     }
 
     /**
@@ -23,7 +29,9 @@ class TableColumnTime extends TableColumn
      */
     public function setLength($value): void
     {
-        $this->precision = $value;
+        if (\in_array($this->schema, $this->lengthSchemas, true)) {
+            $this->precision = $value;
+        }
     }
 
     /**
