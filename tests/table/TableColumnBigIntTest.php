@@ -3,13 +3,21 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnBigInt;
+use bizley\migration\table\TableStructure;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigIntTest extends TableColumnTestCase
 {
     public function testDefinitionSpecific()
     {
-        $column = new TableColumnBigInt(['size' => 20]);
+        $column = new TableColumnBigInt(['size' => 20, 'schema' => TableStructure::SCHEMA_MYSQL]);
         $this->assertEquals('$this->bigInteger(20)', $column->renderDefinition($this->getTable(false)));
+    }
+
+    public function testDefinitionSpecificNoLength()
+    {
+        $column = new TableColumnBigInt(['size' => 20]);
+        $this->assertEquals('$this->bigInteger()', $column->renderDefinition($this->getTable(false)));
     }
 
     public function testDefinitionGeneralComposite()

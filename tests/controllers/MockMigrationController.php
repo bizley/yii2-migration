@@ -1,6 +1,6 @@
 <?php
 
-namespace bizley\tests;
+namespace bizley\tests\controllers;
 
 use bizley\migration\controllers\MigrationController;
 

@@ -1,16 +1,24 @@
 <?php
 
-namespace bizley\tests;
+namespace bizley\tests\cases;
 
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\console\Application;
 use yii\console\Controller;
 use yii\db\Connection;
-use yii\helpers\ArrayHelper;
+use yii\db\Exception;
 
 abstract class DbTestCase extends \PHPUnit\Framework\TestCase
 {
-    public static $params;
-    protected static $database;
+    /**
+     * @var string
+     */
+    public static $schema;
+
+    /**
+     * @var bool
+     */
     protected static $runMigrations = true;
 
     /**
@@ -19,42 +27,17 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     protected static $db;
 
     /**
-     * @param string $name
-     * @param mixed $default
-     * @return mixed
-     */
-    public static function getParam($name, $default = null)
-    {
-        if (static::$params === null) {
-            static::$params = require __DIR__ . '/config.php';
-        }
-        return isset(static::$params[$name]) ? static::$params[$name] : $default;
-    }
-
-    /**
      * @throws \yii\base\InvalidRouteException
      * @throws \yii\console\Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     public static function setUpBeforeClass()
     {
-        static::mockApplication();
-        if (static::$runMigrations) {
-            static::runSilentMigration('migrate/up');
-        }
-    }
-
-    /**
-     * @param array $config
-     * @param string $appClass
-     * @throws \yii\db\Exception
-     */
-    protected static function mockApplication($config = [], $appClass = '\yii\console\Application')
-    {
-        new $appClass(ArrayHelper::merge([
+        new Application([
             'id' => 'MigrationTest',
-            'basePath' => __DIR__,
-            'vendorPath' => __DIR__ . '/../vendor/',
+            'basePath' => __DIR__ . '/../',
+            'vendorPath' => __DIR__ . '/../../vendor/',
             'controllerMap' => [
                 'migration' => [
                     'class' => 'bizley\migration\controllers\MigrationController',
@@ -62,7 +45,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
                     'migrationNamespace' => null,
                 ],
                 'migrate' => [
-                    'class' => 'bizley\tests\EchoMigrateController',
+                    'class' => 'bizley\tests\controllers\EchoMigrateController',
                     'migrationNamespaces' => ['bizley\tests\migrations'],
                     'migrationPath' => null,
                     'interactive' => false
@@ -71,7 +54,11 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
             'components' => [
                 'db' => static::getConnection(),
             ],
-        ], $config));
+        ]);
+
+        if (static::$runMigrations) {
+            static::runSilentMigration('migrate/up');
+        }
     }
 
     /**
@@ -83,6 +70,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     protected static function runSilentMigration($route, $params = [])
     {
         ob_start();
+
         if (Yii::$app->runAction($route, $params) === Controller::EXIT_CODE_NORMAL) {
             ob_end_clean();
         } else {
@@ -98,34 +86,68 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     public static function tearDownAfterClass()
     {
         static::runSilentMigration('migrate/down', ['all']);
+
         if (static::$db) {
             static::$db->close();
+            static::$db = null;
         }
+
         Yii::$app = null;
     }
 
     /**
      * @return Connection
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     public static function getConnection()
     {
         if (static::$db === null) {
+            if (static::$schema === null) {
+                throw new InvalidConfigException('You must specify DBMS name');
+            }
+
+            $params = require __DIR__ . '/../config.php';
+
+            if (!array_key_exists(static::$schema, $params)) {
+                throw new InvalidConfigException('There is no configuration for requested DBMS');
+            }
+
+            $database = $params[static::$schema];
+
             $db = new Connection();
-            $db->dsn = static::$database['dsn'];
-            $db->charset = static::$database['charset'];
-            if (isset(static::$database['username'])) {
-                $db->username = static::$database['username'];
-                $db->password = static::$database['password'];
+            $db->dsn = $database['dsn'];
+
+            if (isset($database['charset'])) {
+                $db->charset = $database['charset'];
             }
-            if (isset(static::$database['attributes'])) {
-                $db->attributes = static::$database['attributes'];
+
+            if (isset($database['username'])) {
+                $db->username = $database['username'];
+                $db->password = $database['password'];
             }
+
+            if (isset($database['attributes'])) {
+                $db->attributes = $database['attributes'];
+            }
+
             if (!$db->isActive) {
                 $db->open();
             }
+
             static::$db = $db;
         }
+
         return static::$db;
+    }
+
+    /**
+     * @return Connection
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    protected function getDb()
+    {
+        return static::getConnection();
     }
 }

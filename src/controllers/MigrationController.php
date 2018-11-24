@@ -8,6 +8,7 @@ use Yii;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
+use yii\base\NotSupportedException;
 use yii\console\Controller;
 use yii\console\controllers\MigrateController;
 use yii\db\Connection;
@@ -20,13 +21,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.3.4
+ * @version 2.4.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.3.4';
+    protected $version = '2.4.0';
 
     /**
      * @var string Default command action.
@@ -460,8 +461,14 @@ class MigrationController extends Controller
                 return Controller::EXIT_CODE_ERROR;
             }
 
-            if (!$updater->isUpdateRequired()) {
-                $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+            try {
+                if (!$updater->isUpdateRequired()) {
+                    $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+                    continue;
+                }
+            } catch (NotSupportedException $exception) {
+                $this->stdout("WARNING!\n > Updating table '{$name}' requires manual migration!\n", Console::FG_RED);
+                $this->stdout(' > ' . $exception->getMessage() . "\n\n", Console::FG_RED);
                 continue;
             }
 

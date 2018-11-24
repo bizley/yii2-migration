@@ -76,33 +76,38 @@ class TableStructure extends Object
     protected $_schema;
 
     /**
+     * Returns schema code based on its class name.
+     * @param null|string $schemaClass
+     * @return string
+     * @since 2.4
+     */
+    public static function identifySchema($schemaClass)
+    {
+        switch ($schemaClass) {
+            case 'yii\db\mssql\Schema':
+                return self::SCHEMA_MSSQL;
+            case 'yii\db\oci\Schema':
+                return self::SCHEMA_OCI;
+            case 'yii\db\pgsql\Schema':
+                return self::SCHEMA_PGSQL;
+            case 'yii\db\sqlite\Schema':
+                return self::SCHEMA_SQLITE;
+            case 'yii\db\cubrid\Schema':
+                return self::SCHEMA_CUBRID;
+            case 'yii\db\mysql\Schema':
+                return self::SCHEMA_MYSQL;
+            default:
+                return self::SCHEMA_UNSUPPORTED;
+        }
+    }
+
+    /**
      * Sets schema type based on the currently used schema class.
      * @param string|null $schemaClass
      */
     public function setSchema($schemaClass)
     {
-        switch ($schemaClass) {
-            case 'yii\db\mssql\Schema':
-                $this->_schema = self::SCHEMA_MSSQL;
-                break;
-            case 'yii\db\oci\Schema':
-                $this->_schema = self::SCHEMA_OCI;
-                break;
-            case 'yii\db\pgsql\Schema':
-                $this->_schema = self::SCHEMA_PGSQL;
-                break;
-            case 'yii\db\sqlite\Schema':
-                $this->_schema = self::SCHEMA_SQLITE;
-                break;
-            case 'yii\db\cubrid\Schema':
-                $this->_schema = self::SCHEMA_CUBRID;
-                break;
-            case 'yii\db\mysql\Schema':
-                $this->_schema = self::SCHEMA_MYSQL;
-                break;
-            default:
-                $this->_schema = self::SCHEMA_UNSUPPORTED;
-        }
+        $this->_schema = static::identifySchema($schemaClass);
     }
 
     /**
@@ -215,7 +220,7 @@ class TableStructure extends Object
                     /* @var $column TableColumn */
                     foreach ($change->value as $column) {
                         $this->columns[$column->name] = $column;
-                        if ($column->isPrimaryKey || $column->isColumnAppendPK($this->schema)) {
+                        if ($column->isPrimaryKey || $column->isColumnAppendPK()) {
                             if ($this->primaryKey === null) {
                                 $this->primaryKey = new TablePrimaryKey(['columns' => [$column->name]]);
                             } else {
@@ -226,7 +231,7 @@ class TableStructure extends Object
                     break;
                 case 'addColumn':
                     $this->columns[$change->value->name] = $change->value;
-                    if ($change->value->isPrimaryKey || $change->value->isColumnAppendPK($this->schema)) {
+                    if ($change->value->isPrimaryKey || $change->value->isColumnAppendPK()) {
                         if ($this->primaryKey === null) {
                             $this->primaryKey = new TablePrimaryKey(['columns' => [$change->value->name]]);
                         } else {
@@ -252,9 +257,9 @@ class TableStructure extends Object
                     foreach ($this->primaryKey->columns as $column) {
                         if (isset($this->columns[$column])) {
                             if (empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend($this, true, false);
-                            } elseif (!$this->columns[$column]->isColumnAppendPK($this->schema)) {
-                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend($this, true, false);
+                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend(true, false);
+                            } elseif (!$this->columns[$column]->isColumnAppendPK()) {
+                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend(true, false);
                             }
                         }
                     }
@@ -263,7 +268,7 @@ class TableStructure extends Object
                     if ($this->primaryKey !== null) {
                         foreach ($this->primaryKey->columns as $column) {
                             if (isset($this->columns[$column]) && !empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append = $this->columns[$column]->removePKAppend($this->schema);
+                                $this->columns[$column]->append = $this->columns[$column]->removePKAppend();
                             }
                         }
                     }

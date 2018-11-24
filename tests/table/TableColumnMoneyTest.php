@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnMoney;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnMoneyTest extends TableColumnTestCase
 {

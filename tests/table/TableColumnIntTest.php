@@ -3,13 +3,21 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnInt;
+use bizley\migration\table\TableStructure;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnIntTest extends TableColumnTestCase
 {
     public function testDefinitionSpecific()
     {
-        $column = new TableColumnInt(['size' => 11]);
+        $column = new TableColumnInt(['size' => 11, 'schema' => TableStructure::SCHEMA_MYSQL]);
         $this->assertEquals('$this->integer(11)', $column->renderDefinition($this->getTable(false)));
+    }
+
+    public function testDefinitionSpecificNoLength()
+    {
+        $column = new TableColumnInt(['size' => 11]);
+        $this->assertEquals('$this->integer()', $column->renderDefinition($this->getTable(false)));
     }
 
     public function testDefinitionGeneralComposite()

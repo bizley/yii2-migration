@@ -9,12 +9,24 @@ namespace bizley\migration\table;
 class TableColumnDecimal extends TableColumn
 {
     /**
+     * @var array Schemas using length for this column
+     * @since 2.4
+     */
+    public $lengthSchemas = [
+        TableStructure::SCHEMA_MYSQL,
+        TableStructure::SCHEMA_CUBRID,
+        TableStructure::SCHEMA_PGSQL,
+        TableStructure::SCHEMA_SQLITE,
+        TableStructure::SCHEMA_MSSQL,
+    ];
+
+    /**
      * Returns length of the column.
      * @return int|string
      */
     public function getLength()
     {
-        return $this->precision . ($this->scale ? ', ' . $this->scale : null);
+        return in_array($this->schema, $this->lengthSchemas, true) ? ($this->precision . ($this->scale ? ', ' . $this->scale : null)) : null;
     }
 
     /**
@@ -23,16 +35,18 @@ class TableColumnDecimal extends TableColumn
      */
     public function setLength($value)
     {
-        if (is_array($value)) {
-            $length = $value;
-        } else {
-            $length = preg_split('\s*,\s*', $value);
-        }
-        if (isset($length[0]) && !empty($length[0])) {
-            $this->precision = $length[0];
-        }
-        if (isset($length[1]) && !empty($length[1])) {
-            $this->scale = $length[1];
+        if (in_array($this->schema, $this->lengthSchemas, true)) {
+            if (is_array($value)) {
+                $length = $value;
+            } else {
+                $length = preg_split('\s*,\s*', $value);
+            }
+            if (isset($length[0]) && !empty($length[0])) {
+                $this->precision = $length[0];
+            }
+            if (isset($length[1]) && !empty($length[1])) {
+                $this->scale = $length[1];
+            }
         }
     }
 

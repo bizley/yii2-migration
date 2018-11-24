@@ -3,6 +3,7 @@
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableColumnChar;
+use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnCharTest extends TableColumnTestCase
 {
