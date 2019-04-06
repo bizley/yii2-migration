@@ -2,21 +2,25 @@
 
 namespace bizley\tests\pgsql;
 
+use bizley\tests\cases\UpdaterColumnsTestCase;
 use Yii;
+use yii\base\ErrorException;
+use yii\base\NotSupportedException;
+use yii\db\Exception;
 
 /**
  * @group pgsql
  */
-class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
+class UpdaterColumnsTest extends UpdaterColumnsTestCase
 {
     public static $schema = 'pgsql';
 
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testChangeSizeSpecific()
     {

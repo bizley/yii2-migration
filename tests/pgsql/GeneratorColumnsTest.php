@@ -13,6 +13,7 @@ use bizley\migration\table\TableColumnJson;
 use bizley\migration\table\TableColumnSmallInt;
 use bizley\migration\table\TableColumnString;
 use bizley\migration\table\TableColumnTimestamp;
+use bizley\tests\cases\GeneratorColumnsTestCase;
 use Yii;
 use yii\db\Migration;
 use yii\db\pgsql\Schema;
@@ -20,7 +21,7 @@ use yii\db\pgsql\Schema;
 /**
  * @group pgsql
  */
-class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
+class GeneratorColumnsTest extends GeneratorColumnsTestCase
 {
     public static $schema = 'pgsql';
 

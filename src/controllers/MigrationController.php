@@ -6,12 +6,15 @@ use bizley\migration\Generator;
 use bizley\migration\Updater;
 use Yii;
 use yii\base\Action;
+use yii\base\ErrorException;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
 use yii\console\Controller;
 use yii\console\controllers\MigrateController;
 use yii\db\Connection;
+use yii\db\Exception as DbException;
 use yii\di\Instance;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
@@ -21,13 +24,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.4.0
+ * @version 2.5.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.4.0';
+    protected $version = '2.5.0';
 
     /**
      * @var string Default command action.
@@ -138,26 +141,74 @@ class MigrationController extends Controller
     public $tableOptions = '$tableOptions';
 
     /**
-     * @inheritdoc
+     * @var array List of database tables that should be skipped for *-all actions.
+     * @since 2.5.0
+     */
+    public $excludeTables = [];
+
+    /**
+     * {@inheritdoc}
      */
     public function options($actionID)
     {
-        $options = array_merge(parent::options($actionID), ['db']);
-        $createOptions = ['migrationPath', 'migrationNamespace', 'generalSchema', 'templateFile', 'useTablePrefix', 'fixHistory', 'migrationTable'];
-        $updateOptions = ['showOnly', 'templateFileUpdate', 'skipMigrations'];
+        $defaultOptions = array_merge(parent::options($actionID), ['db']);
+
+        $createOptions = [
+            'migrationPath',
+            'migrationNamespace',
+            'generalSchema',
+            'templateFile',
+            'useTablePrefix',
+            'fixHistory',
+            'migrationTable',
+            'tableOptionsInit',
+            'tableOptions',
+        ];
+        $updateOptions = [
+            'showOnly',
+            'templateFileUpdate',
+            'skipMigrations'
+        ];
+
         switch ($actionID) {
             case 'create':
+                $options = array_merge($defaultOptions, $createOptions);
+                break;
+
             case 'create-all':
-                return array_merge($options, $createOptions, ['tableOptionsInit', 'tableOptions']);
+                $options = array_merge(
+                    $defaultOptions,
+                    $createOptions,
+                    ['excludeTables']
+                );
+                break;
+
             case 'update':
+                $options = array_merge(
+                    $defaultOptions,
+                    $createOptions,
+                    $updateOptions
+                );
+                break;
+
             case 'update-all':
-                return array_merge($options, $createOptions, $updateOptions);
+                $options = array_merge(
+                    $defaultOptions,
+                    $createOptions,
+                    $updateOptions,
+                    ['excludeTables']
+                );
+                break;
+
+            default:
+                $options = $defaultOptions;
         }
+
         return $options;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @since 2.0
      */
     public function optionAliases()
@@ -183,12 +234,13 @@ class MigrationController extends Controller
     public function init()
     {
         parent::init();
-        $booleanProperties = ['useTablePrefix', 'showOnly', 'generalSchema', 'fixHistory'];
-        foreach ($booleanProperties as $property) {
+
+        foreach (['useTablePrefix', 'showOnly', 'generalSchema', 'fixHistory'] as $property) {
             if ($this->$property !== true) {
                 if ($this->$property === 'true' || $this->$property === 1) {
                     $this->$property = true;
                 }
+
                 $this->$property = (bool)$this->$property;
             }
         }
@@ -203,7 +255,7 @@ class MigrationController extends Controller
      * @return bool whether the action should continue to be executed.
      * @throws InvalidConfigException
      * @throws InvalidParamException
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function beforeAction($action)
     {
@@ -212,6 +264,7 @@ class MigrationController extends Controller
                 if ($this->migrationPath !== null) {
                     $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
                 }
+
                 if ($this->migrationNamespace !== null) {
                     $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
                     $this->workingPath = $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
@@ -219,10 +272,13 @@ class MigrationController extends Controller
                     $this->workingPath = $this->migrationPath;
                 }
             }
+
             $this->db = Instance::ensure($this->db, Connection::className());
             $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
+
             return true;
         }
+
         return false;
     }
 
@@ -230,36 +286,46 @@ class MigrationController extends Controller
      * Prepares path directory.
      * @param string $path
      * @return string
-     * @since 1.1
      * @throws InvalidParamException
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @since 1.1
      */
     public function preparePathDirectory($path)
     {
         $translatedPath = Yii::getAlias($path);
+
         if (!is_dir($translatedPath)) {
             FileHelper::createDirectory($translatedPath);
         }
+
         return $translatedPath;
     }
 
     /**
      * Creates the migration history table.
-     * @throws \yii\db\Exception
+     * @throws DbException
      * @since 2.0
      */
     protected function createMigrationHistoryTable()
     {
         $tableName = $this->db->schema->getRawTableName($this->migrationTable);
+
         $this->stdout(" > Creating migration history table '{$tableName}' ...", Console::FG_YELLOW);
-        $this->db->createCommand()->createTable($this->migrationTable, [
-            'version' => 'varchar(180) NOT NULL PRIMARY KEY',
-            'apply_time' => 'integer',
-        ])->execute();
-        $this->db->createCommand()->insert($this->migrationTable, [
-            'version' => MigrateController::BASE_MIGRATION,
-            'apply_time' => time(),
-        ])->execute();
+        $this->db->createCommand()->createTable(
+            $this->migrationTable,
+            [
+                'version' => 'varchar(180) NOT NULL PRIMARY KEY',
+                'apply_time' => 'integer',
+            ]
+        )->execute();
+        $this->db->createCommand()->insert(
+            $this->migrationTable,
+            [
+                'version' => MigrateController::BASE_MIGRATION,
+                'apply_time' => time(),
+            ]
+        )->execute();
+
         $this->stdout("DONE.\n", Console::FG_GREEN);
     }
 
@@ -267,17 +333,20 @@ class MigrationController extends Controller
      * Adds migration history entry.
      * @param string $version
      * @param string $namespace
-     * @throws \yii\db\Exception
+     * @throws DbException
      * @since 2.0
      */
     protected function addMigrationHistory($version, $namespace = null)
     {
         $this->stdout(' > Adding migration history entry ...', Console::FG_YELLOW);
-        $command = $this->db->createCommand();
-        $command->insert($this->migrationTable, [
-            'version' => ($namespace ? $namespace . '\\' : '') . $version,
-            'apply_time' => time(),
-        ])->execute();
+        $this->db->createCommand()->insert(
+            $this->migrationTable,
+            [
+                'version' => ($namespace ? $namespace . '\\' : '') . $version,
+                'apply_time' => time(),
+            ]
+        )->execute();
+
         $this->stdout("DONE.\n", Console::FG_GREEN);
     }
 
@@ -289,6 +358,7 @@ class MigrationController extends Controller
     public function actionList()
     {
         $tables = $this->db->schema->getTableNames();
+
         if (!$tables) {
             $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
@@ -297,20 +367,30 @@ class MigrationController extends Controller
                 $this->stdout("   - $table\n");
             }
         }
+
         $this->stdout("\n > Run\n", Console::FG_GREEN);
+
         $tab = $this->ansiFormat('<table>', Console::FG_YELLOW);
         $cmd = $this->ansiFormat('migration/create', Console::FG_CYAN);
         $this->stdout("   $cmd $tab\n");
+
         $this->stdout("      to generate creating migration for the specific table.\n", Console::FG_GREEN);
+
         $cmd = $this->ansiFormat('migration/create-all', Console::FG_CYAN);
         $this->stdout("   $cmd\n");
+
         $this->stdout("      to generate creating migrations for all the tables.\n", Console::FG_GREEN);
+
         $cmd = $this->ansiFormat('migration/update', Console::FG_CYAN);
         $this->stdout("   $cmd $tab\n");
+
         $this->stdout("      to generate updating migration for the specific table.\n", Console::FG_GREEN);
+
         $cmd = $this->ansiFormat('migration/update-all', Console::FG_CYAN);
         $this->stdout("   $cmd\n");
+
         $this->stdout("      to generate updating migrations for all the tables.\n", Console::FG_GREEN);
+
         return Controller::EXIT_CODE_NORMAL;
     }
 
@@ -330,7 +410,7 @@ class MigrationController extends Controller
      * @param string $table Table names separated by commas.
      * @return int
      * @throws InvalidParamException
-     * @throws \yii\db\Exception
+     * @throws DbException
      */
     public function actionCreate($table)
     {
@@ -361,11 +441,13 @@ class MigrationController extends Controller
 
             if ($generator->tableSchema === null) {
                 $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
+
                 return Controller::EXIT_CODE_ERROR;
             }
 
             if ($this->generateFile($file, $generator->generateMigration()) === false) {
                 $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+
                 return Controller::EXIT_CODE_ERROR;
             }
 
@@ -377,6 +459,7 @@ class MigrationController extends Controller
                 if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
                     $this->createMigrationHistoryTable();
                 }
+
                 $this->addMigrationHistory($className, $this->migrationNamespace);
             }
 
@@ -389,6 +472,7 @@ class MigrationController extends Controller
         } else {
             $this->stdout(" No files generated.\n\n", Console::FG_YELLOW);
         }
+
         return Controller::EXIT_CODE_NORMAL;
     }
 
@@ -397,23 +481,25 @@ class MigrationController extends Controller
      * Since 2.3.0 migration history table is skipped.
      * @return int
      * @throws InvalidParamException
-     * @throws \yii\db\Exception
+     * @throws DbException
      * @since 2.1
      */
     public function actionCreateAll()
     {
-        $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
+        $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
+
             return Controller::EXIT_CODE_NORMAL;
         }
 
-        if ($this->confirm(' > Are you sure you want to generate ' . count($tables) . ' migrations?', false)) {
+        if ($this->confirm(' > Are you sure you want to generate ' . count($tables) . ' migrations?')) {
             return $this->actionCreate(implode(',', $tables));
         }
 
         $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+
         return Controller::EXIT_CODE_NORMAL;
     }
 
@@ -422,8 +508,8 @@ class MigrationController extends Controller
      * @param string $table Table names separated by commas.
      * @return int
      * @throws InvalidParamException
-     * @throws \yii\base\ErrorException
-     * @throws \yii\db\Exception
+     * @throws ErrorException
+     * @throws DbException
      * @since 2.0
      */
     public function actionUpdate($table)
@@ -458,23 +544,27 @@ class MigrationController extends Controller
 
             if ($updater->tableSchema === null) {
                 $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
+
                 return Controller::EXIT_CODE_ERROR;
             }
 
             try {
                 if (!$updater->isUpdateRequired()) {
                     $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
+
                     continue;
                 }
             } catch (NotSupportedException $exception) {
                 $this->stdout("WARNING!\n > Updating table '{$name}' requires manual migration!\n", Console::FG_RED);
                 $this->stdout(' > ' . $exception->getMessage() . "\n\n", Console::FG_RED);
+
                 continue;
             }
 
             if (!$this->showOnly) {
                 if ($this->generateFile($file, $updater->generateMigration()) === false) {
                     $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+
                     return Controller::EXIT_CODE_ERROR;
                 }
 
@@ -487,6 +577,7 @@ class MigrationController extends Controller
                     if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
                         $this->createMigrationHistoryTable();
                     }
+
                     $this->addMigrationHistory($className, $this->migrationNamespace);
                 }
             }
@@ -509,24 +600,26 @@ class MigrationController extends Controller
      * Since 2.3.0 migration history table is skipped.
      * @return int
      * @throws InvalidParamException
-     * @throws \yii\base\ErrorException
-     * @throws \yii\db\Exception
+     * @throws ErrorException
+     * @throws DbException
      * @since 2.1
      */
     public function actionUpdateAll()
     {
-        $tables = $this->removeMigrationTable($this->db->schema->getTableNames());
+        $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
 
         if (!$tables) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
+
             return Controller::EXIT_CODE_NORMAL;
         }
 
-        if ($this->confirm(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations?', false)) {
+        if ($this->confirm(' > Are you sure you want to potentially generate ' . count($tables) . ' migrations?')) {
             return $this->actionUpdate(implode(',', $tables));
         }
 
         $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+
         return Controller::EXIT_CODE_NORMAL;
     }
 
@@ -535,19 +628,47 @@ class MigrationController extends Controller
      * @param array $tables
      * @return array
      * @since 2.3.0
+     * @deprecated in 2.5.0, will be removed in 2.6.0
      */
     public function removeMigrationTable($tables)
     {
         if (!$tables) {
             return [];
         }
+
         $filteredTables = [];
         foreach ($tables as $table) {
             if ($this->db->schema->getRawTableName($this->migrationTable) === $table) {
                 continue;
             }
+
             $filteredTables[] = $table;
         }
+
+        return $filteredTables;
+    }
+
+    /**
+     * Removes excluded tables names from the tables list.
+     * @param array $tables
+     * @return array
+     * @since 2.5.0
+     */
+    public function removeExcludedTables($tables)
+    {
+        if (!$tables) {
+            return [];
+        }
+
+        $filteredTables = [];
+        $excludedTables = array_merge([$this->db->schema->getRawTableName($this->migrationTable)], $this->excludeTables);
+
+        foreach ($tables as $table) {
+            if (!in_array($table, $excludedTables, true)) {
+                $filteredTables[] = $table;
+            }
+        }
+
         return $filteredTables;
     }
 }

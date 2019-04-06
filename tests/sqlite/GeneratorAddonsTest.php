@@ -2,10 +2,12 @@
 
 namespace bizley\tests\sqlite;
 
+use bizley\tests\cases\GeneratorAddonsTestCase;
+
 /**
  * @group sqlite
  */
-class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
+class GeneratorAddonsTest extends GeneratorAddonsTestCase
 {
     public static $schema = 'sqlite';
 

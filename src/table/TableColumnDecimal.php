@@ -26,7 +26,9 @@ class TableColumnDecimal extends TableColumn
      */
     public function getLength()
     {
-        return in_array($this->schema, $this->lengthSchemas, true) ? ($this->precision . ($this->scale ? ', ' . $this->scale : null)) : null;
+        return in_array($this->schema, $this->lengthSchemas, true)
+            ? ($this->precision . ($this->scale ? ', ' . $this->scale : null))
+            : null;
     }
 
     /**
@@ -41,9 +43,11 @@ class TableColumnDecimal extends TableColumn
             } else {
                 $length = preg_split('\s*,\s*', $value);
             }
+
             if (isset($length[0]) && !empty($length[0])) {
                 $this->precision = $length[0];
             }
+
             if (isset($length[1]) && !empty($length[1])) {
                 $this->scale = $length[1];
             }

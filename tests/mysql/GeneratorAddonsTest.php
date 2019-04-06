@@ -2,12 +2,13 @@
 
 namespace bizley\tests\mysql;
 
+use bizley\tests\cases\GeneratorAddonsTestCase;
 use yii\db\Expression;
 
 /**
  * @group mysql
  */
-class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
+class GeneratorAddonsTest extends GeneratorAddonsTestCase
 {
     public static $schema = 'mysql';
 

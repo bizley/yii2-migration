@@ -15,6 +15,8 @@ use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
+use yii\db\ForeignKeyConstraint;
+use yii\db\IndexConstraint;
 use yii\db\TableSchema;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
@@ -110,6 +112,7 @@ class Generator extends Component
         if ($this->_tableSchema === null) {
             $this->_tableSchema = $this->db->getTableSchema($this->tableName);
         }
+
         return $this->_tableSchema;
     }
 
@@ -159,14 +162,17 @@ class Generator extends Component
         $columns = [];
         if ($this->tableSchema instanceof TableSchema) {
             $indexData = !empty($indexes) ? $indexes : $this->getTableIndexes();
+
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
+
                 foreach ($indexData as $index) {
                     if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
                         $isUnique = true;
                         break;
                     }
                 }
+
                 $columns[$column->name] = TableColumnFactory::build([
                     'schema' => $schema,
                     'name' => $column->name,
@@ -185,6 +191,7 @@ class Generator extends Component
                 ]);
             }
         }
+
         return $columns;
     }
 
@@ -197,7 +204,8 @@ class Generator extends Component
         $data = [];
         if (method_exists($this->db->schema, 'getTableForeignKeys')) { // requires Yii 2.0.13
             $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
-            /* @var $fk \yii\db\ForeignKeyConstraint */
+
+            /* @var $fk ForeignKeyConstraint */
             foreach ($fks as $fk) {
                 $data[$fk->name] = new TableForeignKey([
                     'name' => $fk->name,
@@ -216,13 +224,16 @@ class Generator extends Component
                     'onDelete' => null,
                     'onUpdate' => null,
                 ]);
+
                 foreach ($key as $col => $ref) {
                     $fk->columns[] = $col;
                     $fk->refColumns[] = $ref;
                 }
+
                 $data[$name] = $fk;
             }
         }
+
         return $data;
     }
 
@@ -236,7 +247,8 @@ class Generator extends Component
         $data = [];
         if (method_exists($this->db->schema, 'getTableIndexes')) { // requires Yii 2.0.13
             $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
-            /* @var $idx \yii\db\IndexConstraint */
+
+            /* @var $idx IndexConstraint */
             foreach ($idxs as $idx) {
                 if (!$idx->isPrimary) {
                     $data[$idx->name] = new TableIndex([
@@ -249,6 +261,7 @@ class Generator extends Component
         } else {
             try {
                 $uidxs = $this->db->schema->findUniqueIndexes($this->tableSchema);
+
                 foreach ($uidxs as $name => $cols) {
                     $data[$name] = new TableIndex([
                         'name' => $name,
@@ -258,6 +271,7 @@ class Generator extends Component
                 }
             } catch (NotSupportedException $exc) {}
         }
+
         return $data;
     }
 
@@ -272,6 +286,7 @@ class Generator extends Component
     {
         if ($this->_table === null) {
             $indexes = $this->getTableIndexes();
+
             $this->_table = new TableStructure([
                 'name' => $this->tableName,
                 'schema' => get_class($this->db->schema),
@@ -284,6 +299,7 @@ class Generator extends Component
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
             ]);
+
             $this->_table->columns = $this->getTableColumns($indexes, $this->_table->schema);
         }
 

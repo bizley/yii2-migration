@@ -4,7 +4,11 @@ namespace yii\db;
 
 use bizley\migration\table\TableChange;
 use bizley\migration\table\TableStructure;
+use ReflectionClass;
+use ReflectionException;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\di\Instance;
 
 /**
@@ -28,6 +32,10 @@ class Migration extends Component implements MigrationInterface
      */
     public $db = 'db';
 
+    /**
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
     public function init()
     {
         parent::init();
@@ -67,7 +75,7 @@ class Migration extends Component implements MigrationInterface
      * Returns extracted columns data.
      * @param array $columns
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function extractColumns($columns)
     {
@@ -93,6 +101,7 @@ class Migration extends Component implements MigrationInterface
 
         if (!array_key_exists($type, $keyToDb)) {
             $schema['type'] = $type;
+            
             return $schema;
         }
 
@@ -145,13 +154,13 @@ class Migration extends Component implements MigrationInterface
      * Returns extracted column data.
      * @param ColumnSchemaBuilder $type
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function extractColumn($type)
     {
         $properties = ['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'];
 
-        $reflectionClass = new \ReflectionClass($type);
+        $reflectionClass = new ReflectionClass($type);
         $reflectionProperty = $reflectionClass->getProperty('type');
         $reflectionProperty->setAccessible(true);
 
@@ -209,7 +218,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function execute($sql, $params = [])
     {
@@ -217,7 +226,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function insert($table, $columns)
     {
@@ -225,7 +234,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function batchInsert($table, $columns, $rows)
     {
@@ -233,7 +242,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update($table, $columns, $condition = '', $params = [])
     {
@@ -241,7 +250,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function delete($table, $condition = '', $params = [])
     {
@@ -249,7 +258,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function createTable($table, $columns, $options = null)
     {
@@ -257,7 +266,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function renameTable($table, $newName)
     {
@@ -265,7 +274,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropTable($table)
     {
@@ -273,7 +282,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function truncateTable($table)
     {
@@ -281,7 +290,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addColumn($table, $column, $type)
     {
@@ -289,7 +298,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropColumn($table, $column)
     {
@@ -297,7 +306,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function renameColumn($table, $name, $newName)
     {
@@ -305,7 +314,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function alterColumn($table, $column, $type)
     {
@@ -313,15 +322,22 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addPrimaryKey($name, $table, $columns)
     {
-        $this->addChange($table, 'addPrimaryKey', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)]);
+        $this->addChange(
+            $table,
+            'addPrimaryKey',
+            [
+                $name,
+                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
+            ]
+        );
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropPrimaryKey($name, $table)
     {
@@ -329,22 +345,26 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
-        $this->addChange($table, 'addForeignKey', [
-            $name,
-            is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
-            $refTable,
-            is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
-            $delete,
-            $update
-        ]);
+        $this->addChange(
+            $table,
+            'addForeignKey',
+            [
+                $name,
+                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+                $refTable,
+                is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
+                $delete,
+                $update
+            ]
+        );
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropForeignKey($name, $table)
     {
@@ -352,15 +372,23 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function createIndex($name, $table, $columns, $unique = false)
     {
-        $this->addChange($table, 'createIndex', [$name, is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns), $unique]);
+        $this->addChange(
+            $table,
+            'createIndex',
+            [
+                $name,
+                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+                $unique
+            ]
+        );
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropIndex($name, $table)
     {
@@ -368,7 +396,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addCommentOnColumn($table, $column, $comment)
     {
@@ -376,7 +404,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addCommentOnTable($table, $comment)
     {
@@ -384,7 +412,7 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropCommentFromColumn($table, $column)
     {
@@ -392,9 +420,17 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function dropCommentFromTable($table)
+    {
+        // not supported
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
     {
         // not supported
     }

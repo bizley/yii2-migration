@@ -17,58 +17,72 @@ class TableColumn extends Object
      * @var string
      */
     public $name;
+
     /**
      * @var string
      */
     public $type;
+
     /**
      * @var bool|null
      */
     public $isNotNull;
+
     /**
      * @var int
      */
     public $size;
+
     /**
      * @var int
      */
     public $precision;
+
     /**
      * @var int
      */
     public $scale;
+
     /**
      * @var bool
      */
     public $isUnique = false;
+
     /**
      * @var bool
      */
     public $isUnsigned = false;
+
     /**
      * @var string
      */
     public $check;
+
     /**
      * @var mixed
      */
     public $default;
+
     /**
      * @var bool
      */
     public $isPrimaryKey;
+
     /**
      * @var bool
      */
     public $autoIncrement;
+
     /**
      * @var string
      */
     public $append;
+
     /**
      * @var string
      */
     public $comment;
+
     /**
      * @var string
      * @since 2.4
@@ -108,9 +122,11 @@ class TableColumn extends Object
         if ($this->isUnsignedPossible && $this->isUnsigned) {
             $this->definition[] = 'unsigned()';
         }
+
         if ($this->isNotNullPossible && $this->isNotNull) {
             $this->definition[] = 'notNull()';
         }
+
         if ($this->default !== null) {
             if ($this->default instanceof Expression) {
                 $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
@@ -118,6 +134,7 @@ class TableColumn extends Object
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes((string) $this->default) . "')";
             }
         }
+
         if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
             $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
             if (!empty($this->append)) {
@@ -127,6 +144,7 @@ class TableColumn extends Object
         } elseif (!empty($this->append)) {
             $this->definition[] = "append('" . $this->escapeQuotes((string) $this->append) . "')";
         }
+
         if ($this->comment) {
             $this->definition[] = "comment('" . $this->escapeQuotes((string) $this->comment) . "')";
         }
@@ -141,6 +159,7 @@ class TableColumn extends Object
     {
         $this->buildSpecificDefinition($table);
         $this->buildGeneralDefinition($table);
+
         return implode('->', $this->definition);
     }
 
@@ -174,6 +193,7 @@ class TableColumn extends Object
         if (empty($this->append)) {
             return false;
         }
+
         if ($this->schema === TableStructure::SCHEMA_MSSQL) {
             if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
                 return true;
@@ -181,6 +201,7 @@ class TableColumn extends Object
         } elseif (stripos($this->append, 'PRIMARY KEY') !== false) {
             return true;
         }
+
         return false;
     }
 
@@ -196,18 +217,22 @@ class TableColumn extends Object
             case TableStructure::SCHEMA_MSSQL:
                 $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
                 break;
+
             case TableStructure::SCHEMA_OCI:
             case TableStructure::SCHEMA_PGSQL:
                 $append = $primaryKey ? 'PRIMARY KEY' : '';
                 break;
+
             case TableStructure::SCHEMA_SQLITE:
                 $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
                 break;
+
             case TableStructure::SCHEMA_CUBRID:
             case TableStructure::SCHEMA_MYSQL:
             default:
                 $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
+
         return empty($append) ? null : $append;
     }
 
@@ -237,18 +262,22 @@ class TableColumn extends Object
             case TableStructure::SCHEMA_MSSQL:
                 $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
                 break;
+
             case TableStructure::SCHEMA_OCI:
             case TableStructure::SCHEMA_PGSQL:
                 $formattedAppend = str_replace('PRIMARY KEY', '', $uppercaseAppend);
                 break;
+
             case TableStructure::SCHEMA_SQLITE:
                 $formattedAppend = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $uppercaseAppend);
                 break;
+
             case TableStructure::SCHEMA_CUBRID:
             case TableStructure::SCHEMA_MYSQL:
             default:
                 $formattedAppend = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $uppercaseAppend);
         }
+
         $formattedAppend = trim($formattedAppend);
 
         return !empty($formattedAppend) ? $formattedAppend : null;

@@ -2,6 +2,7 @@
 
 namespace bizley\migration\table;
 
+use yii\base\InvalidConfigException;
 use yii\base\Object;
 
 /**
@@ -16,14 +17,17 @@ class TableChange extends Object
      * @var string
      */
     public $table;
+
     /**
      * @var string
      */
     public $method;
+
     /**
      * @var array|string
      */
     public $data;
+
     /**
      * @var string
      * @since 2.4
@@ -33,7 +37,7 @@ class TableChange extends Object
     /**
      * Returns change value.
      * @return array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function getValue()
     {
@@ -57,11 +61,13 @@ class TableChange extends Object
                     ]);
                 }
                 return $columns;
+
             case 'renameColumn':
                 return [
                     'old' => $this->data[0],
                     'new' => $this->data[1],
                 ];
+
             case 'addColumn':
             case 'alterColumn':
                 return TableColumnFactory::build([
@@ -78,11 +84,13 @@ class TableChange extends Object
                     'isUnsigned' => isset($this->data[1]['isUnsigned']) ? $this->data[1]['isUnsigned'] : null,
                     'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
                 ]);
+
             case 'addPrimaryKey':
                 return new TablePrimaryKey([
                     'name' => $this->data[0],
                     'columns' => $this->data[1],
                 ]);
+
             case 'addForeignKey':
                 return new TableForeignKey([
                     'name' => $this->data[0],
@@ -90,17 +98,20 @@ class TableChange extends Object
                     'refTable' => $this->data[2],
                     'refColumns' => $this->data[3],
                 ]);
+
             case 'createIndex':
                 return new TableIndex([
                     'name' => $this->data[0],
                     'columns' => $this->data[1],
                     'unique' => $this->data[2],
                 ]);
+
             case 'addCommentOnColumn':
                 return [
                     'name' => $this->data[0],
                     'comment' => $this->data[1],
                 ];
+
             case 'renameTable':
             case 'dropTable':
             case 'dropColumn':

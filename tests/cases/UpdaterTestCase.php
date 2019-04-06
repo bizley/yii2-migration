@@ -3,6 +3,9 @@
 namespace bizley\tests\cases;
 
 use Yii;
+use yii\base\ErrorException;
+use yii\base\NotSupportedException;
+use yii\db\Exception;
 
 class UpdaterTestCase extends DbMigrationsTestCase
 {
@@ -15,9 +18,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testDropPrimaryKey()
     {
@@ -33,9 +36,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testDropForeignKey()
     {
@@ -52,9 +55,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testAddForeignKey()
     {
@@ -71,9 +74,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testDropIndex()
     {
@@ -89,9 +92,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testAddIndex()
     {
@@ -107,9 +110,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testMultipleMigrations()
     {
@@ -126,9 +129,9 @@ class UpdaterTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testMultipleMigrationsWithSkip()
     {

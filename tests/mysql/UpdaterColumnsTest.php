@@ -2,12 +2,16 @@
 
 namespace bizley\tests\mysql;
 
+use bizley\tests\cases\UpdaterColumnsTestCase;
 use Yii;
+use yii\base\ErrorException;
+use yii\base\NotSupportedException;
+use yii\db\Exception;
 
 /**
  * @group mysql
  */
-class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
+class UpdaterColumnsTest extends UpdaterColumnsTestCase
 {
     public static $schema = 'mysql';
     public static $tableOptions = 'ENGINE=InnoDB';
@@ -15,9 +19,9 @@ class UpdaterColumnsTest extends \bizley\tests\cases\UpdaterColumnsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testChangeSizeSpecific()
     {

@@ -4,7 +4,11 @@ namespace bizley\tests\cases;
 
 use bizley\migration\Updater;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
 use yii\console\controllers\MigrateController;
+use yii\console\Exception as ConsoleException;
+use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
 
 abstract class DbMigrationsTestCase extends DbTestCase
@@ -20,7 +24,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
 
     /**
      * @param string $name
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     protected static function addMigration($name)
     {
@@ -32,7 +36,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
 
     /**
      * @param string $name
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     protected static function deleteMigration($name)
     {
@@ -56,17 +60,16 @@ abstract class DbMigrationsTestCase extends DbTestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidRouteException
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
 
         if (!in_array('migration', Yii::$app->db->schema->tableNames, true)) {
-
             Yii::$app->db->createCommand()->createTable('migration', [
                 'version' => 'varchar(180) NOT NULL PRIMARY KEY',
                 'apply_time' => 'integer',

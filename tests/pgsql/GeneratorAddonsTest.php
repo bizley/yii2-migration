@@ -2,12 +2,13 @@
 
 namespace bizley\tests\pgsql;
 
+use bizley\tests\cases\GeneratorAddonsTestCase;
 use yii\db\Expression;
 
 /**
  * @group pgsql
  */
-class GeneratorAddonsTest extends \bizley\tests\cases\GeneratorAddonsTestCase
+class GeneratorAddonsTest extends GeneratorAddonsTestCase
 {
     public static $schema = 'pgsql';
 
