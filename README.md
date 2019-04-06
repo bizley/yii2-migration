@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^3.1"
+            "bizley/migration": "^3.2"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.1`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.2`
 
 ## Installation for PHP < 7.1
 
@@ -27,11 +27,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^2.3"
+            "bizley/migration": "^2.5"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^2.3`
+and run `composer update` or alternatively run `composer require bizley/migration:^2.5`
 
 ## Configuration
 
@@ -99,13 +99,14 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 | `useTablePrefix`     | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
 | `migrationTable`     | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
 | `showOnly`           | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
-| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (1). _default:_ `1`
+| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (see [1] below). _default:_ `1`
 | `fixHistory`         | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
-| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (2). _default:_ `[]`
+| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below). _default:_ `[]`
 | `tableOptionsInit`   | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
 | `tableOptions`       | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
+| `excludeTables`      |       | List of tables that should be skipped for *-all actions. _default:_ `[]`
 
-(1) Remember that with different database types general column schemas may be generated with different length.
+[1] Remember that with different database types general column schemas may be generated with different length.
 
 > ### MySQL examples:  
 > Column `varchar(45)`  
@@ -116,7 +117,7 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
 > generalSchema=1: `$this->primaryKey()`
 
-(2) Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
+[2] Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
 
