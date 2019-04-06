@@ -1,8 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
+use function count;
+use function str_repeat;
 
 /**
  * Class TableIndex
@@ -31,8 +35,12 @@ class TableIndex extends BaseObject
      */
     public function render(TableStructure $table, int $indent = 8)
     {
-        return str_repeat(' ', $indent) . "\$this->createIndex('{$this->name}', '" . $table->renderName() . "', "
-            . (\count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ($this->unique ? ', true' : '') . ');';
+        return str_repeat(' ', $indent)
+            . "\$this->createIndex('{$this->name}', '"
+            . $table->renderName()
+            . "', "
+            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
+            . ($this->unique ? ', true' : '')
+            . ');';
     }
 }

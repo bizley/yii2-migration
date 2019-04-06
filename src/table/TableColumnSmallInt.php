@@ -1,6 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
+
+use function in_array;
 
 /**
  * Class TableColumnSmallInt
@@ -20,7 +24,7 @@ class TableColumnSmallInt extends TableColumn
      */
     public function getLength()
     {
-        return \in_array($this->schema, $this->lengthSchemas, true) ? $this->size : null;
+        return in_array($this->schema, $this->lengthSchemas, true) ? $this->size : null;
     }
 
     /**
@@ -29,7 +33,7 @@ class TableColumnSmallInt extends TableColumn
      */
     public function setLength($value): void
     {
-        if (\in_array($this->schema, $this->lengthSchemas, true)) {
+        if (in_array($this->schema, $this->lengthSchemas, true)) {
             $this->size = $value;
             $this->precision = $value;
         }

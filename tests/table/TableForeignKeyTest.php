@@ -1,11 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\table;
 
 use bizley\migration\table\TableForeignKey;
 use bizley\migration\table\TableStructure;
+use PHPUnit\Framework\TestCase;
 
-class TableForeignKeyTest extends \PHPUnit\Framework\TestCase
+class TableForeignKeyTest extends TestCase
 {
     public function testNameGenerated(): void
     {
@@ -41,7 +44,9 @@ class TableForeignKeyTest extends \PHPUnit\Framework\TestCase
             'onDelete' => 'RESTRICT',
             'onUpdate' => 'CASCADE',
         ]);
-        $this->assertEquals('$this->addForeignKey(\'fk_test\', \'{{%table}}\', \'fk_column\', \'{{%ref_table}}\', \'ref_id\', \'RESTRICT\', \'CASCADE\');',
-            $fk->render(new TableStructure(['name' => 'table']), 0));
+        $this->assertEquals(
+            '$this->addForeignKey(\'fk_test\', \'{{%table}}\', \'fk_column\', \'{{%ref_table}}\', \'ref_id\', \'RESTRICT\', \'CASCADE\');',
+            $fk->render(new TableStructure(['name' => 'table']), 0)
+        );
     }
 }

@@ -1,17 +1,27 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\cases;
 
 use bizley\migration\controllers\MigrationController;
 use bizley\tests\controllers\EchoMigrateController;
+use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
 use yii\console\Application;
+use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\db\Exception;
+use function array_key_exists;
+use function fwrite;
+use function ob_end_clean;
+use function ob_end_flush;
+use function ob_start;
 
-abstract class DbTestCase extends \PHPUnit\Framework\TestCase
+abstract class DbTestCase extends TestCase
 {
     /**
      * @var string
@@ -29,8 +39,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     protected static $db;
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      * @throws Exception
      * @throws InvalidConfigException
      */
@@ -66,8 +76,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param string $route
      * @param array $params
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      */
     protected static function runSilentMigration(string $route, array $params = []): void
     {
@@ -82,8 +92,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      */
     public static function tearDownAfterClass(): void
     {

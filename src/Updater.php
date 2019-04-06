@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration;
 
@@ -15,6 +17,21 @@ use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use function array_diff;
+use function array_intersect;
+use function array_merge;
+use function array_reverse;
+use function count;
+use function file_exists;
+use function get_class;
+use function implode;
+use function in_array;
+use function preg_match;
+use function str_replace;
+use function strcasecmp;
+use function strpos;
+use function trim;
+use function usort;
 
 /**
  * Class Updater
@@ -86,10 +103,10 @@ class Updater extends Generator
         }
 
         $rows = (new Query())
-                ->select(['version', 'apply_time'])
-                ->from($this->migrationTable)
-                ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
-                ->all($this->db);
+            ->select(['version', 'apply_time'])
+            ->from($this->migrationTable)
+            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+            ->all($this->db);
 
         $history = [];
 
@@ -104,12 +121,12 @@ class Updater extends Generator
                 $row['canonicalVersion'] = $row['version'];
             }
 
-            $row['apply_time'] = (int) $row['apply_time'];
+            $row['apply_time'] = (int)$row['apply_time'];
 
             $history[] = $row;
         }
 
-        usort($history, function ($a, $b) {
+        usort($history, static function ($a, $b) {
             if ($a['apply_time'] === $b['apply_time']) {
                 if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
                     return $compareResult;
@@ -193,17 +210,18 @@ class Updater extends Generator
      * Returns the table structure as applied in gathered migrations.
      * @return TableStructure
      * @since 2.3.0
-     * @throws \yii\base\InvalidParamException
+     * @throws InvalidArgumentException
      */
     public function getOldTable(): TableStructure
     {
         if ($this->_oldTable === null) {
             $this->_oldTable = new TableStructure([
-                'schema' => \get_class($this->db->schema),
+                'schema' => get_class($this->db->schema),
                 'generalSchema' => $this->generalSchema,
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
             ]);
+
             $this->_oldTable->applyChanges(array_reverse($this->_appliedChanges));
         }
 
@@ -240,7 +258,7 @@ class Updater extends Generator
      */
     protected function confirmCompositePrimaryKey(array $newKeys): bool
     {
-        if (\count($this->table->primaryKey->columns) === 1 && \count($newKeys) === 1) {
+        if (count($this->table->primaryKey->columns) === 1 && count($newKeys) === 1) {
             /* @var $column TableColumn */
             foreach ($this->plan->addColumn as $name => $column) {
                 if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
@@ -257,7 +275,7 @@ class Updater extends Generator
             return true;
         }
 
-        if (\count($this->table->primaryKey->columns) > 1) {
+        if (count($this->table->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
                 /* @var $column TableColumn */
                 foreach ($this->plan->addColumn as $name => $column) {
@@ -326,11 +344,13 @@ class Updater extends Generator
                     continue;
                 }
 
-                if (!$this->generalSchema
+                if (
+                    !$this->generalSchema
                     && $property === 'append'
                     && $column->append === null
                     && !$this->table->primaryKey->isComposite()
-                    && $column->isColumnInPK($this->table->primaryKey)) {
+                    && $column->isColumnInPK($this->table->primaryKey)
+                ) {
                     $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                 }
 
@@ -400,9 +420,14 @@ class Updater extends Generator
             $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns) ? $this->table->foreignKeys[$name]->columns : [];
             $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns) ? $this->oldTable->foreignKeys[$name]->columns : [];
 
-            if (\count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
-                array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))))) {
-
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+                        array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+                    )
+                )
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
@@ -428,9 +453,14 @@ class Updater extends Generator
             $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns) ? $this->table->foreignKeys[$name]->refColumns : [];
             $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns) ? $this->oldTable->foreignKeys[$name]->refColumns : [];
 
-            if (\count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
-                array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))))) {
-
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+                        array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+                    )
+                )
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
@@ -480,7 +510,7 @@ class Updater extends Generator
             array_diff($oldTablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns))
         );
 
-        if (\count($newKeys)) {
+        if (count($newKeys)) {
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
 
@@ -539,9 +569,14 @@ class Updater extends Generator
             $tableIndexColumns = !empty($this->table->indexes[$name]->columns) ? $this->table->indexes[$name]->columns : [];
             $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns) ? $this->oldTable->indexes[$name]->columns : [];
 
-            if (\count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
-                array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))))) {
-
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+                        array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+                    )
+                )
+            ) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';
@@ -585,7 +620,7 @@ class Updater extends Generator
 
             foreach ($history as $migration => $time) {
                 $migration = trim($migration, '\\');
-                if (\in_array($migration, $this->skipMigrations, true)) {
+                if (in_array($migration, $this->skipMigrations, true)) {
                     continue;
                 }
 

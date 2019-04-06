@@ -1,6 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
+
+use function is_array;
+use function preg_split;
 
 /**
  * Class TableColumnMoney
@@ -23,14 +28,12 @@ class TableColumnMoney extends TableColumn
      */
     public function setLength($value): void
     {
-        if (\is_array($value)) {
-            $length = $value;
-        } else {
-            $length = preg_split('\s*,\s*', $value);
-        }
+        $length = is_array($value) ? $value : preg_split('\s*,\s*', $value);
+
         if (isset($length[0]) && !empty($length[0])) {
             $this->precision = $length[0];
         }
+
         if (isset($length[1]) && !empty($length[1])) {
             $this->scale = $length[1];
         }

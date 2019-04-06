@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
+use yii\base\InvalidConfigException;
 
 /**
  * Class TableChange
@@ -16,14 +19,17 @@ class TableChange extends BaseObject
      * @var string
      */
     public $table;
+
     /**
      * @var string
      */
     public $method;
+
     /**
      * @var array|string
      */
     public $data;
+
     /**
      * @var string
      * @since 3.1
@@ -33,13 +39,14 @@ class TableChange extends BaseObject
     /**
      * Returns change value.
      * @return array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function getValue()
     {
         switch ($this->method) {
             case 'createTable':
                 $columns = [];
+
                 foreach ((array)$this->data as $column => $schema) {
                     $columns[] = TableColumnFactory::build([
                         'schema' => $this->schema,
@@ -57,11 +64,13 @@ class TableChange extends BaseObject
                     ]);
                 }
                 return $columns;
+
             case 'renameColumn':
                 return [
                     'old' => $this->data[0],
                     'new' => $this->data[1],
                 ];
+
             case 'addColumn':
             case 'alterColumn':
                 return TableColumnFactory::build([
@@ -78,11 +87,13 @@ class TableChange extends BaseObject
                     'isUnsigned' => $this->data[1]['isUnsigned'] ?? null,
                     'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
                 ]);
+
             case 'addPrimaryKey':
                 return new TablePrimaryKey([
                     'name' => $this->data[0],
                     'columns' => $this->data[1],
                 ]);
+
             case 'addForeignKey':
                 return new TableForeignKey([
                     'name' => $this->data[0],
@@ -90,17 +101,20 @@ class TableChange extends BaseObject
                     'refTable' => $this->data[2],
                     'refColumns' => $this->data[3],
                 ]);
+
             case 'createIndex':
                 return new TableIndex([
                     'name' => $this->data[0],
                     'columns' => $this->data[1],
                     'unique' => $this->data[2],
                 ]);
+
             case 'addCommentOnColumn':
                 return [
                     'name' => $this->data[0],
                     'comment' => $this->data[1],
                 ];
+
             case 'renameTable':
             case 'dropTable':
             case 'dropColumn':

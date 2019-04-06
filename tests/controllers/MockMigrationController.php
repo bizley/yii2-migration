@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\controllers;
 
@@ -26,6 +28,7 @@ class MockMigrationController extends MigrationController
     {
         $result = $this->stdOutBuffer;
         $this->stdOutBuffer = '';
+
         return $result;
     }
 }

@@ -1,8 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
+use function count;
+use function implode;
+use function is_numeric;
+use function mb_strlen;
+use function str_repeat;
+use function strpos;
+use function substr;
 
 /**
  * Class TableForeignKey
@@ -14,22 +23,27 @@ class TableForeignKey extends BaseObject
      * @var string
      */
     public $name;
+
     /**
      * @var array
      */
     public $columns;
+
     /**
      * @var string
      */
     public $refTable;
+
     /**
      * @var array
      */
     public $refColumns;
+
     /**
      * @var string
      */
     public $onDelete;
+
     /**
      * @var string
      */
@@ -45,6 +59,7 @@ class TableForeignKey extends BaseObject
         if ($this->name === null || is_numeric($this->name)) {
             return "fk-{$table->name}-" . implode('-', $this->columns);
         }
+
         return $this->name;
     }
 
@@ -56,12 +71,15 @@ class TableForeignKey extends BaseObject
     public function renderRefTableName(TableStructure $table): string
     {
         $tableName = $this->refTable;
+
         if (!$table->usePrefix) {
             return $tableName;
         }
+
         if ($table->dbPrefix && strpos($this->refTable, $table->dbPrefix) === 0) {
             $tableName = substr($this->refTable, mb_strlen($table->dbPrefix, 'UTF-8'));
         }
+
         return '{{%' . $tableName . '}}';
     }
 
@@ -73,10 +91,17 @@ class TableForeignKey extends BaseObject
      */
     public function render(TableStructure $table, int $indent = 8): string
     {
-        return str_repeat(' ', $indent) . '$this->addForeignKey(\'' . $this->renderName($table) . "', '" . $table->renderName() . "', "
-            . (\count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ", '" . $this->renderRefTableName($table) . "', "
-            . (\count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
+        return str_repeat(' ', $indent)
+            . '$this->addForeignKey(\''
+            . $this->renderName($table)
+            . "', '"
+            . $table->renderName()
+            . "', "
+            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
+            . ", '"
+            . $this->renderRefTableName($table)
+            . "', "
+            . (count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
             . ($this->onDelete ? ", '{$this->onDelete}'" : '')
             . ($this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : '')
             . ');';

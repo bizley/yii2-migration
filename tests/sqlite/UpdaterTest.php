@@ -1,11 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\sqlite;
+
+use bizley\tests\cases\UpdaterTestCase;
 
 /**
  * @group sqlite
  */
-class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
+class UpdaterTest extends UpdaterTestCase
 {
     public static $schema = 'sqlite';
 

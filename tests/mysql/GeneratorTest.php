@@ -1,11 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\mysql;
+
+use bizley\tests\cases\GeneratorTestCase;
 
 /**
  * @group mysql
  */
-class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
+class GeneratorTest extends GeneratorTestCase
 {
     public static $schema = 'mysql';
 
