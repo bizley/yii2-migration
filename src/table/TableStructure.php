@@ -1,9 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
 use yii\base\InvalidArgumentException;
+use function mb_strlen;
+use function strpos;
+use function substr;
 
 /**
  * Class TableStructure
@@ -25,44 +30,54 @@ class TableStructure extends BaseObject
      * @var string
      */
     public $name;
+
     /**
      * @var TablePrimaryKey
      */
     public $primaryKey;
+
     /**
      * @var TableColumn[]
      */
     public $columns = [];
+
     /**
      * @var TableIndex[]
      */
     public $indexes = [];
+
     /**
      * @var TableForeignKey[]
      */
     public $foreignKeys = [];
+
     /**
      * @var bool
      */
     public $generalSchema = true;
+
     /**
      * @var bool
      */
     public $usePrefix = true;
+
     /**
      * @var string
      */
     public $dbPrefix;
+
     /**
      * @var string|null
      * @since 3.0.4
      */
     public $tableOptionsInit;
+
     /**
      * @var string|null
      * @since 3.0.4
      */
     public $tableOptions;
+
 
     protected $_schema;
 
@@ -86,16 +101,22 @@ class TableStructure extends BaseObject
         switch ($schemaClass) {
             case 'yii\db\mssql\Schema':
                 return self::SCHEMA_MSSQL;
+
             case 'yii\db\oci\Schema':
                 return self::SCHEMA_OCI;
+
             case 'yii\db\pgsql\Schema':
                 return self::SCHEMA_PGSQL;
+
             case 'yii\db\sqlite\Schema':
                 return self::SCHEMA_SQLITE;
+
             case 'yii\db\cubrid\Schema':
                 return self::SCHEMA_CUBRID;
+
             case 'yii\db\mysql\Schema':
                 return self::SCHEMA_MYSQL;
+
             default:
                 return self::SCHEMA_UNSUPPORTED;
         }
@@ -117,12 +138,15 @@ class TableStructure extends BaseObject
     public function renderName(): string
     {
         $tableName = $this->name;
+
         if (!$this->usePrefix) {
             return $tableName;
         }
+
         if ($this->dbPrefix && strpos($this->name, $this->dbPrefix) === 0) {
             $tableName = substr($this->name, mb_strlen($this->dbPrefix, 'UTF-8'));
         }
+
         return '{{%' . $tableName . '}}';
     }
 
@@ -146,10 +170,13 @@ class TableStructure extends BaseObject
         if ($this->tableOptionsInit !== null) {
             $output .= "        {$this->tableOptionsInit}\n\n";
         }
+
         $output .= "        \$this->createTable('" . $this->renderName() . "', [";
+
         foreach ($this->columns as $column) {
             $output .= "\n" . $column->render($this);
         }
+
         $output .= "\n        ]" . ($this->tableOptions !== null ? ", {$this->tableOptions}" : '') . ");\n";
 
         return $output;
@@ -162,9 +189,11 @@ class TableStructure extends BaseObject
     public function renderPk(): string
     {
         $output = '';
+
         if ($this->primaryKey->isComposite()) {
             $output .= "\n" . $this->primaryKey->render($this);
         }
+
         return $output;
     }
 
@@ -175,6 +204,7 @@ class TableStructure extends BaseObject
     public function renderIndexes(): string
     {
         $output = '';
+
         if ($this->indexes) {
             foreach ($this->indexes as $index) {
                 foreach ($this->foreignKeys as $foreignKey) {
@@ -182,9 +212,11 @@ class TableStructure extends BaseObject
                         continue 2;
                     }
                 }
+
                 $output .= "\n" . $index->render($this);
             }
         }
+
         return $output;
     }
 
@@ -195,11 +227,13 @@ class TableStructure extends BaseObject
     public function renderForeignKeys(): string
     {
         $output = '';
+
         if ($this->foreignKeys) {
             foreach ($this->foreignKeys as $foreignKey) {
                 $output .= "\n" . $foreignKey->render($this);
             }
         }
+
         return $output;
     }
 
@@ -215,11 +249,13 @@ class TableStructure extends BaseObject
             if (!$change instanceof TableChange) {
                 throw new InvalidArgumentException('You must provide array of TableChange objects.');
             }
+
             switch ($change->method) {
                 case 'createTable':
                     /* @var $column TableColumn */
                     foreach ($change->value as $column) {
                         $this->columns[$column->name] = $column;
+
                         if ($column->isPrimaryKey || $column->isColumnAppendPK()) {
                             if ($this->primaryKey === null) {
                                 $this->primaryKey = new TablePrimaryKey(['columns' => [$column->name]]);
@@ -229,8 +265,10 @@ class TableStructure extends BaseObject
                         }
                     }
                     break;
+
                 case 'addColumn':
                     $this->columns[$change->value->name] = $change->value;
+
                     if ($change->value->isPrimaryKey || $change->value->isColumnAppendPK()) {
                         if ($this->primaryKey === null) {
                             $this->primaryKey = new TablePrimaryKey(['columns' => [$change->value->name]]);
@@ -239,21 +277,27 @@ class TableStructure extends BaseObject
                         }
                     }
                     break;
+
                 case 'dropColumn':
                     unset($this->columns[$change->value]);
                     break;
+
                 case 'renameColumn':
                     if (isset($this->columns[$change->value['old']])) {
                         $this->columns[$change->value['new']] = $this->columns[$change->value['old']];
                         $this->columns[$change->value['new']]->name = $change->value['new'];
+
                         unset($this->columns[$change->value['old']]);
                     }
                     break;
+
                 case 'alterColumn':
                     $this->columns[$change->value->name] = $change->value;
                     break;
+
                 case 'addPrimaryKey':
                     $this->primaryKey = $change->value;
+
                     foreach ($this->primaryKey->columns as $column) {
                         if (isset($this->columns[$column])) {
                             if (empty($this->columns[$column]->append)) {
@@ -264,6 +308,7 @@ class TableStructure extends BaseObject
                         }
                     }
                     break;
+
                 case 'dropPrimaryKey':
                     if ($this->primaryKey !== null) {
                         foreach ($this->primaryKey->columns as $column) {
@@ -272,25 +317,32 @@ class TableStructure extends BaseObject
                             }
                         }
                     }
+
                     $this->primaryKey = null;
                     break;
+
                 case 'addForeignKey':
                     $this->foreignKeys[$change->value->name] = $change->value;
                     break;
+
                 case 'dropForeignKey':
                     unset($this->foreignKeys[$change->value]);
                     break;
+
                 case 'createIndex':
                     $this->indexes[$change->value->name] = $change->value;
                     break;
+
                 case 'dropIndex':
                     unset($this->indexes[$change->value]);
                     break;
+
                 case 'addCommentOnColumn':
                     if (isset($this->columns[$change->value->name])) {
                         $this->columns[$change->value->name]->comment = $change->value->comment;
                     }
                     break;
+
                 case 'dropCommentFromColumn':
                     if (isset($this->columns[$change->value])) {
                         $this->columns[$change->value]->comment = null;

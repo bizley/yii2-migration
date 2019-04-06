@@ -1,6 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration\table;
+
+use function in_array;
+use function is_array;
+use function preg_split;
 
 /**
  * Class TableColumnDecimal
@@ -26,7 +32,7 @@ class TableColumnDecimal extends TableColumn
      */
     public function getLength()
     {
-        return \in_array($this->schema, $this->lengthSchemas, true) ? ($this->precision . ($this->scale ? ', ' . $this->scale : null)) : null;
+        return in_array($this->schema, $this->lengthSchemas, true) ? ($this->precision . ($this->scale ? ', ' . $this->scale : null)) : null;
     }
 
     /**
@@ -35,15 +41,13 @@ class TableColumnDecimal extends TableColumn
      */
     public function setLength($value): void
     {
-        if (\in_array($this->schema, $this->lengthSchemas, true)) {
-            if (\is_array($value)) {
-                $length = $value;
-            } else {
-                $length = preg_split('\s*,\s*', $value);
-            }
+        if (in_array($this->schema, $this->lengthSchemas, true)) {
+            $length = is_array($value) ? $value : preg_split('\s*,\s*', $value);
+
             if (isset($length[0]) && !empty($length[0])) {
                 $this->precision = $length[0];
             }
+
             if (isset($length[1]) && !empty($length[1])) {
                 $this->scale = $length[1];
             }

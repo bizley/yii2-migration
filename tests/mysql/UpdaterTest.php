@@ -1,11 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\mysql;
+
+use bizley\tests\cases\UpdaterTestCase;
+use yii\base\ErrorException;
+use yii\base\NotSupportedException;
+use yii\db\Exception;
 
 /**
  * @group mysql
  */
-class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
+class UpdaterTest extends UpdaterTestCase
 {
     public static $schema = 'mysql';
     public static $tableOptions = 'ENGINE=InnoDB';
@@ -13,9 +20,9 @@ class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testAddPrimaryKey(): void
     {

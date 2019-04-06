@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\sqlite;
 
@@ -14,13 +16,14 @@ use bizley\migration\table\TableColumnInt;
 use bizley\migration\table\TableColumnSmallInt;
 use bizley\migration\table\TableColumnString;
 use bizley\migration\table\TableColumnTinyInt;
+use bizley\tests\cases\GeneratorColumnsTestCase;
 use Yii;
 use yii\db\mysql\Schema;
 
 /**
  * @group sqlite
  */
-class GeneratorColumnsTest extends \bizley\tests\cases\GeneratorColumnsTestCase
+class GeneratorColumnsTest extends GeneratorColumnsTestCase
 {
     public static $schema = 'sqlite';
 

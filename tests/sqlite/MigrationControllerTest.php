@@ -1,24 +1,30 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\sqlite;
 
+use bizley\tests\cases\MigrationControllerTestCase;
 use bizley\tests\controllers\MockMigrationController;
 use Yii;
+use yii\base\InvalidRouteException;
+use yii\console\Exception;
 use yii\console\ExitCode;
+use yii\db\Exception as DbException;
 
 /**
  * @group sqlite
  */
-class MigrationControllerTest extends \bizley\tests\cases\MigrationControllerTestCase
+class MigrationControllerTest extends MigrationControllerTestCase
 {
     public static $schema = 'sqlite';
 
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
-     * @throws \yii\db\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
+     * @throws DbException
      */
     public function testUpdateWarning(): void
     {
@@ -39,7 +45,7 @@ class MigrationControllerTest extends \bizley\tests\cases\MigrationControllerTes
 
         Yii::$app->db->createCommand()->renameTable('test_replica', 'test_int_size')->execute();
 
-        $controller = new MockMigrationController('migration', \Yii::$app);
+        $controller = new MockMigrationController('migration', Yii::$app);
 
         $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_int_size']));
 

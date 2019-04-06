@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\migration;
 
@@ -13,8 +15,14 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\View;
 use yii\db\Connection;
+use yii\db\Constraint;
+use yii\db\ForeignKeyConstraint;
+use yii\db\IndexConstraint;
+use yii\db\sqlite\Schema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
+use function count;
+use function get_class;
 
 /**
  * Class Generator
@@ -91,6 +99,7 @@ class Generator extends Component
     public function init(): void
     {
         parent::init();
+
         if (!($this->db instanceof Connection)) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
         }
@@ -107,6 +116,7 @@ class Generator extends Component
         if ($this->_tableSchema === null) {
             $this->_tableSchema = $this->db->getTableSchema($this->tableName);
         }
+
         return $this->_tableSchema;
     }
 
@@ -118,14 +128,14 @@ class Generator extends Component
     {
         $data = [];
 
-        /* @var $constraint \yii\db\Constraint */
+        /* @var $constraint Constraint */
         $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
         if ($constraint) {
             $data = [
                 'columns' => $constraint->columnNames,
                 'name' => $constraint->name,
             ];
-        } elseif ($this->db->schema instanceof \yii\db\sqlite\Schema) {
+        } elseif ($this->db->schema instanceof Schema) {
             // SQLite bug-case fixed in Yii 2.0.16 https://github.com/yiisoft/yii2/issues/16897
 
             if ($this->tableSchema !== null && $this->tableSchema->primaryKey) {
@@ -148,16 +158,21 @@ class Generator extends Component
     protected function getTableColumns(array $indexes = [], ?string $schema = null): array
     {
         $columns = [];
+
         if ($this->tableSchema instanceof TableSchema) {
             $indexData = !empty($indexes) ? $indexes : $this->getTableIndexes();
+
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
+
                 foreach ($indexData as $index) {
-                    if ($index->unique && $index->columns[0] === $column->name && \count($index->columns) === 1) {
+                    if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
                         $isUnique = true;
+
                         break;
                     }
                 }
+
                 $columns[$column->name] = TableColumnFactory::build([
                     'schema' => $schema,
                     'name' => $column->name,
@@ -176,6 +191,7 @@ class Generator extends Component
                 ]);
             }
         }
+
         return $columns;
     }
 
@@ -188,7 +204,8 @@ class Generator extends Component
         $data = [];
 
         $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
-        /* @var $fk \yii\db\ForeignKeyConstraint */
+
+        /* @var $fk ForeignKeyConstraint */
         foreach ($fks as $fk) {
             $data[$fk->name] = new TableForeignKey([
                 'name' => $fk->name,
@@ -213,7 +230,8 @@ class Generator extends Component
         $data = [];
 
         $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
-        /* @var $idx \yii\db\IndexConstraint */
+
+        /* @var $idx IndexConstraint */
         foreach ($idxs as $idx) {
             if (!$idx->isPrimary) {
                 $data[$idx->name] = new TableIndex([
@@ -238,9 +256,10 @@ class Generator extends Component
     {
         if ($this->_table === null) {
             $indexes = $this->getTableIndexes();
+
             $this->_table = new TableStructure([
                 'name' => $this->tableName,
-                'schema' => \get_class($this->db->schema),
+                'schema' => get_class($this->db->schema),
                 'generalSchema' => $this->generalSchema,
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
@@ -250,8 +269,10 @@ class Generator extends Component
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
             ]);
+
             $this->_table->columns = $this->getTableColumns($indexes, $this->_table->schema);
         }
+
         return $this->_table;
     }
 

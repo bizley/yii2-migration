@@ -1,10 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace bizley\tests\cases;
 
 use bizley\tests\controllers\MockMigrationController;
 use Yii;
+use yii\base\InvalidRouteException;
+use yii\console\Exception;
 use yii\console\ExitCode;
+use yii\db\Exception as DbException;
 
 class MigrationControllerTestCase extends DbMigrationsTestCase
 {
@@ -16,8 +21,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testCreateNonExisting(): void
     {
@@ -32,8 +37,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testUpdateNonExisting(): void
     {
@@ -50,8 +55,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testUpdateNoNeeded(): void
     {
@@ -90,7 +95,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
+     * @throws DbException
      */
     public function testUpdateFileFail(): void
     {
