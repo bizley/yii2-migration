@@ -14,10 +14,12 @@ class TableIndex extends Object
      * @var string
      */
     public $name;
+
     /**
      * @var bool
      */
     public $unique = false;
+
     /**
      * @var array
      */
@@ -31,8 +33,12 @@ class TableIndex extends Object
      */
     public function render($table, $indent = 8)
     {
-        return str_repeat(' ', $indent) . "\$this->createIndex('{$this->name}', '" . $table->renderName() . "', "
+        return str_repeat(' ', $indent)
+            . "\$this->createIndex('{$this->name}', '"
+            . $table->renderName()
+            . "', "
             . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ($this->unique ? ', true' : '') . ');';
+            . ($this->unique ? ', true' : '')
+            . ');';
     }
 }

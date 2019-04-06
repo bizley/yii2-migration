@@ -2,10 +2,12 @@
 
 namespace bizley\tests\pgsql;
 
+use bizley\tests\cases\GeneratorTestCase;
+
 /**
  * @group pgsql
  */
-class GeneratorTest extends \bizley\tests\cases\GeneratorTestCase
+class GeneratorTest extends GeneratorTestCase
 {
     public static $schema = 'pgsql';
 

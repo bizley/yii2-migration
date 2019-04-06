@@ -3,6 +3,9 @@
 namespace bizley\tests\cases;
 
 use Yii;
+use yii\base\ErrorException;
+use yii\base\NotSupportedException;
+use yii\db\Exception;
 use yii\db\Schema;
 
 class UpdaterColumnsTestCase extends DbMigrationsTestCase
@@ -17,9 +20,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\base\ErrorException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\NotSupportedException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
      */
     public function testChangeSizeGeneral()
     {
@@ -35,8 +38,8 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @preserveGlobalState disabled
      * @runInSeparateProcess
      * https://github.com/bizley/yii2-migration/issues/30
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testNoChangeSizeSpecific()
     {
@@ -50,8 +53,8 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      * https://github.com/bizley/yii2-migration/issues/30
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testNoChangePKSpecific()
     {
@@ -64,9 +67,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testChangeScaleGeneral()
     {
@@ -81,9 +84,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testChangeScaleSpecific()
     {
@@ -100,9 +103,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testChangeColumnType()
     {
@@ -119,9 +122,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testDropColumn()
     {
@@ -137,9 +140,9 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\db\Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function testAddColumn()
     {

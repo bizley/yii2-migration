@@ -15,6 +15,7 @@ class TableColumnBigUPK extends TableColumnBigPK
     public function buildSpecificDefinition($table)
     {
         parent::buildSpecificDefinition($table);
+
         if ($table->generalSchema) {
             $this->definition[] = 'unsigned()';
             $this->isUnsignedPossible = false;

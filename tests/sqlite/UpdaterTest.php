@@ -2,10 +2,12 @@
 
 namespace bizley\tests\sqlite;
 
+use bizley\tests\cases\UpdaterTestCase;
+
 /**
  * @group sqlite
  */
-class UpdaterTest extends \bizley\tests\cases\UpdaterTestCase
+class UpdaterTest extends UpdaterTestCase
 {
     public static $schema = 'sqlite';
 

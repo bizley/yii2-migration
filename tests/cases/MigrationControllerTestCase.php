@@ -4,7 +4,12 @@ namespace bizley\tests\cases;
 
 use bizley\tests\controllers\MockMigrationController;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
 use yii\console\Controller;
+use yii\console\Exception;
+use yii\db\Connection;
+use yii\di\Instance;
 
 class MigrationControllerTestCase extends DbMigrationsTestCase
 {
@@ -16,8 +21,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testCreateNonExisting()
     {
@@ -32,8 +37,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testUpdateNonExisting()
     {
@@ -50,14 +55,14 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
      */
     public function testUpdateNoNeeded()
     {
         $this->dbUp('test_index_single');
 
-        $controller = new MockMigrationController('migration', \Yii::$app);
+        $controller = new MockMigrationController('migration', Yii::$app);
 
         $this->assertEquals(Controller::EXIT_CODE_NORMAL, $controller->runAction('update', ['test_index_single']));
 
@@ -156,5 +161,19 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $this->assertContains('> Generating update migration for table \'test_pk\' ...DONE!', $output);
         $this->assertContains('Generated 1 file(s).', $output);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public function testRemoveExcluded()
+    {
+        $controller = new MockMigrationController('migration', Yii::$app);
+        $controller->excludeTables = ['exclude'];
+        $controller->db = Instance::ensure($controller->db, Connection::className());
+
+        $this->assertEquals(['all-good', 'another'], $controller->removeExcludedTables(['all-good', 'another']));
+        $this->assertEquals(['another'], $controller->removeExcludedTables(['exclude', 'another']));
+        $this->assertEquals(['another'], $controller->removeExcludedTables(['migration', 'another']));
     }
 }

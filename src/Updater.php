@@ -148,6 +148,7 @@ class Updater extends Generator
 
             if ($tableChange->method === 'renameTable') {
                 $this->_currentTable = $tableChange->value;
+
                 return $this->gatherChanges($changes);
             }
 
@@ -192,7 +193,7 @@ class Updater extends Generator
     /**
      * Returns the table structure as applied in gathered migrations.
      * @since 2.3.0
-     * @throws \yii\base\InvalidParamException
+     * @throws InvalidParamException
      */
     public function getOldTable()
     {
@@ -246,13 +247,16 @@ class Updater extends Generator
                     return false;
                 }
             }
+
             foreach ($this->plan->alterColumn as $name => $column) {
                 if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
                     return false;
                 }
             }
+
             return true;
         }
+
         if (count($this->table->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
                 /* @var $column TableColumn */
@@ -261,6 +265,7 @@ class Updater extends Generator
                         $column->append = $column->removePKAppend();
                     }
                 }
+
                 foreach ($this->plan->alterColumn as $name => $column) {
                     if ($name === $key) {
                         $column->append = $column->removePKAppend();
@@ -386,7 +391,9 @@ class Updater extends Generator
 
                     $this->plan->addForeignKey[$name] = $foreignKey;
                 }
+
                 $different = true;
+
                 continue;
             }
 

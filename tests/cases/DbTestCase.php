@@ -4,8 +4,10 @@ namespace bizley\tests\cases;
 
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
 use yii\console\Application;
 use yii\console\Controller;
+use yii\console\Exception as ConsoleException;
 use yii\db\Connection;
 use yii\db\Exception;
 
@@ -27,8 +29,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     protected static $db;
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      * @throws Exception
      * @throws InvalidConfigException
      */
@@ -64,8 +66,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param string $route
      * @param array $params
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      */
     protected static function runSilentMigration($route, $params = [])
     {
@@ -80,8 +82,8 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
+     * @throws InvalidRouteException
+     * @throws ConsoleException
      */
     public static function tearDownAfterClass()
     {

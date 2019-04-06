@@ -2,23 +2,27 @@
 
 namespace bizley\tests\sqlite;
 
+use bizley\tests\cases\MigrationControllerTestCase;
 use bizley\tests\controllers\MockMigrationController;
 use Yii;
+use yii\base\InvalidRouteException;
 use yii\console\Controller;
+use yii\console\Exception;
+use yii\db\Exception as DbException;
 
 /**
  * @group sqlite
  */
-class MigrationControllerTest extends \bizley\tests\cases\MigrationControllerTestCase
+class MigrationControllerTest extends MigrationControllerTestCase
 {
     public static $schema = 'sqlite';
 
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @throws \yii\base\InvalidRouteException
-     * @throws \yii\console\Exception
-     * @throws \yii\db\Exception
+     * @throws InvalidRouteException
+     * @throws Exception
+     * @throws DbException
      */
     public function testUpdateWarning()
     {
