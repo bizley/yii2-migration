@@ -20,6 +20,7 @@ class m180324_153800_create_table_test_addons extends Migration
             'col_unsigned' => $this->integer()->unsigned(),
             'col_not_null' => $this->integer()->notNull(),
             'col_default_value' => $this->integer()->defaultValue(1),
+            'col_default_empty_value' => $this->string()->defaultValue(''),
         ];
         if ($this->db->driverName !== 'sqlite') {
             $structure['col_comment'] = $this->string()->comment('comment');

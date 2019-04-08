@@ -183,7 +183,7 @@ class Generator extends Component
                     'isNotNull' => $column->allowNull ? null : true,
                     'isUnique' => $isUnique,
                     'check' => null,
-                    'default' => $column->defaultValue ?: null,
+                    'default' => $column->defaultValue,
                     'isPrimaryKey' => $column->isPrimaryKey,
                     'autoIncrement' => $column->autoIncrement,
                     'isUnsigned' => $column->unsigned,

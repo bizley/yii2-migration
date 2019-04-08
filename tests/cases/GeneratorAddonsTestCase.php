@@ -37,4 +37,11 @@ class GeneratorAddonsTestCase extends DbTestCase
         $this->assertArrayHasKey('col_default_value', $table->columns);
         $this->assertEquals(1, $table->columns['col_default_value']->default);
     }
+
+    public function testColumnDefaultEmptyValue(): void
+    {
+        $table = $this->getGenerator()->table;
+        $this->assertArrayHasKey('col_default_empty_value', $table->columns);
+        $this->assertSame('', $table->columns['col_default_empty_value']->default);
+    }
 }
