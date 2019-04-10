@@ -268,7 +268,7 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 if (!in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_addons',
-                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))], // just this column needed for purpose of test
+                        ['col_default_array' => $this->json()->defaultValue([1, 2, 3])], // just this column needed for purpose of test
                         static::$tableOptions
                     )->execute();
 
