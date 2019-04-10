@@ -10,7 +10,6 @@ use yii\base\ErrorException;
 use yii\base\Exception as BaseException;
 use yii\base\NotSupportedException;
 use yii\db\Exception;
-use yii\db\JsonExpression;
 use yii\helpers\Json;
 
 /**
@@ -54,7 +53,7 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
         Yii::$app->db->createCommand()->alterColumn(
             'test_addons',
             'col_default_array',
-            $this->json()->defaultValue(new JsonExpression(['a', 'b']))
+            $this->json()->defaultValue(Json::encode(['a', 'b']))
         )->execute();
 
         $updater = $this->getUpdater('test_addons', false);
