@@ -10,7 +10,6 @@ use yii\base\ErrorException;
 use yii\base\Exception as BaseException;
 use yii\base\NotSupportedException;
 use yii\db\Exception;
-use yii\helpers\Json;
 
 /**
  * @group pgsql
@@ -50,11 +49,6 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
     {
         $this->dbUp('test_addons');
 
-//        Yii::$app->db->createCommand()->alterColumn(
-//            'test_addons',
-//            'col_default_array',
-//            $this->json()->append('DROP DEFAULT')
-//        )->execute();
         Yii::$app->db->createCommand()->alterColumn(
             'test_addons',
             'col_default_array',
