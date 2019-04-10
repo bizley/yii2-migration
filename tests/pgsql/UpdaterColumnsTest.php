@@ -54,7 +54,7 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
         Yii::$app->db->createCommand()->alterColumn(
             'test_addons',
             'col_default_array',
-            $this->json()->defaultValue(/*new JsonExpression(*/['a', 'b']/*)*/)
+            $this->json()->defaultValue(new JsonExpression(['a', 'b']))
         )->execute();
 
         $updater = $this->getUpdater('test_addons', false);
