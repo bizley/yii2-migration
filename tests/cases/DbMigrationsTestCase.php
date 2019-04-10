@@ -10,6 +10,7 @@ use bizley\tests\migrations\m180322_212600_create_table_test_pk;
 use bizley\tests\migrations\m180322_213900_create_table_test_pk_composite;
 use bizley\tests\migrations\m180322_214400_create_table_test_index_single;
 use bizley\tests\migrations\m180324_105400_create_table_test_fk;
+use bizley\tests\migrations\m180324_153800_create_table_test_addons;
 use bizley\tests\migrations\m180328_205600_create_table_test_multiple;
 use bizley\tests\migrations\m180328_205700_add_column_two_to_table_test_multiple;
 use bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
@@ -22,6 +23,7 @@ use yii\console\controllers\MigrateController;
 use yii\console\Exception as ConsoleException;
 use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
+use yii\helpers\Json;
 use function call_user_func;
 use function in_array;
 use function time;
@@ -262,6 +264,17 @@ abstract class DbMigrationsTestCase extends DbTestCase
                     static::addMigration(m180701_160900_create_table_test_char_pk::class);
                 }
             },
+            'test_addons' => function () {
+                if (!in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_addons',
+                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))], // just this column needed for purpose of test
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration(m180324_153800_create_table_test_addons::class);
+                }
+            },
         ];
 
         call_user_func($data[$name]);
@@ -274,6 +287,13 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
+            'test_addons' => static function () {
+                if (in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_addons')->execute();
+
+                    static::deleteMigration(m180324_153800_create_table_test_addons::class);
+                }
+            },
             'test_char_pk' => static function () {
                 if (in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();

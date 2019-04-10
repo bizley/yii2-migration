@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\migrations;
 
 use yii\db\Migration;
+use yii\helpers\Json;
 
 class m180324_153800_create_table_test_addons extends Migration
 {
@@ -27,6 +28,10 @@ class m180324_153800_create_table_test_addons extends Migration
             $structure['col_default_expression'] = $this->timestamp()->defaultExpression('now()');
         } else {
             $structure['col_default_expression'] = $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP');
+        }
+
+        if ($this->db->driverName === 'pgsql') {
+            $structure['col_default_array'] = $this->json()->defaultValue(Json::encode([1, 2, 3]));
         }
 
         $this->createTable('{{%test_addons}}', $structure, $tableOptions);

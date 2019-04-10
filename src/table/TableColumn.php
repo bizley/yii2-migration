@@ -6,9 +6,11 @@ namespace bizley\migration\table;
 
 use yii\base\BaseObject;
 use yii\db\Expression;
+use yii\helpers\Json;
 use function array_unshift;
 use function implode;
 use function in_array;
+use function is_array;
 use function mb_strtoupper;
 use function preg_replace;
 use function str_repeat;
@@ -145,6 +147,8 @@ class TableColumn extends BaseObject
         if ($this->default !== null) {
             if ($this->default instanceof Expression) {
                 $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
+            } elseif (is_array($this->default)) {
+                $this->definition[] = "defaultValue('" . $this->escapeQuotes(Json::encode($this->default)) . "')";
             } else {
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes((string)$this->default) . "')";
             }
