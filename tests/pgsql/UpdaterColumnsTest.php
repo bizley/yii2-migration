@@ -50,15 +50,15 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
     {
         $this->dbUp('test_addons');
 
+//        Yii::$app->db->createCommand()->alterColumn(
+//            'test_addons',
+//            'col_default_array',
+//            $this->json()->append('DROP DEFAULT')
+//        )->execute();
         Yii::$app->db->createCommand()->alterColumn(
             'test_addons',
             'col_default_array',
-            $this->json()->append('DROP DEFAULT')
-        )->execute();
-        Yii::$app->db->createCommand()->alterColumn(
-            'test_addons',
-            'col_default_array',
-            $this->json()->defaultValue(Json::encode(['a', 'b']))
+            'SET DEFAULT \'["a", "b"]\''
         )->execute();
 
         $updater = $this->getUpdater('test_addons', false);
