@@ -17,6 +17,7 @@ use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 use function array_diff;
 use function array_intersect;
 use function array_merge;
@@ -26,6 +27,7 @@ use function file_exists;
 use function get_class;
 use function implode;
 use function in_array;
+use function is_array;
 use function preg_match;
 use function str_replace;
 use function strcasecmp;
@@ -245,6 +247,10 @@ class Updater extends Generator
 
         if ($value === false) {
             return 'FALSE';
+        }
+
+        if (is_array($value)) {
+            return Json::encode($value);
         }
 
         return '"' . str_replace('"', '\"', $value) . '"';
