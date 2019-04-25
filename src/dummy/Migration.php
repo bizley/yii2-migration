@@ -7,6 +7,7 @@ use bizley\migration\table\TableStructure;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\di\Instance;
@@ -87,7 +88,6 @@ class Migration extends Component implements MigrationInterface
      * Returns extracted columns data.
      * @param array $columns
      * @return array
-     * @throws ReflectionException
      */
     protected function extractColumns($columns)
     {
@@ -163,18 +163,24 @@ class Migration extends Component implements MigrationInterface
 
     /**
      * Returns extracted column data.
-     * @param ColumnSchemaBuilder $type
+     * Since 3.3.0 InvalidArgumentException is thrown for non-ColumnSchemaBuilder $columnData.
+     * @param ColumnSchemaBuilder $columnData
      * @return array
      * @throws ReflectionException
+     * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
      */
-    protected function extractColumn($type)
+    protected function extractColumn($columnData)
     {
-        $reflectionClass = new ReflectionClass($type);
+        if (!$columnData instanceof ColumnSchemaBuilder) {
+            throw new InvalidArgumentException('Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.');
+        }
+
+        $reflectionClass = new ReflectionClass($columnData);
         $reflectionProperty = $reflectionClass->getProperty('type');
         $reflectionProperty->setAccessible(true);
 
         $schema = $this->fillTypeMapProperties(
-            $reflectionProperty->getValue($type),
+            $reflectionProperty->getValue($columnData),
             $this->db->schema->createQueryBuilder()->typeMap,
             $this->db->schema->typeMap
         );
@@ -183,13 +189,13 @@ class Migration extends Component implements MigrationInterface
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
-            $value = $reflectionProperty->getValue($type);
+            $value = $reflectionProperty->getValue($columnData);
             if ($value !== null || !isset($schema[$property])) {
                 $schema[$property] = $value;
             }
         }
 
-        $schema['comment'] = empty($type->comment) ? '' : $type->comment;
+        $schema['comment'] = empty($columnData->comment) ? '' : $columnData->comment;
 
         return $schema;
     }
