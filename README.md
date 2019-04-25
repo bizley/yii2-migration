@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^3.2"
+            "bizley/migration": "^3.3"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.2`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.3`
 
 ## Installation for PHP < 7.1
 
@@ -27,11 +27,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^2.5"
+            "bizley/migration": "^2.6"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^2.5`
+and run `composer update` or alternatively run `composer require bizley/migration:^2.6`
 
 ## Configuration
 
@@ -150,6 +150,9 @@ Only history of migrations extending `yii\db\Migration` class can be properly sc
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
 `dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
 etc.) are not tracked.
+
+Updating migrations process requires for methods `createTable()`, `addColumn()`, and `alterColumn()` to provide changes 
+in columns definition in form of an instance of `yii\db\ColumnSchemaBuilder` (like `$this->string()` instead of `'varchar(255)'`).
 
 ## Tests
 

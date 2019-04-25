@@ -16,7 +16,7 @@ class TableColumnJson extends TableColumn
 {
     /**
      * Checks if default value is JSONed array. If so it's decoded.
-     * @since 3.2.1
+     * @since 3.3.0
      */
     public function init(): void
     {
