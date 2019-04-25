@@ -169,8 +169,6 @@ class Migration extends Component implements MigrationInterface
      */
     protected function extractColumn($type)
     {
-        $properties = ['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'];
-
         $reflectionClass = new ReflectionClass($type);
         $reflectionProperty = $reflectionClass->getProperty('type');
         $reflectionProperty->setAccessible(true);
@@ -181,7 +179,7 @@ class Migration extends Component implements MigrationInterface
             $this->db->schema->typeMap
         );
 
-        foreach ($properties as $property) {
+        foreach (['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'] as $property) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
