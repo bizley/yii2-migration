@@ -26,7 +26,7 @@ class GeneratorAddonsTest extends GeneratorAddonsTestCase
         $this->assertEquals('comment', $table->columns['col_comment']->comment);
     }
 
-    public function testColumnDefaultArrayValue(): void
+    public function testColumnDefaultArrayValue()
     {
         $table = $this->getGenerator()->table;
         $this->assertArrayHasKey('col_default_array', $table->columns);
