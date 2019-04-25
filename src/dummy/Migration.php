@@ -8,6 +8,7 @@ use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
 use yii\di\Instance;
 
@@ -75,7 +76,6 @@ class Migration extends Component implements MigrationInterface
      * Returns extracted columns data.
      * @param array $columns
      * @return array
-     * @throws ReflectionException
      */
     protected function extractColumns($columns)
     {
@@ -152,35 +152,39 @@ class Migration extends Component implements MigrationInterface
 
     /**
      * Returns extracted column data.
-     * @param ColumnSchemaBuilder $type
+     * Since 2.6.0 InvalidParamException is thrown for non-ColumnSchemaBuilder $columnData.
+     * @param ColumnSchemaBuilder $columnData
      * @return array
      * @throws ReflectionException
+     * @throws InvalidParamException in case column data is not an instance of ColumnSchemaBuilder
      */
-    protected function extractColumn($type)
+    protected function extractColumn($columnData)
     {
-        $properties = ['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'];
+        if (!$columnData instanceof ColumnSchemaBuilder) {
+            throw new InvalidParamException('Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.');
+        }
 
-        $reflectionClass = new ReflectionClass($type);
+        $reflectionClass = new ReflectionClass($columnData);
         $reflectionProperty = $reflectionClass->getProperty('type');
         $reflectionProperty->setAccessible(true);
 
         $schema = $this->fillTypeMapProperties(
-            $reflectionProperty->getValue($type),
+            $reflectionProperty->getValue($columnData),
             $this->db->schema->createQueryBuilder()->typeMap,
             $this->db->schema->typeMap
         );
 
-        foreach ($properties as $property) {
+        foreach (['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'] as $property) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
-            $value = $reflectionProperty->getValue($type);
+            $value = $reflectionProperty->getValue($columnData);
             if ($value !== null || !isset($schema[$property])) {
                 $schema[$property] = $value;
             }
         }
 
-        $schema['comment'] = empty($type->comment) ? '' : $type->comment;
+        $schema['comment'] = empty($columnData->comment) ? '' : $columnData->comment;
 
         return $schema;
     }

@@ -10,6 +10,7 @@ use yii\console\controllers\MigrateController;
 use yii\console\Exception as ConsoleException;
 use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
+use yii\helpers\Json;
 
 abstract class DbMigrationsTestCase extends DbTestCase
 {
@@ -244,6 +245,17 @@ abstract class DbMigrationsTestCase extends DbTestCase
                     static::addMigration('bizley\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
                 }
             },
+            'test_addons' => function () {
+                if (!in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_addons',
+                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))], // just this column needed for purpose of test
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration('bizley\\tests\\migrations\\m180324_153800_create_table_test_addons');
+                }
+            },
         ];
         call_user_func($data[$name]);
     }
@@ -255,6 +267,13 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
+            'test_addons' => function () {
+                if (in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_addons')->execute();
+
+                    static::deleteMigration('bizley\\tests\\migrations\\m180324_153800_create_table_test_addons');
+                }
+            },
             'test_char_pk' => function () {
                 if (in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();

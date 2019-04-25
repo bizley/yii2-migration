@@ -325,9 +325,24 @@ class TableStructure extends Object
 
                 case 'createIndex':
                     $this->indexes[$change->value->name] = $change->value;
+                    if (
+                        $change->value->unique
+                        && isset($this->columns[$change->value->columns[0]])
+                        && count($change->value->columns) === 1
+                    ) {
+                        $this->columns[$change->value->columns[0]]->isUnique = true;
+                    }
                     break;
 
                 case 'dropIndex':
+                    if (
+                        $this->indexes[$change->value]->unique
+                        && count($this->indexes[$change->value]->columns) === 1
+                        && isset($this->columns[$this->indexes[$change->value]->columns[0]])
+                        && $this->columns[$this->indexes[$change->value]->columns[0]]->isUnique
+                    ) {
+                        $this->columns[$this->indexes[$change->value]->columns[0]]->isUnique = false;
+                    }
                     unset($this->indexes[$change->value]);
                     break;
 

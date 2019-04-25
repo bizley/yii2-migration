@@ -4,6 +4,7 @@ namespace bizley\migration\table;
 
 use yii\base\Object;
 use yii\db\Expression;
+use yii\helpers\Json;
 
 /**
  * Class TableColumn
@@ -130,6 +131,8 @@ class TableColumn extends Object
         if ($this->default !== null) {
             if ($this->default instanceof Expression) {
                 $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
+            } elseif (is_array($this->default)) {
+                $this->definition[] = "defaultValue('" . $this->escapeQuotes(Json::encode($this->default)) . "')";
             } else {
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes((string) $this->default) . "')";
             }

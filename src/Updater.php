@@ -15,6 +15,7 @@ use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 /**
  * Class Updater
@@ -227,6 +228,10 @@ class Updater extends Generator
 
         if ($value === false) {
             return 'FALSE';
+        }
+
+        if (is_array($value)) {
+            return Json::encode($value);
         }
 
         return '"' . str_replace('"', '\"', $value) . '"';

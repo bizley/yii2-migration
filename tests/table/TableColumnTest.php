@@ -39,6 +39,15 @@ class TableColumnTest extends TableColumnTestCase
         $this->assertEquals('$this->defaultExpression(\'TEST(\\\'aaa\\\')\')', $column->renderDefinition($this->getTable()));
     }
 
+    public function testDefinitionDefaultArrayValue()
+    {
+        $column = new TableColumn(['default' => [1, 2, 3]]);
+        $this->assertEquals('$this->defaultValue(\'[1,2,3]\')', $column->renderDefinition($this->getTable()));
+
+        $column = new TableColumn(['default' => ['a' => 1, 'b' => 2, 'c' => 3]]);
+        $this->assertEquals('$this->defaultValue(\'{"a":1,"b":2,"c":3}\')', $column->renderDefinition($this->getTable()));
+    }
+
     public function testDefinitionComment()
     {
         $column = new TableColumn(['comment' => "aaa'bbb"]);

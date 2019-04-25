@@ -24,13 +24,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.5.0
+ * @version 2.6.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.5.0';
+    protected $version = '2.6.0';
 
     /**
      * @var string Default command action.
@@ -259,27 +259,27 @@ class MigrationController extends Controller
      */
     public function beforeAction($action)
     {
-        if (parent::beforeAction($action)) {
-            if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
-                if ($this->migrationPath !== null) {
-                    $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
-                }
-
-                if ($this->migrationNamespace !== null) {
-                    $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
-                    $this->workingPath = $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
-                } else {
-                    $this->workingPath = $this->migrationPath;
-                }
-            }
-
-            $this->db = Instance::ensure($this->db, Connection::className());
-            $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
-
-            return true;
+        if (!parent::beforeAction($action)) {
+            return false;
         }
 
-        return false;
+        if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
+            if ($this->migrationPath !== null) {
+                $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
+            }
+
+            if ($this->migrationNamespace !== null) {
+                $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
+                $this->workingPath = $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
+            } else {
+                $this->workingPath = $this->migrationPath;
+            }
+        }
+
+        $this->db = Instance::ensure($this->db, Connection::className());
+        $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
+
+        return true;
     }
 
     /**
@@ -621,31 +621,6 @@ class MigrationController extends Controller
         $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
 
         return Controller::EXIT_CODE_NORMAL;
-    }
-
-    /**
-     * Removes migration history table name from the tables list.
-     * @param array $tables
-     * @return array
-     * @since 2.3.0
-     * @deprecated in 2.5.0, will be removed in 2.6.0
-     */
-    public function removeMigrationTable($tables)
-    {
-        if (!$tables) {
-            return [];
-        }
-
-        $filteredTables = [];
-        foreach ($tables as $table) {
-            if ($this->db->schema->getRawTableName($this->migrationTable) === $table) {
-                continue;
-            }
-
-            $filteredTables[] = $table;
-        }
-
-        return $filteredTables;
     }
 
     /**
