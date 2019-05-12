@@ -1,6 +1,4 @@
-dist: trusty
-sudo: false
-group: edge
+dist: xenial
 language: php
 env:
   global:
@@ -17,18 +15,13 @@ cache:
 
 addons:
   postgresql: "9.6"
-  apt:
-    sources:
-    - mysql-5.7-trusty
-    packages:
-    - mysql-server
 
 matrix:
   fast_finish: true
   include:
-  - php: 7.3
-  - php: 7.2
-  - php: 7.1
+  - php: "7.3"
+  - php: "7.2"
+  - php: "7.1"
 
 install:
 - phpenv config-rm xdebug.ini || echo "xdebug is not installed"
