@@ -91,19 +91,17 @@ class TableForeignKey extends BaseObject
      */
     public function render(TableStructure $table, int $indent = 8): string
     {
-        return str_repeat(' ', $indent)
-            . '$this->addForeignKey(\''
-            . $this->renderName($table)
-            . "', '"
-            . $table->renderName()
-            . "', "
-            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ", '"
-            . $this->renderRefTableName($table)
-            . "', "
-            . (count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
-            . ($this->onDelete ? ", '{$this->onDelete}'" : '')
-            . ($this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : '')
-            . ');';
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->addForeignKey(\'%s\', \'%s\', %s, \'%s\', %s%s%s);',
+            $this->renderName($table),
+            $table->renderName(),
+            count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']",
+            $this->renderRefTableName($table),
+            count($this->refColumns) === 1
+                ? "'{$this->refColumns[0]}'"
+                : "['" . implode("', '", $this->refColumns) . "']",
+            $this->onDelete ? ", '{$this->onDelete}'" : '',
+            $this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : ''
+        );
     }
 }

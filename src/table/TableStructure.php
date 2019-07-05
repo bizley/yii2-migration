@@ -301,9 +301,15 @@ class TableStructure extends BaseObject
                     foreach ($this->primaryKey->columns as $column) {
                         if (isset($this->columns[$column])) {
                             if (empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend(true, false);
+                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend(
+                                    true,
+                                    false
+                                );
                             } elseif (!$this->columns[$column]->isColumnAppendPK()) {
-                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend(true, false);
+                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend(
+                                    true,
+                                    false
+                                );
                             }
                         }
                     }
@@ -331,8 +337,7 @@ class TableStructure extends BaseObject
 
                 case 'createIndex':
                     $this->indexes[$change->value->name] = $change->value;
-                    if (
-                        $change->value->unique
+                    if ($change->value->unique
                         && isset($this->columns[$change->value->columns[0]])
                         && count($change->value->columns) === 1
                     ) {
@@ -341,8 +346,7 @@ class TableStructure extends BaseObject
                     break;
 
                 case 'dropIndex':
-                    if (
-                        $this->indexes[$change->value]->unique
+                    if ($this->indexes[$change->value]->unique
                         && count($this->indexes[$change->value]->columns) === 1
                         && isset($this->columns[$this->indexes[$change->value]->columns[0]])
                         && $this->columns[$this->indexes[$change->value]->columns[0]]->isUnique
