@@ -49,8 +49,10 @@ class m190706_143800_create_test_x_depencies extends Migration
 
     public function down(): void
     {
-        $this->dropForeignKey('fk-test_a_dep_b-b_id', '{{%test_a_dep_b}}');
-        $this->dropForeignKey('fk-test_b_dep_a-a_id', '{{%test_b_dep_a}}');
+        if ($this->db->driverName !== 'sqlite') {
+            $this->dropForeignKey('fk-test_a_dep_b-b_id', '{{%test_a_dep_b}}');
+            $this->dropForeignKey('fk-test_b_dep_a-a_id', '{{%test_b_dep_a}}');
+        }
         $this->dropTable('{{%test_b_dep_a}}');
         $this->dropTable('{{%test_a_dep_b}}');
     }
