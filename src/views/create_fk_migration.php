@@ -25,6 +25,7 @@ class <?= $className ?> extends Migration
 <?php foreach ($fks as $fk): ?>
 <?= $fk->render() ?>
 <?php endforeach; ?>
+
     }
 
     public function down()

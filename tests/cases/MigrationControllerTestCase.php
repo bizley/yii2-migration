@@ -62,7 +62,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_index_single');
 
-        $controller = new MockMigrationController('migration', \Yii::$app);
+        $controller = new MockMigrationController('migration', Yii::$app);
 
         $this->assertEquals(ExitCode::OK, $controller->runAction('update', ['test_index_single']));
 
@@ -110,7 +110,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
                 ->setConstructorArgs(['migration', Yii::$app])
                 ->setMethods(['generateFile'])
                 ->getMock();
-
         $mock->method('generateFile')->willReturn(false);
 
         $this->assertEquals(ExitCode::SOFTWARE, $mock->runAction('update', ['test_pk']));
@@ -164,5 +163,60 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $this->assertContains("> Generating update migration for table 'test_pk' ...DONE!", $output);
         $this->assertContains('Generated 1 file(s).', $output);
+    }
+
+    public function testCreateInProperOrder(): void
+    {
+        $this->dbUp('test_pk');
+        $this->dbUp('test_fk');
+
+        $mock = $this
+            ->getMockBuilder(MockMigrationController::class)
+            ->setConstructorArgs(['migration', Yii::$app])
+            ->setMethods(['generateFile'])
+            ->getMock();
+        $mock->method('generateFile')->willReturn(true);
+
+        $this->assertEquals(ExitCode::OK, $mock->runAction('create', ['test_fk,test_pk']));
+
+        $output = str_replace(["\r", "\n"], '', $mock->flushStdOutBuffer());
+
+        $file = Yii::getAlias(
+            $mock->migrationPath
+            . DIRECTORY_SEPARATOR
+            . 'm' . gmdate('ymd_His')
+            . '_01_create_table_test_pk.php'
+        );
+
+        $this->assertContains(
+            "> Generating create migration for table 'test_pk' ...DONE!"
+            . " > Saved as '{$file}'"
+            . " > Generating create migration for table 'test_fk' ...DONE!",
+            $output
+        );
+        $this->assertContains(' Generated 2 file(s).', $output);
+    }
+
+    public function testCreatePostponedFK(): void
+    {
+        $this->dbUp('test_a_dep_b');
+        $this->dbUp('test_b_dep_a');
+        $this->dbUp('test_x_dependencies');
+
+        $mock = $this
+            ->getMockBuilder(MockMigrationController::class)
+            ->setConstructorArgs(['migration', Yii::$app])
+            ->setMethods(['generateFile'])
+            ->getMock();
+        $mock->method('generateFile')->willReturn(true);
+
+        $this->assertEquals(ExitCode::OK, $mock->runAction('create', ['test_a_dep_b,test_b_dep_a']));
+
+        $output = $mock->flushStdOutBuffer();
+
+        $this->assertContains("> Generating create migration for table 'test_a_dep_b' ...DONE!", $output);
+        $this->assertContains("> Generating create migration for table 'test_b_dep_a' ...DONE!", $output);
+        $this->assertContains('> Generating create migration for foreign keys ...DONE!', $output);
+        $this->assertContains(' Generated 3 file(s).', $output);
     }
 }

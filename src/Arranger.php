@@ -49,12 +49,13 @@ class Arranger extends Component
      */
     public function arrangeNewMigrations(): array
     {
-        $generator = new Generator(['db' => $this->db]);
-
         foreach ($this->inputTables as $inputTable) {
             $this->addDependency($inputTable);
 
-            $generator->tableName = $inputTable;
+            $generator = new Generator([
+                'db' => $this->db,
+                'tableName' => $inputTable,
+            ]);
 
             $tableStructure = $generator->getTable();
             foreach ($tableStructure->foreignKeys as $foreignKey) {

@@ -331,13 +331,4 @@ class Generator extends Component
     {
         return $this->_suppressedForeignKeys;
     }
-
-    public static function generateForeignKeyMigration(array $foreignKeys, string $templateFile)
-    {
-        return $this->view->renderFile(Yii::getAlias($this->templateFile), [
-            'table' => $this->table,
-            'className' => $this->className,
-            'namespace' => $this->normalizedNamespace
-        ]);
-    }
 }

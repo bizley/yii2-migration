@@ -67,7 +67,7 @@ class ForeignKeyData extends BaseObject
      */
     public function render(): string
     {
-        return sprintf(
+        return str_repeat(' ', 8) . sprintf(
             '$this->addForeignKey(\'%s\', \'%s\', %s, \'%s\', %s%s%s);',
             $this->renderName(),
             $this->table->renderName(),

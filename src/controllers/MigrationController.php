@@ -6,6 +6,7 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Arranger;
 use bizley\migration\Generator;
+use bizley\migration\table\TableStructure;
 use bizley\migration\Updater;
 use Yii;
 use yii\base\Action;
@@ -458,6 +459,16 @@ class MigrationController extends Controller
             $arrangedTables = $arranger->arrangeNewMigrations();
             $tables = $arrangedTables['order'];
             $suppressForeignKeys = $arrangedTables['suppressForeignKeys'];
+
+            if (count($suppressForeignKeys)
+                && TableStructure::identifySchema(get_class($this->db->schema)) === TableStructure::SCHEMA_SQLITE) {
+                $this->stdout(
+                    "WARNING!\n > Creating provided tables in batch requires manual migration!\n",
+                    Console::FG_RED
+                );
+
+                return ExitCode::DATAERR;
+            }
         }
 
         $postponedForeignKeys = [];
