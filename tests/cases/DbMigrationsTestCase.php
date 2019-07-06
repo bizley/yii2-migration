@@ -345,11 +345,15 @@ abstract class DbMigrationsTestCase extends DbTestCase
         // needs reverse order
         $data = [
             'test_x_dependencies' => static function () {
-                if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->dropForeignKey('fk-test_b_dep_a-a_id', 'test_b_dep_a')->execute();
-                }
-                if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
-                    Yii::$app->db->createCommand()->dropForeignKey('fk-test_a_dep_b-b_id', 'test_a_dep_b')->execute();
+                if (Yii::$app->db->driverName !== 'sqlite') {
+                    if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db
+                            ->createCommand()->dropForeignKey('fk-test_b_dep_a-a_id', 'test_b_dep_a')->execute();
+                    }
+                    if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app
+                            ->db->createCommand()->dropForeignKey('fk-test_a_dep_b-b_id', 'test_a_dep_b')->execute();
+                    }
                 }
 
                 static::deleteMigration(m190706_143800_create_test_x_depencies::class);
