@@ -462,7 +462,7 @@ class MigrationController extends Controller
 
         $postponedForeignKeys = [];
 
-        $counterSize = strlen($countTables) + 1;
+        $counterSize = strlen((string)$countTables) + 1;
         $migrationsGenerated = 0;
         foreach ($tables as $name) {
             $this->stdout(" > Generating create migration for table '{$name}' ...", Console::FG_YELLOW);

@@ -32,8 +32,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $controller->flushStdOutBuffer();
 
-        $this->assertContains('> Generating create migration for table \'non-existing-table\' ...ERROR!', $output);
-        $this->assertContains('Table \'non-existing-table\' does not exist!', $output);
+        $this->assertContains("> Generating create migration for table 'non-existing-table' ...ERROR!", $output);
+        $this->assertContains("Table 'non-existing-table' does not exist!", $output);
     }
 
     /**
@@ -48,8 +48,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $controller->flushStdOutBuffer();
 
-        $this->assertContains('> Generating update migration for table \'non-existing-table\' ...ERROR!', $output);
-        $this->assertContains('Table \'non-existing-table\' does not exist!', $output);
+        $this->assertContains("> Generating update migration for table 'non-existing-table' ...ERROR!", $output);
+        $this->assertContains("Table 'non-existing-table' does not exist!", $output);
     }
 
     /**
@@ -68,7 +68,10 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $controller->flushStdOutBuffer();
 
-        $this->assertContains('> Generating update migration for table \'test_index_single\' ...UPDATE NOT REQUIRED.', $output);
+        $this->assertContains(
+            "> Generating update migration for table 'test_index_single' ...UPDATE NOT REQUIRED.",
+            $output
+        );
         $this->assertContains('No files generated.', $output);
     }
 
@@ -88,8 +91,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $mock->flushStdOutBuffer();
 
-        $this->assertContains('> Generating create migration for table \'test_pk\' ...ERROR!', $output);
-        $this->assertContains('Migration file for table \'test_pk\' can not be generated!', $output);
+        $this->assertContains("> Generating create migration for table 'test_pk' ...ERROR!", $output);
+        $this->assertContains("Migration file for table 'test_pk' can not be generated!", $output);
     }
 
     /**
@@ -114,8 +117,8 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $mock->flushStdOutBuffer();
 
-        $this->assertContains('> Generating update migration for table \'test_pk\' ...ERROR!', $output);
-        $this->assertContains('Migration file for table \'test_pk\' can not be generated!', $output);
+        $this->assertContains("> Generating update migration for table 'test_pk' ...ERROR!", $output);
+        $this->assertContains("Migration file for table 'test_pk' can not be generated!", $output);
     }
 
     public function testCreateSuccess(): void
@@ -134,7 +137,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $mock->flushStdOutBuffer();
 
-        $this->assertContains('> Generating create migration for table \'test_pk\' ...DONE!', $output);
+        $this->assertContains("> Generating create migration for table 'test_pk' ...DONE!", $output);
         $this->assertContains('Generated 1 file(s).', $output);
     }
 
@@ -159,7 +162,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = $mock->flushStdOutBuffer();
 
-        $this->assertContains('> Generating update migration for table \'test_pk\' ...DONE!', $output);
+        $this->assertContains("> Generating update migration for table 'test_pk' ...DONE!", $output);
         $this->assertContains('Generated 1 file(s).', $output);
     }
 }
