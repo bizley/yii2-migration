@@ -9,6 +9,7 @@ use function count;
 use function implode;
 use function is_numeric;
 use function mb_strlen;
+use function sprintf;
 use function str_repeat;
 use function strpos;
 use function substr;
@@ -57,7 +58,7 @@ class TableForeignKey extends BaseObject
     public function renderName(TableStructure $table): string
     {
         if ($this->name === null || is_numeric($this->name)) {
-            return "fk-{$table->name}-" . implode('-', $this->columns);
+            return sprintf('fk-%s-%s', $table->name, implode('-', $this->columns));
         }
 
         return $this->name;

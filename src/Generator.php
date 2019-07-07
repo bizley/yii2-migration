@@ -11,7 +11,6 @@ use bizley\migration\table\TableForeignKey;
 use bizley\migration\table\TableIndex;
 use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;
-use function in_array;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -25,6 +24,7 @@ use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 use function count;
 use function get_class;
+use function in_array;
 
 /**
  * Class Generator

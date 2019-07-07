@@ -9,6 +9,7 @@ use function count;
 use function implode;
 use function is_numeric;
 use function mb_strlen;
+use function sprintf;
 use function strpos;
 use function substr;
 
@@ -36,7 +37,7 @@ class ForeignKeyData extends BaseObject
     public function renderName(): string
     {
         if ($this->foreignKey->name === null || is_numeric($this->foreignKey->name)) {
-            return "fk-{$this->table->name}-" . implode('-', $this->foreignKey->columns);
+            return sprintf('fk-%s-%s', $this->table->name, implode('-', $this->foreignKey->columns));
         }
 
         return $this->foreignKey->name;

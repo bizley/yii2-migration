@@ -28,7 +28,7 @@ class TableColumnMoney extends TableColumn
      */
     public function setLength($value): void
     {
-        $length = is_array($value) ? $value : preg_split('\s*,\s*', $value);
+        $length = is_array($value) ? $value : preg_split('/\s*,\s*/', $value);
 
         if (isset($length[0]) && !empty($length[0])) {
             $this->precision = $length[0];

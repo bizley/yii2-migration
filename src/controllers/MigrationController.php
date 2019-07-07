@@ -562,6 +562,10 @@ class MigrationController extends Controller
 
             $this->stdout("DONE!\n", Console::FG_GREEN);
             $this->stdout(" > Saved as '{$file}'\n");
+
+            if ($this->fixHistory) {
+                $this->addMigrationHistory($className, $this->migrationNamespace);
+            }
         }
 
         if ($migrationsGenerated) {

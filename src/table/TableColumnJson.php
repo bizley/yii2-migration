@@ -29,7 +29,8 @@ class TableColumnJson extends TableColumn
                 if (is_array($default)) {
                     $this->default = $default;
                 }
-            } catch (InvalidArgumentException $exception) {}
+            } catch (InvalidArgumentException $exception) {
+            }
         }
     }
 

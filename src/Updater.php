@@ -94,7 +94,7 @@ class Updater extends Generator
 
     /**
      * Returns the migration history.
-     * This is slightly modified MigrateController::getMigrationHistory() method.
+     * This is slightly modified Yii's MigrateController::getMigrationHistory() method.
      * Migrations are fetched from newest to oldest.
      * @return array the migration history
      */

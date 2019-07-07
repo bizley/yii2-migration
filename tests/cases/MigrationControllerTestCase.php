@@ -84,7 +84,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
                 ->setConstructorArgs(['migration', Yii::$app])
                 ->setMethods(['generateFile'])
                 ->getMock();
-
         $mock->method('generateFile')->willReturn(false);
 
         $this->assertEquals(ExitCode::SOFTWARE, $mock->runAction('create', ['test_pk']));
@@ -129,7 +128,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
                 ->setConstructorArgs(['migration', Yii::$app])
                 ->setMethods(['generateFile'])
                 ->getMock();
-
         $mock->method('generateFile')->willReturn(true);
 
         $this->assertEquals(ExitCode::OK, $mock->runAction('create', ['test_pk']));
@@ -154,7 +152,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
                 ->setConstructorArgs(['migration', Yii::$app])
                 ->setMethods(['generateFile'])
                 ->getMock();
-
         $mock->method('generateFile')->willReturn(true);
 
         $this->assertEquals(ExitCode::OK, $mock->runAction('update', ['test_pk']));
