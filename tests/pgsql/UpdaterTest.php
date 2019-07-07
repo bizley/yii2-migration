@@ -3,6 +3,7 @@
 namespace bizley\tests\pgsql;
 
 use bizley\tests\cases\UpdaterTestCase;
+use Yii;
 use yii\base\ErrorException;
 use yii\base\NotSupportedException;
 use yii\db\Exception;
@@ -25,7 +26,7 @@ class UpdaterTest extends UpdaterTestCase
     {
         $this->dbUp('test_index_single');
 
-        \Yii::$app->db->createCommand()->addPrimaryKey('PRIMARYKEY', 'test_index_single', 'col')->execute();
+        Yii::$app->db->createCommand()->addPrimaryKey('PRIMARYKEY', 'test_index_single', 'col')->execute();
 
         $updater = $this->getUpdater('test_index_single');
         $this->assertTrue($updater->isUpdateRequired());

@@ -2,7 +2,9 @@
 
 namespace bizley\migration\controllers;
 
+use bizley\migration\Arranger;
 use bizley\migration\Generator;
+use bizley\migration\table\TableStructure;
 use bizley\migration\Updater;
 use Yii;
 use yii\base\Action;
@@ -24,13 +26,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.6.0
+ * @version 2.7.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.6.0';
+    protected $version = '2.7.0';
 
     /**
      * @var string Default command action.
@@ -147,6 +149,14 @@ class MigrationController extends Controller
     public $excludeTables = [];
 
     /**
+     * @var string Template file for generating new foreign keys migrations.
+     * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
+     * Alias -K
+     * @since 2.7.0
+     */
+    public $templateFileForeignKey = '@bizley/migration/views/create_fk_migration.php';
+
+    /**
      * {@inheritdoc}
      */
     public function options($actionID)
@@ -163,6 +173,7 @@ class MigrationController extends Controller
             'migrationTable',
             'tableOptionsInit',
             'tableOptions',
+            'templateFileForeignKey',
         ];
         $updateOptions = [
             'showOnly',
@@ -225,6 +236,7 @@ class MigrationController extends Controller
             's' => 'showOnly',
             'O' => 'tableOptionsInit',
             'o' => 'tableOptions',
+            'K' => 'templateFileForeignKey',
         ]);
     }
 
@@ -270,7 +282,9 @@ class MigrationController extends Controller
 
             if ($this->migrationNamespace !== null) {
                 $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
-                $this->workingPath = $this->preparePathDirectory(FileHelper::normalizePath('@' . $this->migrationNamespace, '/'));
+                $this->workingPath = $this->preparePathDirectory(
+                    FileHelper::normalizePath('@' . $this->migrationNamespace, '/')
+                );
             } else {
                 $this->workingPath = $this->migrationPath;
             }
@@ -411,6 +425,7 @@ class MigrationController extends Controller
      * @return int
      * @throws InvalidParamException
      * @throws DbException
+     * @throws InvalidConfigException
      */
     public function actionCreate($table)
     {
@@ -419,11 +434,45 @@ class MigrationController extends Controller
             $tables = explode(',', $table);
         }
 
+        $countTables = count($tables);
+        $suppressForeignKeys = [];
+        if ($countTables > 1) {
+            $arranger = new Arranger([
+                'db' => $this->db,
+                'inputTables' => $tables,
+            ]);
+            $arrangedTables = $arranger->arrangeNewMigrations();
+            $tables = $arrangedTables['order'];
+            $suppressForeignKeys = $arrangedTables['suppressForeignKeys'];
+
+            if (count($suppressForeignKeys)
+                && TableStructure::identifySchema(get_class($this->db->schema)) === TableStructure::SCHEMA_SQLITE) {
+                $this->stdout(
+                    "WARNING!\n > Creating provided tables in batch requires manual migration!\n",
+                    Console::FG_RED
+                );
+
+                return Controller::EXIT_CODE_ERROR;
+            }
+        }
+
+        $postponedForeignKeys = [];
+
+        $counterSize = strlen((string)$countTables) + 1;
         $migrationsGenerated = 0;
         foreach ($tables as $name) {
             $this->stdout(" > Generating create migration for table '{$name}' ...", Console::FG_YELLOW);
 
-            $className = 'm' . gmdate('ymd_His') . '_create_table_' . $name;
+            if ($countTables > 1) {
+                $className = sprintf(
+                    "m%s_%0{$counterSize}d_create_table_%s",
+                    gmdate('ymd_His'),
+                    $migrationsGenerated + 1,
+                    $name
+                );
+            } else {
+                $className = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $name);
+            }
             $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
 
             $generator = new Generator([
@@ -437,6 +486,7 @@ class MigrationController extends Controller
                 'generalSchema' => $this->generalSchema,
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
+                'suppressForeignKey' => !empty($suppressForeignKeys[$name]) ? $suppressForeignKeys[$name] : [],
             ]);
 
             if ($generator->tableSchema === null) {
@@ -446,7 +496,10 @@ class MigrationController extends Controller
             }
 
             if ($this->generateFile($file, $generator->generateMigration()) === false) {
-                $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+                $this->stdout(
+                    "ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n",
+                    Console::FG_RED
+                );
 
                 return Controller::EXIT_CODE_ERROR;
             }
@@ -464,6 +517,39 @@ class MigrationController extends Controller
             }
 
             $this->stdout("\n");
+
+            $postponedForeignKeys = array_merge($postponedForeignKeys, $generator->getSuppressedForeignKeys());
+        }
+
+        if ($postponedForeignKeys) {
+            $this->stdout(' > Generating create migration for foreign keys ...', Console::FG_YELLOW);
+
+            $className = sprintf(
+                "m%s_%0{$counterSize}d_create_foreign_keys",
+                gmdate('ymd_His'),
+                ++$migrationsGenerated
+            );
+            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+
+            if ($this->generateFile($file, $this->view->renderFile(Yii::getAlias($this->templateFileForeignKey), [
+                    'fks' => $postponedForeignKeys,
+                    'className' => $className,
+                    'namespace' => $this->migrationNamespace
+                ])) === false) {
+                $this->stdout(
+                    "ERROR!\n > Migration file for foreign keys can not be generated!\n\n",
+                    Console::FG_RED
+                );
+
+                return Controller::EXIT_CODE_ERROR;
+            }
+
+            $this->stdout("DONE!\n", Console::FG_GREEN);
+            $this->stdout(" > Saved as '{$file}'\n");
+
+            if ($this->fixHistory) {
+                $this->addMigrationHistory($className, $this->migrationNamespace);
+            }
         }
 
         if ($migrationsGenerated) {
@@ -482,6 +568,7 @@ class MigrationController extends Controller
      * @return int
      * @throws InvalidParamException
      * @throws DbException
+     * @throws InvalidConfigException
      * @since 2.1
      */
     public function actionCreateAll()
@@ -563,7 +650,10 @@ class MigrationController extends Controller
 
             if (!$this->showOnly) {
                 if ($this->generateFile($file, $updater->generateMigration()) === false) {
-                    $this->stdout("ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n", Console::FG_RED);
+                    $this->stdout(
+                        "ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n",
+                        Console::FG_RED
+                    );
 
                     return Controller::EXIT_CODE_ERROR;
                 }

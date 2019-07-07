@@ -64,7 +64,13 @@ class UpdaterTestCase extends DbMigrationsTestCase
         $this->dbUp('test_pk');
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->addForeignKey('fk-test_columns-col_int', 'test_columns', 'col_int', 'test_pk', 'id')->execute();
+        Yii::$app->db->createCommand()->addForeignKey(
+            'fk-test_columns-col_int',
+            'test_columns',
+            'col_int',
+            'test_pk',
+            'id'
+        )->execute();
 
         $updater = $this->getUpdater('test_columns');
         $this->assertTrue($updater->isUpdateRequired());
@@ -139,7 +145,11 @@ class UpdaterTestCase extends DbMigrationsTestCase
 
         Yii::$app->db->createCommand()->addColumn('test_multiple', 'three', $this->integer())->execute();
 
-        $updater = $this->getUpdater('test_multiple', true, ['bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple']);
+        $updater = $this->getUpdater(
+            'test_multiple',
+            true,
+            ['bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple']
+        );
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('three', $updater->plan->addColumn);
         $this->assertArrayHasKey('one', $updater->oldTable->columns);

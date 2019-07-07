@@ -23,7 +23,15 @@ class m180324_105400_create_table_test_fk extends Migration
         $this->createTable('{{%test_fk}}', $columns, $tableOptions);
 
         if ($this->db->driverName !== 'sqlite') {
-            $this->addForeignKey('fk-test_fk-pk_id', '{{%test_fk}}', 'pk_id', '{{%test_pk}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(
+                'fk-test_fk-pk_id',
+                '{{%test_fk}}',
+                'pk_id',
+                '{{%test_pk}}',
+                'id',
+                'CASCADE',
+                'CASCADE'
+            );
         }
     }
 

@@ -16,7 +16,10 @@ abstract class DbMigrationsTestCase extends DbTestCase
 {
     use SchemaBuilderTrait;
 
-    static protected $runMigrations = false;
+    /**
+     * @var bool
+     */
+    protected static $runMigrations = false;
 
     /**
      * @var string
@@ -202,9 +205,15 @@ abstract class DbMigrationsTestCase extends DbTestCase
                         static::$tableOptions
                     )->execute();
 
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple'
+                    );
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple'
+                    );
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple'
+                    );
                 }
             },
             'test_multiple_skip' => function () {
@@ -218,9 +227,15 @@ abstract class DbMigrationsTestCase extends DbTestCase
                         static::$tableOptions
                     )->execute();
 
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::addMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple'
+                    );
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple'
+                    );
+                    static::addMigration(
+                        'bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple'
+                    );
                 }
             },
             'test_int_size' => function () {
@@ -249,11 +264,64 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 if (!in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_addons',
-                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))], // just this column needed for purpose of test
+                        // just this column needed for purpose of test
+                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))],
                         static::$tableOptions
                     )->execute();
 
                     static::addMigration('bizley\\tests\\migrations\\m180324_153800_create_table_test_addons');
+                }
+            },
+            'test_a_dep_b' => function () {
+                if (!in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_a_dep_b',
+                        [
+                            'id' => $this->primaryKey(),
+                            'b_id' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+                }
+            },
+            'test_b_dep_a' => function () {
+                if (!in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_b_dep_a',
+                        [
+                            'id' => $this->primaryKey(),
+                            'a_id' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+                }
+            },
+            'test_x_dependencies' => static function () {
+                if (Yii::$app->db->driverName !== 'sqlite') {
+                    if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db->createCommand()->addForeignKey(
+                            'fk-test_a_dep_b-b_id',
+                            'test_a_dep_b',
+                            'b_id',
+                            'test_b_dep_a',
+                            'id',
+                            'CASCADE',
+                            'CASCADE'
+                        )->execute();
+                    }
+                    if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db->createCommand()->addForeignKey(
+                            'fk-test_b_dep_a-a_id',
+                            'test_b_dep_a',
+                            'a_id',
+                            'test_a_dep_b',
+                            'id',
+                            'CASCADE',
+                            'CASCADE'
+                        )->execute();
+                    }
+
+                    static::addMigration('bizley\\tests\\migrations\\m190706_143800_create_test_x_depencies');
                 }
             },
         ];
@@ -267,65 +335,95 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
-            'test_addons' => function () {
+            'test_x_dependencies' => static function () {
+                if (Yii::$app->db->driverName !== 'sqlite') {
+                    if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db
+                            ->createCommand()->dropForeignKey('fk-test_b_dep_a-a_id', 'test_b_dep_a')->execute();
+                    }
+                    if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app
+                            ->db->createCommand()->dropForeignKey('fk-test_a_dep_b-b_id', 'test_a_dep_b')->execute();
+                    }
+                }
+
+                static::deleteMigration('bizley\\tests\\migrations\\m190706_143800_create_test_x_depencies');
+            },
+            'test_b_dep_a' => static function () {
+                if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_b_dep_a')->execute();
+                }
+            },
+            'test_a_dep_b' => static function () {
+                if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_a_dep_b')->execute();
+                }
+            },
+            'test_addons' => static function () {
                 if (in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_addons')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180324_153800_create_table_test_addons');
                 }
             },
-            'test_char_pk' => function () {
+            'test_char_pk' => static function () {
                 if (in_array('test_char_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_char_pk')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180701_160900_create_table_test_char_pk');
                 }
             },
-            'test_int_size' => function () {
+            'test_int_size' => static function () {
                 if (in_array('test_int_size', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_int_size')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180701_160300_create_table_test_int_size');
                 }
             },
-            'test_multiple' => function () {
+            'test_multiple' => static function () {
                 if (in_array('test_multiple', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_multiple')->execute();
 
-                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple');
-                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple');
-                    static::deleteMigration('bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple');
+                    static::deleteMigration(
+                        'bizley\\tests\\migrations\\m180328_205900_drop_column_one_from_table_test_multiple'
+                    );
+                    static::deleteMigration(
+                        'bizley\\tests\\migrations\\m180328_205700_add_column_two_to_table_test_multiple'
+                    );
+                    static::deleteMigration(
+                        'bizley\\tests\\migrations\\m180328_205600_create_table_test_multiple'
+                    );
                 }
             },
-            'test_fk' => function () {
+            'test_fk' => static function () {
                 if (in_array('test_fk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_fk')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180324_105400_create_table_test_fk');
                 }
             },
-            'test_pk_composite' => function () {
+            'test_pk_composite' => static function () {
                 if (in_array('test_pk_composite', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk_composite')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180322_213900_create_table_test_pk_composite');
                 }
             },
-            'test_index_single' => function () {
+            'test_index_single' => static function () {
                 if (in_array('test_index_single', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_index_single')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180322_214400_create_table_test_index_single');
                 }
             },
-            'test_columns' => function () {
+            'test_columns' => static function () {
                 if (in_array('test_columns', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_columns')->execute();
 
                     static::deleteMigration('bizley\\tests\\migrations\\m180317_093600_create_table_test_columns');
                 }
             },
-            'test_pk' => function () {
+            'test_pk' => static function () {
                 if (in_array('test_pk', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_pk')->execute();
 

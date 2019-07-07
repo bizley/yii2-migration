@@ -36,7 +36,10 @@ class TableColumnTest extends TableColumnTestCase
     public function testDefinitionDefaultExpression()
     {
         $column = new TableColumn(['default' => new Expression("TEST('aaa')")]);
-        $this->assertEquals('$this->defaultExpression(\'TEST(\\\'aaa\\\')\')', $column->renderDefinition($this->getTable()));
+        $this->assertEquals(
+            '$this->defaultExpression(\'TEST(\\\'aaa\\\')\')',
+            $column->renderDefinition($this->getTable())
+        );
     }
 
     public function testDefinitionDefaultArrayValue()
@@ -45,7 +48,10 @@ class TableColumnTest extends TableColumnTestCase
         $this->assertEquals('$this->defaultValue(\'[1,2,3]\')', $column->renderDefinition($this->getTable()));
 
         $column = new TableColumn(['default' => ['a' => 1, 'b' => 2, 'c' => 3]]);
-        $this->assertEquals('$this->defaultValue(\'{"a":1,"b":2,"c":3}\')', $column->renderDefinition($this->getTable()));
+        $this->assertEquals(
+            '$this->defaultValue(\'{"a":1,"b":2,"c":3}\')',
+            $column->renderDefinition($this->getTable())
+        );
     }
 
     public function testDefinitionComment()
@@ -57,7 +63,10 @@ class TableColumnTest extends TableColumnTestCase
     public function testDefinitionPKAppend()
     {
         $column = new TableColumn(['name' => 'one', 'autoIncrement' => true]);
-        $this->assertEquals('$this->append(\'AUTO_INCREMENT PRIMARY KEY\')', $column->renderDefinition($this->getTable(true, false)));
+        $this->assertEquals(
+            '$this->append(\'AUTO_INCREMENT PRIMARY KEY\')',
+            $column->renderDefinition($this->getTable(true, false))
+        );
     }
 
     public function testDefinitionPKAppendMSSQL()
@@ -74,7 +83,14 @@ class TableColumnTest extends TableColumnTestCase
 
     public function testDefinitionPKAppendSQLITE()
     {
-        $column = new TableColumn(['name' => 'one', 'autoIncrement' => true, 'schema' => TableStructure::SCHEMA_SQLITE]);
-        $this->assertEquals('$this->append(\'PRIMARY KEY AUTOINCREMENT\')', $column->renderDefinition($this->getTable()));
+        $column = new TableColumn([
+            'name' => 'one',
+            'autoIncrement' => true,
+            'schema' => TableStructure::SCHEMA_SQLITE
+        ]);
+        $this->assertEquals(
+            '$this->append(\'PRIMARY KEY AUTOINCREMENT\')',
+            $column->renderDefinition($this->getTable())
+        );
     }
 }

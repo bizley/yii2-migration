@@ -38,14 +38,12 @@ class TablePrimaryKey extends Object
      */
     public function render($table, $indent = 8)
     {
-        return str_repeat(' ', $indent)
-            . "\$this->addPrimaryKey('"
-            . ($this->name ?: self::GENERIC_PRIMARY_KEY)
-            . "', '"
-            . $table->renderName()
-            . "', ['"
-            . implode("', '", $this->columns)
-            . "']);";
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->addPrimaryKey(\'%s\', \'%s\', [\'%s\']);',
+            $this->name ?: self::GENERIC_PRIMARY_KEY,
+            $table->renderName(),
+            implode("', '", $this->columns)
+        );
     }
 
     /**
