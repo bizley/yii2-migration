@@ -79,7 +79,7 @@ You can generate multiple migrations for many tables at once by separating the n
     php yii migration/create table_name1,table_name2,table_name3
 
 Starting from version 3.4/2.7 creating multiple table migrations at once forces the proper migration order based on the 
-presence of the foreing keys. When tables are crossreferenced the additional foreing keys migration is generated at the 
+presence of the foreign keys. When tables are cross-referenced the additional foreign keys migration is generated at the 
 end of default generation.
 
 ## Updating migration
@@ -109,7 +109,7 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 | `tableOptionsInit`       | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
 | `tableOptions`           | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
 | `excludeTables`          |       | List of tables that should be skipped for *-all actions. _default:_ `[]`
-| `templateFileForeignKey` | `K`   | Template file for generating create foreing keys migrations. _default:_ `'@bizley/migration/views/create_fk_migration.php'`
+| `templateFileForeignKey` | `K`   | Template file for generating create foreign keys migrations. _default:_ `'@bizley/migration/views/create_fk_migration.php'`
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 
