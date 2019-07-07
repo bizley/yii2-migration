@@ -161,7 +161,9 @@ class Migration extends Component implements MigrationInterface
     protected function extractColumn($columnData)
     {
         if (!$columnData instanceof ColumnSchemaBuilder) {
-            throw new InvalidParamException('Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.');
+            throw new InvalidParamException(
+                'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
+            );
         }
 
         $reflectionClass = new ReflectionClass($columnData);

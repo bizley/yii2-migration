@@ -33,12 +33,12 @@ class TableIndex extends Object
      */
     public function render($table, $indent = 8)
     {
-        return str_repeat(' ', $indent)
-            . "\$this->createIndex('{$this->name}', '"
-            . $table->renderName()
-            . "', "
-            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ($this->unique ? ', true' : '')
-            . ');';
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->createIndex(\'%s\', \'%s\', %s%s);',
+            $this->name,
+            $table->renderName(),
+            count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']",
+            $this->unique ? ', true' : ''
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace bizley\migration;
 
+use bizley\migration\table\ForeignKeyData;
 use bizley\migration\table\TableColumn;
 use bizley\migration\table\TableColumnFactory;
 use bizley\migration\table\TableForeignKey;
@@ -15,8 +16,10 @@ use yii\base\InvalidParamException;
 use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\Connection;
+use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
+use yii\db\sqlite\Schema;
 use yii\db\TableSchema;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
@@ -90,6 +93,12 @@ class Generator extends Component
     public $tableOptions;
 
     /**
+     * @var array
+     * @since 2.7.0
+     */
+    public $suppressForeignKey = [];
+
+    /**
      * Checks if DB connection is passed.
      * @throws InvalidConfigException
      */
@@ -125,14 +134,14 @@ class Generator extends Component
         $data = [];
 
         if (method_exists($this->db->schema, 'getTablePrimaryKey')) { // requires Yii 2.0.13
-            /* @var $constraint \yii\db\Constraint */
+            /* @var $constraint Constraint */
             $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
             if ($constraint) {
                 $data = [
                     'columns' => $constraint->columnNames,
                     'name' => $constraint->name,
                 ];
-            } elseif ($this->db->schema instanceof \yii\db\sqlite\Schema) {
+            } elseif ($this->db->schema instanceof Schema) {
                 // SQLite bug-case fixed in Yii 2.0.16 https://github.com/yiisoft/yii2/issues/16897
 
                 if ($this->tableSchema !== null && $this->tableSchema->primaryKey) {
@@ -269,13 +278,15 @@ class Generator extends Component
                         'columns' => $cols
                     ]);
                 }
-            } catch (NotSupportedException $exc) {}
+            } catch (NotSupportedException $exc) {
+            }
         }
 
         return $data;
     }
 
     private $_table;
+    private $_suppressedForeignKeys = [];
 
     /**
      * Returns table data
@@ -286,6 +297,21 @@ class Generator extends Component
     {
         if ($this->_table === null) {
             $indexes = $this->getTableIndexes();
+            $foreignKeys = $this->getTableForeignKeys();
+
+            foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
+                if (in_array($foreignKey->refTable, $this->suppressForeignKey, true)) {
+                    $this->_suppressedForeignKeys[] = new ForeignKeyData([
+                        'foreignKey' => $foreignKey,
+                        'table' => new TableStructure([
+                            'name' => $this->tableName,
+                            'usePrefix' => $this->useTablePrefix,
+                            'dbPrefix' => $this->db->tablePrefix,
+                        ]),
+                    ]);
+                    unset($foreignKeys[$foreignKeyName]);
+                }
+            }
 
             $this->_table = new TableStructure([
                 'name' => $this->tableName,
@@ -294,7 +320,7 @@ class Generator extends Component
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
                 'primaryKey' => $this->getTablePrimaryKey(),
-                'foreignKeys' => $this->getTableForeignKeys(),
+                'foreignKeys' => $foreignKeys,
                 'indexes' => $indexes,
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
@@ -327,5 +353,15 @@ class Generator extends Component
             'className' => $this->className,
             'namespace' => $this->normalizedNamespace
         ]);
+    }
+
+    /**
+     * Returns list of foreign keys definitions that were suppressed by the configuration.
+     * @return array
+     * @since 2.7.0
+     */
+    public function getSuppressedForeignKeys()
+    {
+        return $this->_suppressedForeignKeys;
     }
 }

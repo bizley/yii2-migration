@@ -26,7 +26,7 @@ class TableColumnMoney extends TableColumn
         if (is_array($value)) {
             $length = $value;
         } else {
-            $length = preg_split('\s*,\s*', $value);
+            $length = preg_split('/\s*,\s*/', $value);
         }
 
         if (isset($length[0]) && !empty($length[0])) {

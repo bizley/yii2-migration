@@ -76,7 +76,7 @@ class Updater extends Generator
 
     /**
      * Returns the migration history.
-     * This is slightly modified MigrateController::getMigrationHistory() method.
+     * This is slightly modified Yii's MigrateController::getMigrationHistory() method.
      * Migrations are fetched from newest to oldest.
      * @return array the migration history
      */
@@ -182,7 +182,7 @@ class Updater extends Generator
             require_once $file;
         }
 
-        $subject = new $migration;
+        $subject = new $migration();
         $subject->db = $this->db;
         $subject->up();
 
@@ -326,7 +326,16 @@ class Updater extends Generator
                 continue;
             }
 
-            foreach (['type', 'isNotNull', 'length', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'] as $property) {
+            foreach ([
+                'type',
+                'isNotNull',
+                'length',
+                'isUnique',
+                'isUnsigned',
+                'default',
+                'append',
+                'comment'
+            ] as $property) {
                 if ($this->generalSchema && $property === 'length') {
                     continue;
                 }
@@ -402,12 +411,19 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns) ? $this->table->foreignKeys[$name]->columns : [];
-            $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns) ? $this->oldTable->foreignKeys[$name]->columns : [];
+            $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns)
+                ? $this->table->foreignKeys[$name]->columns
+                : [];
+            $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns)
+                ? $this->oldTable->foreignKeys[$name]->columns
+                : [];
 
-            if (count(array_merge(array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
-                array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))))) {
-
+            if (count(
+                array_merge(
+                    array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+                    array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+                )
+            )) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
@@ -430,12 +446,19 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns) ? $this->table->foreignKeys[$name]->refColumns : [];
-            $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns) ? $this->oldTable->foreignKeys[$name]->refColumns : [];
+            $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns)
+                ? $this->table->foreignKeys[$name]->refColumns
+                : [];
+            $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns)
+                ? $this->oldTable->foreignKeys[$name]->refColumns
+                : [];
 
-            if (count(array_merge(array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
-                array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))))) {
-
+            if (count(
+                array_merge(
+                    array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+                    array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+                )
+            )) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
@@ -498,7 +521,8 @@ class Updater extends Generator
                         throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
+                    $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name
+                        ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
                 }
 
                 if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
@@ -541,12 +565,19 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableIndexColumns = !empty($this->table->indexes[$name]->columns) ? $this->table->indexes[$name]->columns : [];
-            $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns) ? $this->oldTable->indexes[$name]->columns : [];
+            $tableIndexColumns = !empty($this->table->indexes[$name]->columns)
+                ? $this->table->indexes[$name]->columns
+                : [];
+            $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns)
+                ? $this->oldTable->indexes[$name]->columns
+                : [];
 
-            if (count(array_merge(array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
-                array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))))) {
-
+            if (count(
+                array_merge(
+                    array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+                    array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+                )
+            )) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';

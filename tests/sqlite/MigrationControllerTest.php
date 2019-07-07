@@ -54,4 +54,9 @@ class MigrationControllerTest extends MigrationControllerTestCase
         $this->assertContains('> ALTER COLUMN is not supported by SQLite.', $output);
         $this->assertContains('No files generated.', $output);
     }
+
+    public function testCreatePostponedFK()
+    {
+        $this->markTestSkipped('SQLite does not support ADD FOREIGN KEY');
+    }
 }
