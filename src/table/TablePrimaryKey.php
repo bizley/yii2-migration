@@ -8,6 +8,7 @@ use yii\base\BaseObject;
 use function count;
 use function implode;
 use function in_array;
+use function sprintf;
 use function str_repeat;
 
 /**
@@ -45,14 +46,12 @@ class TablePrimaryKey extends BaseObject
      */
     public function render(TableStructure $table, int $indent = 8): string
     {
-        return str_repeat(' ', $indent)
-            . "\$this->addPrimaryKey('"
-            . ($this->name ?: self::GENERIC_PRIMARY_KEY)
-            . "', '"
-            . $table->renderName()
-            . "', ['"
-            . implode("', '", $this->columns)
-            . "']);";
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->addPrimaryKey(\'%s\', \'%s\', [\'%s\']);',
+            $this->name ?: self::GENERIC_PRIMARY_KEY,
+            $table->renderName(),
+            implode("', '", $this->columns)
+        );
     }
 
     /**

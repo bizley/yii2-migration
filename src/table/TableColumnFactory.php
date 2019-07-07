@@ -94,7 +94,9 @@ class TableColumnFactory
                 return new TableColumnJson($configuration);
 
             default:
-                throw new InvalidConfigException("Unsupported schema type '{$configuration['type']}' for TableColumnFactory.");
+                throw new InvalidConfigException(
+                    "Unsupported schema type '{$configuration['type']}' for TableColumnFactory."
+                );
         }
     }
 }

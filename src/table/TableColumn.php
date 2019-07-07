@@ -214,7 +214,9 @@ class TableColumn extends BaseObject
         }
 
         if ($this->schema === TableStructure::SCHEMA_MSSQL) {
-            if (stripos($this->append, 'IDENTITY') !== false && stripos($this->append, 'PRIMARY KEY') !== false) {
+            if (stripos($this->append, 'IDENTITY') !== false
+                && stripos($this->append, 'PRIMARY KEY') !== false
+            ) {
                 return true;
             }
         } elseif (stripos($this->append, 'PRIMARY KEY') !== false) {

@@ -16,6 +16,7 @@ use bizley\tests\migrations\m180328_205700_add_column_two_to_table_test_multiple
 use bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multiple;
 use bizley\tests\migrations\m180701_160300_create_table_test_int_size;
 use bizley\tests\migrations\m180701_160900_create_table_test_char_pk;
+use bizley\tests\migrations\m190706_143800_create_test_x_depencies;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
@@ -32,7 +33,10 @@ abstract class DbMigrationsTestCase extends DbTestCase
 {
     use SchemaBuilderTrait;
 
-    static protected $runMigrations = false;
+    /**
+     * @var bool
+     */
+    protected static $runMigrations = false;
 
     /**
      * @var string
@@ -268,11 +272,64 @@ abstract class DbMigrationsTestCase extends DbTestCase
                 if (!in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->createTable(
                         'test_addons',
-                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))], // just this column needed for purpose of test
+                        // just this column needed for purpose of test
+                        ['col_default_array' => $this->json()->defaultValue(Json::encode([1, 2, 3]))],
                         static::$tableOptions
                     )->execute();
 
                     static::addMigration(m180324_153800_create_table_test_addons::class);
+                }
+            },
+            'test_a_dep_b' => function () {
+                if (!in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_a_dep_b',
+                        [
+                            'id' => $this->primaryKey(),
+                            'b_id' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+                }
+            },
+            'test_b_dep_a' => function () {
+                if (!in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_b_dep_a',
+                        [
+                            'id' => $this->primaryKey(),
+                            'a_id' => $this->integer(),
+                        ],
+                        static::$tableOptions
+                    )->execute();
+                }
+            },
+            'test_x_dependencies' => static function () {
+                if (Yii::$app->db->driverName !== 'sqlite') {
+                    if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db->createCommand()->addForeignKey(
+                            'fk-test_a_dep_b-b_id',
+                            'test_a_dep_b',
+                            'b_id',
+                            'test_b_dep_a',
+                            'id',
+                            'CASCADE',
+                            'CASCADE'
+                        )->execute();
+                    }
+                    if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db->createCommand()->addForeignKey(
+                            'fk-test_b_dep_a-a_id',
+                            'test_b_dep_a',
+                            'a_id',
+                            'test_a_dep_b',
+                            'id',
+                            'CASCADE',
+                            'CASCADE'
+                        )->execute();
+                    }
+
+                    static::addMigration(m190706_143800_create_test_x_depencies::class);
                 }
             },
         ];
@@ -287,6 +344,30 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
+            'test_x_dependencies' => static function () {
+                if (Yii::$app->db->driverName !== 'sqlite') {
+                    if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app->db
+                            ->createCommand()->dropForeignKey('fk-test_b_dep_a-a_id', 'test_b_dep_a')->execute();
+                    }
+                    if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                        Yii::$app
+                            ->db->createCommand()->dropForeignKey('fk-test_a_dep_b-b_id', 'test_a_dep_b')->execute();
+                    }
+                }
+
+                static::deleteMigration(m190706_143800_create_test_x_depencies::class);
+            },
+            'test_b_dep_a' => static function () {
+                if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_b_dep_a')->execute();
+                }
+            },
+            'test_a_dep_b' => static function () {
+                if (in_array('test_a_dep_b', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_a_dep_b')->execute();
+                }
+            },
             'test_addons' => static function () {
                 if (in_array('test_addons', Yii::$app->db->schema->tableNames, true)) {
                     Yii::$app->db->createCommand()->dropTable('test_addons')->execute();

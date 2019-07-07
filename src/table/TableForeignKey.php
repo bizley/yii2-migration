@@ -9,6 +9,7 @@ use function count;
 use function implode;
 use function is_numeric;
 use function mb_strlen;
+use function sprintf;
 use function str_repeat;
 use function strpos;
 use function substr;
@@ -57,7 +58,7 @@ class TableForeignKey extends BaseObject
     public function renderName(TableStructure $table): string
     {
         if ($this->name === null || is_numeric($this->name)) {
-            return "fk-{$table->name}-" . implode('-', $this->columns);
+            return sprintf('fk-%s-%s', $table->name, implode('-', $this->columns));
         }
 
         return $this->name;
@@ -91,19 +92,17 @@ class TableForeignKey extends BaseObject
      */
     public function render(TableStructure $table, int $indent = 8): string
     {
-        return str_repeat(' ', $indent)
-            . '$this->addForeignKey(\''
-            . $this->renderName($table)
-            . "', '"
-            . $table->renderName()
-            . "', "
-            . (count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']")
-            . ", '"
-            . $this->renderRefTableName($table)
-            . "', "
-            . (count($this->refColumns) === 1 ? "'{$this->refColumns[0]}'" : "['" . implode("', '", $this->refColumns) . "']")
-            . ($this->onDelete ? ", '{$this->onDelete}'" : '')
-            . ($this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : '')
-            . ');';
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->addForeignKey(\'%s\', \'%s\', %s, \'%s\', %s%s%s);',
+            $this->renderName($table),
+            $table->renderName(),
+            count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']",
+            $this->renderRefTableName($table),
+            count($this->refColumns) === 1
+                ? "'{$this->refColumns[0]}'"
+                : "['" . implode("', '", $this->refColumns) . "']",
+            $this->onDelete ? ", '{$this->onDelete}'" : '',
+            $this->onUpdate ? ($this->onDelete === null ? ', null' : '') . ", '{$this->onUpdate}'" : ''
+        );
     }
 }

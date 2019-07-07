@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^3.3"
+            "bizley/migration": "^3.4"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.3`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.4`
 
 ## Installation for PHP < 7.1
 
@@ -27,11 +27,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^2.6"
+            "bizley/migration": "^2.7"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^2.6`
+and run `composer update` or alternatively run `composer require bizley/migration:^2.7`
 
 ## Configuration
 
@@ -78,6 +78,10 @@ You can generate multiple migrations for many tables at once by separating the n
 
     php yii migration/create table_name1,table_name2,table_name3
 
+Starting from version 3.4/2.7 creating multiple table migrations at once forces the proper migration order based on the 
+presence of the foreing keys. When tables are crossreferenced the additional foreing keys migration is generated at the 
+end of default generation.
+
 ## Updating migration
 
 Starting with yii2-migration v2.0 it is possible to generate updating migration for database table.
@@ -89,22 +93,23 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 
 ## Command line parameters
 
-| command              | alias | description                                                             
-|----------------------|:-----:|-----------------------------------------------------------------------------------------------------------------
-| `db`                 |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
-| `migrationPath`      | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
-| `migrationNamespace` | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
-| `templateFile`       | `F`   | Template file for generating create migrations. _default:_ `'@bizley/migration/views/create_migration.php'`
-| `templateFileUpdate` | `U`   | Template file for generating update migrations. _default:_ `'@bizley/migration/views/update_migration.php'`
-| `useTablePrefix`     | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
-| `migrationTable`     | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
-| `showOnly`           | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
-| `generalSchema`      | `g`   | Whether to use general column schema instead of database specific (see [1] below). _default:_ `1`
-| `fixHistory`         | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
-| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below). _default:_ `[]`
-| `tableOptionsInit`   | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
-| `tableOptions`       | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
-| `excludeTables`      |       | List of tables that should be skipped for *-all actions. _default:_ `[]`
+| command                  | alias | description                                                             
+|--------------------------|:-----:|-----------------------------------------------------------------------------------------------------------------
+| `db`                     |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
+| `migrationPath`          | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
+| `migrationNamespace`     | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
+| `templateFile`           | `F`   | Template file for generating create migrations. _default:_ `'@bizley/migration/views/create_migration.php'`
+| `templateFileUpdate`     | `U`   | Template file for generating update migrations. _default:_ `'@bizley/migration/views/update_migration.php'`
+| `useTablePrefix`         | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
+| `migrationTable`         | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
+| `showOnly`               | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
+| `generalSchema`          | `g`   | Whether to use general column schema instead of database specific (see [1] below). _default:_ `1`
+| `fixHistory`             | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
+| `skipMigrations`         |       | List of migrations from the history table that should be skipped during the update process (see [2] below). _default:_ `[]`
+| `tableOptionsInit`       | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
+| `tableOptions`           | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
+| `excludeTables`          |       | List of tables that should be skipped for *-all actions. _default:_ `[]`
+| `templateFileForeignKey` | `K`   | Template file for generating create foreing keys migrations. _default:_ `'@bizley/migration/views/create_fk_migration.php'`
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 

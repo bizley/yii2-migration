@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use bizley\migration\table\ForeignKeyData;
 use bizley\migration\table\TableColumn;
 use bizley\migration\table\TableColumnFactory;
 use bizley\migration\table\TableForeignKey;
@@ -23,6 +24,7 @@ use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 use function count;
 use function get_class;
+use function in_array;
 
 /**
  * Class Generator
@@ -91,6 +93,12 @@ class Generator extends Component
      * @since 3.0.4
      */
     public $tableOptions;
+
+    /**
+     * @var array
+     * @since 3.4.0
+     */
+    public $suppressForeignKey = [];
 
     /**
      * Checks if DB connection is passed.
@@ -246,6 +254,7 @@ class Generator extends Component
     }
 
     private $_table;
+    private $_suppressedForeignKeys = [];
 
     /**
      * Returns table data
@@ -256,6 +265,21 @@ class Generator extends Component
     {
         if ($this->_table === null) {
             $indexes = $this->getTableIndexes();
+            $foreignKeys = $this->getTableForeignKeys();
+
+            foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
+                if (in_array($foreignKey->refTable, $this->suppressForeignKey, true)) {
+                    $this->_suppressedForeignKeys[] = new ForeignKeyData([
+                        'foreignKey' => $foreignKey,
+                        'table' => new TableStructure([
+                            'name' => $this->tableName,
+                            'usePrefix' => $this->useTablePrefix,
+                            'dbPrefix' => $this->db->tablePrefix,
+                        ]),
+                    ]);
+                    unset($foreignKeys[$foreignKeyName]);
+                }
+            }
 
             $this->_table = new TableStructure([
                 'name' => $this->tableName,
@@ -264,7 +288,7 @@ class Generator extends Component
                 'usePrefix' => $this->useTablePrefix,
                 'dbPrefix' => $this->db->tablePrefix,
                 'primaryKey' => $this->getTablePrimaryKey(),
-                'foreignKeys' => $this->getTableForeignKeys(),
+                'foreignKeys' => $foreignKeys,
                 'indexes' => $indexes,
                 'tableOptionsInit' => $this->tableOptionsInit,
                 'tableOptions' => $this->tableOptions,
@@ -296,5 +320,15 @@ class Generator extends Component
             'className' => $this->className,
             'namespace' => $this->normalizedNamespace
         ]);
+    }
+
+    /**
+     * Returns list of foreign keys definitions that were suppressed by the configuration.
+     * @return array
+     * @since 3.4.0
+     */
+    public function getSuppressedForeignKeys(): array
+    {
+        return $this->_suppressedForeignKeys;
     }
 }
