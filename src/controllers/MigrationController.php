@@ -39,7 +39,7 @@ use function time;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.4.0
+ * @version 3.4.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -48,7 +48,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.4.0';
+    protected $version = '3.4.1';
 
     /**
      * @var string Default command action.
@@ -56,13 +56,13 @@ class MigrationController extends Controller
     public $defaultAction = 'list';
 
     /**
-     * @var string Directory storing the migration classes. This can be either a path alias or a directory.
+     * @var string|array Directory storing the migration classes. This can be either a path alias or a directory.
      * Alias -p
      */
     public $migrationPath = '@app/migrations';
 
     /**
-     * @var string Full migration namespace. If given it's used instead of $migrationPath. Note that backslash (\)
+     * @var string|array Full migration namespace. If given it's used instead of $migrationPath. Note that backslash (\)
      * symbol is usually considered a special character in the shell, so you need to escape it properly to avoid shell
      * errors or incorrect behavior.
      * Migration namespace should be resolvable as a path alias if prefixed with @, e.g. if you specify the namespace
@@ -292,12 +292,12 @@ class MigrationController extends Controller
 
         if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
             if ($this->migrationPath !== null) {
-                $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
+                $this->migrationPath = $this->preparePathDirectories($this->migrationPath);
             }
 
             if ($this->migrationNamespace !== null) {
                 $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
-                $this->workingPath = $this->preparePathDirectory(
+                $this->workingPath = $this->preparePathDirectories(
                     FileHelper::normalizePath('@' . $this->migrationNamespace, '/')
                 );
             } else {
@@ -327,6 +327,13 @@ class MigrationController extends Controller
         }
 
         return $translatedPath;
+    }
+
+    public function preparePathDirectories($paths)
+    {
+        foreach ((array) $paths as $path) {
+            $this->preparePathDirectory($path);
+        }
     }
 
     /**
