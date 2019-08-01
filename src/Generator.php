@@ -71,7 +71,8 @@ class Generator extends Component
     public $templateFileUpdate;
 
     /**
-     * @var string Migration namespace.
+     * @var string|array Migration namespace.
+     * Since 2.8.0 this can be array of namespaces.
      */
     public $namespace;
 
@@ -105,8 +106,13 @@ class Generator extends Component
     public function init()
     {
         parent::init();
+
         if (!($this->db instanceof Connection)) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
+        }
+
+        if ($this->namespace !== null && !is_array($this->namespace)) {
+            $this->namespace = [$this->namespace];
         }
     }
 
@@ -338,7 +344,7 @@ class Generator extends Component
      */
     public function getNormalizedNamespace()
     {
-        return !empty($this->namespace) ? FileHelper::normalizePath($this->namespace, '\\') : null;
+        return !empty($this->namespace) ? FileHelper::normalizePath(reset($this->namespace), '\\') : null;
     }
 
     /**

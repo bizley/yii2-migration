@@ -32,7 +32,8 @@ class Updater extends Generator
     public $migrationTable = '{{%migration}}';
 
     /**
-     * @var string Directory storing the migration classes. This can be either a path alias or a directory.
+     * @var string|array Directory storing the migration classes. This can be either a path alias or a directory.
+     * Since 2.8.0 this can be array of directories.
      */
     public $migrationPath = '@app/migrations';
 
@@ -57,6 +58,14 @@ class Updater extends Generator
     public function init()
     {
         parent::init();
+
+        if (empty($this->migrationPath)) {
+            throw new InvalidConfigException('You must provide "migrationPath" value.');
+        }
+
+        if (!is_array($this->migrationPath)) {
+            $this->migrationPath = [$this->migrationPath];
+        }
 
         $this->_currentTable = $this->tableName;
 
@@ -173,10 +182,17 @@ class Updater extends Generator
     protected function extract($migration)
     {
         if (strpos($migration, '\\') === false) {
-            $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $migration . '.php');
+            $fileFound = false;
+            foreach ($this->migrationPath as $path) {
+                $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
+                if (file_exists($file)) {
+                    $fileFound = true;
+                    break;
+                }
+            }
 
-            if (!file_exists($file)) {
-                throw new ErrorException("File '{$file}' can not be found! Check migration history table.");
+            if (!$fileFound) {
+                throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
             }
 
             require_once $file;

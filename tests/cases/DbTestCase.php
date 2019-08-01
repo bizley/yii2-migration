@@ -43,8 +43,6 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
             'controllerMap' => [
                 'migration' => [
                     'class' => 'bizley\migration\controllers\MigrationController',
-                    'migrationPath' => null,
-                    'migrationNamespace' => null,
                 ],
                 'migrate' => [
                     'class' => 'bizley\tests\controllers\EchoMigrateController',
@@ -87,7 +85,9 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
      */
     public static function tearDownAfterClass()
     {
-        static::runSilentMigration('migrate/down', ['all']);
+        if (static::$runMigrations) {
+            static::runSilentMigration('migrate/down', ['all']);
+        }
 
         if (static::$db) {
             static::$db->close();
