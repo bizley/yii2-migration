@@ -29,6 +29,7 @@ use function file_put_contents;
 use function gmdate;
 use function implode;
 use function in_array;
+use function is_array;
 use function is_dir;
 use function strlen;
 use function strpos;
@@ -39,7 +40,7 @@ use function time;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.4.0
+ * @version 3.5.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -48,7 +49,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.4.0';
+    protected $version = '3.5.0';
 
     /**
      * @var string Default command action.
@@ -56,18 +57,23 @@ class MigrationController extends Controller
     public $defaultAction = 'list';
 
     /**
-     * @var string Directory storing the migration classes. This can be either a path alias or a directory.
+     * @var string|array Directory storing the migration classes. This can be either a path alias or a directory.
+     * Since 3.5.0 this can be array of directories. In this case the first element will be used for generator and
+     * only first one will be created if it doesn't exist yet.
      * Alias -p
      */
     public $migrationPath = '@app/migrations';
 
     /**
-     * @var string Full migration namespace. If given it's used instead of $migrationPath. Note that backslash (\)
+     * @var string|array Full migration namespace. If given it's used instead of $migrationPath. Note that backslash (\)
      * symbol is usually considered a special character in the shell, so you need to escape it properly to avoid shell
      * errors or incorrect behavior.
      * Migration namespace should be resolvable as a path alias if prefixed with @, e.g. if you specify the namespace
      * 'app\migrations', the code Yii::getAlias('@app/migrations') should be able to return the file path to
      * the directory this namespace refers to.
+     * When this property is given $migrationPath is ignored.
+     * Since 3.5.0 this can be array of namespaces. In this case the first element will be used for generator and
+     * only first one will be checked for corresponding directory to exist and be created if needed.
      * Alias -n
      * @since 1.1
      */
@@ -290,18 +296,34 @@ class MigrationController extends Controller
             return false;
         }
 
-        if (!$this->showOnly && in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
-            if ($this->migrationPath !== null) {
-                $this->migrationPath = $this->preparePathDirectory($this->migrationPath);
-            }
-
+        if (in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
             if ($this->migrationNamespace !== null) {
-                $this->migrationNamespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
-                $this->workingPath = $this->preparePathDirectory(
-                    FileHelper::normalizePath('@' . $this->migrationNamespace, '/')
-                );
+                if (!is_array($this->migrationNamespace)) {
+                    $this->migrationNamespace = [$this->migrationNamespace];
+                }
+                foreach ($this->migrationNamespace as &$namespace) {
+                    $namespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
+
+                    if ($this->workingPath === null && !$this->showOnly) {
+                        $this->workingPath = $this->preparePathDirectory(
+                            '@' . FileHelper::normalizePath($namespace, '/')
+                        );
+                    }
+                }
+            } elseif ($this->migrationPath !== null) {
+                if (!is_array($this->migrationPath)) {
+                    $this->migrationPath = [$this->migrationPath];
+                }
+                foreach ($this->migrationPath as $path) {
+                    if ($this->workingPath === null && !$this->showOnly) {
+                        $this->workingPath = $this->preparePathDirectory($path);
+                        break;
+                    }
+                }
             } else {
-                $this->workingPath = $this->migrationPath;
+                throw new InvalidConfigException(
+                    'You must provide either "migrationPath" or "migrationNamespace" for this action.'
+                );
             }
         }
 
@@ -473,7 +495,7 @@ class MigrationController extends Controller
 
         $postponedForeignKeys = [];
 
-        $counterSize = strlen((string)$countTables) + 1;
+        $counterSize = strlen((string) $countTables) + 1;
         $migrationsGenerated = 0;
         foreach ($tables as $name) {
             $this->stdout(" > Generating create migration for table '{$name}' ...", Console::FG_YELLOW);
@@ -488,7 +510,7 @@ class MigrationController extends Controller
             } else {
                 $className = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $name);
             }
-            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             $generator = new Generator([
                 'db' => $this->db,
@@ -534,7 +556,10 @@ class MigrationController extends Controller
 
             $this->stdout("\n");
 
-            $postponedForeignKeys = array_merge($postponedForeignKeys, $generator->getSuppressedForeignKeys());
+            $supressedKeys = $generator->getSuppressedForeignKeys();
+            foreach ($supressedKeys as $supressedKey) {
+                $postponedForeignKeys[] = $supressedKey;
+            }
         }
 
         if ($postponedForeignKeys) {
@@ -545,7 +570,7 @@ class MigrationController extends Controller
                 gmdate('ymd_His'),
                 ++$migrationsGenerated
             );
-            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             if ($this->generateFile($file, $this->view->renderFile(Yii::getAlias($this->templateFileForeignKey), [
                 'fks' => $postponedForeignKeys,
@@ -625,7 +650,7 @@ class MigrationController extends Controller
             $this->stdout(" > Generating update migration for table '{$name}' ...", Console::FG_YELLOW);
 
             $className = 'm' . gmdate('ymd_His') . '_update_table_' . $name;
-            $file = Yii::getAlias($this->workingPath . DIRECTORY_SEPARATOR . $className . '.php');
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             $updater = new Updater([
                 'db' => $this->db,

@@ -196,7 +196,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $output = str_replace(["\r", "\n"], '', $mock->flushStdOutBuffer());
 
         $file = Yii::getAlias(
-            $mock->migrationPath
+            reset($mock->migrationPath)
             . DIRECTORY_SEPARATOR
             . 'm' . gmdate('ymd_His')
             . '_01_create_table_test_pk.php'
@@ -232,5 +232,20 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains("> Generating create migration for table 'test_b_dep_a' ...DONE!", $output);
         $this->assertContains('> Generating create migration for foreign keys ...DONE!', $output);
         $this->assertContains(' Generated 3 file(s).', $output);
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidRouteException
+     */
+    public function testInvalidConfig(): void
+    {
+        $controller = new MockMigrationController('migration', Yii::$app);
+        $controller->migrationPath = null;
+
+        $this->expectExceptionMessage(
+            'You must provide either "migrationPath" or "migrationNamespace" for this action.'
+        );
+        $controller->runAction('create', ['table']);
     }
 }

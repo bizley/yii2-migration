@@ -53,8 +53,6 @@ abstract class DbTestCase extends TestCase
             'controllerMap' => [
                 'migration' => [
                     'class' => MigrationController::class,
-                    'migrationPath' => null,
-                    'migrationNamespace' => null,
                 ],
                 'migrate' => [
                     'class' => EchoMigrateController::class,
@@ -97,7 +95,9 @@ abstract class DbTestCase extends TestCase
      */
     public static function tearDownAfterClass(): void
     {
-        static::runSilentMigration('migrate/down', ['all']);
+        if (static::$runMigrations) {
+            static::runSilentMigration('migrate/down', ['all']);
+        }
 
         if (static::$db) {
             static::$db->close();
