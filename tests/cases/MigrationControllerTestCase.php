@@ -196,7 +196,7 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $output = str_replace(["\r", "\n"], '', $mock->flushStdOutBuffer());
 
         $file = Yii::getAlias(
-            $mock->migrationPath
+            reset($mock->migrationPath)
             . DIRECTORY_SEPARATOR
             . 'm' . gmdate('ymd_His')
             . '_01_create_table_test_pk.php'

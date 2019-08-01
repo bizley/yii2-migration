@@ -53,8 +53,6 @@ abstract class DbTestCase extends TestCase
             'controllerMap' => [
                 'migration' => [
                     'class' => MigrationController::class,
-                    'migrationPath' => null,
-                    'migrationNamespace' => null,
                 ],
                 'migrate' => [
                     'class' => EchoMigrateController::class,
