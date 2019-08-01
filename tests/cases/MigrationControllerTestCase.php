@@ -233,4 +233,20 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
         $this->assertContains('> Generating create migration for foreign keys ...DONE!', $output);
         $this->assertContains(' Generated 3 file(s).', $output);
     }
+
+    /**
+     * Keep last
+     * @throws Exception
+     * @throws InvalidRouteException
+     */
+    public function testInvalidConfig(): void
+    {
+        $controller = new MockMigrationController('migration', Yii::$app);
+        $controller->migrationPath = null;
+
+        $this->expectExceptionMessage(
+            'You must provide either "migrationPath" or "migrationNamespace" for this action.'
+        );
+        $controller->runAction('create', ['table']);
+    }
 }
