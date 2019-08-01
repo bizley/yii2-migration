@@ -235,7 +235,6 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
     }
 
     /**
-     * Keep last
      * @throws Exception
      * @throws InvalidRouteException
      */
