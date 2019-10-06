@@ -191,6 +191,7 @@ class Generator extends Component
                     'schema' => $schema,
                     'name' => $column->name,
                     'type' => $column->type,
+                    'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$column->type],
                     'size' => $column->size,
                     'precision' => $column->precision,
                     'scale' => $column->scale,

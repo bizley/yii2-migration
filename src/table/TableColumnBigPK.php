@@ -45,7 +45,7 @@ class TableColumnBigPK extends TableColumn
      */
     public function buildSpecificDefinition(TableStructure $table): void
     {
-        $this->definition[] = 'bigPrimaryKey(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'bigPrimaryKey(' . $this->getRenderLength($table->generalSchema) . ')';
         if ($table->generalSchema) {
             $this->isPkPossible = false;
             $this->isNotNullPossible = false;

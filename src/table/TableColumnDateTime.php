@@ -44,6 +44,6 @@ class TableColumnDateTime extends TableColumn
      */
     public function buildSpecificDefinition(TableStructure $table): void
     {
-        $this->definition[] = 'dateTime(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'dateTime(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

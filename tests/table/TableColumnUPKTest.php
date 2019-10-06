@@ -10,21 +10,84 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnUPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnUPK(['size' => 11, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->primaryKey(11)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 10], false, '$this->primaryKey()'],
+            [['size' => 8], false, '$this->primaryKey()'],
+            [['size' => 10], true, '$this->primaryKey()->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey()->unsigned()'],
+            [['size' => 10], false, '$this->primaryKey()'],
+            [['size' => 8], false, '$this->primaryKey()'],
+            [['size' => 10], true, '$this->primaryKey()->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey()->unsigned()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnUPK(['size' => 11]);
-        $this->assertEquals('$this->primaryKey()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnUPK(['size' => 11]);
-        $this->assertEquals('$this->primaryKey()->unsigned()', $column->renderDefinition($this->getTable(true)));
+        return [
+            [['size' => 10], false, '$this->primaryKey(10)'],
+            [['size' => 8], false, '$this->primaryKey(8)'],
+            [['size' => 10], true, '$this->primaryKey(10)->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey(8)->unsigned()'],
+            [['size' => 10], false, '$this->primaryKey(10)'],
+            [['size' => 8], false, '$this->primaryKey(8)'],
+            [['size' => 10], true, '$this->primaryKey(10)->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey(8)->unsigned()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider(): array
+    {
+        return [
+            [['size' => 10], false, '$this->primaryKey(10)'],
+            [['size' => 8], false, '$this->primaryKey(8)'],
+            [['size' => 10], true, '$this->primaryKey()->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey(8)->unsigned()'],
+            [['size' => 10], false, '$this->primaryKey(10)'],
+            [['size' => 8], false, '$this->primaryKey(8)'],
+            [['size' => 10], true, '$this->primaryKey()->unsigned()'],
+            [['size' => 8], true, '$this->primaryKey(8)->unsigned()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'int(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column = new TableColumnUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

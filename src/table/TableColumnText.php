@@ -45,6 +45,6 @@ class TableColumnText extends TableColumn
      */
     public function buildSpecificDefinition(TableStructure $table): void
     {
-        $this->definition[] = 'text(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'text(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }
