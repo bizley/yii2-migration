@@ -9,21 +9,48 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnMoneyTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecificPrecisionScale(): void
+    public function noMappingDataProvider(): array
     {
-        $column = new TableColumnMoney(['precision' => 10, 'scale' => 4]);
-        $this->assertEquals('$this->money(10, 4)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['precision' => 10, 'scale' => 0], false, '$this->money(10, 0)'],
+            [['precision' => 10, 'scale' => 0], true, '$this->money(10, 0)'],
+            [['precision' => 19, 'scale' => 4], false, '$this->money(19, 4)'],
+            [['precision' => 19, 'scale' => 4], true, '$this->money(19, 4)'],
+        ];
     }
 
-    public function testDefinitionSpecificPrecision(): void
+    /**
+     * @dataProvider noMappingDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoMapping(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnMoney(['precision' => 5]);
-        $this->assertEquals('$this->money(5)', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnMoney($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withMappingDataProvider(): array
     {
-        $column = new TableColumnMoney(['precision' => 10, 'scale' => 4]);
-        $this->assertEquals('$this->money()', $column->renderDefinition($this->getTable()));
+        return [
+            [['precision' => 10, 'scale' => 0], false, '$this->money(10, 0)'],
+            [['precision' => 10, 'scale' => 0], true, '$this->money(10, 0)'],
+            [['precision' => 19, 'scale' => 4], false, '$this->money(19, 4)'],
+            [['precision' => 19, 'scale' => 4], true, '$this->money()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMapping(array $column, bool $generalSchema, string $result): void
+    {
+        $column['defaultMapping'] = 'decimal(19,4)';
+        $column = new TableColumnMoney($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

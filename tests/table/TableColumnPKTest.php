@@ -10,21 +10,72 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnPK(['size' => 11, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->primaryKey(11)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 11], false, '$this->primaryKey()'],
+            [['size' => 12], false, '$this->primaryKey()'],
+            [['size' => 11], true, '$this->primaryKey()'],
+            [['size' => 12], true, '$this->primaryKey()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnPK(['size' => 11]);
-        $this->assertEquals('$this->primaryKey()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnPK(['size' => 11]);
-        $this->assertEquals('$this->primaryKey()', $column->renderDefinition($this->getTable()));
+        return [
+            [['size' => 11], false, '$this->primaryKey(11)'],
+            [['size' => 12], false, '$this->primaryKey(12)'],
+            [['size' => 11], true, '$this->primaryKey(11)'],
+            [['size' => 12], true, '$this->primaryKey(12)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider(): array
+    {
+        return [
+            [['size' => 11], false, '$this->primaryKey(11)'],
+            [['size' => 12], false, '$this->primaryKey(12)'],
+            [['size' => 11], true, '$this->primaryKey()'],
+            [['size' => 12], true, '$this->primaryKey(12)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column = new TableColumnPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

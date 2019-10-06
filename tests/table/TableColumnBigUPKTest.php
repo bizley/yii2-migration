@@ -10,21 +10,84 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigUPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnBigUPK(['size' => 20, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->bigPrimaryKey(20)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey()'],
+            [['size' => 18], false, '$this->bigPrimaryKey()'],
+            [['size' => 20], true, '$this->bigPrimaryKey()->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey()->unsigned()'],
+            [['size' => 20], false, '$this->bigPrimaryKey()'],
+            [['size' => 18], false, '$this->bigPrimaryKey()'],
+            [['size' => 20], true, '$this->bigPrimaryKey()->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey()->unsigned()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnBigUPK(['size' => 20]);
-        $this->assertEquals('$this->bigPrimaryKey()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnBigUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnBigUPK(['size' => 20]);
-        $this->assertEquals('$this->bigPrimaryKey()->unsigned()', $column->renderDefinition($this->getTable(true)));
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey(20)->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)->unsigned()'],
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey(20)->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)->unsigned()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnBigUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider(): array
+    {
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey()->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)->unsigned()'],
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey()->unsigned()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)->unsigned()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column = new TableColumnBigUPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

@@ -10,33 +10,117 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigIntTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnBigInt(['size' => 20, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->bigInteger(20)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 20], false, false, '$this->bigInteger()'],
+            [['size' => 18], false, false, '$this->bigInteger()'],
+            [['size' => 20], true, false, '$this->bigInteger()'],
+            [['size' => 18], true, false, '$this->bigInteger()'],
+            [['size' => 20], false, true, '$this->bigInteger()'],
+            [['size' => 18], false, true, '$this->bigInteger()'],
+            [['size' => 20], true, true, '$this->bigInteger()'],
+            [['size' => 18], true, true, '$this->bigInteger()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, bool $composite, string $result): void
     {
-        $column = new TableColumnBigInt(['size' => 20]);
-        $this->assertEquals('$this->bigInteger()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnBigInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 
-    public function testDefinitionGeneralComposite(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnBigInt(['size' => 20]);
-        $this->assertEquals('$this->bigInteger()', $column->renderDefinition($this->getTable(true, true)));
+        return [
+            [['size' => 20], false, false, '$this->bigInteger(20)'],
+            [['size' => 18], false, false, '$this->bigInteger(18)'],
+            [['size' => 20], true, false, '$this->bigInteger(20)'],
+            [['size' => 18], true, false, '$this->bigInteger(18)'],
+            [['size' => 20], false, true, '$this->bigInteger(20)'],
+            [['size' => 18], false, true, '$this->bigInteger(18)'],
+            [['size' => 20], true, true, '$this->bigInteger(20)'],
+            [['size' => 18], true, true, '$this->bigInteger(18)'],
+        ];
     }
 
-    public function testDefinitionGeneralNotPK(): void
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, bool $composite, string $result): void
     {
-        $column = new TableColumnBigInt(['size' => 20, 'name' => 'other']);
-        $this->assertEquals('$this->bigInteger()', $column->renderDefinition($this->getTable()));
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnBigInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 
-    public function testDefinitionGeneralPK(): void
+    public function withMappingAndSchemaDataProvider(): array
     {
-        $column = new TableColumnBigInt(['size' => 20, 'name' => 'one']);
-        $this->assertEquals('$this->bigPrimaryKey()', $column->renderDefinition($this->getTable()));
+        return [
+            [['size' => 20], false, false, '$this->bigInteger(20)'],
+            [['size' => 18], false, false, '$this->bigInteger(18)'],
+            [['size' => 20], true, false, '$this->bigInteger()'],
+            [['size' => 18], true, false, '$this->bigInteger(18)'],
+            [['size' => 20], false, true, '$this->bigInteger(20)'],
+            [['size' => 18], false, true, '$this->bigInteger(18)'],
+            [['size' => 20], true, true, '$this->bigInteger()'],
+            [['size' => 18], true, true, '$this->bigInteger(18)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, bool $composite, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'bigint(20)';
+        $column = new TableColumnBigInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
+    }
+
+    public function withMappingAndSchemaAndPKNameDataProvider(): array
+    {
+        return [
+            [['size' => 20], false, false, '$this->bigInteger(20)->append(\'PRIMARY KEY\')'],
+            [['size' => 18], false, false, '$this->bigInteger(18)->append(\'PRIMARY KEY\')'],
+            [['size' => 20], true, false, '$this->bigPrimaryKey()'],
+            [['size' => 18], true, false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], false, true, '$this->bigInteger(20)'],
+            [['size' => 18], false, true, '$this->bigInteger(18)'],
+            [['size' => 20], true, true, '$this->bigInteger()'],
+            [['size' => 18], true, true, '$this->bigInteger(18)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaAndPKNameDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchemaAndPKName(array $column, bool $generalSchema, bool $composite, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column['name'] = 'one';
+        $column = new TableColumnBigInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 }

@@ -107,7 +107,7 @@ class GeneratorColumnsTest extends GeneratorColumnsTestCase
         $this->assertInstanceOf(TableColumnDecimal::class, $table->columns['col_decimal']);
         $this->assertEquals('col_decimal', $table->columns['col_decimal']->name);
         $this->assertEquals(Schema::TYPE_DECIMAL, $table->columns['col_decimal']->type);
-        $this->assertEquals(10, $table->columns['col_decimal']->length);
+        $this->assertEquals('10, 0', $table->columns['col_decimal']->length);
     }
 
     public function testColumnDouble(): void

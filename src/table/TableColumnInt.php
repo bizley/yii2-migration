@@ -48,9 +48,9 @@ class TableColumnInt extends TableColumn
         if ($table->generalSchema && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
             $this->isPkPossible = false;
             $this->isNotNullPossible = false;
-            $this->definition[] = 'primaryKey()';
+            $this->definition[] = 'primaryKey(' . $this->getRenderLength($table->generalSchema) . ')';
         } else {
-            $this->definition[] = 'integer(' . ($table->generalSchema ? null : $this->length) . ')';
+            $this->definition[] = 'integer(' . $this->getRenderLength($table->generalSchema) . ')';
         }
     }
 }

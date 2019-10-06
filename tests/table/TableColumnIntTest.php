@@ -10,33 +10,117 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnIntTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnInt(['size' => 11, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->integer(11)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 11], false, false, '$this->integer()'],
+            [['size' => 10], false, false, '$this->integer()'],
+            [['size' => 11], true, false, '$this->integer()'],
+            [['size' => 10], true, false, '$this->integer()'],
+            [['size' => 11], false, true, '$this->integer()'],
+            [['size' => 10], false, true, '$this->integer()'],
+            [['size' => 11], true, true, '$this->integer()'],
+            [['size' => 10], true, true, '$this->integer()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, bool $composite, string $result): void
     {
-        $column = new TableColumnInt(['size' => 11]);
-        $this->assertEquals('$this->integer()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 
-    public function testDefinitionGeneralComposite(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnInt(['size' => 11]);
-        $this->assertEquals('$this->integer()', $column->renderDefinition($this->getTable(true, true)));
+        return [
+            [['size' => 11], false, false, '$this->integer(11)'],
+            [['size' => 10], false, false, '$this->integer(10)'],
+            [['size' => 11], true, false, '$this->integer(11)'],
+            [['size' => 10], true, false, '$this->integer(10)'],
+            [['size' => 11], false, true, '$this->integer(11)'],
+            [['size' => 10], false, true, '$this->integer(10)'],
+            [['size' => 11], true, true, '$this->integer(11)'],
+            [['size' => 10], true, true, '$this->integer(10)'],
+        ];
     }
 
-    public function testDefinitionGeneralNotPK(): void
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, bool $composite, string $result): void
     {
-        $column = new TableColumnInt(['size' => 11, 'name' => 'other']);
-        $this->assertEquals('$this->integer()', $column->renderDefinition($this->getTable()));
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 
-    public function testDefinitionGeneralPK(): void
+    public function withMappingAndSchemaDataProvider(): array
     {
-        $column = new TableColumnInt(['size' => 11, 'name' => 'one']);
-        $this->assertEquals('$this->primaryKey()', $column->renderDefinition($this->getTable()));
+        return [
+            [['size' => 11], false, false, '$this->integer(11)'],
+            [['size' => 10], false, false, '$this->integer(10)'],
+            [['size' => 11], true, false, '$this->integer()'],
+            [['size' => 10], true, false, '$this->integer(10)'],
+            [['size' => 11], false, true, '$this->integer(11)'],
+            [['size' => 10], false, true, '$this->integer(10)'],
+            [['size' => 11], true, true, '$this->integer()'],
+            [['size' => 10], true, true, '$this->integer(10)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, bool $composite, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'int(11)';
+        $column = new TableColumnInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
+    }
+
+    public function withMappingAndSchemaAndPKNameDataProvider(): array
+    {
+        return [
+            [['size' => 11], false, false, '$this->integer(11)->append(\'PRIMARY KEY\')'],
+            [['size' => 10], false, false, '$this->integer(10)->append(\'PRIMARY KEY\')'],
+            [['size' => 11], true, false, '$this->primaryKey()'],
+            [['size' => 10], true, false, '$this->primaryKey(10)'],
+            [['size' => 11], false, true, '$this->integer(11)'],
+            [['size' => 10], false, true, '$this->integer(10)'],
+            [['size' => 11], true, true, '$this->integer()'],
+            [['size' => 10], true, true, '$this->integer(10)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaAndPKNameDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param bool $composite
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchemaAndPKName(array $column, bool $generalSchema, bool $composite, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column['name'] = 'one';
+        $column = new TableColumnInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema, $composite)));
     }
 }

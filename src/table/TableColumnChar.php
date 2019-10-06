@@ -35,6 +35,6 @@ class TableColumnChar extends TableColumn
      */
     public function buildSpecificDefinition(TableStructure $table): void
     {
-        $this->definition[] = 'char(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'char(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

@@ -10,21 +10,72 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnDoubleTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnDouble(['precision' => 4, 'schema' => TableStructure::SCHEMA_CUBRID]);
-        $this->assertEquals('$this->double(4)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['precision' => 11], false, '$this->double()'],
+            [['precision' => 11], true, '$this->double()'],
+            [['precision' => 15], false, '$this->double()'],
+            [['precision' => 15], true, '$this->double()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnDouble(['precision' => 4]);
-        $this->assertEquals('$this->double()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnDouble($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnDouble(['precision' => 4]);
-        $this->assertEquals('$this->double()', $column->renderDefinition($this->getTable()));
+        return [
+            [['precision' => 11], false, '$this->double(11)'],
+            [['precision' => 11], true, '$this->double(11)'],
+            [['precision' => 15], false, '$this->double(15)'],
+            [['precision' => 15], true, '$this->double(15)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_CUBRID;
+        $column = new TableColumnDouble($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider(): array
+    {
+        return [
+            [['precision' => 11], false, '$this->double(11)'],
+            [['precision' => 11], true, '$this->double(11)'],
+            [['precision' => 15], false, '$this->double(15)'],
+            [['precision' => 15], true, '$this->double()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_CUBRID;
+        $column['defaultMapping'] = 'double(15)';
+        $column = new TableColumnDouble($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

@@ -10,21 +10,72 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnSmallIntTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific(): void
+    public function noSchemaDataProvider(): array
     {
-        $column = new TableColumnSmallInt(['size' => 6, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->smallInteger(6)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 6], false, '$this->smallInteger()'],
+            [['size' => 7], false, '$this->smallInteger()'],
+            [['size' => 6], true, '$this->smallInteger()'],
+            [['size' => 7], true, '$this->smallInteger()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength(): void
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema(array $column, bool $generalSchema, string $result): void
     {
-        $column = new TableColumnSmallInt(['size' => 6]);
-        $this->assertEquals('$this->smallInteger()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnSmallInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral(): void
+    public function withSchemaDataProvider(): array
     {
-        $column = new TableColumnSmallInt(['size' => 10]);
-        $this->assertEquals('$this->smallInteger()', $column->renderDefinition($this->getTable()));
+        return [
+            [['size' => 6], false, '$this->smallInteger(6)'],
+            [['size' => 7], false, '$this->smallInteger(7)'],
+            [['size' => 6], true, '$this->smallInteger(6)'],
+            [['size' => 7], true, '$this->smallInteger(7)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnSmallInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider(): array
+    {
+        return [
+            [['size' => 6], false, '$this->smallInteger(6)'],
+            [['size' => 7], false, '$this->smallInteger(7)'],
+            [['size' => 6], true, '$this->smallInteger()'],
+            [['size' => 7], true, '$this->smallInteger(7)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'smallint(6)';
+        $column = new TableColumnSmallInt($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

@@ -44,6 +44,6 @@ class TableColumnFloat extends TableColumn
      */
     public function buildSpecificDefinition(TableStructure $table): void
     {
-        $this->definition[] = 'float(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'float(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

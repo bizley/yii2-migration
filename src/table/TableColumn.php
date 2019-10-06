@@ -12,6 +12,7 @@ use function implode;
 use function in_array;
 use function is_array;
 use function mb_strtoupper;
+use function preg_match;
 use function preg_replace;
 use function str_repeat;
 use function str_replace;
@@ -35,6 +36,12 @@ class TableColumn extends BaseObject
      * @var string
      */
     public $type;
+
+    /**
+     * @var string
+     * @since 3.6.0
+     */
+    public $defaultMapping;
 
     /**
      * @var bool|null
@@ -78,13 +85,15 @@ class TableColumn extends BaseObject
 
     /**
      * @var bool
+     * Starting from 3.6.0 it's false by default.
      */
-    public $isPrimaryKey;
+    public $isPrimaryKey = false;
 
     /**
      * @var bool
+     * Starting from 3.6.0 it's false by default.
      */
-    public $autoIncrement;
+    public $autoIncrement = false;
 
     /**
      * @var string
@@ -302,5 +311,50 @@ class TableColumn extends BaseObject
         $formattedAppend = trim($formattedAppend);
 
         return !empty($formattedAppend) ? $formattedAppend : null;
+    }
+
+    /**
+     * @param bool $generalSchema
+     * @return string|null
+     * @since 3.6.0
+     */
+    public function getRenderLength(bool $generalSchema): ?string
+    {
+        $length = $this->length;
+
+        if ($length === null) {
+            return $length;
+        }
+
+        if (!$generalSchema) {
+            if ($length === 'max') {
+                return '\'max\'';
+            }
+            return (string)$length;
+        }
+
+        if (str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
+            if ($length === 'max') {
+                return '\'max\'';
+            }
+            return (string)$length;
+        }
+
+        return null;
+    }
+
+    private function getDefaultLength(): ?string
+    {
+        if ($this->defaultMapping !== null) {
+            if (preg_match('/\(([\d,]+)\)/', $this->defaultMapping, $matches)) {
+                return $matches[1];
+            }
+            if (preg_match('/\(max\)/', $this->defaultMapping)) {
+                // MSSQL
+                return 'max';
+            }
+        }
+
+        return null;
     }
 }
