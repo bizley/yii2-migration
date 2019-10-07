@@ -40,6 +40,6 @@ class TableColumnTimestamp extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'timestamp(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'timestamp(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

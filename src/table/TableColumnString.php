@@ -33,6 +33,6 @@ class TableColumnString extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'string(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'string(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

@@ -25,6 +25,12 @@ class TableColumn extends Object
     public $type;
 
     /**
+     * @var string
+     * @since 2.9.0
+     */
+    public $defaultMapping;
+
+    /**
      * @var bool|null
      */
     public $isNotNull;
@@ -66,13 +72,15 @@ class TableColumn extends Object
 
     /**
      * @var bool
+     * Starting from 2.9.0 it's false by default.
      */
-    public $isPrimaryKey;
+    public $isPrimaryKey = false;
 
     /**
      * @var bool
+     * Starting from 2.9.0 it's false by default.
      */
-    public $autoIncrement;
+    public $autoIncrement = false;
 
     /**
      * @var string
@@ -286,5 +294,53 @@ class TableColumn extends Object
         $formattedAppend = trim($formattedAppend);
 
         return !empty($formattedAppend) ? $formattedAppend : null;
+    }
+
+    /**
+     * @param bool $generalSchema
+     * @return string|null
+     * @since 2.9.0
+     */
+    public function getRenderLength($generalSchema)
+    {
+        $length = $this->length;
+
+        if ($length === null) {
+            return $length;
+        }
+
+        if (!$generalSchema) {
+            if ($length === 'max') {
+                return '\'max\'';
+            }
+
+            return (string)$length;
+        }
+
+        if (str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
+            if ($length === 'max') {
+                return '\'max\'';
+            }
+
+            return (string)$length;
+        }
+
+        return null;
+    }
+
+    private function getDefaultLength()
+    {
+        if ($this->defaultMapping !== null) {
+            if (preg_match('/\(([\d,]+)\)/', $this->defaultMapping, $matches)) {
+                return $matches[1];
+            }
+
+            if (preg_match('/\(max\)/', $this->defaultMapping)) {
+                // MSSQL
+                return 'max';
+            }
+        }
+
+        return null;
     }
 }

@@ -8,21 +8,84 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigPKTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function noSchemaDataProvider()
     {
-        $column = new TableColumnBigPK(['size' => 20, 'schema' => TableStructure::SCHEMA_MYSQL]);
-        $this->assertEquals('$this->bigPrimaryKey(20)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey()'],
+            [['size' => 18], false, '$this->bigPrimaryKey()'],
+            [['size' => 20], true, '$this->bigPrimaryKey()'],
+            [['size' => 18], true, '$this->bigPrimaryKey()'],
+            [['size' => 20], false, '$this->bigPrimaryKey()'],
+            [['size' => 18], false, '$this->bigPrimaryKey()'],
+            [['size' => 20], true, '$this->bigPrimaryKey()'],
+            [['size' => 18], true, '$this->bigPrimaryKey()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength()
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema($column, $generalSchema, $result)
     {
-        $column = new TableColumnBigPK(['size' => 20]);
-        $this->assertEquals('$this->bigPrimaryKey()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnBigPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral()
+    public function withSchemaDataProvider()
     {
-        $column = new TableColumnBigPK(['size' => 20]);
-        $this->assertEquals('$this->bigPrimaryKey()', $column->renderDefinition($this->getTable(true)));
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema($column, $generalSchema, $result)
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column = new TableColumnBigPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider()
+    {
+        return [
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], false, '$this->bigPrimaryKey(20)'],
+            [['size' => 18], false, '$this->bigPrimaryKey(18)'],
+            [['size' => 20], true, '$this->bigPrimaryKey()'],
+            [['size' => 18], true, '$this->bigPrimaryKey(18)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema($column, $generalSchema, $result)
+    {
+        $column['schema'] = TableStructure::SCHEMA_MYSQL;
+        $column['defaultMapping'] = 'bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY';
+        $column = new TableColumnBigPK($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

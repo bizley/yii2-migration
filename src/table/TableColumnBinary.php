@@ -41,6 +41,6 @@ class TableColumnBinary extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'binary(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'binary(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

@@ -8,21 +8,68 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBinaryTest extends TableColumnTestCase
 {
-    public function testDefinitionSpecific()
+    public function noSchemaDataProvider()
     {
-        $column = new TableColumnBinary(['size' => 1, 'schema' => TableStructure::SCHEMA_MSSQL]);
-        $this->assertEquals('$this->binary(1)', $column->renderDefinition($this->getTable(false)));
+        return [
+            [['size' => 1], false, '$this->binary()'],
+            [['size' => 1], true, '$this->binary()'],
+        ];
     }
 
-    public function testDefinitionSpecificNoLength()
+    /**
+     * @dataProvider noSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionNoSchema($column, $generalSchema, $result)
     {
-        $column = new TableColumnBinary(['size' => 1]);
-        $this->assertEquals('$this->binary()', $column->renderDefinition($this->getTable(false)));
+        $column = new TableColumnBinary($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 
-    public function testDefinitionGeneral()
+    public function withSchemaDataProvider()
     {
-        $column = new TableColumnBinary(['size' => 1]);
-        $this->assertEquals('$this->binary()', $column->renderDefinition($this->getTable()));
+        return [
+            [['size' => 1], false, '$this->binary(1)'],
+            [['size' => 1], true, '$this->binary(1)'],
+        ];
+    }
+
+    /**
+     * @dataProvider withSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithSchema($column, $generalSchema, $result)
+    {
+        $column['schema'] = TableStructure::SCHEMA_MSSQL;
+        $column = new TableColumnBinary($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
+    }
+
+    public function withMappingAndSchemaDataProvider()
+    {
+        return [
+            [['size' => 1], false, '$this->binary(1)'],
+            [['size' => 'max'], false, '$this->binary(\'max\')'],
+            [['size' => 1], true, '$this->binary(1)'],
+            [['size' => 'max'], true, '$this->binary()'],
+        ];
+    }
+
+    /**
+     * @dataProvider withMappingAndSchemaDataProvider
+     * @param array $column
+     * @param bool $generalSchema
+     * @param string $result
+     */
+    public function testDefinitionWithMappingAndSchema($column, $generalSchema, $result)
+    {
+        $column['schema'] = TableStructure::SCHEMA_MSSQL;
+        $column['defaultMapping'] = 'varbinary(max)';
+        $column = new TableColumnBinary($column);
+        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
 }

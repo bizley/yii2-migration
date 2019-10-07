@@ -41,6 +41,6 @@ class TableColumnSmallInt extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'smallInteger(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'smallInteger(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

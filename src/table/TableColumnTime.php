@@ -40,6 +40,6 @@ class TableColumnTime extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'time(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'time(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }

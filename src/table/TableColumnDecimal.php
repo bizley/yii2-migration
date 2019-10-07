@@ -27,7 +27,7 @@ class TableColumnDecimal extends TableColumn
     public function getLength()
     {
         return in_array($this->schema, $this->lengthSchemas, true)
-            ? ($this->precision . ($this->scale ? ', ' . $this->scale : null))
+            ? ($this->precision . (($this->scale || (int)$this->scale === 0) ? ', ' . $this->scale : null))
             : null;
     }
 
@@ -38,18 +38,18 @@ class TableColumnDecimal extends TableColumn
     public function setLength($value)
     {
         if (in_array($this->schema, $this->lengthSchemas, true)) {
-            if (is_array($value)) {
-                $length = $value;
-            } else {
-                $length = preg_split('/\s*,\s*/', $value);
-            }
+            $length = is_array($value) ? $value : preg_split('/\s*,\s*/', $value);
 
             if (isset($length[0]) && !empty($length[0])) {
                 $this->precision = $length[0];
+            } else {
+                $this->precision = 0;
             }
 
             if (isset($length[1]) && !empty($length[1])) {
                 $this->scale = $length[1];
+            } else {
+                $this->scale = 0;
             }
         }
     }
@@ -60,6 +60,6 @@ class TableColumnDecimal extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'decimal(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'decimal(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }
