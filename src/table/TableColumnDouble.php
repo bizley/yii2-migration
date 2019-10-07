@@ -40,6 +40,6 @@ class TableColumnDouble extends TableColumn
      */
     public function buildSpecificDefinition($table)
     {
-        $this->definition[] = 'double(' . ($table->generalSchema ? null : $this->length) . ')';
+        $this->definition[] = 'double(' . $this->getRenderLength($table->generalSchema) . ')';
     }
 }
