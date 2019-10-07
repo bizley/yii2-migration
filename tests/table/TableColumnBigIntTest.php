@@ -8,7 +8,7 @@ use bizley\tests\cases\TableColumnTestCase;
 
 class TableColumnBigIntTest extends TableColumnTestCase
 {
-    public function noSchemaDataProvider(): array
+    public function noSchemaDataProvider()
     {
         return [
             [['size' => 20], false, false, '$this->bigInteger()'],
