@@ -348,18 +348,23 @@ class Updater extends Generator
             echo "SHOWING DIFFERENCES:\n";
         }
 
+        $previousColumn = null;
         foreach ($this->table->columns as $name => $column) {
             if (!isset($this->oldTable->columns[$name])) {
                 if ($this->showOnly) {
                     echo "   - missing column '$name'\n";
                 } else {
+                    $column->after = $previousColumn;
                     $this->plan->addColumn[$name] = $column;
                 }
 
                 $different = true;
+                $previousColumn = $name;
 
                 continue;
             }
+
+            $previousColumn = $name;
 
             foreach ([
                 'type',

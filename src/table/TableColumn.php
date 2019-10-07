@@ -112,6 +112,18 @@ class TableColumn extends BaseObject
     public $schema;
 
     /**
+     * @var string
+     * @since 3.6.0
+     */
+    public $after;
+
+    /**
+     * @var bool
+     * @since 3.6.0
+     */
+    public $isFirst = false;
+
+    /**
      * Sets length of the column.
      * @param string|int $value
      */
@@ -175,6 +187,12 @@ class TableColumn extends BaseObject
 
         if ($this->comment) {
             $this->definition[] = "comment('" . $this->escapeQuotes((string)$this->comment) . "')";
+        }
+
+        if ($this->after) {
+            $this->definition[] = "after('" . $this->escapeQuotes($this->after) . "')";
+        } elseif ($this->isFirst) {
+            $this->definition[] = 'first()';
         }
     }
 
