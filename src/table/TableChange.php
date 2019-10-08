@@ -4,6 +4,7 @@ namespace bizley\migration\table;
 
 use yii\base\InvalidConfigException;
 use yii\base\Object;
+use yii\db\Connection;
 
 /**
  * Class TableChange
@@ -35,6 +36,12 @@ class TableChange extends Object
     public $schema;
 
     /**
+     * @var Connection
+     * @since 2.9.0
+     */
+    public $db;
+
+    /**
      * Returns change value.
      * @return array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex
      * @throws InvalidConfigException
@@ -49,6 +56,7 @@ class TableChange extends Object
                         'schema' => $this->schema,
                         'name' => $column,
                         'type' => $schema['type'],
+                        'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$schema['type']],
                         'length' => isset($schema['length']) ? $schema['length'] : null,
                         'isNotNull' => isset($schema['isNotNull']) ? $schema['isNotNull'] : null,
                         'isUnique' => isset($schema['isUnique']) ? $schema['isUnique'] : null,
@@ -58,6 +66,8 @@ class TableChange extends Object
                         'append' => isset($schema['append']) ? $schema['append'] : null,
                         'isUnsigned' => isset($schema['isUnsigned']) ? $schema['isUnsigned'] : null,
                         'comment' => !empty($schema['comment']) ? $schema['comment'] : null,
+                        'after' => !empty($schema['after']) ? $schema['after'] : null,
+                        'isFirst' => isset($schema['isFirst']) && $schema['isFirst'] === true,
                     ]);
                 }
                 return $columns;
@@ -74,6 +84,7 @@ class TableChange extends Object
                     'schema' => $this->schema,
                     'name' => $this->data[0],
                     'type' => $this->data[1]['type'],
+                    'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$this->data[1]['type']],
                     'length' => isset($this->data[1]['length']) ? $this->data[1]['length'] : null,
                     'isNotNull' => isset($this->data[1]['isNotNull']) ? $this->data[1]['isNotNull'] : null,
                     'isUnique' => isset($this->data[1]['isUnique']) ? $this->data[1]['isUnique'] : null,
@@ -83,6 +94,8 @@ class TableChange extends Object
                     'append' => isset($this->data[1]['append']) ? $this->data[1]['append'] : null,
                     'isUnsigned' => isset($this->data[1]['isUnsigned']) ? $this->data[1]['isUnsigned'] : null,
                     'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
+                    'after' => !empty($this->data[1]['after']) ? $this->data[1]['after'] : null,
+                    'isFirst' => isset($this->data[1]['isFirst']) && $this->data[1]['isFirst'] === true,
                 ]);
 
             case 'addPrimaryKey':

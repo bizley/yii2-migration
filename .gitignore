@@ -1,3 +1,5 @@
 .idea
-/vendor
+vendor
+docker
+runtime
 composer.lock

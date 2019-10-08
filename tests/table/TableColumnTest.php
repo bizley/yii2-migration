@@ -93,4 +93,16 @@ class TableColumnTest extends TableColumnTestCase
             $column->renderDefinition($this->getTable())
         );
     }
+
+    public function testDefinitionAfter()
+    {
+        $column = new TableColumn(['after' => 'columnAfter']);
+        $this->assertEquals('$this->after(\'columnAfter\')', $column->renderDefinition($this->getTable()));
+    }
+
+    public function testDefinitionFirst()
+    {
+        $column = new TableColumn(['isFirst' => true]);
+        $this->assertEquals('$this->first()', $column->renderDefinition($this->getTable()));
+    }
 }

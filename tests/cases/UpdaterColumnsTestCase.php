@@ -154,5 +154,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('col_new', $updater->plan->addColumn);
         $this->assertEquals(Schema::TYPE_INTEGER, $updater->plan->addColumn['col_new']->type);
+        $this->assertEquals('col_timestamp', $updater->plan->addColumn['col_new']->after);
+        $this->assertEquals(false, $updater->plan->addColumn['col_new']->isFirst);
     }
 }
