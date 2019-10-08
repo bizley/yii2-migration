@@ -15,11 +15,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^3.5"
+            "bizley/migration": "^3.6"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.5`
+and run `composer update` or alternatively run `composer require bizley/migration:^3.6`
 
 ## Installation for PHP < 7.1
 
@@ -27,11 +27,11 @@ Add the package to your composer.json:
 
     {
         "require": {
-            "bizley/migration": "^2.8"
+            "bizley/migration": "^2.9"
         }
     }
 
-and run `composer update` or alternatively run `composer require bizley/migration:^2.8`
+and run `composer update` or alternatively run `composer require bizley/migration:^2.9`
 
 ## Configuration
 
@@ -114,13 +114,18 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 [1] Remember that with different database types general column schemas may be generated with different length.
 
 > ### MySQL examples:  
-> Column `varchar(45)`  
-> generalSchema=0: `$this->string(45)`    
+> Column `varchar(255)`  
+> generalSchema=0: `$this->string(255)`    
 > generalSchema=1: `$this->string()`  
 
 > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`    
 > generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
 > generalSchema=1: `$this->primaryKey()`
+
+> Since 3.6/2.9 when column size is different from DBMS' default it's kept:  
+> Column `varchar(45)`  
+> generalSchema=0: `$this->string(45)`    
+> generalSchema=1: `$this->string(45)`
 
 [2] Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
