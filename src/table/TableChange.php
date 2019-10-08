@@ -6,6 +6,7 @@ namespace bizley\migration\table;
 
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
+use yii\db\Connection;
 
 /**
  * Class TableChange
@@ -37,6 +38,12 @@ class TableChange extends BaseObject
     public $schema;
 
     /**
+     * @var Connection
+     * @since 3.6.0
+     */
+    public $db;
+
+    /**
      * Returns change value.
      * @return array|string|TableColumn|TablePrimaryKey|TableForeignKey|TableIndex
      * @throws InvalidConfigException
@@ -52,6 +59,7 @@ class TableChange extends BaseObject
                         'schema' => $this->schema,
                         'name' => $column,
                         'type' => $schema['type'],
+                        'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$schema['type']],
                         'length' => $schema['length'] ?? null,
                         'isNotNull' => $schema['isNotNull'] ?? null,
                         'isUnique' => $schema['isUnique'] ?? null,
@@ -61,6 +69,8 @@ class TableChange extends BaseObject
                         'append' => $schema['append'] ?? null,
                         'isUnsigned' => $schema['isUnsigned'] ?? null,
                         'comment' => !empty($schema['comment']) ? $schema['comment'] : null,
+                        'after' => $schema['after'] ?? null,
+                        'isFirst' => $schema['isFirst'] === true,
                     ]);
                 }
                 return $columns;
@@ -77,6 +87,7 @@ class TableChange extends BaseObject
                     'schema' => $this->schema,
                     'name' => $this->data[0],
                     'type' => $this->data[1]['type'],
+                    'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$this->data[1]['type']],
                     'length' => $this->data[1]['length'] ?? null,
                     'isNotNull' => $this->data[1]['isNotNull'] ?? null,
                     'isUnique' => $this->data[1]['isUnique'] ?? null,
@@ -86,6 +97,8 @@ class TableChange extends BaseObject
                     'append' => $this->data[1]['append'] ?? null,
                     'isUnsigned' => $this->data[1]['isUnsigned'] ?? null,
                     'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
+                    'after' => $this->data[1]['after'] ?? null,
+                    'isFirst' => $this->data[1]['isFirst'] === true,
                 ]);
 
             case 'addPrimaryKey':

@@ -187,7 +187,17 @@ class Migration extends Component implements MigrationInterface
             $this->db->schema->typeMap
         );
 
-        foreach (['length', 'isNotNull', 'isUnique', 'check', 'default', 'append', 'isUnsigned'] as $property) {
+        foreach ([
+            'length',
+            'isNotNull',
+            'isUnique',
+            'check',
+            'default',
+            'append',
+            'isUnsigned',
+            'after',
+            'isFirst'
+         ] as $property) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
@@ -231,6 +241,7 @@ class Migration extends Component implements MigrationInterface
             'table' => $table,
             'method' => $method,
             'data' => $data,
+            'db' => $this->db,
         ]);
     }
 

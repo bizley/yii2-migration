@@ -413,7 +413,8 @@ class MigrationController extends Controller
         if (!$tables) {
             $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
-            $this->stdout(' > Your database contains ' . count($tables) . " tables:\n");
+            $tablesCount = count($tables);
+            $this->stdout(" > Your database contains {$tablesCount} table" . ($tablesCount > 1 ? 's' : '') . ":\n");
 
             foreach ($tables as $table) {
                 $this->stdout("   - $table\n");
