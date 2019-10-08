@@ -354,7 +354,11 @@ class Updater extends Generator
                 if ($this->showOnly) {
                     echo "   - missing column '$name'\n";
                 } else {
-                    $column->after = $previousColumn;
+                    if ($previousColumn) {
+                        $column->after = $previousColumn;
+                    } else {
+                        $column->isFirst = true;
+                    }
                     $this->plan->addColumn[$name] = $column;
                 }
 
