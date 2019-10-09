@@ -30,7 +30,7 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
     {
         $this->dbUp('test_columns');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(9))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(11))->execute();
 
         $updater = $this->getUpdater('test_columns');
         $this->assertFalse($updater->isUpdateRequired());
