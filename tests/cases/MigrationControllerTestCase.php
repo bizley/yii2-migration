@@ -196,19 +196,15 @@ class MigrationControllerTestCase extends DbMigrationsTestCase
 
         $output = str_replace(["\r", "\n"], '', $mock->flushStdOutBuffer());
 
-        $file = Yii::getAlias(
+        $fileBeginning = Yii::getAlias(
             reset($mock->migrationPath)
             . DIRECTORY_SEPARATOR
-            . 'm' . gmdate('ymd_His')
-            . '_01_create_table_test_pk.php'
+            . 'm' . gmdate('ymd_Hi')
         );
+        $fileEnd = '_01_create_table_test_pk.php';
 
-        $this->assertContains(
-            "> Generating create migration for table 'test_pk' ...DONE!"
-            . " > Saved as '{$file}'"
-            . " > Generating create migration for table 'test_fk' ...DONE!",
-            $output
-        );
+        $this->assertContains(" > Saved as '{$fileBeginning}", $output);
+        $this->assertContains("{$fileEnd}' > Generating create migration for table 'test_fk' ...DONE!", $output);
         $this->assertContains(' Generated 2 file(s).', $output);
     }
 

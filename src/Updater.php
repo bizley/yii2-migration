@@ -313,6 +313,42 @@ class Updater extends Generator
     }
 
     /**
+     * @param string $append
+     * @param TableColumn $column
+     * @return bool
+     * @since 2.9.2
+     */
+    private function isAppendSame($append, $column)
+    {
+        $autoIncrement = false;
+        $primaryKey = false;
+
+        if (strpos($append, 'AUTO_INCREMENT') !== false) {
+            $autoIncrement = true;
+            $append = trim(str_replace('AUTO_INCREMENT', '', $append));
+        }
+
+        if (strpos($append, 'AUTOINCREMENT') !== false) {
+            $autoIncrement = true;
+            $append = trim(str_replace('AUTOINCREMENT', '', $append));
+        }
+
+        if (strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
+            $primaryKey = true;
+            $append = trim(str_replace('IDENTITY PRIMARY KEY', '', $append));
+        }
+
+        if (strpos($append, 'PRIMARY KEY') !== false) {
+            $primaryKey = true;
+            $append = trim(str_replace('PRIMARY KEY', '', $append));
+        }
+
+        $append = str_replace(' ', '', $append);
+
+        return $append === '' && $autoIncrement === $column->autoIncrement && $primaryKey === $column->isPrimaryKey;
+    }
+
+    /**
      * Compares migration structure and database structure and gather required modifications.
      * @return bool whether modification is required or not
      * @throws NotSupportedException
@@ -361,10 +397,6 @@ class Updater extends Generator
                 'append',
                 'comment'
             ] as $property) {
-                if ($this->generalSchema && $property === 'length') {
-                    continue;
-                }
-
                 if (!$this->generalSchema
                     && $property === 'append'
                     && $column->append === null
@@ -373,11 +405,27 @@ class Updater extends Generator
                     $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                 }
 
-                if ($this->oldTable->columns[$name]->$property !== $column->$property) {
+                $oldProperty = $this->oldTable->columns[$name]->$property;
+                if (!is_bool($oldProperty) && $oldProperty !== null && !is_array($oldProperty)) {
+                    $oldProperty = (string)$oldProperty;
+                }
+                $newProperty = $column->$property;
+                if (!is_bool($newProperty) && $newProperty !== null && !is_array($newProperty)) {
+                    $newProperty = (string)$newProperty;
+                }
+                if ($oldProperty !== $newProperty) {
+                    if (
+                        $property === 'append'
+                        && $oldProperty === null
+                        && $this->isAppendSame($newProperty, $this->oldTable->columns[$name])
+                    ) {
+                        continue;
+                    }
+
                     if ($this->showOnly) {
                         echo "   - different '$name' column property: $property (";
-                        echo 'DB: ' . $this->displayValue($column->$property) . ' <> ';
-                        echo 'MIG: ' . $this->displayValue($this->oldTable->columns[$name]->$property) . ")\n";
+                        echo 'DB: ' . $this->displayValue($newProperty) . ' <> ';
+                        echo 'MIG: ' . $this->displayValue($oldProperty) . ")\n";
 
                         if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
                             echo "   (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually\n";

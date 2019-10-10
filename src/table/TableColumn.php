@@ -160,11 +160,11 @@ class TableColumn extends Object
         if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
             $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
             if (!empty($this->append)) {
-                $append .= ' ' . $this->append;
+                $append .= ' ' . trim(str_replace($append, '', $this->append));
             }
-            $this->definition[] = "append('" . $this->escapeQuotes((string) $append) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes(trim($append)) . "')";
         } elseif (!empty($this->append)) {
-            $this->definition[] = "append('" . $this->escapeQuotes((string) $this->append) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes(trim((string) $this->append)) . "')";
         }
 
         if ($this->comment) {

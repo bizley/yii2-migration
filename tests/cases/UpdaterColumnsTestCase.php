@@ -26,11 +26,11 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testChangeSizeGeneral()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->integer(9))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_int_general', 'col_int', $this->integer(11))->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertFalse($updater->isUpdateRequired());
     }
 
@@ -73,11 +73,11 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testChangeScaleGeneral()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_dec_general');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', $this->decimal(11, 7))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_dec_general', 'col_dec', $this->decimal(10, 0))->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_dec_general');
         $this->assertFalse($updater->isUpdateRequired());
     }
 
@@ -90,14 +90,14 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testChangeScaleSpecific()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_dec_general');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_decimal', $this->decimal(11, 7))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_dec_general', 'col_dec', $this->decimal(11, 7))->execute();
 
-        $updater = $this->getUpdater('test_columns', false);
+        $updater = $this->getUpdater('test_dec_general', false);
         $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayHasKey('col_decimal', $updater->plan->alterColumn);
-        $this->assertEquals('11, 7', $updater->plan->alterColumn['col_decimal']->length);
+        $this->assertArrayHasKey('col_dec', $updater->plan->alterColumn);
+        $this->assertEquals('11, 7', $updater->plan->alterColumn['col_dec']->length);
     }
 
     /**
@@ -109,12 +109,13 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testChangeColumnType()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_size');
 
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_int', $this->string(255))->execute();
+        Yii::$app->db->createCommand()->alterColumn('test_int_size', 'col_int', $this->string(255))->execute();
 
-        $updater = $this->getUpdater('test_columns', false);
+        $updater = $this->getUpdater('test_int_size', false);
         $this->assertTrue($updater->isUpdateRequired());
+        $this->assertCount(1, $updater->plan->alterColumn);
         $this->assertArrayHasKey('col_int', $updater->plan->alterColumn);
         $this->assertEquals(Schema::TYPE_STRING, $updater->plan->alterColumn['col_int']->type);
     }
@@ -128,13 +129,15 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testDropColumn()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->dropColumn('test_columns', 'col_int')->execute();
+        Yii::$app->db->createCommand()->dropColumn('test_int_general', 'col_int')->execute();
 
-        $updater = $this->getUpdater('test_columns', false);
+        $updater = $this->getUpdater('test_int_general', false);
         $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayNotHasKey('col_int', $updater->plan->alterColumn);
+        $this->assertCount(1, $updater->plan->dropColumn);
+        $this->assertEquals(['col_int'], $updater->plan->dropColumn);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -146,15 +149,16 @@ class UpdaterColumnsTestCase extends DbMigrationsTestCase
      */
     public function testAddColumn()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->addColumn('test_columns', 'col_new', $this->integer())->execute();
+        Yii::$app->db->createCommand()->addColumn('test_int_general', 'col_new', $this->integer())->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('col_new', $updater->plan->addColumn);
         $this->assertEquals(Schema::TYPE_INTEGER, $updater->plan->addColumn['col_new']->type);
-        $this->assertEquals('col_timestamp', $updater->plan->addColumn['col_new']->after);
+        $this->assertEquals('col_second', $updater->plan->addColumn['col_new']->after);
         $this->assertEquals(false, $updater->plan->addColumn['col_new']->isFirst);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 }

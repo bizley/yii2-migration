@@ -26,13 +26,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.9.1
+ * @version 2.9.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.9.1';
+    protected $version = '2.9.2';
 
     /**
      * @var string Default command action.
@@ -43,7 +43,6 @@ class MigrationController extends Controller
      * @var string Directory storing the migration classes. This can be either a path alias or a directory.
      * Since 2.8.0 this can be array of directories. In this case the first element will be used for generator and
      * only first one will be created if it doesn't exist yet.
-     * Alias -p
      */
     public $migrationPath = '@app/migrations';
 
@@ -57,7 +56,6 @@ class MigrationController extends Controller
      * When this property is given $migrationPath is ignored.
      * Since 2.8.0 this can be array of namespaces. In this case the first element will be used for generator and
      * only first one will be checked for corresponding directory to exist and be created if needed.
-     * Alias -n
      * @since 1.1
      */
     public $migrationNamespace;
@@ -65,21 +63,18 @@ class MigrationController extends Controller
     /**
      * @var string Template file for generating new migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
-     * Alias -F
      */
     public $templateFile = '@bizley/migration/views/create_migration.php';
 
     /**
      * @var string Template file for generating updating migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
-     * Alias -U
      */
     public $templateFileUpdate = '@bizley/migration/views/update_migration.php';
 
     /**
      * @var bool|string|int Whether the table names generated should consider the $tablePrefix setting of the DB
      * connection. For example, if the table name is 'post' the generator will return '{{%post}}'.
-     * Alias -P
      */
     public $useTablePrefix = 1;
 
@@ -92,21 +87,18 @@ class MigrationController extends Controller
     /**
      * @var string Name of the table for keeping applied migration information.
      * The same as in yii\console\controllers\MigrateController::$migrationTable.
-     * Alias -t
      * @since 2.0
      */
     public $migrationTable = '{{%migration}}';
 
     /**
      * @var bool|string|int Whether to only display changes instead of creating update migration.
-     * Alias -s
      * @since 2.0
      */
     public $showOnly = 0;
 
     /**
      * @var bool|string|int Whether to use general column schema instead of database specific.
-     * Alias -g
      * @since 2.0
      * Since 2.3.0 this property is 1 by default.
      */
@@ -114,7 +106,6 @@ class MigrationController extends Controller
 
     /**
      * @var bool|string|int Whether to add generated migration to migration history.
-     * Alias -h
      * @since 2.0
      */
     public $fixHistory = 0;
@@ -130,7 +121,6 @@ class MigrationController extends Controller
      * @var string|null String rendered in the create migration template to initialize table options.
      * By default it adds variable "$tableOptions" with optional collate configuration for MySQL DBMS to be used with
      * default $tableOptions.
-     * Alias -O
      * @since 2.3.4
      */
     public $tableOptionsInit = '$tableOptions = null;
@@ -142,7 +132,6 @@ class MigrationController extends Controller
      * @var string|null String rendered in the create migration template for table options.
      * By default it renders "$tableOptions" to indicate that options should be taken from variable
      * set in $tableOptionsInit property.
-     * Alias -o
      * @since 2.3.4
      */
     public $tableOptions = '$tableOptions';
@@ -156,7 +145,6 @@ class MigrationController extends Controller
     /**
      * @var string Template file for generating new foreign keys migrations.
      * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
-     * Alias -K
      * @since 2.7.0
      */
     public $templateFileForeignKey = '@bizley/migration/views/create_fk_migration.php';

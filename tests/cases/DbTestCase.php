@@ -144,6 +144,7 @@ abstract class DbTestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Method from SchemaBuilderTrait.
      * @return Connection
      * @throws Exception
      * @throws InvalidConfigException
