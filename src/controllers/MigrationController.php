@@ -40,7 +40,7 @@ use function time;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.6.0
+ * @version 3.6.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -49,7 +49,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.6.0';
+    protected $version = '3.6.1';
 
     /**
      * @var string Default command action.
@@ -302,7 +302,7 @@ class MigrationController extends Controller
                     $this->migrationNamespace = [$this->migrationNamespace];
                 }
                 foreach ($this->migrationNamespace as &$namespace) {
-                    $namespace = FileHelper::normalizePath($this->migrationNamespace, '\\');
+                    $namespace = FileHelper::normalizePath($namespace, '\\');
 
                     if ($this->workingPath === null && !$this->showOnly) {
                         $this->workingPath = $this->preparePathDirectory(
