@@ -24,25 +24,6 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
-     */
-    public function testChangeSizeSpecific(): void
-    {
-        $this->dbUp('test_columns');
-
-        Yii::$app->db->createCommand()->alterColumn('test_columns', 'col_char', $this->char(2))->execute();
-
-        $updater = $this->getUpdater('test_columns', false);
-        $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayHasKey('col_char', $updater->plan->alterColumn);
-        $this->assertEquals(2, $updater->plan->alterColumn['col_char']->length);
-    }
-
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     * @throws Exception
-     * @throws ErrorException
-     * @throws NotSupportedException
      * @throws BaseException
      */
     public function testChangeDefaultArrayValue(): void
@@ -57,6 +38,7 @@ class UpdaterColumnsTest extends UpdaterColumnsTestCase
 
         $updater = $this->getUpdater('test_addons', false);
         $this->assertTrue($updater->isUpdateRequired());
+        $this->assertCount(1, $updater->plan->alterColumn);
         $this->assertArrayHasKey('col_default_array', $updater->plan->alterColumn);
         $this->assertEquals(['a', 'b'], $updater->plan->alterColumn['col_default_array']->default);
     }

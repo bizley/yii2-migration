@@ -47,15 +47,16 @@ class UpdaterTest extends UpdaterTestCase
      */
     public function testAddColumnAfter(): void
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->addColumn('test_columns', 'after_date', $this->integer()->after('col_date'))->execute();
+        Yii::$app->db->createCommand()->addColumn('test_int_general', 'after_second', $this->integer()->after('col_second'))->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertNotEmpty($updater->plan->addColumn);
-        $this->assertArrayHasKey('after_date', $updater->plan->addColumn);
-        $this->assertEquals('col_date', $updater->plan->addColumn['after_date']->after);
+        $this->assertArrayHasKey('after_second', $updater->plan->addColumn);
+        $this->assertEquals('col_second', $updater->plan->addColumn['after_second']->after);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -67,15 +68,16 @@ class UpdaterTest extends UpdaterTestCase
      */
     public function testAddColumnFirst(): void
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->addColumn('test_columns', 'first_col', $this->integer()->first())->execute();
+        Yii::$app->db->createCommand()->addColumn('test_int_general', 'first_col', $this->integer()->first())->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertNotEmpty($updater->plan->addColumn);
         $this->assertArrayHasKey('first_col', $updater->plan->addColumn);
         $this->assertTrue($updater->plan->addColumn['first_col']->isFirst);
         $this->assertNull($updater->plan->addColumn['first_col']->after);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 }

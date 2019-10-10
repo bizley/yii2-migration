@@ -154,6 +154,7 @@ abstract class DbTestCase extends TestCase
     }
 
     /**
+     * Method from SchemaBuilderTrait.
      * @return Connection
      * @throws Exception
      * @throws InvalidConfigException
