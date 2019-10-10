@@ -27,7 +27,7 @@ class TableColumnDecimal extends TableColumn
     public function getLength()
     {
         return in_array($this->schema, $this->lengthSchemas, true)
-            ? ($this->precision . (($this->scale || (int)$this->scale === 0) ? ', ' . $this->scale : null))
+            ? ($this->precision . ($this->scale !== null ? ', ' . $this->scale : null))
             : null;
     }
 

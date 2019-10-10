@@ -324,6 +324,31 @@ abstract class DbMigrationsTestCase extends DbTestCase
                     static::addMigration('bizley\\tests\\migrations\\m190706_143800_create_test_x_depencies');
                 }
             },
+            'test_int_general' => function () {
+                if (!in_array('test_int_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_int_general',
+                        [
+                            'col_int' => $this->integer(),
+                            'col_second' => $this->integer()
+                        ],
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration('bizley\\tests\\migrations\\m191010_200000_create_table_test_int_general');
+                }
+            },
+            'test_dec_general' => function () {
+                if (!in_array('test_dec_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_dec_general',
+                        ['col_dec' => $this->decimal()],
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration('bizley\\tests\\migrations\\m191010_200300_create_table_test_dec_general');
+                }
+            },
         ];
         call_user_func($data[$name]);
     }
@@ -335,6 +360,20 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
+            'test_dec_general' => static function () {
+                if (in_array('test_dec_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_dec_general')->execute();
+
+                    static::deleteMigration('bizley\\tests\\migrations\\m191010_200300_create_table_test_dec_general');
+                }
+            },
+            'test_int_general' => static function () {
+                if (in_array('test_int_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_int_general')->execute();
+
+                    static::deleteMigration('bizley\\tests\\migrations\\m191010_200000_create_table_test_int_general');
+                }
+            },
             'test_x_dependencies' => static function () {
                 if (Yii::$app->db->driverName !== 'sqlite') {
                     if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {

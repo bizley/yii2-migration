@@ -50,6 +50,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
         $updater = $this->getUpdater('test_fk');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertEquals(['fk-test_fk-pk_id'], $updater->plan->dropForeignKey);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -62,19 +63,20 @@ class UpdaterTestCase extends DbMigrationsTestCase
     public function testAddForeignKey()
     {
         $this->dbUp('test_pk');
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
         Yii::$app->db->createCommand()->addForeignKey(
-            'fk-test_columns-col_int',
-            'test_columns',
+            'fk-test_int_general-col_int',
+            'test_int_general',
             'col_int',
             'test_pk',
             'id'
         )->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayHasKey('fk-test_columns-col_int', $updater->plan->addForeignKey);
+        $this->assertArrayHasKey('fk-test_int_general-col_int', $updater->plan->addForeignKey);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -93,6 +95,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
         $updater = $this->getUpdater('test_index_single');
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertEquals(['idx-test_index_single-col'], $updater->plan->dropIndex);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -104,13 +107,14 @@ class UpdaterTestCase extends DbMigrationsTestCase
      */
     public function testAddIndex()
     {
-        $this->dbUp('test_columns');
+        $this->dbUp('test_int_general');
 
-        Yii::$app->db->createCommand()->createIndex('idx-test_columns-col_int', 'test_columns', 'col_int')->execute();
+        Yii::$app->db->createCommand()->createIndex('idx-test_int_general-col_int', 'test_int_general', 'col_int')->execute();
 
-        $updater = $this->getUpdater('test_columns');
+        $updater = $this->getUpdater('test_int_general');
         $this->assertTrue($updater->isUpdateRequired());
-        $this->assertArrayHasKey('idx-test_columns-col_int', $updater->plan->createIndex);
+        $this->assertArrayHasKey('idx-test_int_general-col_int', $updater->plan->createIndex);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -130,6 +134,7 @@ class UpdaterTestCase extends DbMigrationsTestCase
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('three', $updater->plan->addColumn);
         $this->assertArrayNotHasKey('one', $updater->oldTable->columns);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 
     /**
@@ -153,5 +158,6 @@ class UpdaterTestCase extends DbMigrationsTestCase
         $this->assertTrue($updater->isUpdateRequired());
         $this->assertArrayHasKey('three', $updater->plan->addColumn);
         $this->assertArrayHasKey('one', $updater->oldTable->columns);
+        $this->assertEmpty($updater->plan->alterColumn);
     }
 }
