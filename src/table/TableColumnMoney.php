@@ -19,7 +19,7 @@ class TableColumnMoney extends TableColumn
      */
     public function getLength()
     {
-        return $this->precision . ($this->scale || (int)$this->scale === 0 ? ', ' . $this->scale : null);
+        return $this->precision . ($this->scale !== null ? ', ' . $this->scale : null);
     }
 
     /**

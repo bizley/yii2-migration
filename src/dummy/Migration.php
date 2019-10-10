@@ -202,7 +202,7 @@ class Migration extends Component implements MigrationInterface
             $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
-            if ($value !== null || !isset($schema[$property])) {
+            if (($value !== null && $value !== []) || !isset($schema[$property])) {
                 $schema[$property] = $value;
             }
         }

@@ -17,6 +17,8 @@ use bizley\tests\migrations\m180328_205900_drop_column_one_from_table_test_multi
 use bizley\tests\migrations\m180701_160300_create_table_test_int_size;
 use bizley\tests\migrations\m180701_160900_create_table_test_char_pk;
 use bizley\tests\migrations\m190706_143800_create_test_x_depencies;
+use bizley\tests\migrations\m191010_200000_create_table_test_int_general;
+use bizley\tests\migrations\m191010_200300_create_table_test_dec_general;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
@@ -64,12 +66,6 @@ abstract class DbMigrationsTestCase extends DbTestCase
         Yii::$app->db->createCommand()->delete('migration', ['version' => $name])->execute();
     }
 
-    /**
-     * @param string $tableName
-     * @param bool $generalSchema
-     * @param array $skip
-     * @return Updater
-     */
     protected function getUpdater(string $tableName, bool $generalSchema = true, array $skip = []): Updater
     {
         return new Updater([
@@ -332,6 +328,31 @@ abstract class DbMigrationsTestCase extends DbTestCase
                     static::addMigration(m190706_143800_create_test_x_depencies::class);
                 }
             },
+            'test_int_general' => function () {
+                if (!in_array('test_int_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_int_general',
+                        [
+                            'col_int' => $this->integer(),
+                            'col_second' => $this->integer()
+                        ],
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration(m191010_200000_create_table_test_int_general::class);
+                }
+            },
+            'test_dec_general' => function () {
+                if (!in_array('test_dec_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->createTable(
+                        'test_dec_general',
+                        ['col_dec' => $this->decimal()],
+                        static::$tableOptions
+                    )->execute();
+
+                    static::addMigration(m191010_200300_create_table_test_dec_general::class);
+                }
+            },
         ];
 
         call_user_func($data[$name]);
@@ -344,6 +365,20 @@ abstract class DbMigrationsTestCase extends DbTestCase
     {
         // needs reverse order
         $data = [
+            'test_dec_general' => static function () {
+                if (in_array('test_dec_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_dec_general')->execute();
+
+                    static::deleteMigration(m191010_200300_create_table_test_dec_general::class);
+                }
+            },
+            'test_int_general' => static function () {
+                if (in_array('test_int_general', Yii::$app->db->schema->tableNames, true)) {
+                    Yii::$app->db->createCommand()->dropTable('test_int_general')->execute();
+
+                    static::deleteMigration(m191010_200000_create_table_test_int_general::class);
+                }
+            },
             'test_x_dependencies' => static function () {
                 if (Yii::$app->db->driverName !== 'sqlite') {
                     if (in_array('test_b_dep_a', Yii::$app->db->schema->tableNames, true)) {

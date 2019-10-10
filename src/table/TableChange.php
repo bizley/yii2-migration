@@ -62,15 +62,16 @@ class TableChange extends BaseObject
                         'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$schema['type']],
                         'length' => $schema['length'] ?? null,
                         'isNotNull' => $schema['isNotNull'] ?? null,
-                        'isUnique' => $schema['isUnique'] ?? null,
-                        'isPrimaryKey' => $schema['isPrimaryKey'] ?? null,
+                        'isUnique' => $schema['isUnique'] ?? false,
+                        'autoIncrement' => $schema['autoIncrement'] ?? false,
+                        'isPrimaryKey' => $schema['isPrimaryKey'] ?? false,
                         'check' => $schema['check'] ?? null,
                         'default' => $schema['default'] ?? null,
                         'append' => $schema['append'] ?? null,
-                        'isUnsigned' => $schema['isUnsigned'] ?? null,
+                        'isUnsigned' => $schema['isUnsigned'] ?? false,
                         'comment' => !empty($schema['comment']) ? $schema['comment'] : null,
                         'after' => $schema['after'] ?? null,
-                        'isFirst' => $schema['isFirst'] === true,
+                        'isFirst' => $schema['isFirst'] ?? false,
                     ]);
                 }
                 return $columns;
@@ -90,15 +91,16 @@ class TableChange extends BaseObject
                     'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$this->data[1]['type']],
                     'length' => $this->data[1]['length'] ?? null,
                     'isNotNull' => $this->data[1]['isNotNull'] ?? null,
-                    'isUnique' => $this->data[1]['isUnique'] ?? null,
-                    'isPrimaryKey' => $this->data[1]['isPrimaryKey'] ?? null,
+                    'isUnique' => $this->data[1]['isUnique'] ?? false,
+                    'autoIncrement' => $this->data[1]['autoIncrement'] ?? false,
+                    'isPrimaryKey' => $this->data[1]['isPrimaryKey'] ?? false,
                     'check' => $this->data[1]['check'] ?? null,
                     'default' => $this->data[1]['default'] ?? null,
                     'append' => $this->data[1]['append'] ?? null,
-                    'isUnsigned' => $this->data[1]['isUnsigned'] ?? null,
+                    'isUnsigned' => $this->data[1]['isUnsigned'] ?? false,
                     'comment' => !empty($this->data[1]['comment']) ? $this->data[1]['comment'] : null,
                     'after' => $this->data[1]['after'] ?? null,
-                    'isFirst' => $this->data[1]['isFirst'] === true,
+                    'isFirst' => $this->data[1]['isFirst'] ?? false,
                 ]);
 
             case 'addPrimaryKey':
