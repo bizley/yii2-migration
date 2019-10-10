@@ -335,7 +335,7 @@ class Updater extends Generator
      * @param string $append
      * @param TableColumn $column
      * @return bool
-     * @since 3.6.1
+     * @since 3.6.2
      */
     private function isAppendSame(string $append, TableColumn $column): bool
     {
