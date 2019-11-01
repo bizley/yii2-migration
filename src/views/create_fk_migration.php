@@ -23,9 +23,8 @@ class <?= $className ?> extends Migration
     public function up()
     {
 <?php foreach ($fks as $fk): ?>
-<?= $fk->render() ?>
+<?= $fk->render() . "\n" ?>
 <?php endforeach; ?>
-
     }
 
     public function down()
