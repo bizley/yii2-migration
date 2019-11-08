@@ -69,7 +69,7 @@ class ForeignKeyData extends BaseObject
     public function render(): string
     {
         return str_repeat(' ', 8) . sprintf(
-            '$this->addForeignKey(\'%s\', \'%s\', %s, \'%s\', %s%s%s);',
+            '$this->addForeignKey(\'%s\',' . PHP_EOL . '\'%s\',' . PHP_EOL . ' %s,' . PHP_EOL . ' \'%s\',' . PHP_EOL . ' %s%s%s);',
             $this->renderName(),
             $this->table->renderName(),
             count($this->foreignKey->columns) === 1
