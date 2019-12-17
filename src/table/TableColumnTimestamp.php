@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration\table;
 
 use function in_array;
+use function version_compare;
 
 /**
  * Class TableColumnTimestamp
@@ -24,7 +25,7 @@ class TableColumnTimestamp extends TableColumn
      */
     public function getLength()
     {
-        return in_array($this->schema, $this->lengthSchemas, true) ? $this->precision : null;
+        return $this->isSchemaLengthSupporting() ? $this->precision : null;
     }
 
     /**
@@ -33,7 +34,7 @@ class TableColumnTimestamp extends TableColumn
      */
     public function setLength($value): void
     {
-        if (in_array($this->schema, $this->lengthSchemas, true)) {
+        if ($this->isSchemaLengthSupporting()) {
             $this->precision = $value;
         }
     }
@@ -45,5 +46,18 @@ class TableColumnTimestamp extends TableColumn
     public function buildSpecificDefinition(TableStructure $table): void
     {
         $this->definition[] = 'timestamp(' . $this->getRenderLength($table->generalSchema) . ')';
+    }
+
+    private function isSchemaLengthSupporting(): bool
+    {
+        if (
+            $this->engineVersion
+            && $this->schema === TableStructure::SCHEMA_MYSQL
+            && version_compare($this->engineVersion, '5.6.4', '>=')
+        ) {
+            return true;
+        }
+
+        return in_array($this->schema, $this->lengthSchemas, true);
     }
 }

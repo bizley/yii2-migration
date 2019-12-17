@@ -11,6 +11,8 @@ use bizley\migration\table\TableForeignKey;
 use bizley\migration\table\TableIndex;
 use bizley\migration\table\TablePrimaryKey;
 use bizley\migration\table\TableStructure;
+use PDO;
+use Throwable;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -176,6 +178,12 @@ class Generator extends Component
         if ($this->tableSchema instanceof TableSchema) {
             $indexData = !empty($indexes) ? $indexes : $this->getTableIndexes();
 
+            try {
+                $version = $this->db->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+            } catch (Throwable $exception) {
+                $version = null;
+            }
+
             foreach ($this->tableSchema->columns as $column) {
                 $isUnique = false;
 
@@ -192,6 +200,7 @@ class Generator extends Component
                     'name' => $column->name,
                     'type' => $column->type,
                     'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$column->type],
+                    'engineVersion' => $version,
                     'size' => $column->size,
                     'precision' => $column->precision,
                     'scale' => $column->scale,

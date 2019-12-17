@@ -7,6 +7,7 @@ namespace bizley\migration\table;
 use yii\base\BaseObject;
 use yii\db\Expression;
 use yii\helpers\Json;
+
 use function array_unshift;
 use function implode;
 use function in_array;
@@ -122,6 +123,12 @@ class TableColumn extends BaseObject
      * @since 3.6.0
      */
     public $isFirst = false;
+
+    /**
+     * @var string
+     * @since 3.6.4
+     */
+    public $engineVersion;
 
     /**
      * Sets length of the column.

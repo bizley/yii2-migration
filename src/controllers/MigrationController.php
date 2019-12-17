@@ -22,6 +22,7 @@ use yii\db\Exception as DbException;
 use yii\di\Instance;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
+
 use function array_merge;
 use function count;
 use function explode;
@@ -40,7 +41,7 @@ use function time;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 3.6.3
+ * @version 3.6.4
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
@@ -49,7 +50,7 @@ class MigrationController extends Controller
     /**
      * @var string
      */
-    protected $version = '3.6.3';
+    protected $version = '3.6.4';
 
     /**
      * @var string Default command action.
