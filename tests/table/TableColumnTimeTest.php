@@ -35,10 +35,30 @@ class TableColumnTimeTest extends TableColumnTestCase
     public function withSchemaDataProvider(): array
     {
         return [
-            [['precision' => 0], false, '$this->time(0)'],
-            [['precision' => 4], false, '$this->time(4)'],
-            [['precision' => 0], true, '$this->time(0)'],
-            [['precision' => 4], true, '$this->time(4)'],
+            [['precision' => 0], false, TableStructure::SCHEMA_PGSQL, '', false, '$this->time(0)'],
+            [['precision' => 4], false, TableStructure::SCHEMA_PGSQL, '', false, '$this->time(4)'],
+            [['precision' => 0], true, TableStructure::SCHEMA_PGSQL, '', false, '$this->time(0)'],
+            [['precision' => 4], true, TableStructure::SCHEMA_PGSQL, '', false, '$this->time(4)'],
+            [['precision' => 0], false, TableStructure::SCHEMA_PGSQL, '', true, '$this->time(0)'],
+            [['precision' => 4], false, TableStructure::SCHEMA_PGSQL, '', true, '$this->time(4)'],
+            [['precision' => 0], true, TableStructure::SCHEMA_PGSQL, '', true, '$this->time()'],
+            [['precision' => 4], true, TableStructure::SCHEMA_PGSQL, '', true, '$this->time(4)'],
+            [['precision' => 0], false, TableStructure::SCHEMA_MYSQL, '', false, '$this->time()'],
+            [['precision' => 4], false, TableStructure::SCHEMA_MYSQL, '', false, '$this->time()'],
+            [['precision' => 0], true, TableStructure::SCHEMA_MYSQL, '', false, '$this->time()'],
+            [['precision' => 4], true, TableStructure::SCHEMA_MYSQL, '', false, '$this->time()'],
+            [['precision' => 0], false, TableStructure::SCHEMA_MYSQL, '', true, '$this->time()'],
+            [['precision' => 4], false, TableStructure::SCHEMA_MYSQL, '', true, '$this->time()'],
+            [['precision' => 0], true, TableStructure::SCHEMA_MYSQL, '', true, '$this->time()'],
+            [['precision' => 4], true, TableStructure::SCHEMA_MYSQL, '', true, '$this->time()'],
+            [['precision' => 0], false, TableStructure::SCHEMA_MYSQL, '5.6.4', false, '$this->time(0)'],
+            [['precision' => 4], false, TableStructure::SCHEMA_MYSQL, '5.6.4', false, '$this->time(4)'],
+            [['precision' => 0], true, TableStructure::SCHEMA_MYSQL, '5.6.4', false, '$this->time(0)'],
+            [['precision' => 4], true, TableStructure::SCHEMA_MYSQL, '5.6.4', false, '$this->time(4)'],
+            [['precision' => 0], false, TableStructure::SCHEMA_MYSQL, '5.6.4', true, '$this->time(0)'],
+            [['precision' => 4], false, TableStructure::SCHEMA_MYSQL, '5.6.4', true, '$this->time(4)'],
+            [['precision' => 0], true, TableStructure::SCHEMA_MYSQL, '5.6.4', true, '$this->time()'],
+            [['precision' => 4], true, TableStructure::SCHEMA_MYSQL, '5.6.4', true, '$this->time(4)'],
         ];
     }
 
@@ -46,35 +66,22 @@ class TableColumnTimeTest extends TableColumnTestCase
      * @dataProvider withSchemaDataProvider
      * @param array $column
      * @param bool $generalSchema
+     * @param string $schema
+     * @param string $version
+     * @param bool $mapping
      * @param string $result
      */
-    public function testDefinitionWithSchema(array $column, bool $generalSchema, string $result): void
-    {
-        $column['schema'] = TableStructure::SCHEMA_PGSQL;
-        $column = new TableColumnTime($column);
-        $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
-    }
-
-    public function withMappingAndSchemaDataProvider(): array
-    {
-        return [
-            [['precision' => 0], false, '$this->time(0)'],
-            [['precision' => 4], false, '$this->time(4)'],
-            [['precision' => 0], true, '$this->time()'],
-            [['precision' => 4], true, '$this->time(4)'],
-        ];
-    }
-
-    /**
-     * @dataProvider withMappingAndSchemaDataProvider
-     * @param array $column
-     * @param bool $generalSchema
-     * @param string $result
-     */
-    public function testDefinitionWithMappingAndSchema(array $column, bool $generalSchema, string $result): void
-    {
-        $column['schema'] = TableStructure::SCHEMA_PGSQL;
-        $column['defaultMapping'] = 'time(0)';
+    public function testDefinitionWithSchema(
+        array $column,
+        bool $generalSchema,
+        string $schema,
+        string $version,
+        bool $mapping,
+        string $result
+    ): void {
+        $column['schema'] = $schema;
+        $column['engineVersion'] = $version;
+        $column['defaultMapping'] = $mapping ? 'time(0)' : null;
         $column = new TableColumnTime($column);
         $this->assertEquals($result, $column->renderDefinition($this->getTable($generalSchema)));
     }
