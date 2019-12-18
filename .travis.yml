@@ -45,4 +45,4 @@ before_script:
 - psql -U postgres -c 'CREATE DATABASE migrationtest;';
 
 script:
-- vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
+- vendor/bin/phpunit -v
