@@ -2,6 +2,8 @@
 
 namespace bizley\migration\table;
 
+use yii\db\Expression;
+
 /**
  * Class TableColumnDateTime
  * @package bizley\migration\table
@@ -14,13 +16,23 @@ class TableColumnDateTime extends TableColumn
      */
     public $lengthSchemas = [TableStructure::SCHEMA_PGSQL];
 
+    public function init()
+    {
+        parent::init();
+
+        if (is_string($this->default) && preg_match('/^current_timestamp\([0-9]*\)$/i', $this->default)) {
+            // https://github.com/yiisoft/yii2/issues/17744
+            $this->default = new Expression($this->default);
+        }
+    }
+
     /**
      * Returns length of the column.
      * @return int|string
      */
     public function getLength()
     {
-        return in_array($this->schema, $this->lengthSchemas, true) ? $this->precision : null;
+        return $this->isSchemaLengthSupporting() ? $this->precision : null;
     }
 
     /**
@@ -29,7 +41,7 @@ class TableColumnDateTime extends TableColumn
      */
     public function setLength($value)
     {
-        if (in_array($this->schema, $this->lengthSchemas, true)) {
+        if ($this->isSchemaLengthSupporting()) {
             $this->precision = $value;
         }
     }
@@ -41,5 +53,18 @@ class TableColumnDateTime extends TableColumn
     public function buildSpecificDefinition($table)
     {
         $this->definition[] = 'dateTime(' . $this->getRenderLength($table->generalSchema) . ')';
+    }
+
+    private function isSchemaLengthSupporting()
+    {
+        if (
+            $this->engineVersion
+            && $this->schema === TableStructure::SCHEMA_MYSQL
+            && version_compare($this->engineVersion, '5.6.4', '>=')
+        ) {
+            return true;
+        }
+
+        return in_array($this->schema, $this->lengthSchemas, true);
     }
 }

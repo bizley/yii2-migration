@@ -103,11 +103,18 @@ class TableColumn extends Object
      * @since 2.9.0
      */
     public $after;
+
     /**
      * @var bool
      * @since 2.9.0
      */
     public $isFirst = false;
+
+    /**
+     * @var string
+     * @since 2.9.4
+     */
+    public $engineVersion;
 
     /**
      * Sets length of the column.
