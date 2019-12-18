@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use yii\db\Expression;
+
 use function in_array;
+use function is_string;
+use function preg_match;
 use function version_compare;
 
 /**
@@ -18,6 +22,16 @@ class TableColumnTimestamp extends TableColumn
      * @since 3.1
      */
     public $lengthSchemas = [TableStructure::SCHEMA_PGSQL];
+
+    public function init(): void
+    {
+        parent::init();
+
+        if (is_string($this->default) && preg_match('/^current_timestamp\([0-9]*\)$/i', $this->default)) {
+            // https://github.com/yiisoft/yii2/issues/17744
+            $this->default = new Expression($this->default);
+        }
+    }
 
     /**
      * Returns length of the column.
