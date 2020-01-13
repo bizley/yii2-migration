@@ -61,14 +61,14 @@ class Arranger extends BaseObject
     /** @var array */
     private $dependency = [];
 
-    protected function addDependency(string $table, string $dependensOnTable = null): void
+    protected function addDependency(string $table, string $dependsOnTable = null): void
     {
         if (!array_key_exists($table, $this->dependency)) {
             $this->dependency[$table] = [];
         }
 
-        if ($dependensOnTable) {
-            $this->dependency[$table][] = $dependensOnTable;
+        if ($dependsOnTable) {
+            $this->dependency[$table][] = $dependsOnTable;
         }
     }
 

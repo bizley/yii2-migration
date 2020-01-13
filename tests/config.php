@@ -1,9 +1,9 @@
 <?php
 
 /**
- * You can override configuration values by creating a `config.local.php` file
- * and manipulate the `$config` variable.
+ * You can override configuration values by creating a `config.local.php` file and manipulate the `$config` variable.
  */
+
 $config = [
     'mysql' => [
         'dsn' => 'mysql:host=127.0.0.1;dbname=migrationtest',
