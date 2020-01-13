@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This is the template for generating the migration of a specified table.
  *
- * @var $table \bizley\migration\table\TableStructure Table data
+ * @var $table \bizley\migration\table\Structure Table data
  * @var $className string Class name
  * @var $namespace string Migration namespace
  */

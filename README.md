@@ -9,46 +9,43 @@
 
 Generates migration file based on the existing database table and previous migrations.
 
-## Installation for PHP >= 7.1 and Yii >= 2.0.15.1
+## Installation
 
-Add the package to your composer.json:
+Run console command
 
-    {
-        "require": {
-            "bizley/migration": "^3.6"
-        }
+```
+composer require bizley/migration:^4.0
+```
+
+Or add the package to your `composer.json` file:
+
+```json
+{
+    "require": {
+        "bizley/migration": "^4.0"
     }
+}
+```
 
-and run `composer update` or alternatively run `composer require bizley/migration:^3.6`
-
-## Installation for PHP < 7.1
-
-Add the package to your composer.json:
-
-    {
-        "require": {
-            "bizley/migration": "^2.9"
-        }
-    }
-
-and run `composer update` or alternatively run `composer require bizley/migration:^2.9`
+and run `composer update`. 
 
 ## Configuration
 
 Add the following in your configuration file (preferably console configuration file):
 
-    'components' => [
-        // ...
-    ],
+```php
+[
     'controllerMap' => [
         'migration' => [
             'class' => 'bizley\migration\controllers\MigrationController',
         ],
     ],
+]
+```
 
 ## Usage
 
-The following console command are available:
+The following console command are available (assuming you named the controller `migration` like in the example above):
 
 - List all the tables in the database:
 
@@ -74,17 +71,18 @@ The following console command are available:
 
       php yii migration/update-all
 
-You can generate multiple migrations for many tables at once by separating the names with a comma:
+You can generate multiple migrations for many tables at once by separating the names with comma:
 
-    php yii migration/create table_name1,table_name2,table_name3
+```
+php yii migration/create table_name1,table_name2,table_name3
+```
 
-Starting from version 3.4/2.7 creating multiple table migrations at once forces the proper migration order based on the 
-presence of the foreign keys. When tables are cross-referenced the additional foreign keys migration is generated at the 
-end of default generation.
+Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
+When tables are cross-referenced the additional foreign keys migration is generated at the end of default generation.
 
 ## Updating migration
 
-Starting with yii2-migration v2.0 it is possible to generate updating migration for database table.
+You can easily generate updating migration for database table by comparing its current schema with the migration history.
 
 1. History of applied migrations is scanned to gather all modifications made to the table.
 2. Virtual table schema is prepared and compared with current table schema.
@@ -94,38 +92,38 @@ Starting with yii2-migration v2.0 it is possible to generate updating migration 
 ## Command line parameters
 
 | command                  | alias | description                                                             
-|--------------------------|:-----:|-----------------------------------------------------------------------------------------------------------------
-| `db`                     |       | Application component's ID of the DB connection to use when generating migrations. _default:_ `'db'`
-| `migrationPath`          | `p`   | Directory storing the migration classes. _default:_ `'@app/migrations'`
-| `migrationNamespace`     | `n`   | Namespace in case of generating namespaced migration. _default:_ `null`
-| `templateFile`           | `F`   | Template file for generating create migrations. _default:_ `'@bizley/migration/views/create_migration.php'`
-| `templateFileUpdate`     | `U`   | Template file for generating update migrations. _default:_ `'@bizley/migration/views/update_migration.php'`
-| `useTablePrefix`         | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection. _default:_ `1`
-| `migrationTable`         | `t`   | Name of the table for keeping applied migration information. _default:_ `'{{%migration}}'`
-| `showOnly`               | `s`   | Whether to only display changes instead of generating update migration. _default:_ `0`
-| `generalSchema`          | `g`   | Whether to use general column schema instead of database specific (see [1] below). _default:_ `1`
-| `fixHistory`             | `h`   | Whether to add migration history entry when migration is generated. _default:_ `0`
-| `skipMigrations`         |       | List of migrations from the history table that should be skipped during the update process (see [2] below). _default:_ `[]`
-| `tableOptionsInit`       | `O`   | String rendered in the create migration template to initialize table options. _default:_ `$tableOptions = null; if ($this->db->driverName === 'mysql') { $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB'; }`
-| `tableOptions`           | `o`   | String rendered in the create migration template for table options. _default:_ `$tableOptions`
-| `excludeTables`          |       | List of tables that should be skipped for *-all actions. _default:_ `[]`
-| `templateFileForeignKey` | `K`   | Template file for generating create foreign keys migrations. _default:_ `'@bizley/migration/views/create_fk_migration.php'`
+|--------------------------|:-----:|------------------------------------------------------------------------------------
+| `migrationPath`          | `p`   | Directory (one or more) storing the migration classes.
+| `migrationNamespace`     | `n`   | Namespace (one or more) in case of generating namespaced migration.
+| `templateFileCreate`     | `F`   | Template file for generating create migrations.
+| `templateFileUpdate`     | `U`   | Template file for generating update migrations.
+| `templateFileForeignKey` | `K`   | Template file for generating create foreign keys migrations.
+| `useTablePrefix`         | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection.
+| `migrationTable`         | `t`   | Name of the table for keeping applied migration information.
+| `showOnly`               | `s`   | Whether to only display changes instead of generating update migration.
+| `generalSchema`          | `g`   | Whether to use general column schema instead of database specific (see [1] below).
+| `fixHistory`             | `h`   | Whether to add migration history entry when migration is generated.
+| `skipMigrations`         |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
+| `tableOptionsInit`       | `O`   | String rendered in the create migration template to initialize table options.
+| `tableOptions`           | `o`   | String rendered in the create migration template for table options.
+| `excludeTables`          |       | List of tables that should be skipped for *-all actions.
+
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 
 > ### MySQL examples:  
 > Column `varchar(255)`  
-> generalSchema=0: `$this->string(255)`    
-> generalSchema=1: `$this->string()`  
+> generalSchema=false: `$this->string(255)`    
+> generalSchema=true: `$this->string()`  
 
 > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`    
-> generalSchema=0: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
-> generalSchema=1: `$this->primaryKey()`
+> generalSchema=false: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`  
+> generalSchema=true: `$this->primaryKey()`
 
-> Since 3.6/2.9 when column size is different from DBMS' default it's kept:  
+> When column size is different from DBMS' default it's kept:  
 > Column `varchar(45)`  
-> generalSchema=0: `$this->string(45)`    
-> generalSchema=1: `$this->string(45)`
+> generalSchema=false: `$this->string(45)`    
+> generalSchema=true: `$this->string(45)`
 
 [2] Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
@@ -152,10 +150,6 @@ This extension should work with all database types supported in Yii 2 core:
 - PostgreSQL (9.x and above)
 - SQLite (2/3)
 
-Yii 2 limitations:
-- version 2.0.13 is required to track non-unique indexes,
-- version 2.0.14 is required to handle TINYINT and JSON type columns.
-
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with
 default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
 `dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
@@ -168,3 +162,10 @@ in columns definition in form of an instance of `yii\db\ColumnSchemaBuilder` (li
 
 Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can override it by 
 creating `config.local.php` file there).
+
+## Previous versions
+
+PHP < 7.2 & Yii >= 2.0.15.1: ^3.6  
+PHP < 7.1: ^2.9
+
+These versions are not developed anymore but still available for all poor souls that are stuck with EOL PHP.

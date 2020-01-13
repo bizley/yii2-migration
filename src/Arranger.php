@@ -4,31 +4,20 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use yii\base\Component;
+use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
+
 use function array_diff;
 use function array_key_exists;
 use function array_merge_recursive;
 use function array_unique;
 use function count;
 
-/**
- * Class Arranger
- * @package bizley\migration
- * @since 3.4.0
- */
-class Arranger extends Component
+class Arranger extends BaseObject
 {
-    /**
-     * @var Connection DB connection.
-     */
+    /** @var Connection DB connection */
     public $db;
-
-    /**
-     * @var array DB tables to be arranged.
-     */
-    public $inputTables = [];
 
     /**
      * Checks if DB connection is passed.
@@ -38,64 +27,75 @@ class Arranger extends Component
     {
         parent::init();
 
-        if (!($this->db instanceof Connection)) {
+        if ($this->db instanceof Connection === false) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
         }
     }
 
+    protected function getGenerator(string $tableName): Generator
+    {
+        return new Generator([
+            'db' => $this->db,
+            'tableName' => $tableName,
+        ]);
+    }
+
     /**
-     * @return array
+     * @param array $inputTables
      * @throws InvalidConfigException
      */
-    public function arrangeNewMigrations(): array
+    public function arrangeMigrations(array $inputTables): void
     {
-        foreach ($this->inputTables as $inputTable) {
+        foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
 
-            $generator = new Generator([
-                'db' => $this->db,
-                'tableName' => $inputTable,
-            ]);
-
-            $tableStructure = $generator->getTable();
+            $tableStructure = $this->getGenerator($inputTable)->getTableStructure();
             foreach ($tableStructure->foreignKeys as $foreignKey) {
                 $this->addDependency($inputTable, $foreignKey->refTable);
             }
         }
 
-        return $this->arrangeTables($this->_dependency);
+        $this->arrangeTables($this->dependency);
     }
 
-    private $_dependency = [];
+    /** @var array */
+    private $dependency = [];
 
-    /**
-     * @param string $table
-     * @param string|null $dependensOnTable
-     */
-    protected function addDependency(string $table, ?string $dependensOnTable = null): void
+    protected function addDependency(string $table, string $dependensOnTable = null): void
     {
-        if (!array_key_exists($table, $this->_dependency)) {
-            $this->_dependency[$table] = [];
+        if (!array_key_exists($table, $this->dependency)) {
+            $this->dependency[$table] = [];
         }
 
         if ($dependensOnTable) {
-            $this->_dependency[$table][] = $dependensOnTable;
+            $this->dependency[$table][] = $dependensOnTable;
         }
     }
 
-    /**
-     * @param array $input
-     * @return array
-     */
-    public function arrangeTables($input): array
+    /** @var array */
+    private $tablesInOrder = [];
+
+    public function getTablesInOrder(): array
     {
-        $output = [];
+        return $this->tablesInOrder;
+    }
+
+    /** @var array */
+    private $suppressedForeignKeys = [];
+
+    public function getSuppressedForeignKeys(): array
+    {
+        return $this->suppressedForeignKeys;
+    }
+
+    protected function arrangeTables(array $input): void
+    {
+        $order = [];
         $checkList = [];
-        $postLink = [];
 
         $inputCount = count($input);
 
-        while ($inputCount > count($output)) {
+        while ($inputCount > count($order)) {
             $done = false;
             $lastCheckedName = $lastCheckedDependency = null;
 
@@ -117,32 +117,29 @@ class Arranger extends Component
 
                 if ($resolved) {
                     $checkList[$name] = true;
-                    $output[] = $name;
+                    $order[] = $name;
 
                     $done = true;
                 }
             }
 
-            if (!$done) {
+            if ($done === false) {
                 $input[$lastCheckedName] = array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
 
-                $redo = $this->arrangeTables($input);
-                $output = $redo['order'];
+                $this->arrangeTables($input);
+                $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
                     [$lastCheckedName => [$lastCheckedDependency]],
-                    $redo['suppressForeignKeys']
+                    $this->getSuppressedForeignKeys()
                 );
                 $filteredLink = [];
                 foreach ($postLinkMerged as $name => $dependencies) {
                     $filteredLink[$name] = array_unique($dependencies);
                 }
-                $postLink = $filteredLink;
+                $this->suppressedForeignKeys = $filteredLink;
             }
         }
 
-        return [
-            'order' => $output,
-            'suppressForeignKeys' => $postLink,
-        ];
+        $this->tablesInOrder = $order;
     }
 }

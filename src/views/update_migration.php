@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * This is the template for generating the update migration of a specified table.
  *
- * @var $table \bizley\migration\table\TableStructure Table structure
+ * @var $table \bizley\migration\table\Structure Table structure
  * @var $className string Class name
  * @var $namespace string Namespace
- * @var $plan \bizley\migration\table\TablePlan Changes definitions
+ * @var $plan \bizley\migration\table\Plan Changes definitions
  */
 
 echo "<?php\n";

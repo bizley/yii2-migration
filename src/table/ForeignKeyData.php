@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration\table;
 
 use yii\base\BaseObject;
+
 use function count;
 use function implode;
 use function is_numeric;
@@ -13,21 +14,12 @@ use function sprintf;
 use function strpos;
 use function substr;
 
-/**
- * Class ForeignKeyData
- * @package bizley\migration\table
- * @since 3.4.0
- */
 class ForeignKeyData extends BaseObject
 {
-    /**
-     * @var TableForeignKey
-     */
+    /** @var ForeignKey */
     public $foreignKey;
 
-    /**
-     * @var TableStructure
-     */
+    /** @var Structure */
     public $table;
 
     /**
@@ -68,20 +60,30 @@ class ForeignKeyData extends BaseObject
      */
     public function render(): string
     {
+        $indent = "\n" . str_repeat(' ', 12) . "\n";
         return str_repeat(' ', 8) . sprintf(
-            '$this->addForeignKey(\'%s\', \'%s\', %s, \'%s\', %s%s%s);',
+            '$this->addForeignKey(%s\'%s\',%s\'%s\',%s%s,%s\'%s\',%s%s%s%s);',
+            $indent,
             $this->renderName(),
+            $indent,
             $this->table->renderName(),
+            $indent,
             count($this->foreignKey->columns) === 1
                 ? "'{$this->foreignKey->columns[0]}'"
                 : "['" . implode("', '", $this->foreignKey->columns) . "']",
+            $indent,
             $this->renderRefTableName(),
+            $indent,
             count($this->foreignKey->refColumns) === 1
                 ? "'{$this->foreignKey->refColumns[0]}'"
                 : "['" . implode("', '", $this->foreignKey->refColumns) . "']",
-            $this->foreignKey->onDelete ? ", '{$this->foreignKey->onDelete}'" : '',
+            $this->foreignKey->onDelete ? ",$indent'{$this->foreignKey->onDelete}'" : '',
             $this->foreignKey->onUpdate
-                ? ($this->foreignKey->onDelete === null ? ', null' : '') . ", '{$this->foreignKey->onUpdate}'"
+                ? (
+                    $this->foreignKey->onDelete === null
+                        ? ",{$indent}null"
+                        : ''
+                ) . ",$indent'{$this->foreignKey->onUpdate}'"
                 : ''
         );
     }

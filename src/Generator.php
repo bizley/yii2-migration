@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\table\ForeignKeyData;
-use bizley\migration\table\TableColumn;
-use bizley\migration\table\TableColumnFactory;
-use bizley\migration\table\TableForeignKey;
-use bizley\migration\table\TableIndex;
-use bizley\migration\table\TablePrimaryKey;
-use bizley\migration\table\TableStructure;
+use bizley\migration\table\Column;
+use bizley\migration\table\ColumnFactory;
+use bizley\migration\table\ForeignKey;
+use bizley\migration\table\Index;
+use bizley\migration\table\PrimaryKey;
+use bizley\migration\table\Structure;
 use PDO;
 use Throwable;
 use Yii;
@@ -21,162 +21,108 @@ use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
-use yii\db\sqlite\Schema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
+
 use function count;
 use function get_class;
 use function in_array;
 use function is_array;
 
-/**
- * Class Generator
- * @package bizley\migration
- *
- * @property TableSchema $tableSchema
- * @property array $structure
- * @property TableStructure $table
- * @property-read string|null $normalizedNamespace
- */
 class Generator extends Component
 {
-    /**
-     * @var Connection DB connection.
-     */
+    /** @var Connection DB connection */
     public $db;
 
-    /**
-     * @var string Table name to be generated (before prefix).
-     */
+    /** @var string Table name to be generated (before prefix) */
     public $tableName;
 
-    /**
-     * @var string Migration class name.
-     */
+    /** @var string Migration class name */
     public $className;
 
-    /**
-     * @var View View used in controller.
-     */
+    /** @var View View used in controller */
     public $view;
 
-    /**
-     * @var bool Table prefix flag.
-     */
+    /** @var bool Table prefix flag */
     public $useTablePrefix = true;
 
-    /**
-     * @var string File template.
-     */
-    public $templateFile;
+    /** @var string Create migration template file */
+    public $templateFileCreate;
 
-    /**
-     * @var string File update template.
-     */
+    /** @var string Update migration template file */
     public $templateFileUpdate;
 
-    /**
-     * @var string|array Migration namespace.
-     * Since 3.5.0 this can be array of namespaces.
-     */
+    /** @var string|array Migration namespaces */
     public $namespace;
 
-    /**
-     * @var bool Whether to use general column schema instead of database specific.
-     */
+    /** @var bool Whether to use general column schema instead of database specific */
     public $generalSchema = true;
 
-    /**
-     * @var string|null
-     * @since 3.0.4
-     */
+    /** @var string */
     public $tableOptionsInit;
 
-    /**
-     * @var string|null
-     * @since 3.0.4
-     */
+    /** @var string */
     public $tableOptions;
 
-    /**
-     * @var array
-     * @since 3.4.0
-     */
+    /** @var array */
     public $suppressForeignKey = [];
 
     /**
-     * Checks if DB connection is passed.
      * @throws InvalidConfigException
      */
     public function init(): void
     {
         parent::init();
 
-        if (!($this->db instanceof Connection)) {
+        if ($this->db instanceof Connection === false) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
         }
 
-        if ($this->namespace !== null && !is_array($this->namespace)) {
+        if ($this->namespace !== null && is_array($this->namespace) === false) {
             $this->namespace = [$this->namespace];
         }
     }
 
-    protected $_tableSchema;
+    /** @var TableSchema */
+    private $tableSchema;
 
-    /**
-     * Returns table schema.
-     * @return TableSchema|null
-     */
     public function getTableSchema(): ?TableSchema
     {
-        if ($this->_tableSchema === null) {
-            $this->_tableSchema = $this->db->getTableSchema($this->tableName);
+        if ($this->tableSchema === null) {
+            $this->tableSchema = $this->db->getTableSchema($this->tableName);
         }
 
-        return $this->_tableSchema;
+        return $this->tableSchema;
     }
 
-    /**
-     * Returns table primary key.
-     * @return TablePrimaryKey
-     */
-    protected function getTablePrimaryKey(): TablePrimaryKey
+    protected function getTablePrimaryKey(): PrimaryKey
     {
         $data = [];
 
-        /* @var $constraint Constraint */
+        /** @var $constraint Constraint */
         $constraint = $this->db->schema->getTablePrimaryKey($this->tableName, true);
         if ($constraint) {
             $data = [
                 'columns' => $constraint->columnNames,
                 'name' => $constraint->name,
             ];
-        } elseif ($this->db->schema instanceof Schema) {
-            // SQLite bug-case fixed in Yii 2.0.16 https://github.com/yiisoft/yii2/issues/16897
-
-            if ($this->tableSchema !== null && $this->tableSchema->primaryKey) {
-                $data = [
-                    'columns' => $this->tableSchema->primaryKey,
-                ];
-            }
         }
 
-        return new TablePrimaryKey($data);
+        return new PrimaryKey($data);
     }
 
     /**
-     * Returns columns structure.
-     * @param TableIndex[] $indexes
-     * @param string $schema
-     * @return TableColumn[]
+     * @param Index[] $indexes
+     * @param string|null $schema
+     * @return Column[]
      * @throws InvalidConfigException
      */
-    protected function getTableColumns(array $indexes = [], ?string $schema = null): array
+    protected function getTableColumns(array $indexes = [], string $schema = null): array
     {
         $columns = [];
 
-        if ($this->tableSchema instanceof TableSchema) {
-            $indexData = !empty($indexes) ? $indexes : $this->getTableIndexes();
+        if ($this->getTableSchema() instanceof TableSchema) {
+            $indexData = count($indexes) ? $indexes : $this->getTableIndexes();
 
             try {
                 $version = $this->db->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
@@ -184,35 +130,35 @@ class Generator extends Component
                 $version = null;
             }
 
-            foreach ($this->tableSchema->columns as $column) {
+            foreach ($this->getTableSchema()->columns as $column) {
                 $isUnique = false;
 
                 foreach ($indexData as $index) {
                     if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
                         $isUnique = true;
-
                         break;
                     }
                 }
 
-                $columns[$column->name] = TableColumnFactory::build([
-                    'schema' => $schema,
-                    'name' => $column->name,
-                    'type' => $column->type,
-                    'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$column->type],
-                    'engineVersion' => $version,
-                    'size' => $column->size,
-                    'precision' => $column->precision,
-                    'scale' => $column->scale,
-                    'isNotNull' => $column->allowNull ? null : true,
-                    'isUnique' => $isUnique,
-                    'check' => null,
-                    'default' => $column->defaultValue,
-                    'isPrimaryKey' => $column->isPrimaryKey,
-                    'autoIncrement' => $column->autoIncrement,
-                    'isUnsigned' => $column->unsigned,
-                    'comment' => $column->comment ?: null,
-                ]);
+                $columns[$column->name]
+                    = ColumnFactory::build([
+                        'schema' => $schema,
+                        'name' => $column->name,
+                        'type' => $column->type,
+                        'defaultMapping' => $this->db->schema->queryBuilder->typeMap[$column->type],
+                        'engineVersion' => $version,
+                        'size' => $column->size,
+                        'precision' => $column->precision,
+                        'scale' => $column->scale,
+                        'isNotNull' => $column->allowNull ? null : true,
+                        'isUnique' => $isUnique,
+                        'check' => null,
+                        'default' => $column->defaultValue,
+                        'isPrimaryKey' => $column->isPrimaryKey,
+                        'autoIncrement' => $column->autoIncrement,
+                        'isUnsigned' => $column->unsigned,
+                        'comment' => $column->comment ?: null,
+                    ]);
             }
         }
 
@@ -220,8 +166,7 @@ class Generator extends Component
     }
 
     /**
-     * Returns foreign keys structure.
-     * @return TableForeignKey[]
+     * @return ForeignKey[]
      */
     protected function getTableForeignKeys(): array
     {
@@ -229,122 +174,121 @@ class Generator extends Component
 
         $fks = $this->db->schema->getTableForeignKeys($this->tableName, true);
 
-        /* @var $fk ForeignKeyConstraint */
+        /** @var $fk ForeignKeyConstraint */
         foreach ($fks as $fk) {
-            $data[$fk->name] = new TableForeignKey([
-                'name' => $fk->name,
-                'columns' => $fk->columnNames,
-                'refTable' => $fk->foreignTableName,
-                'refColumns' => $fk->foreignColumnNames,
-                'onDelete' => $fk->onDelete,
-                'onUpdate' => $fk->onUpdate,
-            ]);
+            $data[$fk->name]
+                = new ForeignKey([
+                    'name' => $fk->name,
+                    'columns' => $fk->columnNames,
+                    'refTable' => $fk->foreignTableName,
+                    'refColumns' => $fk->foreignColumnNames,
+                    'onDelete' => $fk->onDelete,
+                    'onUpdate' => $fk->onUpdate,
+                ]);
         }
 
         return $data;
     }
 
     /**
-     * Returns table indexes.
-     * @return TableIndex[]
-     * @since 2.2.2
+     * @return Index[]
      */
     protected function getTableIndexes(): array
     {
         $data = [];
 
-        $idxs = $this->db->schema->getTableIndexes($this->tableName, true);
+        $indexes = $this->db->schema->getTableIndexes($this->tableName, true);
 
-        /* @var $idx IndexConstraint */
-        foreach ($idxs as $idx) {
-            if (!$idx->isPrimary) {
-                $data[$idx->name] = new TableIndex([
-                    'name' => $idx->name,
-                    'unique' => $idx->isUnique,
-                    'columns' => $idx->columnNames
-                ]);
+        /** @var $index IndexConstraint */
+        foreach ($indexes as $index) {
+            if ($index->isPrimary === false) {
+                $data[$index->name]
+                    = new Index([
+                        'name' => $index->name,
+                        'unique' => $index->isUnique,
+                        'columns' => $index->columnNames
+                    ]);
             }
         }
 
         return $data;
     }
 
-    private $_table;
-    private $_suppressedForeignKeys = [];
+    /** @var Structure */
+    private $tableStructure;
+    /** @var array */
+    private $suppressedForeignKeys = [];
 
     /**
-     * Returns table data
-     * @return TableStructure
+     * @return Structure
      * @throws InvalidConfigException
      */
-    public function getTable(): TableStructure
+    public function getTableStructure(): Structure
     {
-        if ($this->_table === null) {
-            $indexes = $this->getTableIndexes();
+        if ($this->tableStructure === null) {
             $foreignKeys = $this->getTableForeignKeys();
 
             foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
                 if (in_array($foreignKey->refTable, $this->suppressForeignKey, true)) {
-                    $this->_suppressedForeignKeys[] = new ForeignKeyData([
-                        'foreignKey' => $foreignKey,
-                        'table' => new TableStructure([
-                            'name' => $this->tableName,
-                            'usePrefix' => $this->useTablePrefix,
-                            'dbPrefix' => $this->db->tablePrefix,
-                        ]),
-                    ]);
+                    $this->suppressedForeignKeys[]
+                        = new ForeignKeyData([
+                            'foreignKey' => $foreignKey,
+                            'table'
+                                => new Structure([
+                                    'name' => $this->tableName,
+                                    'usePrefix' => $this->useTablePrefix,
+                                    'dbPrefix' => $this->db->tablePrefix,
+                                ]),
+                        ]);
                     unset($foreignKeys[$foreignKeyName]);
                 }
             }
 
-            $this->_table = new TableStructure([
-                'name' => $this->tableName,
-                'schema' => get_class($this->db->schema),
-                'generalSchema' => $this->generalSchema,
-                'usePrefix' => $this->useTablePrefix,
-                'dbPrefix' => $this->db->tablePrefix,
-                'primaryKey' => $this->getTablePrimaryKey(),
-                'foreignKeys' => $foreignKeys,
-                'indexes' => $indexes,
-                'tableOptionsInit' => $this->tableOptionsInit,
-                'tableOptions' => $this->tableOptions,
-            ]);
+            $indexes = $this->getTableIndexes();
 
-            $this->_table->columns = $this->getTableColumns($indexes, $this->_table->schema);
+            $this->tableStructure
+                = new Structure([
+                    'name' => $this->tableName,
+                    'schema' => get_class($this->db->schema),
+                    'generalSchema' => $this->generalSchema,
+                    'usePrefix' => $this->useTablePrefix,
+                    'dbPrefix' => $this->db->tablePrefix,
+                    'primaryKey' => $this->getTablePrimaryKey(),
+                    'foreignKeys' => $foreignKeys,
+                    'indexes' => $indexes,
+                    'tableOptionsInit' => $this->tableOptionsInit,
+                    'tableOptions' => $this->tableOptions,
+                ]);
+
+            $this->tableStructure->columns = $this->getTableColumns($indexes, $this->tableStructure->getSchema());
         }
 
-        return $this->_table;
+        return $this->tableStructure;
     }
 
-    /**
-     * Returns normalized namespace.
-     * @return null|string
-     */
+    public function getSuppressedForeignKeys(): array
+    {
+        return $this->suppressedForeignKeys;
+    }
+
     public function getNormalizedNamespace(): ?string
     {
         return !empty($this->namespace) ? FileHelper::normalizePath(reset($this->namespace), '\\') : null;
     }
 
     /**
-     * Generates migration content or echoes exception message.
      * @return string
+     * @throws InvalidConfigException
      */
     public function generateMigration(): string
     {
-        return $this->view->renderFile(Yii::getAlias($this->templateFile), [
-            'table' => $this->table,
-            'className' => $this->className,
-            'namespace' => $this->normalizedNamespace
-        ]);
-    }
-
-    /**
-     * Returns list of foreign keys definitions that were suppressed by the configuration.
-     * @return array
-     * @since 3.4.0
-     */
-    public function getSuppressedForeignKeys(): array
-    {
-        return $this->_suppressedForeignKeys;
+        return $this->view->renderFile(
+            Yii::getAlias($this->templateFileCreate),
+            [
+                'table' => $this->getTableStructure(),
+                'className' => $this->className,
+                'namespace' => $this->getNormalizedNamespace()
+            ]
+        );
     }
 }

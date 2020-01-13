@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use bizley\migration\table\TableChange;
-use bizley\migration\table\TableColumn;
-use bizley\migration\table\TablePlan;
-use bizley\migration\table\TablePrimaryKey;
-use bizley\migration\table\TableStructure;
+use bizley\migration\table\Change;
+use bizley\migration\table\Column;
+use bizley\migration\table\Plan;
+use bizley\migration\table\PrimaryKey;
+use bizley\migration\table\Structure;
 use Yii;
 use yii\base\ErrorException;
 use yii\base\InvalidArgumentException;
@@ -18,8 +18,10 @@ use yii\console\controllers\MigrateController;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
+
 use function array_diff;
 use function array_intersect;
+use function array_key_exists;
 use function array_merge;
 use function array_reverse;
 use function count;
@@ -35,39 +37,22 @@ use function strpos;
 use function trim;
 use function usort;
 
-/**
- * Class Updater
- * @package bizley\migration
- *
- * @property-read TableStructure $oldTable
- * @property TablePlan $plan
- */
 class Updater extends Generator
 {
-    /**
-     * @var string Name of the table for keeping applied migration information.
-     */
+    /** @var string Name of the table for keeping applied migration information */
     public $migrationTable = '{{%migration}}';
 
-    /**
-     * @var string|array Directory storing the migration classes. This can be either a path alias or a directory.
-     * Since 3.5.0 this can be array of directories.
-     */
+    /** @var string|array Directories storing the migration classes */
     public $migrationPath = '@app/migrations';
 
-    /**
-     * @var bool Whether to only display changes instead of create updating migration.
-     */
+    /** @var bool Whether to only display changes instead of create updating migration */
     public $showOnly = false;
 
-    /**
-     * @var array List of migration from the history that should be skipped during the update process.
-     * Here you can place migrations containing actions that can not be covered by extractor.
-     * @since 2.1.1
-     */
+    /** @var array List of migration from the history that should be skipped during the update process */
     public $skipMigrations = [];
 
-    private $_currentTable;
+    /** @var string */
+    private $currentTable;
 
     /**
      * Sets current table name and clears skipped migrations names.
@@ -81,11 +66,11 @@ class Updater extends Generator
             throw new InvalidConfigException('You must provide "migrationPath" value.');
         }
 
-        if (!is_array($this->migrationPath)) {
+        if (is_array($this->migrationPath) === false) {
             $this->migrationPath = [$this->migrationPath];
         }
 
-        $this->_currentTable = $this->tableName;
+        $this->currentTable = $this->tableName;
 
         foreach ($this->skipMigrations as $index => $migration) {
             $this->skipMigrations[$index] = trim($migration, '\\');
@@ -93,7 +78,6 @@ class Updater extends Generator
     }
 
     /**
-     * Sets dummy Migration class.
      * @throws InvalidArgumentException
      */
     protected function setDummyMigrationClass(): void
@@ -113,11 +97,12 @@ class Updater extends Generator
             return [];
         }
 
-        $rows = (new Query())
-            ->select(['version', 'apply_time'])
-            ->from($this->migrationTable)
-            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
-            ->all($this->db);
+        $rows
+            = (new Query())
+                ->select(['version', 'apply_time'])
+                ->from($this->migrationTable)
+                ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+                ->all($this->db);
 
         $history = [];
 
@@ -137,51 +122,54 @@ class Updater extends Generator
             $history[] = $row;
         }
 
-        usort($history, static function ($a, $b) {
-            if ($a['apply_time'] === $b['apply_time']) {
-                if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
-                    return $compareResult;
+        usort(
+            $history,
+            static function ($a, $b) {
+                if ($a['apply_time'] === $b['apply_time']) {
+                    if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
+                        return $compareResult;
+                    }
+
+                    return strcasecmp($b['version'], $a['version']);
                 }
 
-                return strcasecmp($b['version'], $a['version']);
+                return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
             }
-
-            return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
-        });
+        );
 
         return ArrayHelper::map($history, 'version', 'apply_time');
     }
 
-    private $_appliedChanges = [];
+    /** @var Change[] */
+    private $appliedChanges = [];
 
     /**
-     * Gathers applied changes.
      * @param array $changes
      * @return bool true if more data can be analysed or false if this must be last one
-     * @since 2.3.0
+     * @throws InvalidConfigException
      */
     protected function gatherChanges(array $changes): bool
     {
-        if (!isset($changes[$this->_currentTable])) {
+        if (array_key_exists($this->currentTable, $changes) === false) {
             return true;
         }
 
-        $data = array_reverse($changes[$this->_currentTable]);
+        $data = array_reverse($changes[$this->currentTable]);
 
-        /* @var $tableChange TableChange */
-        foreach ($data as $tableChange) {
-            if ($tableChange->method === 'dropTable') {
+        /** @var $change Change */
+        foreach ($data as $change) {
+            if ($change->method === 'dropTable') {
                 return false;
             }
 
-            if ($tableChange->method === 'renameTable') {
-                $this->_currentTable = $tableChange->value;
+            if ($change->method === 'renameTable') {
+                $this->currentTable = $change->getValue();
                 return $this->gatherChanges($changes);
             }
 
-            $this->_appliedChanges[] = $tableChange;
+            $this->appliedChanges[] = $change;
 
-            if ($tableChange->method === 'createTable') {
+            if ($change->method === 'createTable') {
                 return false;
             }
         }
@@ -222,32 +210,33 @@ class Updater extends Generator
         return $subject->changes;
     }
 
-    protected $_oldTable;
+    /** @var Structure */
+    protected $oldTable;
 
     /**
      * Returns the table structure as applied in gathered migrations.
-     * @return TableStructure
-     * @since 2.3.0
+     * @return Structure
      * @throws InvalidArgumentException
      */
-    public function getOldTable(): TableStructure
+    public function getOldTable(): Structure
     {
-        if ($this->_oldTable === null) {
-            $this->_oldTable = new TableStructure([
-                'schema' => get_class($this->db->schema),
-                'generalSchema' => $this->generalSchema,
-                'usePrefix' => $this->useTablePrefix,
-                'dbPrefix' => $this->db->tablePrefix,
-            ]);
+        if ($this->oldTable === null) {
+            $this->oldTable
+                = new Structure([
+                    'schema' => get_class($this->db->schema),
+                    'generalSchema' => $this->generalSchema,
+                    'usePrefix' => $this->useTablePrefix,
+                    'dbPrefix' => $this->db->tablePrefix,
+                ]);
 
-            $this->_oldTable->applyChanges(array_reverse($this->_appliedChanges));
+            $this->oldTable->applyChanges(array_reverse($this->appliedChanges));
         }
 
-        return $this->_oldTable;
+        return $this->oldTable;
     }
 
     /**
-     * Returns values as a string.
+     * Returns values as strings.
      * @param mixed $value
      * @return string
      */
@@ -273,22 +262,21 @@ class Updater extends Generator
     }
 
     /**
-     * Confirms adding composite primary key and removes excessive PK statements.
      * @param array $newKeys
      * @return bool
-     * @since 2.1.2
+     * @throws InvalidConfigException
      */
-    protected function confirmCompositePrimaryKey(array $newKeys): bool
+    protected function isPrimaryKeyComposite(array $newKeys): bool
     {
-        if (count($this->table->primaryKey->columns) === 1 && count($newKeys) === 1) {
-            /* @var $column TableColumn */
-            foreach ($this->plan->addColumn as $name => $column) {
+        if (count($newKeys) === 1 && count($this->getTableStructure()->primaryKey->columns) === 1) {
+            /** @var $column Column */
+            foreach ($this->getPlan()->addColumn as $name => $column) {
                 if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
                     return false;
                 }
             }
 
-            foreach ($this->plan->alterColumn as $name => $column) {
+            foreach ($this->getPlan()->alterColumn as $name => $column) {
                 if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
                     return false;
                 }
@@ -297,47 +285,49 @@ class Updater extends Generator
             return true;
         }
 
-        if (count($this->table->primaryKey->columns) > 1) {
+        return true;
+    }
+
+    /**
+     * @param array $newKeys
+     * @throws InvalidConfigException
+     */
+    protected function removeExcessivePrimaryKeyStatements(array $newKeys): void
+    {
+        if (count($this->getTableStructure()->primaryKey->columns) > 1) {
             foreach ($newKeys as $key) {
-                /* @var $column TableColumn */
-                foreach ($this->plan->addColumn as $name => $column) {
+                /* @var $column Column */
+                foreach ($this->getPlan()->addColumn as $name => $column) {
                     if ($name === $key) {
                         $column->append = $column->removePKAppend();
                     }
                 }
 
-                foreach ($this->plan->alterColumn as $name => $column) {
+                foreach ($this->getPlan()->alterColumn as $name => $column) {
                     if ($name === $key) {
                         $column->append = $column->removePKAppend();
                     }
                 }
             }
         }
-
-        return true;
     }
 
-    private $_modifications;
+    /** @var Plan */
+    private $modifications;
 
     /**
-     * @return TablePlan
+     * @return Plan
      */
-    public function getPlan(): TablePlan
+    public function getPlan(): Plan
     {
-        if ($this->_modifications === null) {
-            $this->_modifications = new TablePlan();
+        if ($this->modifications === null) {
+            $this->modifications = new Plan();
         }
 
-        return $this->_modifications;
+        return $this->modifications;
     }
 
-    /**
-     * @param string $append
-     * @param TableColumn $column
-     * @return bool
-     * @since 3.6.2
-     */
-    private function isAppendSame(string $append, TableColumn $column): bool
+    private function isAppendSame(string $append, Column $column): bool
     {
         $autoIncrement = false;
         $primaryKey = false;
@@ -368,13 +358,14 @@ class Updater extends Generator
     }
 
     /**
-     * Compares migration structure and database structure and gather required modifications.
+     * Compares migration virtual structure with database structure and gathers required modifications.
      * @return bool whether modification is required or not
      * @throws NotSupportedException
+     * @throws InvalidConfigException
      */
     protected function compareStructures(): bool
     {
-        if (empty($this->_appliedChanges)) {
+        if (empty($this->appliedChanges)) {
             return true;
         }
 
@@ -385,8 +376,8 @@ class Updater extends Generator
         }
 
         $previousColumn = null;
-        foreach ($this->table->columns as $name => $column) {
-            if (!isset($this->oldTable->columns[$name])) {
+        foreach ($this->getTableStructure()->columns as $name => $column) {
+            if (array_key_exists($name, $this->getOldTable()->columns) === false) {
                 if ($this->showOnly) {
                     echo "   - missing column '$name'\n";
                 } else {
@@ -395,7 +386,7 @@ class Updater extends Generator
                     } else {
                         $column->isFirst = true;
                     }
-                    $this->plan->addColumn[$name] = $column;
+                    $this->getPlan()->addColumn[$name] = $column;
                 }
 
                 $different = true;
@@ -406,38 +397,32 @@ class Updater extends Generator
 
             $previousColumn = $name;
 
-            foreach ([
-                'type',
-                'isNotNull',
-                'length',
-                'isUnique',
-                'isUnsigned',
-                'default',
-                'append',
-                'comment'
-             ] as $property) {
-                if (!$this->generalSchema
+            foreach (
+                ['type', 'isNotNull', 'length', 'isUnique', 'isUnsigned', 'default', 'append', 'comment'] as $property
+            ) {
+                if (
+                    $this->generalSchema === false
                     && $property === 'append'
                     && $column->append === null
-                    && !$this->table->primaryKey->isComposite()
-                    && $column->isColumnInPK($this->table->primaryKey)
+                    && $this->getTableStructure()->primaryKey->isComposite() === false
+                    && $column->isColumnInPK($this->getTableStructure()->primaryKey)
                 ) {
                     $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                 }
 
-                $oldProperty = $this->oldTable->columns[$name]->$property;
-                if (!is_bool($oldProperty) && $oldProperty !== null && !is_array($oldProperty)) {
+                $oldProperty = $this->getOldTable()->columns[$name]->$property;
+                if (is_bool($oldProperty) === false && $oldProperty !== null && is_array($oldProperty) === false) {
                     $oldProperty = (string)$oldProperty;
                 }
                 $newProperty = $column->$property;
-                if (!is_bool($newProperty) && $newProperty !== null && !is_array($newProperty)) {
+                if (is_bool($newProperty) === false && $newProperty !== null && is_array($newProperty) === false) {
                     $newProperty = (string)$newProperty;
                 }
                 if ($oldProperty !== $newProperty) {
                     if (
                         $property === 'append'
                         && $oldProperty === null
-                        && $this->isAppendSame($newProperty, $this->oldTable->columns[$name])
+                        && $this->isAppendSame($newProperty, $this->getOldTable()->columns[$name])
                     ) {
                         continue;
                     }
@@ -447,15 +432,15 @@ class Updater extends Generator
                         echo 'DB: ' . $this->displayValue($newProperty) . ' <> ';
                         echo 'MIG: ' . $this->displayValue($oldProperty) . ")\n";
 
-                        if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                        if ($this->getTableStructure()->isSchemaSQLite()) {
                             echo "   (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually\n";
                         }
-                    } elseif (!isset($this->plan->alterColumn[$name])) {
-                        if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    } elseif (!isset($this->getPlan()->alterColumn[$name])) {
+                        if ($this->getTableStructure()->isSchemaSQLite()) {
                             throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
                         }
 
-                        $this->plan->alterColumn[$name] = $column;
+                        $this->getPlan()->alterColumn[$name] = $column;
                     }
 
                     $different = true;
@@ -463,40 +448,40 @@ class Updater extends Generator
             }
         }
 
-        foreach ($this->oldTable->columns as $name => $column) {
-            if (!isset($this->table->columns[$name])) {
+        foreach ($this->getOldTable()->columns as $name => $column) {
+            if (array_key_exists($name, $this->getTableStructure()->columns) === false) {
                 if ($this->showOnly) {
                     echo "   - excessive column '$name'\n";
 
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         echo "   (!) DROP COLUMN is not supported by SQLite: Migration must be created manually\n";
                     }
                 } else {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('DROP COLUMN is not supported by SQLite.');
                     }
 
-                    $this->plan->dropColumn[] = $name;
+                    $this->getPlan()->dropColumn[] = $name;
                 }
 
                 $different = true;
             }
         }
 
-        foreach ($this->table->foreignKeys as $name => $foreignKey) {
-            if (!isset($this->oldTable->foreignKeys[$name])) {
+        foreach ($this->getTableStructure()->foreignKeys as $name => $foreignKey) {
+            if (array_key_exists($name, $this->getOldTable()->foreignKeys) === false) {
                 if ($this->showOnly) {
                     echo "   - missing foreign key '$name'\n";
 
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         echo "   (!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
                     }
                 } else {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->addForeignKey[$name] = $foreignKey;
+                    $this->getPlan()->addForeignKey[$name] = $foreignKey;
                 }
 
                 $different = true;
@@ -504,34 +489,38 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableFKColumns = !empty($this->table->foreignKeys[$name]->columns)
-                ? $this->table->foreignKeys[$name]->columns
-                : [];
-            $oldTableFKColumns = !empty($this->oldTable->foreignKeys[$name]->columns)
-                ? $this->oldTable->foreignKeys[$name]->columns
-                : [];
+            $tableFKColumns
+                = !empty($this->getTableStructure()->foreignKeys[$name]->columns)
+                    ? $this->getTableStructure()->foreignKeys[$name]->columns
+                    : [];
+            $oldTableFKColumns
+                = !empty($this->getOldTable()->foreignKeys[$name]->columns)
+                    ? $this->getOldTable()->foreignKeys[$name]->columns
+                    : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
-                    array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+                        array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
                     echo 'MIG: (' . implode(', ', $oldTableFKColumns) . "))\n";
 
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         echo "   (!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
                     }
                 } else {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->dropForeignKey[] = $name;
-                    $this->plan->addForeignKey[$name] = $foreignKey;
+                    $this->getPlan()->dropForeignKey[] = $name;
+                    $this->getPlan()->addForeignKey[$name] = $foreignKey;
                 }
 
                 $different = true;
@@ -539,62 +528,69 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableFKRefColumns = !empty($this->table->foreignKeys[$name]->refColumns)
-                ? $this->table->foreignKeys[$name]->refColumns
-                : [];
-            $oldTableFKRefColumns = !empty($this->oldTable->foreignKeys[$name]->refColumns)
-                ? $this->oldTable->foreignKeys[$name]->refColumns
-                : [];
+            $tableFKRefColumns
+                = !empty($this->getTableStructure()->foreignKeys[$name]->refColumns)
+                    ? $this->getTableStructure()->foreignKeys[$name]->refColumns
+                    : [];
+            $oldTableFKRefColumns
+                = !empty($this->getOldTable()->foreignKeys[$name]->refColumns)
+                    ? $this->getOldTable()->foreignKeys[$name]->refColumns
+                    : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
-                    array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+                        array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
                     echo 'MIG: (' . implode(', ', $oldTableFKRefColumns) . "))\n";
 
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         echo "   (!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
                     }
                 } else {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->dropForeignKey[] = $name;
-                    $this->plan->addForeignKey[$name] = $foreignKey;
+                    $this->getPlan()->dropForeignKey[] = $name;
+                    $this->getPlan()->addForeignKey[$name] = $foreignKey;
                 }
 
                 $different = true;
             }
         }
 
-        foreach ($this->oldTable->foreignKeys as $name => $foreignKey) {
-            if (!isset($this->table->foreignKeys[$name])) {
+        foreach ($this->getOldTable()->foreignKeys as $name => $foreignKey) {
+            if (array_key_exists($name, $this->getTableStructure()->foreignKeys) === false) {
                 if ($this->showOnly) {
                     echo "   - excessive foreign key '$name'\n";
 
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         echo "   (!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually\n";
                     }
                 } else {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->dropForeignKey[] = $name;
+                    $this->getPlan()->dropForeignKey[] = $name;
                 }
 
                 $different = true;
             }
         }
 
-        $tablePKColumns = !empty($this->table->primaryKey->columns) ? $this->table->primaryKey->columns : [];
-        $oldTablePKColumns = !empty($this->oldTable->primaryKey->columns) ? $this->oldTable->primaryKey->columns : [];
+        $tablePKColumns = !empty($this->getTableStructure()->primaryKey->columns)
+            ? $this->getTableStructure()->primaryKey->columns
+            : [];
+        $oldTablePKColumns
+            = !empty($this->getOldTable()->primaryKey->columns) ? $this->getOldTable()->primaryKey->columns : [];
 
         $newKeys = array_merge(
             array_diff($tablePKColumns, array_intersect($tablePKColumns, $oldTablePKColumns)),
@@ -605,37 +601,39 @@ class Updater extends Generator
             if ($this->showOnly) {
                 echo "   - different primary key definition\n";
 
-                if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                if ($this->getTableStructure()->isSchemaSQLite()) {
                     echo "   (!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually\n";
                 }
             } else {
-                if (!empty($this->oldTable->primaryKey->columns)) {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                if (count($this->getOldTable()->primaryKey->columns)) {
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->dropPrimaryKey = $this->oldTable->primaryKey->name
-                        ?: TablePrimaryKey::GENERIC_PRIMARY_KEY;
+                    $this->getPlan()->dropPrimaryKey
+                        = $this->getOldTable()->primaryKey->name ?: PrimaryKey::GENERIC_PRIMARY_KEY;
                 }
 
-                if (!empty($this->table->primaryKey->columns) && $this->confirmCompositePrimaryKey($newKeys)) {
-                    if ($this->table->getSchema() === TableStructure::SCHEMA_SQLITE) {
+                if (!empty($this->getTableStructure()->primaryKey->columns) && $this->isPrimaryKeyComposite($newKeys)) {
+                    $this->removeExcessivePrimaryKeyStatements($newKeys);
+
+                    if ($this->getTableStructure()->isSchemaSQLite()) {
                         throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
                     }
 
-                    $this->plan->addPrimaryKey = $this->table->primaryKey;
+                    $this->getPlan()->addPrimaryKey = $this->getTableStructure()->primaryKey;
                 }
             }
 
             $different = true;
         }
 
-        foreach ($this->table->indexes as $name => $index) {
-            if (!isset($this->oldTable->indexes[$name])) {
+        foreach ($this->getTableStructure()->indexes as $name => $index) {
+            if (array_key_exists($name, $this->getOldTable()->indexes) === false) {
                 if ($this->showOnly) {
                     echo "   - missing index '$name'\n";
                 } else {
-                    $this->plan->createIndex[$name] = $index;
+                    $this->getPlan()->createIndex[$name] = $index;
                 }
 
                 $different = true;
@@ -643,14 +641,15 @@ class Updater extends Generator
                 continue;
             }
 
-            if ($this->oldTable->indexes[$name]->unique !== $this->table->indexes[$name]->unique) {
+            if ($this->getOldTable()->indexes[$name]->unique !== $this->getTableStructure()->indexes[$name]->unique) {
                 if ($this->showOnly) {
-                    echo "   - different index '$name' definition (";
-                    echo 'DB: unique ' . $this->displayValue($this->table->indexes[$name]->unique) . ' <> ';
-                    echo 'MIG: unique ' . $this->displayValue($this->oldTable->indexes[$name]->unique) . ")\n";
+                    echo "   - different index '$name' definition (DB: unique "
+                        . $this->displayValue($this->getTableStructure()->indexes[$name]->unique)
+                        . ' <> MIG: unique ' . $this->displayValue($this->getOldTable()->indexes[$name]->unique)
+                        . ")\n";
                 } else {
-                    $this->plan->dropIndex[] = $name;
-                    $this->plan->createIndex[$name] = $index;
+                    $this->getPlan()->dropIndex[] = $name;
+                    $this->getPlan()->createIndex[$name] = $index;
                 }
 
                 $different = true;
@@ -658,38 +657,44 @@ class Updater extends Generator
                 continue;
             }
 
-            $tableIndexColumns = !empty($this->table->indexes[$name]->columns)
-                ? $this->table->indexes[$name]->columns
-                : [];
-            $oldTableIndexColumns = !empty($this->oldTable->indexes[$name]->columns)
-                ? $this->oldTable->indexes[$name]->columns
-                : [];
+            $tableIndexColumns
+                = !empty($this->getTableStructure()->indexes[$name]->columns)
+                    ? $this->getTableStructure()->indexes[$name]->columns
+                    : [];
+            $oldTableIndexColumns
+                = !empty($this->getOldTable()->indexes[$name]->columns)
+                    ? $this->getOldTable()->indexes[$name]->columns
+                    : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
-                    array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+                        array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
-                    echo "   - different index '$name' columns (";
-                    echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';
-                    echo 'MIG: (' . implode(', ', $oldTableIndexColumns) . "))\n";
+                    echo "   - different index '$name' columns (DB: ("
+                        . implode(', ', $tableIndexColumns)
+                        . ') <> MIG: ('
+                        . implode(', ', $oldTableIndexColumns)
+                        . "))\n";
                 } else {
-                    $this->plan->dropIndex[] = $name;
-                    $this->plan->createIndex[$name] = $index;
+                    $this->getPlan()->dropIndex[] = $name;
+                    $this->getPlan()->createIndex[$name] = $index;
                 }
 
                 $different = true;
             }
         }
 
-        foreach ($this->oldTable->indexes as $name => $index) {
-            if (!isset($this->table->indexes[$name])) {
+        foreach ($this->getOldTable()->indexes as $name => $index) {
+            if (array_key_exists($name, $this->getTableStructure()->indexes) === false) {
                 if ($this->showOnly) {
                     echo "   - excessive index '$name'\n";
                 } else {
-                    $this->plan->dropIndex[] = $name;
+                    $this->getPlan()->dropIndex[] = $name;
                 }
 
                 $different = true;
@@ -700,9 +705,9 @@ class Updater extends Generator
     }
 
     /**
-     * Checks if new updating migration is required.
      * @return bool
      * @throws ErrorException
+     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function isUpdateRequired(): bool
@@ -730,20 +735,23 @@ class Updater extends Generator
     }
 
     /**
-     * Generates migration content or echoes exception message.
      * @return string
+     * @throws InvalidConfigException
      */
     public function generateMigration(): string
     {
-        if (empty($this->_modifications)) {
+        if (empty($this->modifications)) {
             return parent::generateMigration();
         }
 
-        return $this->view->renderFile(Yii::getAlias($this->templateFileUpdate), [
-            'className' => $this->className,
-            'table' => $this->table,
-            'plan' => $this->plan,
-            'namespace' => $this->normalizedNamespace
-        ]);
+        return $this->view->renderFile(
+            Yii::getAlias($this->templateFileUpdate),
+            [
+                'className' => $this->className,
+                'table' => $this->getTableStructure(),
+                'plan' => $this->getPlan(),
+                'namespace' => $this->getNormalizedNamespace()
+            ]
+        );
     }
 }

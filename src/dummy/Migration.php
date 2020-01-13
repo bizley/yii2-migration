@@ -2,8 +2,8 @@
 
 namespace yii\db;
 
-use bizley\migration\table\TableChange;
-use bizley\migration\table\TableStructure;
+use bizley\migration\table\Change;
+use bizley\migration\table\Structure;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
@@ -11,6 +11,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\di\Instance;
+
 use function array_key_exists;
 use function get_class;
 use function is_array;
@@ -85,11 +86,11 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * Returns extracted columns data.
      * @param array $columns
      * @return array
+     * @throws ReflectionException
      */
-    protected function extractColumns($columns)
+    protected function extractColumns(array $columns): array
     {
         $schema = [];
 
@@ -107,7 +108,7 @@ class Migration extends Component implements MigrationInterface
      * @param array $dbToKey
      * @return array
      */
-    public function fillTypeMapProperties($type, $keyToDb, $dbToKey)
+    protected function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
     {
         $schema = [];
 
@@ -163,15 +164,14 @@ class Migration extends Component implements MigrationInterface
 
     /**
      * Returns extracted column data.
-     * Since 3.3.0 InvalidArgumentException is thrown for non-ColumnSchemaBuilder $columnData.
      * @param ColumnSchemaBuilder $columnData
      * @return array
      * @throws ReflectionException
      * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
      */
-    protected function extractColumn($columnData)
+    protected function extractColumn(ColumnSchemaBuilder $columnData): array
     {
-        if (!$columnData instanceof ColumnSchemaBuilder) {
+        if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
                 'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
             );
@@ -187,22 +187,24 @@ class Migration extends Component implements MigrationInterface
             $this->db->schema->typeMap
         );
 
-        foreach ([
-            'length',
-            'isNotNull',
-            'isUnique',
-            'check',
-            'default',
-            'append',
-            'isUnsigned',
-            'after',
-            'isFirst'
-         ] as $property) {
+        foreach (
+            [
+                'length',
+                'isNotNull',
+                'isUnique',
+                'check',
+                'default',
+                'append',
+                'isUnsigned',
+                'after',
+                'isFirst'
+            ] as $property
+        ) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
-            if (($value !== null && $value !== []) || !isset($schema[$property])) {
+            if (($value !== null && $value !== []) || array_key_exists($property, $schema) === false) {
                 $schema[$property] = $value;
             }
         }
@@ -212,12 +214,7 @@ class Migration extends Component implements MigrationInterface
         return $schema;
     }
 
-    /**
-     * Returns raw table name.
-     * @param string $table
-     * @return string
-     */
-    public function getRawTableName($table)
+    public function getRawTableName(string $table): string
     {
         return $this->db->schema->getRawTableName($table);
     }
@@ -228,21 +225,22 @@ class Migration extends Component implements MigrationInterface
      * @param string $method
      * @param mixed $data
      */
-    public function addChange($table, $method, $data)
+    public function addChange(string $table, string $method, $data): void
     {
         $table = $this->getRawTableName($table);
 
-        if (!isset($this->changes[$table])) {
+        if (array_key_exists($table, $this->changes) === false) {
             $this->changes[$table] = [];
         }
 
-        $this->changes[$table][] = new TableChange([
-            'schema' => TableStructure::identifySchema(get_class($this->db->schema)),
-            'table' => $table,
-            'method' => $method,
-            'data' => $data,
-            'db' => $this->db,
-        ]);
+        $this->changes[$table][]
+            = new Change([
+                'schema' => Structure::identifySchema(get_class($this->db->schema)),
+                'table' => $table,
+                'method' => $method,
+                'data' => $data,
+                'db' => $this->db,
+            ]);
     }
 
     /**
