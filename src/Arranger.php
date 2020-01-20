@@ -32,7 +32,7 @@ class Arranger extends BaseObject
         }
     }
 
-    protected function getGenerator(string $tableName): Generator
+    public function getGenerator(string $tableName): Generator
     {
         return new Generator([
             'db' => $this->db,
