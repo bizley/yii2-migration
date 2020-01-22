@@ -10,7 +10,7 @@ class BigUnsignedPrimaryKeyColumn extends BigPrimaryKeyColumn
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         parent::buildSpecificDefinition($table);
 

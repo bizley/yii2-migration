@@ -242,7 +242,7 @@ class Structure extends BaseObject
                     foreach ($value as $column) {
                         $this->columns[$column->name] = $column;
 
-                        if ($column->isPrimaryKey || $column->isColumnAppendPK()) {
+                        if ($column->isPrimaryKey || $column->isPrimaryKeyInfoAppended()) {
                             if ($this->primaryKey === null) {
                                 $this->primaryKey = new PrimaryKey(['columns' => [$column->name]]);
                             } else {
@@ -255,7 +255,7 @@ class Structure extends BaseObject
                 case 'addColumn':
                     $this->columns[$value->name] = $value;
 
-                    if ($value->isPrimaryKey || $value->isColumnAppendPK()) {
+                    if ($value->isPrimaryKey || $value->isPrimaryKeyInfoAppended()) {
                         if ($this->primaryKey === null) {
                             $this->primaryKey = new PrimaryKey(['columns' => [$value->name]]);
                         } else {
@@ -291,7 +291,7 @@ class Structure extends BaseObject
                                     true,
                                     false
                                 );
-                            } elseif (!$this->columns[$column]->isColumnAppendPK()) {
+                            } elseif (!$this->columns[$column]->isPrimaryKeyInfoAppended()) {
                                 $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend(
                                     true,
                                     false

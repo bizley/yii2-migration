@@ -11,7 +11,7 @@ use function preg_split;
 class DecimalColumn extends Column
 {
     /** @var array Schemas using length for this column */
-    public $lengthSchemas = [
+    private $lengthSchemas = [
         Structure::SCHEMA_MYSQL,
         Structure::SCHEMA_CUBRID,
         Structure::SCHEMA_PGSQL,
@@ -57,7 +57,7 @@ class DecimalColumn extends Column
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         $this->definition[] = 'decimal(' . $this->getRenderLength($table->generalSchema) . ')';
     }

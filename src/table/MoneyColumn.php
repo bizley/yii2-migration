@@ -43,7 +43,7 @@ class MoneyColumn extends Column
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         $this->definition[] = 'money(' . $this->getRenderLength($table->generalSchema) . ')';
     }

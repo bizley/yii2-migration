@@ -271,13 +271,13 @@ class Updater extends Generator
         if (count($newKeys) === 1 && count($this->getTableStructure()->primaryKey->columns) === 1) {
             /** @var $column Column */
             foreach ($this->getPlan()->addColumn as $name => $column) {
-                if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
+                if ($name === $newKeys[0] && $column->isPrimaryKeyInfoAppended()) {
                     return false;
                 }
             }
 
             foreach ($this->getPlan()->alterColumn as $name => $column) {
-                if ($name === $newKeys[0] && $column->isColumnAppendPK()) {
+                if ($name === $newKeys[0] && $column->isPrimaryKeyInfoAppended()) {
                     return false;
                 }
             }
@@ -405,7 +405,7 @@ class Updater extends Generator
                     && $property === 'append'
                     && $column->append === null
                     && $this->getTableStructure()->primaryKey->isComposite() === false
-                    && $column->isColumnInPK($this->getTableStructure()->primaryKey)
+                    && $column->isColumnInPrimaryKey($this->getTableStructure()->primaryKey)
                 ) {
                     $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                 }

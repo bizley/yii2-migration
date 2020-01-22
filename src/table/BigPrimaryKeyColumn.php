@@ -9,7 +9,7 @@ use function in_array;
 class BigPrimaryKeyColumn extends Column
 {
     /** @var array Schemas using length for this column */
-    public $lengthSchemas = [Structure::SCHEMA_MYSQL, Structure::SCHEMA_OCI];
+    private $lengthSchemas = [Structure::SCHEMA_MYSQL, Structure::SCHEMA_OCI];
 
     /**
      * Returns length of the column.
@@ -36,7 +36,7 @@ class BigPrimaryKeyColumn extends Column
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         $this->definition[] = 'bigPrimaryKey(' . $this->getRenderLength($table->generalSchema) . ')';
         if ($table->generalSchema) {

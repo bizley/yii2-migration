@@ -14,7 +14,7 @@ use function version_compare;
 class TimestampColumn extends Column
 {
     /** @var array Schemas using length for this column */
-    public $lengthSchemas = [Structure::SCHEMA_PGSQL];
+    private $lengthSchemas = [Structure::SCHEMA_PGSQL];
 
     public function init(): void
     {
@@ -50,7 +50,7 @@ class TimestampColumn extends Column
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         $this->definition[] = 'timestamp(' . $this->getRenderLength($table->generalSchema) . ')';
     }

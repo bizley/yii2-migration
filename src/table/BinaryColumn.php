@@ -9,7 +9,7 @@ use function in_array;
 class BinaryColumn extends Column
 {
     /** @var array Schemas using length for this column */
-    public $lengthSchemas = [Structure::SCHEMA_MSSQL];
+    private $lengthSchemas = [Structure::SCHEMA_MSSQL];
 
     /**
      * Returns length of the column.
@@ -36,7 +36,7 @@ class BinaryColumn extends Column
      * Builds methods chain for column definition.
      * @param Structure $table
      */
-    public function buildSpecificDefinition(Structure $table): void
+    protected function buildSpecificDefinition(Structure $table): void
     {
         $this->definition[] = 'binary(' . $this->getRenderLength($table->generalSchema) . ')';
     }

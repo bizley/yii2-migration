@@ -20,7 +20,7 @@ use function str_replace;
 use function stripos;
 use function trim;
 
-class Column extends BaseObject
+abstract class Column extends BaseObject
 {
     /** @var string */
     public $name;
@@ -83,22 +83,15 @@ class Column extends BaseObject
      * Sets length of the column.
      * @param string|int $value
      */
-    public function setLength($value): void
-    {
-    }
+    abstract public function setLength($value): void;
 
     /**
      * Returns length of the column.
      * @return int|string|null
      */
-    public function getLength()
-    {
-        return null;
-    }
+    abstract public function getLength();
 
-    protected function buildSpecificDefinition(Structure $table): void
-    {
-    }
+    abstract protected function buildSpecificDefinition(Structure $table): void;
 
     /** @var array */
     protected $definition = [];
@@ -134,7 +127,7 @@ class Column extends BaseObject
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes((string)$this->default) . "')";
             }
         }
-        if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPK($table->primaryKey)) {
+        if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPrimaryKey($table->primaryKey)) {
             $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
             if (!empty($this->append)) {
                 $append .= ' ' . trim(str_replace($append, '', $this->append));
@@ -185,7 +178,7 @@ class Column extends BaseObject
      * @param PrimaryKey $pk
      * @return bool
      */
-    public function isColumnInPK(PrimaryKey $pk): bool
+    public function isColumnInPrimaryKey(PrimaryKey $pk): bool
     {
         return in_array($this->name, $pk->columns, true);
     }
@@ -194,21 +187,14 @@ class Column extends BaseObject
      * Checks if information of primary key is set in append property.
      * @return bool
      */
-    public function isColumnAppendPK(): bool
+    public function isPrimaryKeyInfoAppended(): bool
     {
         if (empty($this->append)) {
             return false;
         }
 
-        if ($this->schema === Structure::SCHEMA_MSSQL) {
-            if (
-                stripos($this->append, 'IDENTITY') !== false
-                && stripos($this->append, 'PRIMARY KEY') !== false
-            ) {
-                return true;
-            }
-        } elseif (stripos($this->append, 'PRIMARY KEY') !== false) {
-            return true;
+        if (stripos($this->append, 'PRIMARY KEY') !== false) {
+            return !($this->schema === Structure::SCHEMA_MSSQL && stripos($this->append, 'IDENTITY') === false);
         }
 
         return false;
@@ -261,7 +247,7 @@ class Column extends BaseObject
      */
     public function removePKAppend(): ?string
     {
-        if (!$this->isColumnAppendPK()) {
+        if (!$this->isPrimaryKeyInfoAppended()) {
             return null;
         }
 
@@ -295,7 +281,6 @@ class Column extends BaseObject
     /**
      * @param bool $generalSchema
      * @return string|null
-     * @since 3.6.0
      */
     public function getRenderLength(bool $generalSchema): ?string
     {
