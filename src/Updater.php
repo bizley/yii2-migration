@@ -299,13 +299,13 @@ class Updater extends Generator
                 /* @var $column Column */
                 foreach ($this->getPlan()->addColumn as $name => $column) {
                     if ($name === $key) {
-                        $column->append = $column->removePKAppend();
+                        $column->append = $column->removeAppendedPrimaryKeyInfo();
                     }
                 }
 
                 foreach ($this->getPlan()->alterColumn as $name => $column) {
                     if ($name === $key) {
-                        $column->append = $column->removePKAppend();
+                        $column->append = $column->removeAppendedPrimaryKeyInfo();
                     }
                 }
             }

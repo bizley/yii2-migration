@@ -12,9 +12,9 @@ use function array_unshift;
 use function implode;
 use function in_array;
 use function is_array;
-use function mb_strtoupper;
 use function preg_match;
 use function preg_replace;
+use function str_ireplace;
 use function str_repeat;
 use function str_replace;
 use function stripos;
@@ -127,7 +127,13 @@ abstract class Column extends BaseObject
                 $this->definition[] = "defaultValue('" . $this->escapeQuotes((string)$this->default) . "')";
             }
         }
-        if ($this->isPkPossible && !$table->primaryKey->isComposite() && $this->isColumnInPrimaryKey($table->primaryKey)) {
+
+        if (
+            $this->isPkPossible
+            && $table->primaryKey
+            && $table->primaryKey->isComposite() === false
+            && $this->isColumnInPrimaryKey($table->primaryKey)
+        ) {
             $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
             if (!empty($this->append)) {
                 $append .= ' ' . trim(str_replace($append, '', $this->append));
@@ -242,40 +248,38 @@ abstract class Column extends BaseObject
     }
 
     /**
-     * Removes information of primary key in append property.
+     * Removes information of primary key in append property and returns what is left.
      * @return null|string
      */
-    public function removePKAppend(): ?string
+    public function removeAppendedPrimaryKeyInfo(): ?string
     {
-        if (!$this->isPrimaryKeyInfoAppended()) {
-            return null;
+        if ($this->isPrimaryKeyInfoAppended() === false) {
+            return $this->append;
         }
-
-        $uppercaseAppend = preg_replace('/\s+/', ' ', mb_strtoupper($this->append, 'UTF-8'));
 
         switch ($this->schema) {
             case Structure::SCHEMA_MSSQL:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
+                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
                 break;
 
             case Structure::SCHEMA_OCI:
             case Structure::SCHEMA_PGSQL:
-                $formattedAppend = str_replace('PRIMARY KEY', '', $uppercaseAppend);
+                $cleanedAppend = str_ireplace('PRIMARY KEY', '', $this->append);
                 break;
 
             case Structure::SCHEMA_SQLITE:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $uppercaseAppend);
+                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
                 break;
 
             case Structure::SCHEMA_CUBRID:
             case Structure::SCHEMA_MYSQL:
             default:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $uppercaseAppend);
+                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }
 
-        $formattedAppend = trim($formattedAppend);
+        $cleanedAppend = trim(preg_replace('/\s+/', ' ', $cleanedAppend));
 
-        return !empty($formattedAppend) ? $formattedAppend : null;
+        return !empty($cleanedAppend) ? $cleanedAppend : null;
     }
 
     /**
@@ -287,10 +291,10 @@ abstract class Column extends BaseObject
         $length = $this->getLength();
 
         if ($length === null) {
-            return $length;
+            return null;
         }
 
-        if (!$generalSchema) {
+        if ($generalSchema === false) {
             if ($length === 'max') {
                 return '\'max\'';
             }

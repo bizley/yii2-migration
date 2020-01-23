@@ -305,7 +305,7 @@ class Structure extends BaseObject
                     if ($this->primaryKey !== null) {
                         foreach ($this->primaryKey->columns as $column) {
                             if (array_key_exists($column, $this->columns) && !empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append = $this->columns[$column]->removePKAppend();
+                                $this->columns[$column]->append = $this->columns[$column]->removeAppendedPrimaryKeyInfo();
                             }
                         }
                     }
