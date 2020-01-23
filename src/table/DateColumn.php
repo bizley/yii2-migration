@@ -14,4 +14,13 @@ class DateColumn extends Column
     {
         $this->definition[] = 'date()';
     }
+
+    public function setLength($value): void
+    {
+    }
+
+    public function getLength()
+    {
+        return null;
+    }
 }

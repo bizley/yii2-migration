@@ -38,4 +38,13 @@ class JsonColumn extends Column
     {
         $this->definition[] = 'json()';
     }
+
+    public function setLength($value): void
+    {
+    }
+
+    public function getLength()
+    {
+        return null;
+    }
 }

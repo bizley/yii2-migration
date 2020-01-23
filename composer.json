@@ -20,7 +20,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^8.5",
-    "roave/security-advisories": "dev-master"
+    "roave/security-advisories": "dev-master",
+    "phpstan/phpstan": "*"
   },
   "autoload": {
     "psr-4": {
