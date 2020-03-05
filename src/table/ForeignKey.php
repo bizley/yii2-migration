@@ -17,22 +17,34 @@ use function substr;
 
 class ForeignKey extends BaseObject
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     public $name;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     public $columns;
 
-    /** @var string */
-    public $refTable;
+    /**
+     * @var string
+     */
+    public $referencedTable;
 
-    /** @var array */
-    public $refColumns;
+    /**
+     * @var array
+     */
+    public $referencedColumns;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $onDelete;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $onUpdate;
 
     /**
@@ -56,14 +68,14 @@ class ForeignKey extends BaseObject
      */
     public function renderRefTableName(Structure $table): string
     {
-        $tableName = $this->refTable;
+        $tableName = $this->referencedTable;
 
         if (!$table->usePrefix) {
             return $tableName;
         }
 
-        if ($table->dbPrefix && strpos($this->refTable, $table->dbPrefix) === 0) {
-            $tableName = substr($this->refTable, mb_strlen($table->dbPrefix, 'UTF-8'));
+        if ($table->dbPrefix && strpos($this->referencedTable, $table->dbPrefix) === 0) {
+            $tableName = substr($this->referencedTable, mb_strlen($table->dbPrefix, 'UTF-8'));
         }
 
         return '{{%' . $tableName . '}}';
@@ -89,9 +101,9 @@ class ForeignKey extends BaseObject
             $innerIndent,
             $this->renderRefTableName($table),
             $innerIndent,
-            count($this->refColumns) === 1
-                ? "'{$this->refColumns[0]}'"
-                : "['" . implode("', '", $this->refColumns) . "']",
+            count($this->referencedColumns) === 1
+                ? "'{$this->referencedColumns[0]}'"
+                : "['" . implode("', '", $this->referencedColumns) . "']",
             $this->onDelete ? ",$innerIndent'{$this->onDelete}'" : '',
             $this->onUpdate
                 ? ($this->onDelete === null ? ",{$innerIndent}null" : '') . ",$innerIndent'{$this->onUpdate}'"

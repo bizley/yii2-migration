@@ -41,14 +41,14 @@ class ForeignKeyData extends BaseObject
      */
     public function renderRefTableName(): string
     {
-        $tableName = $this->foreignKey->refTable;
+        $tableName = $this->foreignKey->referencedTable;
 
         if (!$this->table->usePrefix) {
             return $tableName;
         }
 
-        if ($this->table->dbPrefix && strpos($this->foreignKey->refTable, $this->table->dbPrefix) === 0) {
-            $tableName = substr($this->foreignKey->refTable, mb_strlen($this->table->dbPrefix, 'UTF-8'));
+        if ($this->table->dbPrefix && strpos($this->foreignKey->referencedTable, $this->table->dbPrefix) === 0) {
+            $tableName = substr($this->foreignKey->referencedTable, mb_strlen($this->table->dbPrefix, 'UTF-8'));
         }
 
         return '{{%' . $tableName . '}}';
@@ -74,9 +74,9 @@ class ForeignKeyData extends BaseObject
             $indent,
             $this->renderRefTableName(),
             $indent,
-            count($this->foreignKey->refColumns) === 1
-                ? "'{$this->foreignKey->refColumns[0]}'"
-                : "['" . implode("', '", $this->foreignKey->refColumns) . "']",
+            count($this->foreignKey->referencedColumns) === 1
+                ? "'{$this->foreignKey->referencedColumns[0]}'"
+                : "['" . implode("', '", $this->foreignKey->referencedColumns) . "']",
             $this->foreignKey->onDelete ? ",$indent'{$this->foreignKey->onDelete}'" : '',
             $this->foreignKey->onUpdate
                 ? (

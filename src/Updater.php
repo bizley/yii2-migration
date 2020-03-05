@@ -529,12 +529,12 @@ class Updater extends Generator
             }
 
             $tableFKRefColumns
-                = !empty($this->getTableStructure()->foreignKeys[$name]->refColumns)
-                    ? $this->getTableStructure()->foreignKeys[$name]->refColumns
+                = !empty($this->getTableStructure()->foreignKeys[$name]->referencedColumns)
+                    ? $this->getTableStructure()->foreignKeys[$name]->referencedColumns
                     : [];
             $oldTableFKRefColumns
-                = !empty($this->getOldTable()->foreignKeys[$name]->refColumns)
-                    ? $this->getOldTable()->foreignKeys[$name]->refColumns
+                = !empty($this->getOldTable()->foreignKeys[$name]->referencedColumns)
+                    ? $this->getOldTable()->foreignKeys[$name]->referencedColumns
                     : [];
 
             if (

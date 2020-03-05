@@ -16,8 +16,23 @@ use function count;
 
 class Arranger extends BaseObject
 {
-    /** @var Connection DB connection */
-    public $db;
+    /**
+     * @var GeneratorInterface
+     */
+    private $generator;
+
+    /**
+     * @var Connection
+     */
+    private $db;
+
+    public function __construct(GeneratorInterface $generator = null, Connection $db = null, $config = [])
+    {
+        parent::__construct($config);
+
+        $this->generator = $generator;
+        $this->db = $db;
+    }
 
     /**
      * Checks if DB connection is passed.
@@ -30,6 +45,31 @@ class Arranger extends BaseObject
         if ($this->db instanceof Connection === false) {
             throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
         }
+        if ($this->generator instanceof GeneratorInterface === false) {
+            throw new InvalidConfigException(
+                "Parameter 'generator' must implement bizley\\migration\\GeneratorInterface!"
+            );
+        }
+    }
+
+    public function setGenerator(GeneratorInterface $generator): void
+    {
+        $this->generator = $generator;
+    }
+
+    public function getGenerator(): GeneratorInterface
+    {
+        return $this->generator;
+    }
+
+    public function setDb(Connection $db): void
+    {
+        $this->db = $db;
+    }
+
+    public function getDb(): Connection
+    {
+        return $this->db;
     }
 
     public function getGenerator(string $tableName): Generator
