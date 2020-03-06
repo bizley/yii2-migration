@@ -53,6 +53,11 @@ class Arranger implements ArrangerInterface
     }
 
     /**
+     * @var array
+     */
+    private $dependency = [];
+
+    /**
      * @param array $inputTables
      * @throws InvalidConfigException
      */
@@ -81,11 +86,6 @@ class Arranger implements ArrangerInterface
 
         $this->arrangeTables($this->dependency);
     }
-
-    /**
-     * @var array
-     */
-    private $dependency = [];
 
     private function addDependency(string $table, string $dependsOnTable = null): void
     {
