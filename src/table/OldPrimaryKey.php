@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use function count;
-use function in_array;
+use yii\base\BaseObject;
 
-class PrimaryKey
+use function count;
+use function implode;
+use function in_array;
+use function sprintf;
+use function str_repeat;
+
+class PrimaryKey extends BaseObject
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 
-    /**
-     * @var string
-     */
-    private $name;
+    /** @var string */
+    public $name;
 
-    /**
-     * @var array
-     */
-    private $columns = [];
+    /** @var array */
+    public $columns = [];
 
     /**
      * Checks if primary key is composite.
@@ -31,35 +32,19 @@ class PrimaryKey
     }
 
     /**
+     * Renders the key.
+     * @param Structure $table
+     * @param int $indent
      * @return string
      */
-    public function getName(): string
+    public function render(Structure $table, int $indent = 8): string
     {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return array
-     */
-    public function getColumns(): array
-    {
-        return $this->columns;
-    }
-
-    /**
-     * @param array $columns
-     */
-    public function setColumns(array $columns): void
-    {
-        $this->columns = $columns;
+        return str_repeat(' ', $indent) . sprintf(
+            '$this->addPrimaryKey(\'%s\', \'%s\', [\'%s\']);',
+            $this->name ?: self::GENERIC_PRIMARY_KEY,
+            $table->renderName(),
+            implode("', '", $this->columns)
+        );
     }
 
     /**

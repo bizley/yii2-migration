@@ -7,92 +7,86 @@ namespace bizley\migration\table;
 use yii\base\InvalidConfigException;
 use yii\db\Schema;
 
-use function array_key_exists;
-
 class ColumnFactory
 {
     /**
      * Builds table column object based on the type.
-     * @param array $configuration
+     * @param string $type
      * @return Column
      * @throws InvalidConfigException
      */
-    public static function build(array $configuration = []): ?Column
+    public static function build(string $type): Column
     {
-        if (!array_key_exists('type', $configuration)) {
-            throw new InvalidConfigException('Configuration for ColumnFactory is missing "type" key.');
-        }
-
-        switch ($configuration['type']) {
+        switch ($type) {
             case Schema::TYPE_PK:
-                return new PrimaryKeyColumn($configuration);
+                return new PrimaryKeyColumn();
 
             case Schema::TYPE_UPK:
-                return new UnsignedPrimaryKeyColumn($configuration);
+                return new UnsignedPrimaryKeyColumn();
 
             case Schema::TYPE_BIGPK:
-                return new BigPrimaryKeyColumn($configuration);
+                return new BigPrimaryKeyColumn();
 
             case Schema::TYPE_UBIGPK:
-                return new BigUnsignedPrimaryKeyColumn($configuration);
+                return new BigUnsignedPrimaryKeyColumn();
 
             case Schema::TYPE_CHAR:
-                return new CharacterColumn($configuration);
+                return new CharacterColumn();
 
             case Schema::TYPE_STRING:
-                return new StringColumn($configuration);
+                return new StringColumn();
 
             case Schema::TYPE_TEXT:
-                return new TextColumn($configuration);
+                return new TextColumn();
 
             case Schema::TYPE_TINYINT:
-                return new TinyIntegerColumn($configuration);
+                return new TinyIntegerColumn();
 
             case Schema::TYPE_SMALLINT:
-                return new SmallIntegerColumn($configuration);
+                return new SmallIntegerColumn();
 
             case Schema::TYPE_INTEGER:
-                return new IntegerColumn($configuration);
+                return new IntegerColumn();
 
             case Schema::TYPE_BIGINT:
-                return new BigIntegerColumn($configuration);
+                return new BigIntegerColumn();
 
             case Schema::TYPE_BINARY:
-                return new BinaryColumn($configuration);
+                return new BinaryColumn();
 
             case Schema::TYPE_FLOAT:
-                return new FloatColumn($configuration);
+                return new FloatColumn();
 
             case Schema::TYPE_DOUBLE:
-                return new DoubleColumn($configuration);
+                return new DoubleColumn();
 
             case Schema::TYPE_DATETIME:
-                return new DateTimeColumn($configuration);
+                return new DateTimeColumn();
 
             case Schema::TYPE_TIMESTAMP:
-                return new TimestampColumn($configuration);
+                return new TimestampColumn();
 
             case Schema::TYPE_TIME:
-                return new TimeColumn($configuration);
+                return new TimeColumn();
 
             case Schema::TYPE_DATE:
-                return new DateColumn($configuration);
+                return new DateColumn();
 
             case Schema::TYPE_DECIMAL:
-                return new DecimalColumn($configuration);
+                return new DecimalColumn();
 
             case Schema::TYPE_BOOLEAN:
-                return new BooleanColumn($configuration);
+                return new BooleanColumn();
 
             case Schema::TYPE_MONEY:
-                return new MoneyColumn($configuration);
+                return new MoneyColumn();
 
             case Schema::TYPE_JSON:
-                return new JsonColumn($configuration);
+                return new JsonColumn();
 
             default:
                 throw new InvalidConfigException(
-                    "Unsupported schema type '{$configuration['type']}' for ColumnFactory."
+                    "Unsupported schema type '$type' for ColumnFactory."
                 );
         }
     }

@@ -4,80 +4,110 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use yii\base\BaseObject;
-use yii\db\Expression;
-use yii\helpers\Json;
-
-use function array_unshift;
-use function implode;
 use function in_array;
-use function is_array;
 use function preg_match;
 use function preg_replace;
 use function str_ireplace;
-use function str_repeat;
 use function str_replace;
 use function stripos;
 use function trim;
 
-abstract class Column extends BaseObject
+abstract class Column
 {
-    /** @var string */
-    public $name;
+    /**
+     * @var string
+     */
+    private $name;
 
-    /** @var string */
-    public $type;
+    /**
+     * @var string
+     */
+    private $type;
 
-    /** @var string */
-    public $defaultMapping;
+    /**
+     * @var string
+     */
+    private $defaultMapping;
 
-    /** @var bool|null */
-    public $isNotNull;
+    /**
+     * @var bool|null
+     */
+    private $isNotNull;
 
-    /** @var int */
-    public $size;
+    /**
+     * @var int
+     */
+    private $size;
 
-    /** @var int */
-    public $precision;
+    /**
+     * @var int
+     */
+    private $precision;
 
-    /** @var int */
-    public $scale;
+    /**
+     * @var int
+     */
+    private $scale;
 
-    /** @var bool */
-    public $isUnique = false;
+    /**
+     * @var bool
+     */
+    private $isUnique = false;
 
-    /** @var bool */
-    public $isUnsigned = false;
+    /**
+     * @var bool
+     */
+    private $isUnsigned = false;
 
-    /** @var string */
-    public $check;
+    /**
+     * @var string
+     */
+    private $check;
 
-    /** @var mixed */
-    public $default;
+    /**
+     * @var mixed
+     */
+    private $default;
 
-    /** @var bool */
-    public $isPrimaryKey = false;
+    /**
+     * @var bool
+     */
+    private $isPrimaryKey = false;
 
-    /** @var bool */
-    public $autoIncrement = false;
+    /**
+     * @var bool
+     */
+    private $autoIncrement = false;
 
-    /** @var string */
-    public $append;
+    /**
+     * @var string
+     */
+    private $append;
 
-    /** @var string */
-    public $comment;
+    /**
+     * @var string
+     */
+    private $comment;
 
-    /** @var string */
-    public $schema;
+    /**
+     * @var string
+     */
+    private $schema;
 
-    /** @var string */
-    public $after;
+    /**
+     * @var string
+     */
+    private $after;
 
-    /** @var bool */
-    public $isFirst = false;
+    /**
+     * @var bool
+     */
+    private $isFirst = false;
 
-    /** @var string */
-    public $engineVersion;
+    /**
+     * @var string
+     */
+    private $engineVersion;
 
     /**
      * Sets length of the column.
@@ -91,92 +121,308 @@ abstract class Column extends BaseObject
      */
     abstract public function getLength();
 
-    abstract protected function buildSpecificDefinition(Structure $table): void;
-
-    /** @var array */
-    protected $definition = [];
-    /** @var bool */
-    protected $isUnsignedPossible = true;
-    /** @var bool */
-    protected $isNotNullPossible = true;
-    /** @var bool */
-    protected $isPkPossible = true;
-
     /**
-     * Builds general methods chain for column definition.
-     * @param Structure $table
+     * @return string
      */
-    protected function buildGeneralDefinition(Structure $table): void
+    public function getName(): string
     {
-        array_unshift($this->definition, '$this');
-
-        if ($this->isUnsignedPossible && $this->isUnsigned) {
-            $this->definition[] = 'unsigned()';
-        }
-
-        if ($this->isNotNullPossible && $this->isNotNull) {
-            $this->definition[] = 'notNull()';
-        }
-
-        if ($this->default !== null) {
-            if ($this->default instanceof Expression) {
-                $this->definition[] = "defaultExpression('" . $this->escapeQuotes($this->default->expression) . "')";
-            } elseif (is_array($this->default)) {
-                $this->definition[] = "defaultValue('" . $this->escapeQuotes(Json::encode($this->default)) . "')";
-            } else {
-                $this->definition[] = "defaultValue('" . $this->escapeQuotes((string)$this->default) . "')";
-            }
-        }
-
-        if (
-            $this->isPkPossible
-            && $table->primaryKey
-            && $table->primaryKey->isComposite() === false
-            && $this->isColumnInPrimaryKey($table->primaryKey)
-        ) {
-            $append = $this->prepareSchemaAppend(true, $this->autoIncrement);
-            if (!empty($this->append)) {
-                $append .= ' ' . trim(str_replace($append, '', $this->append));
-            }
-
-            $this->definition[] = "append('" . $this->escapeQuotes(trim($append)) . "')";
-        } elseif (!empty($this->append)) {
-            $this->definition[] = "append('" . $this->escapeQuotes(trim((string)$this->append)) . "')";
-        }
-
-        if ($this->comment) {
-            $this->definition[] = "comment('" . $this->escapeQuotes((string)$this->comment) . "')";
-        }
-
-        if ($this->after) {
-            $this->definition[] = "after('" . $this->escapeQuotes($this->after) . "')";
-        } elseif ($this->isFirst) {
-            $this->definition[] = 'first()';
-        }
+        return $this->name;
     }
 
     /**
-     * Renders column definition.
-     * @param Structure $table
-     * @return string
+     * @param string $name
      */
-    public function renderDefinition(Structure $table): string
+    public function setName(string $name): void
     {
-        $this->buildSpecificDefinition($table);
-        $this->buildGeneralDefinition($table);
-
-        return implode('->', $this->definition);
+        $this->name = $name;
     }
 
     /**
-     * Renders the column.
-     * @param Structure $table
-     * @param int $indent
      * @return string
      */
-    public function render(Structure $table, int $indent = 12): string
+    public function getType(): string
     {
-        return str_repeat(' ', $indent) . "'{$this->name}' => " . $this->renderDefinition($table) . ',';
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultMapping(): string
+    {
+        return $this->defaultMapping;
+    }
+
+    /**
+     * @param string $defaultMapping
+     */
+    public function setDefaultMapping(string $defaultMapping): void
+    {
+        $this->defaultMapping = $defaultMapping;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsNotNull(): ?bool
+    {
+        return $this->isNotNull;
+    }
+
+    /**
+     * @param bool|null $isNotNull
+     */
+    public function setIsNotNull(?bool $isNotNull): void
+    {
+        $this->isNotNull = $isNotNull;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    /**
+     * @param int $size
+     */
+    public function setSize(int $size): void
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrecision(): int
+    {
+        return $this->precision;
+    }
+
+    /**
+     * @param int $precision
+     */
+    public function setPrecision(int $precision): void
+    {
+        $this->precision = $precision;
+    }
+
+    /**
+     * @return int
+     */
+    public function getScale(): int
+    {
+        return $this->scale;
+    }
+
+    /**
+     * @param int $scale
+     */
+    public function setScale(int $scale): void
+    {
+        $this->scale = $scale;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnique(): bool
+    {
+        return $this->isUnique;
+    }
+
+    /**
+     * @param bool $isUnique
+     */
+    public function setIsUnique(bool $isUnique): void
+    {
+        $this->isUnique = $isUnique;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnsigned(): bool
+    {
+        return $this->isUnsigned;
+    }
+
+    /**
+     * @param bool $isUnsigned
+     */
+    public function setIsUnsigned(bool $isUnsigned): void
+    {
+        $this->isUnsigned = $isUnsigned;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCheck(): string
+    {
+        return $this->check;
+    }
+
+    /**
+     * @param string $check
+     */
+    public function setCheck(string $check): void
+    {
+        $this->check = $check;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param mixed $default
+     */
+    public function setDefault($default): void
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrimaryKey(): bool
+    {
+        return $this->isPrimaryKey;
+    }
+
+    /**
+     * @param bool $isPrimaryKey
+     */
+    public function setIsPrimaryKey(bool $isPrimaryKey): void
+    {
+        $this->isPrimaryKey = $isPrimaryKey;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoIncrement(): bool
+    {
+        return $this->autoIncrement;
+    }
+
+    /**
+     * @param bool $autoIncrement
+     */
+    public function setAutoIncrement(bool $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppend(): string
+    {
+        return $this->append;
+    }
+
+    /**
+     * @param string $append
+     */
+    public function setAppend(string $append): void
+    {
+        $this->append = $append;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComment(): string
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param string|null $comment
+     */
+    public function setComment(?string $comment): void
+    {
+        $this->comment = $comment;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSchema(): string
+    {
+        return $this->schema;
+    }
+
+    /**
+     * @param string $schema
+     */
+    public function setSchema(string $schema): void
+    {
+        $this->schema = $schema;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAfter(): string
+    {
+        return $this->after;
+    }
+
+    /**
+     * @param string $after
+     */
+    public function setAfter(string $after): void
+    {
+        $this->after = $after;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFirst(): bool
+    {
+        return $this->isFirst;
+    }
+
+    /**
+     * @param bool $isFirst
+     */
+    public function setIsFirst(bool $isFirst): void
+    {
+        $this->isFirst = $isFirst;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEngineVersion(): string
+    {
+        return $this->engineVersion;
+    }
+
+    /**
+     * @param string $engineVersion
+     */
+    public function setEngineVersion(string $engineVersion): void
+    {
+        $this->engineVersion = $engineVersion;
     }
 
     /**

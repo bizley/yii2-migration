@@ -71,14 +71,15 @@ class TableMapper implements TableMapperInterface
 
         /** @var $foreignKey ForeignKeyConstraint */
         foreach ($tableForeignKeys as $foreignKey) {
-            $mappedForeignKeys[$foreignKey->name] = new ForeignKey([
-                'name' => $foreignKey->name,
-                'columns' => $foreignKey->columnNames,
-                'referencedTable' => $foreignKey->foreignTableName,
-                'referencedColumns' => $foreignKey->foreignColumnNames,
-                'onDelete' => $foreignKey->onDelete,
-                'onUpdate' => $foreignKey->onUpdate,
-            ]);
+            $mappedForeignKey = new ForeignKey();
+            $mappedForeignKey->setName($foreignKey->name);
+            $mappedForeignKey->setColumns($foreignKey->columnNames);
+            $mappedForeignKey->setReferencedTable($foreignKey->foreignTableName);
+            $mappedForeignKey->setReferencedColumns($foreignKey->foreignColumnNames);
+            $mappedForeignKey->setOnDelete($foreignKey->onDelete);
+            $mappedForeignKey->setOnUpdate($foreignKey->onUpdate);
+
+            $mappedForeignKeys[$foreignKey->name] = $mappedForeignKey;
         }
 
         return $mappedForeignKeys;
@@ -92,11 +93,12 @@ class TableMapper implements TableMapperInterface
         /** @var $index IndexConstraint */
         foreach ($tableIndexes as $index) {
             if ($index->isPrimary === false) {
-                $mappedIndexes[$index->name] = new Index([
-                    'name' => $index->name,
-                    'unique' => $index->isUnique,
-                    'columns' => $index->columnNames
-                ]);
+                $mappedIndex = new Index();
+                $mappedIndex->setName($index->name);
+                $mappedIndex->setUnique($index->isUnique);
+                $mappedIndex->setColumns($index->columnNames);
+
+                $mappedIndexes[$index->name] = $mappedIndex;
             }
         }
 
@@ -105,18 +107,16 @@ class TableMapper implements TableMapperInterface
 
     private function getPrimaryKey(string $table): PrimaryKey
     {
-        $primaryKeyData = [];
+        $primaryKey = new PrimaryKey();
 
         /** @var $tablePrimaryKey Constraint */
         $tablePrimaryKey = $this->db->schema->getTablePrimaryKey($table, true);
         if ($tablePrimaryKey) {
-            $primaryKeyData = [
-                'columns' => $tablePrimaryKey->columnNames,
-                'name' => $tablePrimaryKey->name,
-            ];
+            $primaryKey->setName($tablePrimaryKey->name);
+            $primaryKey->setColumns($tablePrimaryKey->columnNames);
         }
 
-        return new PrimaryKey($primaryKeyData);
+        return $primaryKey;
     }
 
     /**
@@ -140,20 +140,20 @@ class TableMapper implements TableMapperInterface
                 }
             }
 
-            $mappedColumns[$column->name] = ColumnFactory::build([
-                'name' => $column->name,
-                'type' => $column->type,
-                'size' => $column->size,
-                'precision' => $column->precision,
-                'scale' => $column->scale,
-                'isNotNull' => $column->allowNull ? null : true,
-                'isUnique' => $isUnique,
-                'default' => $column->defaultValue,
-                'isPrimaryKey' => $column->isPrimaryKey,
-                'autoIncrement' => $column->autoIncrement,
-                'isUnsigned' => $column->unsigned,
-                'comment' => $column->comment ?: null,
-            ]);
+            $mappedColumn = ColumnFactory::build($column->type);
+            $mappedColumn->setName($column->name);
+            $mappedColumn->setSize($column->size);
+            $mappedColumn->setPrecision($column->precision);
+            $mappedColumn->setScale($column->scale);
+            $mappedColumn->setIsNotNull($column->allowNull ? null : true);
+            $mappedColumn->setIsUnique($isUnique);
+            $mappedColumn->setDefault($column->defaultValue);
+            $mappedColumn->setIsPrimaryKey($column->isPrimaryKey);
+            $mappedColumn->setAutoIncrement($column->autoIncrement);
+            $mappedColumn->setIsUnsigned($column->unsigned);
+            $mappedColumn->setComment($column->comment ?: null);
+
+            $mappedColumns[$column->name] = $mappedColumn;
         }
 
         return $mappedColumns;
