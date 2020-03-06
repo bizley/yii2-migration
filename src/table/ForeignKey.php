@@ -4,110 +4,131 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use yii\base\BaseObject;
-
-use function count;
-use function implode;
-use function is_numeric;
-use function mb_strlen;
-use function sprintf;
-use function str_repeat;
-use function strpos;
-use function substr;
-
-class ForeignKey extends BaseObject
+class ForeignKey implements ForeignKeyInterface
 {
     /**
      * @var string
      */
-    public $name;
+    private $name;
 
     /**
      * @var array
      */
-    public $columns;
+    private $columns;
 
     /**
      * @var string
      */
-    public $referencedTable;
+    private $referencedTable;
 
     /**
      * @var array
      */
-    public $referencedColumns;
+    private $referencedColumns;
 
     /**
      * @var string
      */
-    public $onDelete;
+    private $onDelete;
 
     /**
      * @var string
      */
-    public $onUpdate;
+    private $onUpdate;
 
     /**
-     * Renders key name.
-     * @param Structure $table
      * @return string
      */
-    public function renderName(Structure $table): string
+    public function getName(): string
     {
-        if ($this->name === null || is_numeric($this->name)) {
-            return sprintf('fk-%s-%s', $table->name, implode('-', $this->columns));
-        }
-
         return $this->name;
     }
 
     /**
-     * Renders reference table name.
-     * @param Structure $table
-     * @return string
+     * @param string $name
      */
-    public function renderRefTableName(Structure $table): string
+    public function setName(string $name): void
     {
-        $tableName = $this->referencedTable;
-
-        if (!$table->usePrefix) {
-            return $tableName;
-        }
-
-        if ($table->dbPrefix && strpos($this->referencedTable, $table->dbPrefix) === 0) {
-            $tableName = substr($this->referencedTable, mb_strlen($table->dbPrefix, 'UTF-8'));
-        }
-
-        return '{{%' . $tableName . '}}';
+        $this->name = $name;
     }
 
     /**
-     * Renders the key.
-     * @param Structure $table
-     * @param int $indent
+     * @return array
+     */
+    public function getColumns(): array
+    {
+        return $this->columns;
+    }
+
+    /**
+     * @param array $columns
+     */
+    public function setColumns(array $columns): void
+    {
+        $this->columns = $columns;
+    }
+
+    /**
      * @return string
      */
-    public function render(Structure $table, int $indent = 8): string
+    public function getReferencedTable(): string
     {
-        $innerIndent = "\n" . str_repeat(' ', $indent + 4) . "\n";
-        return str_repeat(' ', $indent) . sprintf(
-            '$this->addForeignKey(%s\'%s\',%s\'%s\',%s%s,%s\'%s\',%s%s%s%s);',
-            $innerIndent,
-            $this->renderName($table),
-            $innerIndent,
-            $table->renderName(),
-            $innerIndent,
-            count($this->columns) === 1 ? "'{$this->columns[0]}'" : "['" . implode("', '", $this->columns) . "']",
-            $innerIndent,
-            $this->renderRefTableName($table),
-            $innerIndent,
-            count($this->referencedColumns) === 1
-                ? "'{$this->referencedColumns[0]}'"
-                : "['" . implode("', '", $this->referencedColumns) . "']",
-            $this->onDelete ? ",$innerIndent'{$this->onDelete}'" : '',
-            $this->onUpdate
-                ? ($this->onDelete === null ? ",{$innerIndent}null" : '') . ",$innerIndent'{$this->onUpdate}'"
-                : ''
-        );
+        return $this->referencedTable;
+    }
+
+    /**
+     * @param string $referencedTable
+     */
+    public function setReferencedTable(string $referencedTable): void
+    {
+        $this->referencedTable = $referencedTable;
+    }
+
+    /**
+     * @return array
+     */
+    public function getReferencedColumns(): array
+    {
+        return $this->referencedColumns;
+    }
+
+    /**
+     * @param array $referencedColumns
+     */
+    public function setReferencedColumns(array $referencedColumns): void
+    {
+        $this->referencedColumns = $referencedColumns;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOnDelete(): string
+    {
+        return $this->onDelete;
+    }
+
+    /**
+     * @param string $onDelete
+     */
+    public function setOnDelete(string $onDelete): void
+    {
+        $this->onDelete = $onDelete;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOnUpdate(): string
+    {
+        return $this->onUpdate;
+    }
+
+    /**
+     * @param string $onUpdate
+     */
+    public function setOnUpdate(string $onUpdate): void
+    {
+        $this->onUpdate = $onUpdate;
     }
 }

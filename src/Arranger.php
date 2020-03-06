@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use bizley\migration\table\ForeignKeyInterface;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
@@ -72,8 +73,9 @@ class Arranger implements ArrangerInterface
             $this->addDependency($inputTable);
             $mapper->mapTable($inputTable);
             $foreignKeys = $mapper->getStructure()->getForeignKeys();
+            /** @var ForeignKeyInterface $foreignKey */
             foreach ($foreignKeys as $foreignKey) {
-                $this->addDependency($inputTable, $foreignKey->refTable);
+                $this->addDependency($inputTable, $foreignKey->getReferencedTable());
             }
         }
 
