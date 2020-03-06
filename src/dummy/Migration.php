@@ -2,7 +2,7 @@
 
 namespace yii\db;
 
-use bizley\migration\table\Change;
+use bizley\migration\table\StructureChange;
 use bizley\migration\table\Structure;
 use ReflectionClass;
 use ReflectionException;
@@ -234,7 +234,7 @@ class Migration extends Component implements MigrationInterface
         }
 
         $this->changes[$table][]
-            = new Change([
+            = new StructureChange([
                 'schema' => Structure::identifySchema(get_class($this->db->schema)),
                 'table' => $table,
                 'method' => $method,

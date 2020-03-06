@@ -234,15 +234,15 @@ class Structure extends BaseObject
 
     /**
      * Builds table structure based on the list of changes from the Updater.
-     * @param Change[] $changes
+     * @param StructureChange[] $changes
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
     public function applyChanges(array $changes): void
     {
-        /** @var $change Change */
+        /** @var $change StructureChange */
         foreach ($changes as $change) {
-            if ($change instanceof Change === false) {
+            if ($change instanceof StructureChange === false) {
                 throw new InvalidArgumentException('You must provide array of Change objects.');
             }
 

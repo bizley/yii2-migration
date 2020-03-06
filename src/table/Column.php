@@ -60,11 +60,6 @@ abstract class Column
     private $isUnsigned = false;
 
     /**
-     * @var string
-     */
-    private $check;
-
-    /**
      * @var mixed
      */
     private $default;
@@ -266,22 +261,6 @@ abstract class Column
     }
 
     /**
-     * @return string
-     */
-    public function getCheck(): string
-    {
-        return $this->check;
-    }
-
-    /**
-     * @param string $check
-     */
-    public function setCheck(string $check): void
-    {
-        $this->check = $check;
-    }
-
-    /**
      * @return mixed
      */
     public function getDefault()
@@ -338,9 +317,9 @@ abstract class Column
     }
 
     /**
-     * @param string $append
+     * @param string|null $append
      */
-    public function setAppend(string $append): void
+    public function setAppend(?string $append): void
     {
         $this->append = $append;
     }
@@ -386,9 +365,9 @@ abstract class Column
     }
 
     /**
-     * @param string $after
+     * @param string|null $after
      */
-    public function setAfter(string $after): void
+    public function setAfter(?string $after): void
     {
         $this->after = $after;
     }

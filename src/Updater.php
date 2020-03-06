@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use bizley\migration\table\Change;
+use bizley\migration\table\StructureChange;
 use bizley\migration\table\Column;
 use bizley\migration\table\Plan;
 use bizley\migration\table\PrimaryKey;
@@ -140,7 +140,7 @@ class Updater extends Generator
         return ArrayHelper::map($history, 'version', 'apply_time');
     }
 
-    /** @var Change[] */
+    /** @var StructureChange[] */
     private $appliedChanges = [];
 
     /**
@@ -156,7 +156,7 @@ class Updater extends Generator
 
         $data = array_reverse($changes[$this->currentTable]);
 
-        /** @var $change Change */
+        /** @var $change StructureChange */
         foreach ($data as $change) {
             if ($change->method === 'dropTable') {
                 return false;
