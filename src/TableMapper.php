@@ -9,13 +9,15 @@ use bizley\migration\table\ForeignKey;
 use bizley\migration\table\Index;
 use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\Structure;
+use bizley\migration\table\StructureInterface;
+use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\TableSchema;
 
-class TableMapper
+class TableMapper implements TableMapperInterface
 {
     /**
      * @var Connection
@@ -23,7 +25,7 @@ class TableMapper
     private $db;
 
     /**
-     * @var Structure
+     * @var StructureInterface
      */
     private $structure;
 
@@ -32,28 +34,34 @@ class TableMapper
         $this->db = $db;
     }
 
+    /**
+     * @param string $table
+     * @throws InvalidConfigException
+     */
     public function mapTable(string $table): void
     {
         $this->setStructure($table);
     }
 
-    public function getStructure(): Structure
+    public function getStructure(): StructureInterface
     {
         return $this->structure;
     }
 
+    /**
+     * @param string $table
+     * @throws InvalidConfigException
+     */
     private function setStructure(string $table): void
     {
         $indexes = $this->getIndexes($table);
 
-        $this->structure = new Structure([
-            'name' => $table,
-            'primaryKey' => $this->getPrimaryKey($table),
-            'foreignKeys' => $this->getForeignKeys($table),
-            'indexes' => $indexes
-        ]);
-
-        $this->structure->columns = $this->getColumns($table, $indexes);
+        $this->structure = new Structure();
+        $this->structure->setName($table);
+        $this->structure->setPrimaryKey($this->getPrimaryKey($table));
+        $this->structure->setForeignKeys($this->getForeignKeys($table));
+        $this->structure->setIndexes($indexes);
+        $this->structure->setColumns($this->getColumns($table, $indexes));
     }
 
     private function getForeignKeys(string $table): array
@@ -111,6 +119,12 @@ class TableMapper
         return new PrimaryKey($primaryKeyData);
     }
 
+    /**
+     * @param string $table
+     * @param array $indexes
+     * @return array
+     * @throws InvalidConfigException
+     */
     private function getColumns(string $table, array $indexes = []): array
     {
         $mappedColumns = [];

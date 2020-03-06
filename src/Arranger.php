@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
@@ -14,52 +13,32 @@ use function array_merge_recursive;
 use function array_unique;
 use function count;
 
-class Arranger extends BaseObject
+class Arranger implements ArrangerInterface
 {
     /**
-     * @var GeneratorInterface
+     * @var TableMapperInterface
      */
-    private $generator;
+    private $mapper;
 
     /**
      * @var Connection
      */
     private $db;
 
-    public function __construct(GeneratorInterface $generator = null, Connection $db = null, $config = [])
+    public function __construct(TableMapperInterface $mapper = null, Connection $db = null)
     {
-        parent::__construct($config);
-
-        $this->generator = $generator;
+        $this->mapper = $mapper;
         $this->db = $db;
     }
 
-    /**
-     * Checks if DB connection is passed.
-     * @throws InvalidConfigException
-     */
-    public function init(): void
+    public function setMapper(TableMapperInterface $mapper): void
     {
-        parent::init();
-
-        if ($this->db instanceof Connection === false) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
-        }
-        if ($this->generator instanceof GeneratorInterface === false) {
-            throw new InvalidConfigException(
-                "Parameter 'generator' must implement bizley\\migration\\GeneratorInterface!"
-            );
-        }
+        $this->mapper = $mapper;
     }
 
-    public function setGenerator(GeneratorInterface $generator): void
+    public function getMapper(): TableMapperInterface
     {
-        $this->generator = $generator;
-    }
-
-    public function getGenerator(): GeneratorInterface
-    {
-        return $this->generator;
+        return $this->mapper;
     }
 
     public function setDb(Connection $db): void
@@ -72,25 +51,28 @@ class Arranger extends BaseObject
         return $this->db;
     }
 
-    public function getGenerator(string $tableName): Generator
-    {
-        return new Generator([
-            'db' => $this->db,
-            'tableName' => $tableName,
-        ]);
-    }
-
     /**
      * @param array $inputTables
      * @throws InvalidConfigException
      */
     public function arrangeMigrations(array $inputTables): void
     {
+        if ($this->db instanceof Connection === false) {
+            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
+        }
+        if ($this->mapper instanceof TableMapperInterface === false) {
+            throw new InvalidConfigException(
+                "Parameter 'generator' must implement bizley\\migration\\TableMapperInterface!"
+            );
+        }
+
+        $mapper = $this->getMapper();
+
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
-
-            $tableStructure = $this->getGenerator($inputTable)->getTableStructure();
-            foreach ($tableStructure->foreignKeys as $foreignKey) {
+            $mapper->mapTable($inputTable);
+            $foreignKeys = $mapper->getStructure()->getForeignKeys();
+            foreach ($foreignKeys as $foreignKey) {
                 $this->addDependency($inputTable, $foreignKey->refTable);
             }
         }
@@ -98,10 +80,12 @@ class Arranger extends BaseObject
         $this->arrangeTables($this->dependency);
     }
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $dependency = [];
 
-    protected function addDependency(string $table, string $dependsOnTable = null): void
+    private function addDependency(string $table, string $dependsOnTable = null): void
     {
         if (!array_key_exists($table, $this->dependency)) {
             $this->dependency[$table] = [];
@@ -112,7 +96,9 @@ class Arranger extends BaseObject
         }
     }
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $tablesInOrder = [];
 
     public function getTablesInOrder(): array
@@ -120,7 +106,9 @@ class Arranger extends BaseObject
         return $this->tablesInOrder;
     }
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $suppressedForeignKeys = [];
 
     public function getSuppressedForeignKeys(): array
@@ -128,7 +116,7 @@ class Arranger extends BaseObject
         return $this->suppressedForeignKeys;
     }
 
-    protected function arrangeTables(array $input): void
+    private function arrangeTables(array $input): void
     {
         $order = [];
         $checkList = [];
