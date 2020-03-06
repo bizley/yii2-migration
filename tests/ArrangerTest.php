@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
+use function array_keys;
+
 class ArrangerTest extends TestCase
 {
     /**
@@ -38,136 +40,62 @@ class ArrangerTest extends TestCase
     {
         return [
             'no tables' => [[], [], []],
-            'no references' => [['A', 'B'], ['A', 'B'], []],
-        ];
-
-        /*
-[
-            [
-                [
-                    'A' => ['B'],
-                    'B' => ['C'],
-                    'C' => [],
-                ],
-                [
-                    'order' => ['C', 'B', 'A'],
-                    'suppressForeignKeys' => [],
-                ]
+            'no references' => [['A' => [], 'B' => [], 'C' => []], ['A', 'B', 'C'], []],
+            'case 1' => [['A' => ['B'], 'B' => ['C'], 'C' => []], ['C', 'B', 'A'], []],
+            'case 2' => [['A' => [], 'B' => ['A', 'C'], 'C' => ['A']], ['A', 'C', 'B'], []],
+            'case 3' => [
+                ['A' => ['C', 'D'], 'B' => ['A', 'C'], 'C' => ['D'], 'D' => [], 'E' => []],
+                ['D', 'E', 'C', 'A', 'B'],
+                []
             ],
-            [
-                [
-                    'A' => [],
-                    'B' => ['A', 'C'],
-                    'C' => ['A'],
-                ],
-                [
-                    'order' => ['A', 'C', 'B'],
-                    'suppressForeignKeys' => [],
-                ]
+            'case 4' => [
+                ['A' => [], 'B' => ['D'], 'C' => ['E'], 'D' => ['A'], 'E' => []],
+                ['A', 'D', 'E', 'B', 'C'],
+                []
             ],
-            [
-                [
-                    'A' => ['C', 'D'],
-                    'B' => ['A', 'C'],
-                    'C' => ['D'],
-                    'D' => [],
-                    'E' => [],
-                ],
-                [
-                    'order' => ['D', 'E', 'C', 'A', 'B'],
-                    'suppressForeignKeys' => [],
-                ]
-            ],
-            [
-                [
-                    'A' => [],
-                    'B' => ['D'],
-                    'C' => ['E'],
-                    'D' => ['A'],
-                    'E' => [],
-                ],
-                [
-                    'order' => ['A', 'D', 'E', 'B', 'C'],
-                    'suppressForeignKeys' => [],
-                ]
-            ],
-            [
-                [
-                    'A' => ['B'],
-                    'B' => ['A'],
-                ],
-                [
-                    'order' => ['B', 'A'],
-                    'suppressForeignKeys' => ['B' => ['A']],
-                ]
-            ],
-            [
-                [
-                    'A' => ['B'],
-                    'B' => ['C'],
-                    'C' => ['A'],
-                ],
-                [
-                    'order' => ['C', 'B', 'A'],
-                    'suppressForeignKeys' => ['C' => ['A']],
-                ]
-            ],
-            [
-                [
-                    'A' => ['B'],
-                    'B' => ['A'],
-                    'C' => ['A'],
-                ],
-                [
-                    'order' => ['B', 'C', 'A'],
-                    'suppressForeignKeys' => [
-                        'C' => ['A'],
-                        'B' => ['A'],
-                    ],
-                ]
-            ],
-            [
-                [
-                    'A' => ['B', 'C'],
-                    'B' => ['A', 'C'],
-                    'C' => ['A', 'B'],
-                ],
-                [
-                    'order' => ['C', 'B', 'A'],
-                    'suppressForeignKeys' => [
-                        'C' => ['A', 'B'],
-                        'B' => ['A'],
-                    ],
-                ]
+            'case 5' => [['A' => ['B'], 'B' => ['A']], ['B', 'A'], ['B' => ['A']]],
+            'case 6' => [['A' => ['B'], 'B' => ['C'], 'C' => ['A']], ['C', 'B', 'A'], ['C' => ['A']]],
+            'case 7' => [['A' => ['B'], 'B' => ['A'], 'C' => ['A']], ['B', 'C', 'A'], ['C' => ['A'], 'B' => ['A']]],
+            'case 8' => [
+                ['A' => ['B', 'C'], 'B' => ['A', 'C'], 'C' => ['A', 'B']],
+                ['C', 'B', 'A'],
+                ['C' => ['A', 'B'], 'B' => ['A']]
             ],
         ];
-         */
     }
 
     /**
      * @test
      * @dataProvider providerForArrange
-     * @param array $inputTables
+     * @param array $inputData
      * @param array $tablesInOrder
      * @param array $suppressedForeignKeys
      * @throws InvalidConfigException
      */
     public function shouldArrangeTables(
-        array $inputTables,
+        array $inputData,
         array $tablesInOrder,
         array $suppressedForeignKeys
     ): void {
         $structure = $this->createMock(StructureInterface::class);
-        $structure->method('getForeignKeys')->willReturn($this->callback(function () {
-            $foreignKey = $this->createMock(ForeignKeyInterface::class);
-            $foreignKey->method('getReferencedTable')->willReturn();
-            return $foreignKey;
-        }));
+
+        $callbacks = [];
+        foreach ($inputData as $tableName => $referencedTables) {
+            $mockedReferencedTables = [];
+            foreach ($referencedTables as $referencedTable) {
+                $foreignKey = $this->createMock(ForeignKeyInterface::class);
+                $foreignKey->method('getReferencedTable')->willReturn($referencedTable);
+                $mockedReferencedTables[] = $foreignKey;
+            }
+            $callbacks[] = $mockedReferencedTables;
+        }
+
+        $structure->method('getForeignKeys')->willReturnOnConsecutiveCalls(...$callbacks);
         $tableMapper = $this->createMock(TableMapperInterface::class);
         $tableMapper->method('getStructure')->willReturn($structure);
         $arranger = new Arranger($tableMapper, $this->createMock(Connection::class));
 
-        $arranger->arrangeMigrations($inputTables);
+        $arranger->arrangeMigrations(array_keys($inputData));
 
         $this->assertSame($tablesInOrder, $arranger->getTablesInOrder());
         $this->assertSame($suppressedForeignKeys, $arranger->getSuppressedForeignKeys());
