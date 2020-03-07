@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\table\ColumnFactory;
+use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKey;
+use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\Index;
+use bizley\migration\table\IndexInterface;
 use bizley\migration\table\PrimaryKey;
+use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
@@ -37,6 +42,7 @@ class TableMapper implements TableMapperInterface
     /**
      * @param string $table
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function mapTable(string $table): void
     {
@@ -51,6 +57,7 @@ class TableMapper implements TableMapperInterface
     /**
      * @param string $table
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     private function setStructure(string $table): void
     {
@@ -64,10 +71,15 @@ class TableMapper implements TableMapperInterface
         $this->structure->setColumns($this->getColumns($table, $indexes));
     }
 
+    /**
+     * @param string $table
+     * @return array<ForeignKeyInterface>
+     * @throws NotSupportedException
+     */
     private function getForeignKeys(string $table): array
     {
         $mappedForeignKeys = [];
-        $tableForeignKeys = $this->db->schema->getTableForeignKeys($table, true);
+        $tableForeignKeys = $this->db->getSchema()->getTableForeignKeys($table, true);
 
         /** @var $foreignKey ForeignKeyConstraint */
         foreach ($tableForeignKeys as $foreignKey) {
@@ -85,10 +97,15 @@ class TableMapper implements TableMapperInterface
         return $mappedForeignKeys;
     }
 
+    /**
+     * @param string $table
+     * @return array<IndexInterface>
+     * @throws NotSupportedException
+     */
     private function getIndexes(string $table): array
     {
         $mappedIndexes = [];
-        $tableIndexes = $this->db->schema->getTableIndexes($table, true);
+        $tableIndexes = $this->db->getSchema()->getTableIndexes($table, true);
 
         /** @var $index IndexConstraint */
         foreach ($tableIndexes as $index) {
@@ -105,13 +122,19 @@ class TableMapper implements TableMapperInterface
         return $mappedIndexes;
     }
 
-    private function getPrimaryKey(string $table): PrimaryKey
+    /**
+     * @param string $table
+     * @return PrimaryKeyInterface|null
+     * @throws NotSupportedException
+     */
+    private function getPrimaryKey(string $table): ?PrimaryKeyInterface
     {
-        $primaryKey = new PrimaryKey();
+        $primaryKey = null;
 
         /** @var $tablePrimaryKey Constraint */
-        $tablePrimaryKey = $this->db->schema->getTablePrimaryKey($table, true);
+        $tablePrimaryKey = $this->db->getSchema()->getTablePrimaryKey($table, true);
         if ($tablePrimaryKey) {
+            $primaryKey = new PrimaryKey();
             $primaryKey->setName($tablePrimaryKey->name);
             $primaryKey->setColumns($tablePrimaryKey->columnNames);
         }
@@ -121,8 +144,8 @@ class TableMapper implements TableMapperInterface
 
     /**
      * @param string $table
-     * @param array $indexes
-     * @return array
+     * @param array<IndexInterface> $indexes
+     * @return array<ColumnInterface>
      * @throws InvalidConfigException
      */
     private function getColumns(string $table, array $indexes = []): array
@@ -133,8 +156,10 @@ class TableMapper implements TableMapperInterface
         foreach ($tableSchema->columns as $column) {
             $isUnique = false;
 
+            /** @var IndexInterface $index */
             foreach ($indexes as $index) {
-                if ($index->unique && $index->columns[0] === $column->name && count($index->columns) === 1) {
+                $indexColumns = $index->getColumns();
+                if ($index->isUnique() && count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
                     $isUnique = true;
                     break;
                 }

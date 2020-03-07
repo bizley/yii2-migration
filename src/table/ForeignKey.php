@@ -101,33 +101,33 @@ class ForeignKey implements ForeignKeyInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getOnDelete(): string
+    public function getOnDelete(): ?string
     {
         return $this->onDelete;
     }
 
     /**
-     * @param string $onDelete
+     * @param string|null $onDelete
      */
-    public function setOnDelete(string $onDelete): void
+    public function setOnDelete(?string $onDelete): void
     {
         $this->onDelete = $onDelete;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getOnUpdate(): string
+    public function getOnUpdate(): ?string
     {
         return $this->onUpdate;
     }
 
     /**
-     * @param string $onUpdate
+     * @param string|null $onUpdate
      */
-    public function setOnUpdate(string $onUpdate): void
+    public function setOnUpdate(?string $onUpdate): void
     {
         $this->onUpdate = $onUpdate;
     }

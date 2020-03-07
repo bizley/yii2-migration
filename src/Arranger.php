@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\table\ForeignKeyInterface;
-use yii\base\InvalidConfigException;
-use yii\db\Connection;
 
 use function array_diff;
 use function array_key_exists;
@@ -21,35 +19,9 @@ class Arranger implements ArrangerInterface
      */
     private $mapper;
 
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    public function __construct(TableMapperInterface $mapper = null, Connection $db = null)
+    public function __construct(TableMapperInterface $mapper)
     {
         $this->mapper = $mapper;
-        $this->db = $db;
-    }
-
-    public function setMapper(TableMapperInterface $mapper): void
-    {
-        $this->mapper = $mapper;
-    }
-
-    public function getMapper(): TableMapperInterface
-    {
-        return $this->mapper;
-    }
-
-    public function setDb(Connection $db): void
-    {
-        $this->db = $db;
-    }
-
-    public function getDb(): Connection
-    {
-        return $this->db;
     }
 
     /**
@@ -59,25 +31,13 @@ class Arranger implements ArrangerInterface
 
     /**
      * @param array $inputTables
-     * @throws InvalidConfigException
      */
     public function arrangeMigrations(array $inputTables): void
     {
-        if ($this->db instanceof Connection === false) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
-        }
-        if ($this->mapper instanceof TableMapperInterface === false) {
-            throw new InvalidConfigException(
-                "Parameter 'generator' must implement bizley\\migration\\TableMapperInterface!"
-            );
-        }
-
-        $mapper = $this->getMapper();
-
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
-            $mapper->mapTable($inputTable);
-            $foreignKeys = $mapper->getStructure()->getForeignKeys();
+            $this->mapper->mapTable($inputTable);
+            $foreignKeys = $this->mapper->getStructure()->getForeignKeys();
             /** @var ForeignKeyInterface $foreignKey */
             foreach ($foreignKeys as $foreignKey) {
                 $this->addDependency($inputTable, $foreignKey->getReferencedTable());

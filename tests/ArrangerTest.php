@@ -8,34 +8,13 @@ use bizley\migration\Arranger;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\StructureInterface;
 use bizley\migration\TableMapperInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use yii\base\InvalidConfigException;
-use yii\db\Connection;
 
 use function array_keys;
 
 class ArrangerTest extends TestCase
 {
-    /**
-     * @test
-     * @throws InvalidConfigException
-     */
-    public function shouldThrowExceptionWhenConnectionNotSet(): void
-    {
-        $this->expectException(InvalidConfigException::class);
-        (new Arranger())->arrangeMigrations([]);
-    }
-
-    /**
-     * @test
-     * @throws InvalidConfigException
-     */
-    public function shouldThrowExceptionWhenMapperNotSet(): void
-    {
-        $this->expectException(InvalidConfigException::class);
-        (new Arranger(null, $this->createMock(Connection::class)))->arrangeMigrations([]);
-    }
-
     public function providerForArrange(): array
     {
         return [
@@ -70,7 +49,6 @@ class ArrangerTest extends TestCase
      * @param array $inputData
      * @param array $tablesInOrder
      * @param array $suppressedForeignKeys
-     * @throws InvalidConfigException
      */
     public function shouldArrangeTables(
         array $inputData,
@@ -91,9 +69,10 @@ class ArrangerTest extends TestCase
         }
 
         $structure->method('getForeignKeys')->willReturnOnConsecutiveCalls(...$callbacks);
+        /** @var TableMapperInterface|MockObject $tableMapper */
         $tableMapper = $this->createMock(TableMapperInterface::class);
         $tableMapper->method('getStructure')->willReturn($structure);
-        $arranger = new Arranger($tableMapper, $this->createMock(Connection::class));
+        $arranger = new Arranger($tableMapper);
 
         $arranger->arrangeMigrations(array_keys($inputData));
 

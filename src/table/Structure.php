@@ -56,9 +56,9 @@ class Structure implements StructureInterface
     }
 
     /**
-     * @param PrimaryKeyInterface $primaryKey
+     * @param PrimaryKeyInterface|null $primaryKey
      */
-    public function setPrimaryKey(PrimaryKeyInterface $primaryKey): void
+    public function setPrimaryKey(?PrimaryKeyInterface $primaryKey): void
     {
         $this->primaryKey = $primaryKey;
     }
@@ -138,6 +138,11 @@ class Structure implements StructureInterface
     public function getForeignKeys(): array
     {
         return $this->foreignKeys;
+    }
+
+    public function getForeignKey(string $name): ?ForeignKeyInterface
+    {
+        return $this->foreignKeys[$name] ?? null;
     }
 
     /**
