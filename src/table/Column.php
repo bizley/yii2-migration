@@ -12,7 +12,7 @@ use function str_replace;
 use function stripos;
 use function trim;
 
-abstract class Column
+abstract class Column implements ColumnInterface
 {
     /**
      * @var string
@@ -406,12 +406,12 @@ abstract class Column
 
     /**
      * Checks if column is a part of primary key.
-     * @param PrimaryKey $pk
+     * @param PrimaryKeyInterface $primaryKey
      * @return bool
      */
-    public function isColumnInPrimaryKey(PrimaryKey $pk): bool
+    public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool
     {
-        return in_array($this->name, $pk->columns, true);
+        return in_array($this->name, $primaryKey->getColumns(), true);
     }
 
     /**

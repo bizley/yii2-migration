@@ -8,6 +8,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
 use function array_key_exists;
+use function count;
 
 class StructureBuilder
 {
@@ -35,136 +36,192 @@ class StructureBuilder
                 throw new InvalidArgumentException('You must provide array of Change objects.');
             }
 
-            $value = $change->getValue();
-
             switch ($change->getMethod()) {
                 case 'createTable':
                     $this->applyCreateTableValue($change->getValue());
                     break;
 
                 case 'addColumn':
-                    $this->columns[$value->name] = $value;
-
-                    if ($value->isPrimaryKey || $value->isPrimaryKeyInfoAppended()) {
-                        if ($this->primaryKey === null) {
-                            $this->primaryKey = new PrimaryKey(['columns' => [$value->name]]);
-                        } else {
-                            $this->primaryKey->addColumn($value->name);
-                        }
-                    }
+                case 'alterColumn':
+                    $this->applyAddColumnValue($change->getValue());
                     break;
 
                 case 'dropColumn':
-                    unset($this->columns[$value]);
+                    $this->applyDropColumnValue($change->getValue());
                     break;
 
                 case 'renameColumn':
-                    if (array_key_exists($value['old'], $this->columns)) {
-                        $this->columns[$value['new']] = $this->columns[$value['old']];
-                        $this->columns[$value['new']]->name = $value['new'];
-
-                        unset($this->columns[$value['old']]);
-                    }
-                    break;
-
-                case 'alterColumn':
-                    $this->columns[$value->name] = $value;
+                    $this->applyRenameColumnValue($change->getValue());
                     break;
 
                 case 'addPrimaryKey':
-                    $this->primaryKey = $value;
-
-                    foreach ($this->primaryKey->columns as $column) {
-                        if (array_key_exists($column, $this->columns)) {
-                            if (empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append = $this->columns[$column]->prepareSchemaAppend(
-                                    true,
-                                    false
-                                );
-                            } elseif (!$this->columns[$column]->isPrimaryKeyInfoAppended()) {
-                                $this->columns[$column]->append .= ' ' . $this->columns[$column]->prepareSchemaAppend(
-                                    true,
-                                    false
-                                );
-                            }
-                        }
-                    }
+                    $this->applyAddPrimaryKeyValue($change->getValue());
                     break;
 
                 case 'dropPrimaryKey':
-                    if ($this->primaryKey !== null) {
-                        foreach ($this->primaryKey->columns as $column) {
-                            if (array_key_exists($column, $this->columns) && !empty($this->columns[$column]->append)) {
-                                $this->columns[$column]->append
-                                    = $this->columns[$column]->removeAppendedPrimaryKeyInfo();
-                            }
-                        }
-                    }
-
-                    $this->primaryKey = null;
+                    $this->applyDropPrimaryKeyValue();
                     break;
 
                 case 'addForeignKey':
-                    $this->foreignKeys[$value->name] = $value;
+                    $this->applyAddForeignKeyValue($change->getValue());
                     break;
 
                 case 'dropForeignKey':
-                    unset($this->foreignKeys[$value]);
+                    $this->applyDropForeignKeyValue($change->getValue());
                     break;
 
                 case 'createIndex':
-                    $this->indexes[$value->name] = $value;
-                    if (
-                        $value->unique
-                        && array_key_exists($value->columns[0], $this->columns)
-                        && count($value->columns) === 1
-                    ) {
-                        $this->columns[$value->columns[0]]->isUnique = true;
-                    }
+                    $this->applyCreateIndexValue($change->getValue());
                     break;
 
                 case 'dropIndex':
-                    if (
-                        $this->indexes[$value]->unique
-                        && count($this->indexes[$value]->columns) === 1
-                        && array_key_exists($this->indexes[$value]->columns[0], $this->columns)
-                        && $this->columns[$this->indexes[$value]->columns[0]]->isUnique
-                    ) {
-                        $this->columns[$this->indexes[$value]->columns[0]]->isUnique = false;
-                    }
-                    unset($this->indexes[$value]);
+                    $this->applyDropIndexValue($change->getValue());
                     break;
 
                 case 'addCommentOnColumn':
-                    if (array_key_exists($value->name, $this->columns)) {
-                        $this->columns[$value->name]->comment = $value->comment;
-                    }
+                    $this->applyAddCommentOnColumnValue($change->getValue());
                     break;
 
                 case 'dropCommentFromColumn':
-                    if (array_key_exists($value, $this->columns)) {
-                        $this->columns[$value]->comment = null;
-                    }
+                    $this->applyDropCommentFromColumnValue($change->getValue());
+                    break;
             }
         }
     }
 
     private function applyCreateTableValue(array $columns): void
     {
-        /** @var Column $column */
         foreach ($columns as $column) {
-            $this->structure->addColumn($column);
+            $this->applyAddColumnValue($column);
+        }
+    }
 
-            if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended()) {
-                $primaryKey = $this->structure->getPrimaryKey();
-                if ($primaryKey === null) {
-                    $primaryKey = new PrimaryKey();
-                    $primaryKey->setColumns([$column->name]);
-                } else {
-                    $primaryKey->addColumn($column->getName());
-                }
-                $this->structure->setPrimaryKey($primaryKey);
+    private function applyAddColumnValue(ColumnInterface $column): void
+    {
+        $this->structure->addColumn($column);
+
+        if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended()) {
+            $primaryKey = $this->structure->getPrimaryKey();
+            if ($primaryKey === null) {
+                $primaryKey = new PrimaryKey();
+                $primaryKey->setColumns([$column->getName()]);
+            } else {
+                $primaryKey->addColumn($column->getName());
             }
+            $this->structure->setPrimaryKey($primaryKey);
+        }
+    }
+
+    private function applyDropColumnValue(string $columnName): void
+    {
+        $this->structure->removeColumn($columnName);
+    }
+
+    private function applyRenameColumnValue(array $data): void
+    {
+        $oldColumn = $this->structure->getColumn($data['old']);
+        if ($oldColumn) {
+            $newColumn = clone $oldColumn;
+            $newColumn->setName($data['new']);
+            $this->structure->addColumn($newColumn);
+            $this->structure->removeColumn($data['old']);
+        }
+    }
+
+    private function applyAddPrimaryKeyValue(PrimaryKeyInterface $primaryKey): void
+    {
+        $this->structure->setPrimaryKey($primaryKey);
+
+        $columns = $this->structure->getColumns();
+
+        foreach ($primaryKey->getColumns() as $columnName) {
+            if (array_key_exists($columnName, $columns)) {
+                /** @var ColumnInterface $column */
+                $column = $columns[$columnName];
+                $columnAppend = $column->getAppend();
+                if (empty($columnAppend)) {
+                    $column->setAppend($column->prepareSchemaAppend(true, false));
+                } elseif ($column->isPrimaryKeyInfoAppended() === false) {
+                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend(true, false));
+                }
+            }
+        }
+    }
+
+    private function applyDropPrimaryKeyValue(): void
+    {
+        $primaryKey = $this->structure->getPrimaryKey();
+        if ($primaryKey) {
+            $columns = $this->structure->getColumns();
+
+            foreach ($primaryKey->getColumns() as $columnName) {
+                /** @var ColumnInterface $column */
+                $column = $columns[$columnName];
+                $columnAppend = $column->getAppend();
+                if (array_key_exists($column, $columns) && !empty($columnAppend)) {
+                    $column->setAppend($column->removeAppendedPrimaryKeyInfo());
+                }
+            }
+        }
+
+        $this->structure->setPrimaryKey(null);
+    }
+
+    private function applyAddForeignKeyValue(ForeignKeyInterface $foreignKey): void
+    {
+        $this->structure->addForeignKey($foreignKey);
+    }
+
+    private function applyDropForeignKeyValue(string $name): void
+    {
+        $this->structure->removeForeignKey($name);
+    }
+
+    private function applyCreateIndexValue(IndexInterface $index): void
+    {
+        $this->structure->addIndex($index);
+
+        $indexColumns = $index->getColumns();
+        if (
+            $index->isUnique()
+            && count($indexColumns) === 1
+            && array_key_exists($indexColumns[0], $this->structure->getColumns())
+        ) {
+            $this->structure->getColumn($indexColumns[0])->setIsUnique(true);
+        }
+    }
+
+    private function applyDropIndexValue(string $name): void
+    {
+        $index = $this->structure->getIndex($name);
+        if ($index) {
+            $indexColumns = $index->getColumns();
+            if (
+                $index->isUnique()
+                && count($indexColumns) === 1
+                && array_key_exists($indexColumns[0], $this->structure->getColumns())
+                && $this->structure->getColumn($indexColumns[0])->isUnique()
+            ) {
+                $this->structure->getColumn($indexColumns[0])->setIsUnique(false);
+            }
+
+            $this->structure->removeIndex($name);
+        }
+    }
+
+    private function applyAddCommentOnColumnValue(array $data): void
+    {
+        $column = $this->structure->getColumn($data['name']);
+        if ($column) {
+            $column->setComment($data['comment']);
+        }
+    }
+
+    private function applyDropCommentFromColumnValue(string $columnName): void
+    {
+        $column = $this->structure->getColumn($columnName);
+        if ($column) {
+            $column->setComment(null);
         }
     }
 }

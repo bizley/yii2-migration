@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class Index
+class Index implements IndexInterface
 {
     /**
      * @var string
