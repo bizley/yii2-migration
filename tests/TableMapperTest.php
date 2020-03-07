@@ -165,14 +165,99 @@ class TableMapperTest extends TestCase
 
         $this->mapper->mapTable('abcdef');
 
+        /** @var ForeignKeyConstraint $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $structureForeignKey = $this->mapper->getStructure()->getForeignKey($foreignKey->name);
 
+            $this->assertSame($foreignKey->name, $structureForeignKey->getName());
             $this->assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
             $this->assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferencedTable());
             $this->assertSame($foreignKey->foreignColumnNames, $structureForeignKey->getReferencedColumns());
             $this->assertSame($foreignKey->onDelete, $structureForeignKey->getOnDelete());
             $this->assertSame($foreignKey->onUpdate, $structureForeignKey->getOnUpdate());
         }
+    }
+
+    public function providerForIndexes(): array
+    {
+        return [
+            'i1' => [[[
+                'name' => 'i1',
+                'columnNames' => [],
+                'isUnique' => false,
+                'isPrimary' => false,
+            ]]],
+            'i2' => [[[
+                'name' => 'i2',
+                'columnNames' => ['aaa'],
+                'isUnique' => true,
+                'isPrimary' => false,
+            ]]],
+            'i3' => [[[
+                'name' => 'i3',
+                'columnNames' => ['aaa', 'bbb'],
+                'isUnique' => false,
+                'isPrimary' => false,
+            ]]],
+            'i4+5' => [[
+                [
+                    'name' => 'i4',
+                    'columnNames' => ['ccc'],
+                    'isUnique' => true,
+                    'isPrimary' => false,
+                ],
+                [
+                    'name' => 'i5',
+                    'columnNames' => ['aaa', 'bbb'],
+                    'isUnique' => false,
+                    'isPrimary' => false,
+                ]
+            ]],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForIndexes
+     * @param array $indexData
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldSetProperIndexes(array $indexData): void
+    {
+        $indexes = [];
+        foreach ($indexData as $indexDatum) {
+            $indexes[] = new IndexConstraint($indexDatum);
+        }
+
+        $this->prepareSchemaMock([], $indexes);
+
+        $this->mapper->mapTable('abcdef');
+
+        /** @var IndexConstraint $index */
+        foreach ($indexes as $index) {
+            $structureIndex = $this->mapper->getStructure()->getIndex($index->name);
+
+            $this->assertSame($index->name, $structureIndex->getName());
+            $this->assertSame($index->columnNames, $structureIndex->getColumns());
+            $this->assertSame($index->isUnique, $structureIndex->isUnique());
+        }
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldIgnorePrimaryIndex(): void
+    {
+        $this->prepareSchemaMock(
+            [],
+            [new IndexConstraint(['name' => 'aaa', 'isPrimary' => true])]
+        );
+
+        $this->mapper->mapTable('abcdef');
+
+        $this->assertNull($this->mapper->getStructure()->getIndex('aaa'));
     }
 }

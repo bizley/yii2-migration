@@ -6,6 +6,8 @@ namespace bizley\migration\table;
 
 interface ForeignKeyInterface
 {
+    public function getName(): string;
+
     public function getColumns(): array;
 
     public function getReferencedTable(): string;
