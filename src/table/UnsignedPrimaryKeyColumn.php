@@ -8,6 +8,6 @@ class UnsignedPrimaryKeyColumn extends PrimaryKeyColumn
 {
     public function __construct()
     {
-        $this->setIsUnsigned(true);
+        $this->setUnsigned(true);
     }
 }

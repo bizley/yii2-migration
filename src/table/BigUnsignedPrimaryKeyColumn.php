@@ -8,6 +8,6 @@ class BigUnsignedPrimaryKeyColumn extends BigPrimaryKeyColumn
 {
     public function __construct()
     {
-        $this->setIsUnsigned(true);
+        $this->setUnsigned(true);
     }
 }

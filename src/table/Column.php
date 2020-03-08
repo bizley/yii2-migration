@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use bizley\migration\SchemaEnum;
+
 use function in_array;
 use function preg_match;
 use function preg_replace;
@@ -32,7 +34,7 @@ abstract class Column
     /**
      * @var bool|null
      */
-    private $isNotNull;
+    private $notNull;
 
     /**
      * @var int
@@ -52,12 +54,12 @@ abstract class Column
     /**
      * @var bool
      */
-    private $isUnique = false;
+    private $unique = false;
 
     /**
      * @var bool
      */
-    private $isUnsigned = false;
+    private $unsigned = false;
 
     /**
      * @var mixed
@@ -67,7 +69,7 @@ abstract class Column
     /**
      * @var bool
      */
-    private $isPrimaryKey = false;
+    private $primaryKey = false;
 
     /**
      * @var bool
@@ -87,22 +89,12 @@ abstract class Column
     /**
      * @var string
      */
-    private $schema;
-
-    /**
-     * @var string
-     */
     private $after;
 
     /**
      * @var bool
      */
-    private $isFirst = false;
-
-    /**
-     * @var string
-     */
-    private $engineVersion;
+    private $first = false;
 
     /**
      * @return string
@@ -155,33 +147,37 @@ abstract class Column
     /**
      * @return bool|null
      */
-    public function getIsNotNull(): ?bool
+    public function isNotNull(): ?bool
     {
-        return $this->isNotNull;
+        return $this->notNull;
     }
 
     /**
-     * @param bool|null $isNotNull
+     * @param bool|null $notNull
      */
-    public function setIsNotNull(?bool $isNotNull): void
+    public function setNotNull(?bool $notNull): void
     {
-        $this->isNotNull = $isNotNull;
+        $this->notNull = $notNull;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }
 
     /**
-     * @param int $size
+     * @param int|string|null $size
      */
-    public function setSize(int $size): void
+    public function setSize($size): void
     {
-        $this->size = $size;
+        if ($size !== null) {
+            $this->size = (int)$size;
+        } else {
+            $this->size = null;
+        }
     }
 
     /**
@@ -193,11 +189,15 @@ abstract class Column
     }
 
     /**
-     * @param int|null $precision
+     * @param int|string|null $precision
      */
-    public function setPrecision(?int $precision): void
+    public function setPrecision($precision): void
     {
-        $this->precision = $precision;
+        if ($precision !== null) {
+            $this->precision = (int)$precision;
+        } else {
+            $this->precision = null;
+        }
     }
 
     /**
@@ -209,11 +209,15 @@ abstract class Column
     }
 
     /**
-     * @param int|null $scale
+     * @param int|string|null $scale
      */
-    public function setScale(?int $scale): void
+    public function setScale($scale): void
     {
-        $this->scale = $scale;
+        if ($scale !== null) {
+            $this->scale = (int)$scale;
+        } else {
+            $this->scale = null;
+        }
     }
 
     /**
@@ -221,15 +225,15 @@ abstract class Column
      */
     public function isUnique(): bool
     {
-        return $this->isUnique;
+        return $this->unique;
     }
 
     /**
-     * @param bool $isUnique
+     * @param bool $unique
      */
-    public function setIsUnique(bool $isUnique): void
+    public function setUnique(bool $unique): void
     {
-        $this->isUnique = $isUnique;
+        $this->unique = $unique;
     }
 
     /**
@@ -237,15 +241,15 @@ abstract class Column
      */
     public function isUnsigned(): bool
     {
-        return $this->isUnsigned;
+        return $this->unsigned;
     }
 
     /**
-     * @param bool $isUnsigned
+     * @param bool $unsigned
      */
-    public function setIsUnsigned(bool $isUnsigned): void
+    public function setUnsigned(bool $unsigned): void
     {
-        $this->isUnsigned = $isUnsigned;
+        $this->unsigned = $unsigned;
     }
 
     /**
@@ -269,15 +273,15 @@ abstract class Column
      */
     public function isPrimaryKey(): bool
     {
-        return $this->isPrimaryKey;
+        return $this->primaryKey;
     }
 
     /**
-     * @param bool $isPrimaryKey
+     * @param bool $primaryKey
      */
-    public function setIsPrimaryKey(bool $isPrimaryKey): void
+    public function setPrimaryKey(bool $primaryKey): void
     {
-        $this->isPrimaryKey = $isPrimaryKey;
+        $this->primaryKey = $primaryKey;
     }
 
     /**
@@ -331,22 +335,6 @@ abstract class Column
     /**
      * @return string
      */
-    public function getSchema(): string
-    {
-        return $this->schema;
-    }
-
-    /**
-     * @param string $schema
-     */
-    public function setSchema(string $schema): void
-    {
-        $this->schema = $schema;
-    }
-
-    /**
-     * @return string
-     */
     public function getAfter(): string
     {
         return $this->after;
@@ -365,31 +353,15 @@ abstract class Column
      */
     public function isFirst(): bool
     {
-        return $this->isFirst;
+        return $this->first;
     }
 
     /**
-     * @param bool $isFirst
+     * @param bool $first
      */
-    public function setIsFirst(bool $isFirst): void
+    public function setFirst(bool $first): void
     {
-        $this->isFirst = $isFirst;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEngineVersion(): string
-    {
-        return $this->engineVersion;
-    }
-
-    /**
-     * @param string $engineVersion
-     */
-    public function setEngineVersion(string $engineVersion): void
-    {
-        $this->engineVersion = $engineVersion;
+        $this->first = $first;
     }
 
     /**
@@ -404,16 +376,18 @@ abstract class Column
 
     /**
      * Checks if information of primary key is set in append property.
+     * @param string $schema
      * @return bool
      */
-    public function isPrimaryKeyInfoAppended(): bool
+    public function isPrimaryKeyInfoAppended(string $schema): bool
     {
-        if (empty($this->append)) {
+        $append = $this->getAppend();
+        if (empty($append)) {
             return false;
         }
 
-        if (stripos($this->append, 'PRIMARY KEY') !== false) {
-            return !($this->schema === Structure::SCHEMA_MSSQL && stripos($this->append, 'IDENTITY') === false);
+        if (stripos($append, 'PRIMARY KEY') !== false) {
+            return !($schema === SchemaEnum::MSSQL && stripos($append, 'IDENTITY') === false);
         }
 
         return false;
@@ -421,28 +395,29 @@ abstract class Column
 
     /**
      * Prepares append SQL based on schema.
+     * @param string $schema
      * @param bool $primaryKey
      * @param bool $autoIncrement
      * @return string|null
      */
-    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement): ?string
+    public function prepareSchemaAppend(string $schema, bool $primaryKey, bool $autoIncrement): ?string
     {
-        switch ($this->schema) {
-            case Structure::SCHEMA_MSSQL:
+        switch ($schema) {
+            case SchemaEnum::MSSQL:
                 $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
                 break;
 
-            case Structure::SCHEMA_OCI:
-            case Structure::SCHEMA_PGSQL:
+            case SchemaEnum::OCI:
+            case SchemaEnum::PGSQL:
                 $append = $primaryKey ? 'PRIMARY KEY' : '';
                 break;
 
-            case Structure::SCHEMA_SQLITE:
+            case SchemaEnum::SQLITE:
                 $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
                 break;
 
-            case Structure::SCHEMA_CUBRID:
-            case Structure::SCHEMA_MYSQL:
+            case SchemaEnum::CUBRID:
+            case SchemaEnum::MYSQL:
             default:
                 $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
@@ -462,30 +437,31 @@ abstract class Column
 
     /**
      * Removes information of primary key in append property and returns what is left.
+     * @param string $schema
      * @return null|string
      */
-    public function removeAppendedPrimaryKeyInfo(): ?string
+    public function removeAppendedPrimaryKeyInfo(string $schema): ?string
     {
-        if ($this->isPrimaryKeyInfoAppended() === false) {
+        if ($this->isPrimaryKeyInfoAppended($schema) === false) {
             return $this->append;
         }
 
-        switch ($this->schema) {
-            case Structure::SCHEMA_MSSQL:
+        switch ($schema) {
+            case SchemaEnum::MSSQL:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
                 break;
 
-            case Structure::SCHEMA_OCI:
-            case Structure::SCHEMA_PGSQL:
+            case SchemaEnum::OCI:
+            case SchemaEnum::PGSQL:
                 $cleanedAppend = str_ireplace('PRIMARY KEY', '', $this->append);
                 break;
 
-            case Structure::SCHEMA_SQLITE:
+            case SchemaEnum::SQLITE:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
                 break;
 
-            case Structure::SCHEMA_CUBRID:
-            case Structure::SCHEMA_MYSQL:
+            case SchemaEnum::CUBRID:
+            case SchemaEnum::MYSQL:
             default:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }

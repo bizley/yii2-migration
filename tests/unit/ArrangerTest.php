@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests;
+namespace bizley\tests\unit;
 
 use bizley\migration\Arranger;
 use bizley\migration\table\ForeignKeyInterface;

@@ -125,16 +125,16 @@ class StructureChange
             $column = ColumnFactory::build($schema['type']);
             $column->setName($columnName);
             $column->setLength($schema['length'] ?? null);
-            $column->setIsNotNull($schema['isNotNull'] ?? null);
-            $column->setIsUnique($schema['isUnique'] ?? false);
+            $column->setNotNull($schema['isNotNull'] ?? null);
+            $column->setUnique($schema['isUnique'] ?? false);
             $column->setAutoIncrement($schema['autoIncrement'] ?? false);
-            $column->setIsPrimaryKey($schema['isPrimaryKey'] ?? false);
+            $column->setPrimaryKey($schema['isPrimaryKey'] ?? false);
             $column->setDefault($schema['default'] ?? null);
             $column->setAppend($schema['append'] ?? null);
-            $column->setIsUnsigned($schema['isUnsigned'] ?? false);
+            $column->setUnsigned($schema['isUnsigned'] ?? false);
             $column->setComment(!empty($schema['comment']) ? $schema['comment'] : null);
             $column->setAfter($schema['after'] ?? null);
-            $column->setIsFirst($schema['isFirst'] ?? false);
+            $column->setFirst($schema['isFirst'] ?? false);
 
             $columns[] = $column;
         }
@@ -163,16 +163,16 @@ class StructureChange
         $column = ColumnFactory::build($data[1]['type']);
         $column->setName($data[0]);
         $column->setLength($data[1]['length'] ?? null);
-        $column->setIsNotNull($data[1]['isNotNull'] ?? null);
-        $column->setIsUnique($data[1]['isUnique'] ?? false);
+        $column->setNotNull($data[1]['isNotNull'] ?? null);
+        $column->setUnique($data[1]['isUnique'] ?? false);
         $column->setAutoIncrement($data[1]['autoIncrement'] ?? false);
-        $column->setIsPrimaryKey($data[1]['isPrimaryKey'] ?? false);
+        $column->setPrimaryKey($data[1]['isPrimaryKey'] ?? false);
         $column->setDefault($data[1]['default'] ?? null);
         $column->setAppend($data[1]['append'] ?? null);
-        $column->setIsUnsigned($data[1]['isUnsigned'] ?? false);
+        $column->setUnsigned($data[1]['isUnsigned'] ?? false);
         $column->setComment(!empty($data[1]['comment']) ? $data[1]['comment'] : null);
         $column->setAfter($data[1]['after'] ?? null);
-        $column->setIsFirst($data[1]['isFirst'] ?? false);
+        $column->setFirst($data[1]['isFirst'] ?? false);
 
         return $column;
     }

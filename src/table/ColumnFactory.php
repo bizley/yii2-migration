@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use yii\base\InvalidConfigException;
+use InvalidArgumentException;
 use yii\db\Schema;
 
 class ColumnFactory
@@ -13,7 +13,6 @@ class ColumnFactory
      * Builds table column object based on the type.
      * @param string $type
      * @return Column
-     * @throws InvalidConfigException
      */
     public static function build(string $type): Column
     {
@@ -85,9 +84,7 @@ class ColumnFactory
                 return new JsonColumn();
 
             default:
-                throw new InvalidConfigException(
-                    "Unsupported schema type '$type' for ColumnFactory."
-                );
+                throw new InvalidArgumentException("Unsupported schema type '$type' for ColumnFactory.");
         }
     }
 }

@@ -12,27 +12,27 @@ interface ColumnInterface
 
     public function isPrimaryKey(): bool;
 
-    public function isPrimaryKeyInfoAppended(): bool;
+    public function isPrimaryKeyInfoAppended(string $schema): bool;
 
     public function getAppend(): string;
 
     public function setAppend(?string $append): void;
 
-    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement): ?string;
+    public function prepareSchemaAppend(string $schema, bool $primaryKey, bool $autoIncrement): ?string;
 
-    public function removeAppendedPrimaryKeyInfo(): ?string;
+    public function removeAppendedPrimaryKeyInfo(string $schema): ?string;
 
     public function setComment(?string $comment): void;
 
     public function getComment(): string;
 
-    public function getSize(): int;
+    public function getSize(): ?int;
 
     public function getPrecision(): ?int;
 
     public function getScale(): ?int;
 
-    public function getIsNotNull(): ?bool;
+    public function isNotNull(): ?bool;
 
     public function getDefault();
 

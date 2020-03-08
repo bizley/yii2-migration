@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests;
+namespace bizley\tests\unit;
 
 use bizley\migration\table\CharacterColumn;
 use bizley\migration\TableMapper;
@@ -304,7 +304,7 @@ class TableMapperTest extends TestCase
         $this->assertSame(1, $structureColumn->getSize());
         $this->assertNull($structureColumn->getPrecision());
         $this->assertNull($structureColumn->getScale());
-        $this->assertNull($structureColumn->getIsNotNull());
+        $this->assertNull($structureColumn->isNotNull());
         $this->assertSame('a', $structureColumn->getDefault());
         $this->assertFalse($structureColumn->isPrimaryKey());
         $this->assertFalse($structureColumn->isUnsigned());

@@ -170,12 +170,12 @@ class TableMapper implements TableMapperInterface
             $mappedColumn->setSize($column->size);
             $mappedColumn->setPrecision($column->precision);
             $mappedColumn->setScale($column->scale);
-            $mappedColumn->setIsNotNull($column->allowNull ? null : true);
-            $mappedColumn->setIsUnique($isUnique);
+            $mappedColumn->setNotNull($column->allowNull ? null : true);
+            $mappedColumn->setUnique($isUnique);
             $mappedColumn->setDefault($column->defaultValue);
-            $mappedColumn->setIsPrimaryKey($column->isPrimaryKey);
+            $mappedColumn->setPrimaryKey($column->isPrimaryKey);
             $mappedColumn->setAutoIncrement($column->autoIncrement);
-            $mappedColumn->setIsUnsigned($column->unsigned);
+            $mappedColumn->setUnsigned($column->unsigned);
             $mappedColumn->setComment($column->comment ?: null);
 
             $mappedColumns[$column->name] = $mappedColumn;
