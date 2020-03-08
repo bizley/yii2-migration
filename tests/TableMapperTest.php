@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace bizley\tests;
 
+use bizley\migration\table\CharacterColumn;
 use bizley\migration\TableMapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
@@ -30,16 +32,17 @@ class TableMapperTest extends TestCase
         $this->db = $this->createMock(Connection::class);
         $this->schema = $this->createMock(Schema::class);
         $this->db->method('getSchema')->willReturn($this->schema);
-        $this->db->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
         $this->mapper = new TableMapper($this->db);
     }
 
     /**
+     * @param bool $mockTableSchema
      * @param array<ForeignKeyConstraint> $foreignKeys
      * @param array<IndexConstraint> $indexes
      * @param Constraint|null $primaryKey
      */
     private function prepareSchemaMock(
+        bool $mockTableSchema = true,
         array $foreignKeys = [],
         array $indexes = [],
         Constraint $primaryKey = null
@@ -47,6 +50,10 @@ class TableMapperTest extends TestCase
         $this->schema->method('getTableForeignKeys')->willReturn($foreignKeys);
         $this->schema->method('getTableIndexes')->willReturn($indexes);
         $this->schema->method('getTablePrimaryKey')->willReturn($primaryKey);
+
+        if ($mockTableSchema) {
+            $this->db->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
+        }
     }
 
     /**
@@ -91,7 +98,7 @@ class TableMapperTest extends TestCase
             'columnNames' => $primaryKeyColumns
         ]);
 
-        $this->prepareSchemaMock([], [], $primaryKey);
+        $this->prepareSchemaMock(true, [], [], $primaryKey);
 
         $this->mapper->mapTable('abcdef');
         $structurePrimaryKey = $this->mapper->getStructure()->getPrimaryKey();
@@ -161,7 +168,7 @@ class TableMapperTest extends TestCase
             $foreignKeys[] = new ForeignKeyConstraint($foreignKeyDatum);
         }
 
-        $this->prepareSchemaMock($foreignKeys);
+        $this->prepareSchemaMock(true, $foreignKeys);
 
         $this->mapper->mapTable('abcdef');
 
@@ -230,7 +237,7 @@ class TableMapperTest extends TestCase
             $indexes[] = new IndexConstraint($indexDatum);
         }
 
-        $this->prepareSchemaMock([], $indexes);
+        $this->prepareSchemaMock(true, [], $indexes);
 
         $this->mapper->mapTable('abcdef');
 
@@ -252,6 +259,7 @@ class TableMapperTest extends TestCase
     public function shouldIgnorePrimaryIndex(): void
     {
         $this->prepareSchemaMock(
+            true,
             [],
             [new IndexConstraint(['name' => 'aaa', 'isPrimary' => true])]
         );
@@ -259,5 +267,130 @@ class TableMapperTest extends TestCase
         $this->mapper->mapTable('abcdef');
 
         $this->assertNull($this->mapper->getStructure()->getIndex('aaa'));
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldSetColumn(): void
+    {
+        $this->prepareSchemaMock(false);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $column = new ColumnSchema(
+            [
+                'type' => 'char',
+                'name' => 'column-name',
+                'size' => 1,
+                'precision' => null,
+                'scale' => null,
+                'allowNull' => true,
+                'defaultValue' => 'a',
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+                'comment' => 'comment'
+            ]
+        );
+        $tableSchema->columns = [$column];
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->mapper->mapTable('abcdef');
+
+        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $this->assertNotNull($structureColumn);
+        $this->assertInstanceOf(CharacterColumn::class, $structureColumn);
+        $this->assertSame('column-name', $structureColumn->getName());
+        $this->assertSame(1, $structureColumn->getSize());
+        $this->assertNull($structureColumn->getPrecision());
+        $this->assertNull($structureColumn->getScale());
+        $this->assertNull($structureColumn->getIsNotNull());
+        $this->assertSame('a', $structureColumn->getDefault());
+        $this->assertFalse($structureColumn->isPrimaryKey());
+        $this->assertFalse($structureColumn->isUnsigned());
+        $this->assertSame('comment', $structureColumn->getComment());
+        $this->assertFalse($structureColumn->isUnique());
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldSetUniqueColumnWithUniqueIndex(): void
+    {
+        $this->prepareSchemaMock(
+            false,
+            [],
+            [
+                new IndexConstraint(
+                    [
+                        'name' => 'aaa',
+                        'columnNames' => ['column-name'],
+                        'isPrimary' => false,
+                        'isUnique' => true,
+                    ]
+                )
+            ]
+        );
+        $tableSchema = $this->createMock(TableSchema::class);
+        $column = new ColumnSchema(
+            [
+                'type' => 'char',
+                'name' => 'column-name',
+                'size' => 1,
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+            ]
+        );
+        $tableSchema->columns = [$column];
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->mapper->mapTable('abcdef');
+
+        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $this->assertNotNull($structureColumn);
+        $this->assertTrue($structureColumn->isUnique());
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldNotSetUniqueColumnWithoutIndex(): void
+    {
+        $this->prepareSchemaMock(
+            false,
+            [],
+            [
+                new IndexConstraint(
+                    [
+                        'name' => 'aaa',
+                        'columnNames' => ['other-column'],
+                        'isPrimary' => false,
+                        'isUnique' => true,
+                    ]
+                )
+            ]
+        );
+        $tableSchema = $this->createMock(TableSchema::class);
+        $column = new ColumnSchema(
+            [
+                'type' => 'char',
+                'name' => 'column-name',
+                'size' => 1,
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+            ]
+        );
+        $tableSchema->columns = [$column];
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->mapper->mapTable('abcdef');
+
+        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $this->assertNotNull($structureColumn);
+        $this->assertFalse($structureColumn->isUnique());
     }
 }

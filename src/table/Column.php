@@ -197,33 +197,33 @@ abstract class Column implements ColumnInterface
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getPrecision(): int
+    public function getPrecision(): ?int
     {
         return $this->precision;
     }
 
     /**
-     * @param int $precision
+     * @param int|null $precision
      */
-    public function setPrecision(int $precision): void
+    public function setPrecision(?int $precision): void
     {
         $this->precision = $precision;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getScale(): int
+    public function getScale(): ?int
     {
         return $this->scale;
     }
 
     /**
-     * @param int $scale
+     * @param int|null $scale
      */
-    public function setScale(int $scale): void
+    public function setScale(?int $scale): void
     {
         $this->scale = $scale;
     }

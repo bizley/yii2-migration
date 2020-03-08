@@ -23,4 +23,20 @@ interface ColumnInterface
     public function removeAppendedPrimaryKeyInfo(): ?string;
 
     public function setComment(?string $comment): void;
+
+    public function getComment(): string;
+
+    public function getSize(): int;
+
+    public function getPrecision(): ?int;
+
+    public function getScale(): ?int;
+
+    public function getIsNotNull(): ?bool;
+
+    public function getDefault();
+
+    public function isUnsigned(): bool;
+
+    public function isUnique(): bool;
 }
