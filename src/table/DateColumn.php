@@ -4,23 +4,29 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class DateColumn extends Column
+class DateColumn extends Column implements ColumnInterface
 {
     /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
+     * @param $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
      */
-    protected function buildSpecificDefinition(Structure $table): void
-    {
-        $this->definition[] = 'date()';
-    }
-
-    public function setLength($value): void
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
     }
 
-    public function getLength()
+    /**
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return null
+     */
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
         return null;
+    }
+
+    public function getDefinition(): string
+    {
+        return 'date()';
     }
 }

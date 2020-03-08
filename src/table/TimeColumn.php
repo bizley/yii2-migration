@@ -4,53 +4,41 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use bizley\migration\SchemaEnum;
+
 use function in_array;
 use function version_compare;
 
-class TimeColumn extends Column
+class TimeColumn extends Column implements ColumnInterface
 {
-    /** @var array Schemas using length for this column */
-    private $lengthSchemas = [Structure::SCHEMA_PGSQL];
-
     /**
-     * Returns length of the column.
-     * @return int|string
+     * @var array Schemas using length for this column
      */
-    public function getLength()
-    {
-        return $this->isSchemaLengthSupporting() ? $this->precision : null;
-    }
+    private $lengthSchemas = [SchemaEnum::PGSQL];
 
-    /**
-     * Sets length of the column.
-     * @param string|int $value
-     */
-    public function setLength($value): void
+    private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
-        if ($this->isSchemaLengthSupporting()) {
-            $this->precision = $value;
-        }
-    }
-
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
-    {
-        $this->definition[] = 'time(' . $this->getRenderLength($table->generalSchema) . ')';
-    }
-
-    private function isSchemaLengthSupporting(): bool
-    {
-        if (
-            $this->engineVersion
-            && $this->schema === Structure::SCHEMA_MYSQL
-            && version_compare($this->engineVersion, '5.6.4', '>=')
-        ) {
+        if ($engineVersion && $schema === SchemaEnum::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
             return true;
         }
 
-        return in_array($this->schema, $this->lengthSchemas, true);
+        return in_array($schema, $this->lengthSchemas, true);
+    }
+
+    public function getLength(string $schema = null, string $engineVersion = null)
+    {
+        return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getPrecision() : null;
+    }
+
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    {
+        if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {
+            $this->setPrecision($value);
+        }
+    }
+
+    public function getDefinition(): string
+    {
+        return 'time({renderLength})';
     }
 }

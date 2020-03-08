@@ -12,7 +12,7 @@ use function in_array;
 use function sprintf;
 use function str_repeat;
 
-class PrimaryKey extends BaseObject
+class OldPrimaryKey extends BaseObject
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 

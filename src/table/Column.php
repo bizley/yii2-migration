@@ -12,7 +12,7 @@ use function str_replace;
 use function stripos;
 use function trim;
 
-abstract class Column implements ColumnInterface
+abstract class Column
 {
     /**
      * @var string
@@ -103,18 +103,6 @@ abstract class Column implements ColumnInterface
      * @var string
      */
     private $engineVersion;
-
-    /**
-     * Sets length of the column.
-     * @param string|int $value
-     */
-    abstract public function setLength($value): void;
-
-    /**
-     * Returns length of the column.
-     * @return int|string|null
-     */
-    abstract public function getLength();
 
     /**
      * @return string

@@ -9,7 +9,7 @@ use function implode;
 use function sprintf;
 use function str_repeat;
 
-class Index
+class OldIndex
 {
     /**
      * @var string

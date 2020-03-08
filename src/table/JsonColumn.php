@@ -9,42 +9,34 @@ use yii\helpers\Json;
 
 use function is_array;
 
-class JsonColumn extends Column
+class JsonColumn extends Column implements ColumnInterface
 {
-    /**
-     * Checks if default value is JSONed array. If so it's decoded.
-     */
-    public function init(): void
+    public function __construct()
     {
-        parent::init();
-
-        if ($this->default !== '' && $this->default !== null && !is_array($this->default)) {
+        $default = $this->getDefault();
+        if ($default !== '' && $default !== null && !is_array($default)) {
             try {
-                $default = Json::decode($this->default);
+                $default = Json::decode($default);
 
                 if (is_array($default)) {
-                    $this->default = $default;
+                    $this->setDefault($default);
                 }
             } catch (InvalidArgumentException $exception) {
             }
         }
     }
 
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
-    {
-        $this->definition[] = 'json()';
-    }
-
-    public function setLength($value): void
-    {
-    }
-
-    public function getLength()
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
         return null;
+    }
+
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    {
+    }
+
+    public function getDefinition(): string
+    {
+        return 'json()';
     }
 }

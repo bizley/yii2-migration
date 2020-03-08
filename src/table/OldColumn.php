@@ -20,7 +20,7 @@ use function str_replace;
 use function stripos;
 use function trim;
 
-abstract class Column extends BaseObject
+abstract class OldColumn extends BaseObject
 {
     /** @var string */
     public $name;

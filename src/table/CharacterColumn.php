@@ -4,33 +4,31 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class CharacterColumn extends Column
+class CharacterColumn extends Column implements ColumnInterface
 {
     /**
-     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
      * @return int|string
      */
-    public function getLength()
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return $this->size;
+        return $this->getSize();
     }
 
     /**
-     * Sets length of the column.
      * @param string|int $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
      */
-    public function setLength($value): void
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        $this->size = $value;
-        $this->precision = $value;
+        $this->setSize($value);
+        $this->setPrecision($value);
     }
 
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
+    public function getDefinition(): string
     {
-        $this->definition[] = 'char(' . $this->getRenderLength($table->generalSchema) . ')';
+        return 'char({renderLength})';
     }
 }

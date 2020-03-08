@@ -15,7 +15,7 @@ use function str_repeat;
 use function strpos;
 use function substr;
 
-class ForeignKey extends BaseObject
+class OldForeignKey extends BaseObject
 {
     /**
      * @var string

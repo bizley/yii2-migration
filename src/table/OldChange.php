@@ -8,7 +8,7 @@ use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
-class Change extends BaseObject
+class OldChange extends BaseObject
 {
     /** @var string */
     public $table;

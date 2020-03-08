@@ -4,40 +4,35 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use bizley\migration\SchemaEnum;
+
 use function in_array;
 
-class SmallIntegerColumn extends Column
+class SmallIntegerColumn extends Column implements ColumnInterface
 {
-    /** @var array Schemas using length for this column */
-    private $lengthSchemas = [Structure::SCHEMA_MYSQL, Structure::SCHEMA_OCI];
-
     /**
-     * Returns length of the column.
-     * @return int|string
+     * @var array Schemas using length for this column
      */
-    public function getLength()
+    private $lengthSchemas = [
+        SchemaEnum::MYSQL,
+        SchemaEnum::OCI,
+    ];
+
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return in_array($this->schema, $this->lengthSchemas, true) ? $this->size : null;
+        return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }
 
-    /**
-     * Sets length of the column.
-     * @param string|int $value
-     */
-    public function setLength($value): void
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (in_array($this->schema, $this->lengthSchemas, true)) {
-            $this->size = $value;
-            $this->precision = $value;
+        if (in_array($schema, $this->lengthSchemas, true)) {
+            $this->setSize($value);
+            $this->setPrecision($value);
         }
     }
 
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
+    public function getDefinition(): string
     {
-        $this->definition[] = 'smallInteger(' . $this->getRenderLength($table->generalSchema) . ')';
+        return 'smallInteger({renderLength})';
     }
 }

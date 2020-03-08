@@ -39,4 +39,10 @@ interface ColumnInterface
     public function isUnsigned(): bool;
 
     public function isUnique(): bool;
+
+    public function getLength(string $schema = null, string $engineVersion = null);
+
+    public function setLength($value, string $schema = null, string $engineVersion = null): void;
+
+    public function getDefinition(): string;
 }

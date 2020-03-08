@@ -6,17 +6,8 @@ namespace bizley\migration\table;
 
 class UnsignedPrimaryKeyColumn extends PrimaryKeyColumn
 {
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
+    public function __construct()
     {
-        parent::buildSpecificDefinition($table);
-
-        if ($table->generalSchema) {
-            $this->definition[] = 'unsigned()';
-            $this->isUnsignedPossible = false;
-        }
+        $this->setIsUnsigned(true);
     }
 }

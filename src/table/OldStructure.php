@@ -14,7 +14,7 @@ use function sprintf;
 use function strpos;
 use function substr;
 
-class Structure extends BaseObject
+class OldStructure extends BaseObject
 {
     public const SCHEMA_MSSQL = 'mssql';
     public const SCHEMA_OCI = 'oci';

@@ -4,61 +4,61 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use bizley\migration\SchemaEnum;
+
 use function in_array;
 use function is_array;
 use function preg_split;
 
-class DecimalColumn extends Column
+class DecimalColumn extends Column implements ColumnInterface
 {
-    /** @var array Schemas using length for this column */
+    /**
+     * @var array Schemas using length for this column
+     */
     private $lengthSchemas = [
-        Structure::SCHEMA_MYSQL,
-        Structure::SCHEMA_CUBRID,
-        Structure::SCHEMA_PGSQL,
-        Structure::SCHEMA_SQLITE,
-        Structure::SCHEMA_MSSQL,
+        SchemaEnum::MYSQL,
+        SchemaEnum::CUBRID,
+        SchemaEnum::PGSQL,
+        SchemaEnum::SQLITE,
+        SchemaEnum::MSSQL,
     ];
 
     /**
-     * Returns length of the column.
-     * @return int|string
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return string|null
      */
-    public function getLength()
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return in_array($this->schema, $this->lengthSchemas, true)
-            ? ($this->precision . ($this->scale !== null ? ', ' . $this->scale : null))
-            : null;
+        if (in_array($schema, $this->lengthSchemas, true) === false) {
+            return null;
+        }
+
+        $scale = $this->getScale();
+        return $this->getPrecision() . ($scale !== null ? ', ' . $scale : null);
     }
 
-    /**
-     * Sets length of the column.
-     * @param array|string|int $value
-     */
-    public function setLength($value): void
+    public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (in_array($this->schema, $this->lengthSchemas, true)) {
+        if (in_array($schema, $this->lengthSchemas, true)) {
             $length = is_array($value) ? $value : preg_split('/\s*,\s*/', (string)$value);
 
             if (isset($length[0]) && !empty($length[0])) {
-                $this->precision = $length[0];
+                $this->setPrecision((int)$length[0]);
             } else {
-                $this->precision = 0;
+                $this->setPrecision(0);
             }
 
             if (isset($length[1]) && !empty($length[1])) {
-                $this->scale = $length[1];
+                $this->setScale((int)$length[1]);
             } else {
-                $this->scale = 0;
+                $this->setScale(0);
             }
         }
     }
 
-    /**
-     * Builds methods chain for column definition.
-     * @param Structure $table
-     */
-    protected function buildSpecificDefinition(Structure $table): void
+    public function getDefinition(): string
     {
-        $this->definition[] = 'decimal(' . $this->getRenderLength($table->generalSchema) . ')';
+        return 'decimal({renderLength})';
     }
 }
