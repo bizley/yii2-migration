@@ -187,7 +187,7 @@ class StructureBuilder
             && count($indexColumns) === 1
             && array_key_exists($indexColumns[0], $this->structure->getColumns())
         ) {
-            $this->structure->getColumn($indexColumns[0])->setIsUnique(true);
+            $this->structure->getColumn($indexColumns[0])->setUnique(true);
         }
     }
 
@@ -202,7 +202,7 @@ class StructureBuilder
                 && array_key_exists($indexColumns[0], $this->structure->getColumns())
                 && $this->structure->getColumn($indexColumns[0])->isUnique()
             ) {
-                $this->structure->getColumn($indexColumns[0])->setIsUnique(false);
+                $this->structure->getColumn($indexColumns[0])->setUnique(false);
             }
 
             $this->structure->removeIndex($name);

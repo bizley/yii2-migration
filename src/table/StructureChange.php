@@ -73,7 +73,7 @@ class StructureChange
 
     /**
      * Returns change value.
-     * @return array|string|Column|PrimaryKey|ForeignKey|Index
+     * @return array|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface
      * @throws InvalidConfigException
      */
     public function getValue()
