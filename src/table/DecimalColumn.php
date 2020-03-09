@@ -46,13 +46,13 @@ class DecimalColumn extends Column implements ColumnInterface
             if (isset($length[0]) && !empty($length[0])) {
                 $this->setPrecision((int)$length[0]);
             } else {
-                $this->setPrecision(0);
+                $this->setPrecision(null);
             }
 
             if (isset($length[1]) && !empty($length[1])) {
                 $this->setScale((int)$length[1]);
             } else {
-                $this->setScale(0);
+                $this->setScale(null);
             }
         }
     }
