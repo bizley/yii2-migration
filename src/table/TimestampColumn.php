@@ -19,13 +19,13 @@ class TimestampColumn extends Column implements ColumnInterface
      */
     private $lengthSchemas = [SchemaEnum::PGSQL];
 
-    public function __construct()
+    public function setDefault($default): void
     {
-        $default = $this->getDefault();
         if (is_string($default) && preg_match('/^current_timestamp\([0-9]*\)$/i', $default)) {
             // https://github.com/yiisoft/yii2/issues/17744
-            $this->setDefault(new Expression($default));
+            $default = new Expression($default);
         }
+        parent::setDefault($default);
     }
 
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
