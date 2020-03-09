@@ -11,19 +11,19 @@ use function is_array;
 
 class JsonColumn extends Column implements ColumnInterface
 {
-    public function __construct()
+    public function setDefault($default): void
     {
-        $default = $this->getDefault();
         if ($default !== '' && $default !== null && !is_array($default)) {
             try {
-                $default = Json::decode($default);
-
-                if (is_array($default)) {
-                    $this->setDefault($default);
+                $defaultArray = Json::decode($default);
+                if (is_array($defaultArray)) {
+                    parent::setDefault($defaultArray);
+                    return;
                 }
             } catch (InvalidArgumentException $exception) {
             }
         }
+        parent::setDefault($default);
     }
 
     public function getLength(string $schema = null, string $engineVersion = null)
