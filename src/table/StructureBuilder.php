@@ -17,9 +17,15 @@ class StructureBuilder
      */
     private $structure;
 
-    public function __construct(StructureInterface $structure)
+    /**
+     * @var string
+     */
+    private $schema;
+
+    public function __construct(StructureInterface $structure, string $schema)
     {
         $this->structure = $structure;
+        $this->schema = $schema;
     }
 
     /**
@@ -100,7 +106,7 @@ class StructureBuilder
     {
         $this->structure->addColumn($column);
 
-        if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended()) {
+        if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended($this->schema)) {
             $primaryKey = $this->structure->getPrimaryKey();
             if ($primaryKey === null) {
                 $primaryKey = new PrimaryKey();
@@ -140,9 +146,9 @@ class StructureBuilder
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
-                    $column->setAppend($column->prepareSchemaAppend(true, false));
-                } elseif ($column->isPrimaryKeyInfoAppended() === false) {
-                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend(true, false));
+                    $column->setAppend($column->prepareSchemaAppend($this->schema, true, false));
+                } elseif ($column->isPrimaryKeyInfoAppended($this->schema) === false) {
+                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend($this->schema, true, false));
                 }
             }
         }
@@ -159,7 +165,7 @@ class StructureBuilder
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (array_key_exists($column, $columns) && !empty($columnAppend)) {
-                    $column->setAppend($column->removeAppendedPrimaryKeyInfo());
+                    $column->setAppend($column->removeAppendedPrimaryKeyInfo($this->schema));
                 }
             }
         }
