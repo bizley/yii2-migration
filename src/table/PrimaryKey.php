@@ -35,7 +35,7 @@ class PrimaryKey implements PrimaryKeyInterface
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->name ?? self::GENERIC_PRIMARY_KEY;
     }
 
     /**

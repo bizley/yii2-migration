@@ -9,4 +9,6 @@ interface PrimaryKeyInterface
     public function getName(): string;
 
     public function getColumns(): array;
+
+    public function isComposite(): bool;
 }

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\table\ForeignKeyInterface;
+use bizley\migration\table\IndexInterface;
 use bizley\migration\table\StructureInterface;
 
+use function count;
 use function explode;
 use function implode;
 use function mb_strlen;
@@ -49,18 +52,50 @@ $this->createTable(
 );
 TEMPLATE;
 
-    public function __construct(StructureInterface $structure)
-    {
-        $this->structure = $structure;
+    /**
+     * @var ColumnRenderer
+     */
+    private $columnRenderer;
+
+    /**
+     * @var PrimaryKeyRenderer
+     */
+    private $primaryKeyRenderer;
+
+    /**
+     * @var IndexRenderer
+     */
+    private $indexRenderer;
+
+    /**
+     * @var ForeignKeyRenderer
+     */
+    private $foreignKeyRenderer;
+
+    public function __construct(
+        ColumnRenderer $columnRenderer,
+        PrimaryKeyRenderer $primaryKeyRenderer,
+        IndexRenderer $indexRenderer,
+        ForeignKeyRenderer $foreignKeyRenderer
+    ) {
+        $this->columnRenderer = $columnRenderer;
+        $this->primaryKeyRenderer = $primaryKeyRenderer;
+        $this->indexRenderer = $indexRenderer;
+        $this->foreignKeyRenderer = $foreignKeyRenderer;
     }
 
     /**
      * Renders table name.
-     * @return string
+     * @return string|null
      */
-    public function renderName(): string
+    public function renderName(): ?string
     {
-        $tableName = $this->structure->getName();
+        $structure = $this->getStructure();
+        if ($structure === null) {
+            return null;
+        }
+
+        $tableName = $structure->getName();
 
         if ($this->isUsePrefix() === false) {
             return $tableName;
@@ -105,17 +140,22 @@ TEMPLATE;
     /**
      * Renders the table.
      * @param int $indent
-     * @return string
+     * @return string|null
      */
-    public function renderTable(int $indent = 0): string
+    public function renderTable(int $indent = 0): ?string
     {
+        $structure = $this->getStructure();
+        if ($structure === null) {
+            return null;
+        }
+
         $template = $this->applyIndent($indent, $this->getCreateTableTemplate());
 
-        $columns = $this->structure->getColumns();
+        $columns = $structure->getColumns();
         $renderedColumns = [];
         foreach ($columns as $column) {
-            $columnRenderer = new ColumnRenderer($column);
-            $renderedColumns[] = $columnRenderer->render($indent + 8);
+            $this->columnRenderer->setColumn($column);
+            $renderedColumns[] = $this->columnRenderer->render($indent + 8);
         }
 
         return str_replace(
@@ -125,22 +165,59 @@ TEMPLATE;
         );
     }
 
-    public function renderPrimaryKey(int $indent = 0): string
+    public function renderPrimaryKey(int $indent = 0): ?string
     {
-        $primaryKeyRenderer = new PrimaryKeyRenderer($this->structure->getPrimaryKey());
-        return $primaryKeyRenderer->render($indent);
-    }
-
-    public function renderIndexes(int $indent = 0): string
-    {
-        $indexes = $this->structure->getIndexes();
-        $renderedIndexes = [];
-        foreach ($indexes as $index) {
-            $indexRenderer = new IndexRenderer($index);
-            $renderedIndexes[] = $indexRenderer->render($indent);
+        $structure = $this->getStructure();
+        if ($structure === null) {
+            return null;
         }
 
-        return implode("\n", $renderedIndexes);
+        $this->primaryKeyRenderer->setPrimaryKey($structure->getPrimaryKey());
+        return $this->primaryKeyRenderer->render($this->renderName(), $indent);
+    }
+
+    public function renderIndexes(int $indent = 0): ?string
+    {
+        $structure = $this->getStructure();
+        if ($structure === null) {
+            return null;
+        }
+
+        $indexes = $structure->getIndexes();
+        $foreignKeys = $structure->getForeignKeys();
+
+        $renderedIndexes = [];
+        /** @var IndexInterface $index */
+        foreach ($indexes as $index) {
+            /** @var ForeignKeyInterface $foreignKey */
+            foreach ($foreignKeys as $foreignKey) {
+                if ($foreignKey->getName() === $index->getName()) {
+                    continue 2;
+                }
+            }
+
+            $this->indexRenderer->setIndex($index);
+            $renderedIndexes[] = $this->indexRenderer->render($this->renderName(), $indent);
+        }
+
+        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
+    }
+
+    public function renderForeignKeys(int $indent = 0): ?string
+    {
+        $structure = $this->getStructure();
+        if ($structure === null) {
+            return null;
+        }
+
+        $foreignKeys = $structure->getForeignKeys();
+        $renderedForeignKeys = [];
+        foreach ($foreignKeys as $foreignKey) {
+            $this->foreignKeyRenderer->setForeignKey($foreignKey);
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->render($indent);
+        }
+
+        return implode("\n", $renderedForeignKeys);
     }
 
     /**
@@ -189,5 +266,21 @@ TEMPLATE;
     public function setCreateTableTemplate(?string $createTableTemplate): void
     {
         $this->createTableTemplate = $createTableTemplate;
+    }
+
+    /**
+     * @return StructureInterface
+     */
+    public function getStructure(): StructureInterface
+    {
+        return $this->structure;
+    }
+
+    /**
+     * @param StructureInterface $structure
+     */
+    public function setStructure(StructureInterface $structure): void
+    {
+        $this->structure = $structure;
     }
 }

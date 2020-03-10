@@ -13,13 +13,24 @@ class ColumnRenderer
      */
     private $column;
 
-    public function __construct(ColumnInterface $column)
-    {
-        $this->column = $column;
-    }
-
     public function render(int $indent = 0): string
     {
 
+    }
+
+    /**
+     * @return ColumnInterface
+     */
+    public function getColumn(): ColumnInterface
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param ColumnInterface $column
+     */
+    public function setColumn(ColumnInterface $column): void
+    {
+        $this->column = $column;
     }
 }
