@@ -86,17 +86,11 @@ TEMPLATE;
 
     /**
      * Renders table name.
+     * @param string|null $tableName
      * @return string|null
      */
-    public function renderName(): ?string
+    public function renderName(?string $tableName): ?string
     {
-        $structure = $this->getStructure();
-        if ($structure === null) {
-            return null;
-        }
-
-        $tableName = $structure->getName();
-
         if ($this->isUsePrefix() === false) {
             return $tableName;
         }
@@ -160,7 +154,7 @@ TEMPLATE;
 
         return str_replace(
             ['{tableName}', '{columns}'],
-            [$this->renderName(), implode("\n", $renderedColumns)],
+            [$this->renderName($structure->getName()), implode("\n", $renderedColumns)],
             $template
         );
     }
@@ -173,7 +167,7 @@ TEMPLATE;
         }
 
         $this->primaryKeyRenderer->setPrimaryKey($structure->getPrimaryKey());
-        return $this->primaryKeyRenderer->render($this->renderName(), $indent);
+        return $this->primaryKeyRenderer->render($this->renderName($structure->getName()), $indent);
     }
 
     public function renderIndexes(int $indent = 0): ?string
@@ -197,7 +191,7 @@ TEMPLATE;
             }
 
             $this->indexRenderer->setIndex($index);
-            $renderedIndexes[] = $this->indexRenderer->render($this->renderName(), $indent);
+            $renderedIndexes[] = $this->indexRenderer->render($this->renderName($structure->getName()), $indent);
         }
 
         return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
@@ -212,12 +206,17 @@ TEMPLATE;
 
         $foreignKeys = $structure->getForeignKeys();
         $renderedForeignKeys = [];
+        /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $this->foreignKeyRenderer->setForeignKey($foreignKey);
-            $renderedForeignKeys[] = $this->foreignKeyRenderer->render($indent);
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->render(
+                $this->renderName($structure->getName()),
+                $this->renderName($foreignKey->getReferencedTable()),
+                $indent
+            );
         }
 
-        return implode("\n", $renderedForeignKeys);
+        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
 
     /**
