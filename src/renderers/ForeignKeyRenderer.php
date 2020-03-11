@@ -8,7 +8,7 @@ use bizley\migration\table\ForeignKeyInterface;
 
 use function is_numeric;
 
-class ForeignKeyRenderer
+class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
     /**
      * @var ForeignKeyInterface

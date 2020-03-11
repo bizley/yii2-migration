@@ -17,7 +17,7 @@ use function str_replace;
 use function strpos;
 use function substr;
 
-class StructureRenderer
+class StructureRenderer implements StructureRendererInterface
 {
     /**
      * @var StructureInterface
@@ -53,30 +53,30 @@ $this->createTable(
 TEMPLATE;
 
     /**
-     * @var ColumnRenderer
+     * @var ColumnRendererInterface
      */
     private $columnRenderer;
 
     /**
-     * @var PrimaryKeyRenderer
+     * @var PrimaryKeyRendererInterface
      */
     private $primaryKeyRenderer;
 
     /**
-     * @var IndexRenderer
+     * @var IndexRendererInterface
      */
     private $indexRenderer;
 
     /**
-     * @var ForeignKeyRenderer
+     * @var ForeignKeyRendererInterface
      */
     private $foreignKeyRenderer;
 
     public function __construct(
-        ColumnRenderer $columnRenderer,
-        PrimaryKeyRenderer $primaryKeyRenderer,
-        IndexRenderer $indexRenderer,
-        ForeignKeyRenderer $foreignKeyRenderer
+        ColumnRendererInterface $columnRenderer,
+        PrimaryKeyRendererInterface $primaryKeyRenderer,
+        IndexRendererInterface $indexRenderer,
+        ForeignKeyRendererInterface $foreignKeyRenderer
     ) {
         $this->columnRenderer = $columnRenderer;
         $this->primaryKeyRenderer = $primaryKeyRenderer;

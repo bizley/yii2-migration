@@ -6,7 +6,7 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\table\ColumnInterface;
 
-class ColumnRenderer
+class ColumnRenderer implements ColumnRendererInterface
 {
     /**
      * @var ColumnInterface
