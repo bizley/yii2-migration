@@ -37,27 +37,26 @@ TEMPLATE;
 
     public function render(string $tableName, string $referencedTableName, int $indent = 0): ?string
     {
-        $foreignKey = $this->getForeignKey();
-        if ($foreignKey === null) {
+        if ($this->foreignKey === null) {
             return null;
         }
 
-        $template = str_repeat(' ', $indent) . $this->getTemplate();
+        $template = str_repeat(' ', $indent) . $this->template;
 
-        $keyColumns = $foreignKey->getColumns();
+        $keyColumns = $this->foreignKey->getColumns();
         $renderedKeyColumns = [];
         foreach ($keyColumns as $keyColumn) {
             $renderedKeyColumns[] = "'$keyColumn'";
         }
 
-        $referencedColumns = $foreignKey->getReferencedColumns();
+        $referencedColumns = $this->foreignKey->getReferencedColumns();
         $renderedReferencedColumns = [];
         foreach ($referencedColumns as $referencedColumn) {
             $renderedReferencedColumns[] = "'$referencedColumn'";
         }
 
-        $onDelete = $foreignKey->getOnDelete();
-        $onUpdate = $foreignKey->getOnUpdate();
+        $onDelete = $this->foreignKey->getOnDelete();
+        $onUpdate = $this->foreignKey->getOnUpdate();
 
         return str_replace(
             [
@@ -70,7 +69,7 @@ TEMPLATE;
                 '{onUpdate}',
             ],
             [
-                $this->renderName($foreignKey, $tableName),
+                $this->renderName($tableName),
                 $tableName,
                 implode(', ', $renderedKeyColumns),
                 $referencedTableName,
@@ -84,33 +83,22 @@ TEMPLATE;
 
     /**
      * Renders key name.
-     * @param ForeignKeyInterface $foreignKey
      * @param string $table
      * @return string
      */
-    public function renderName(ForeignKeyInterface $foreignKey, string $table): string
+    private function renderName(string $table): string
     {
-        $name = $foreignKey->getName();
+        $name = $this->foreignKey->getName();
 
         if ($name !== null && is_numeric($name) === false) {
             return $name;
         }
 
-        $template = $this->getKeyNameTemplate();
-
         return str_replace(
             ['{tableName}', '{keyColumns}'],
-            [$table, implode('-', $foreignKey->getColumns())],
-            $template
+            [$table, implode('-', $this->foreignKey->getColumns())],
+            $this->keyNameTemplate
         );
-    }
-
-    /**
-     * @return ForeignKeyInterface
-     */
-    public function getForeignKey(): ForeignKeyInterface
-    {
-        return $this->foreignKey;
     }
 
     /**
@@ -122,27 +110,11 @@ TEMPLATE;
     }
 
     /**
-     * @return string
-     */
-    public function getTemplate(): string
-    {
-        return $this->template;
-    }
-
-    /**
      * @param string $template
      */
     public function setTemplate(string $template): void
     {
         $this->template = $template;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKeyNameTemplate(): string
-    {
-        return $this->keyNameTemplate;
     }
 
     /**

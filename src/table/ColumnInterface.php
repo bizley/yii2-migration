@@ -24,7 +24,7 @@ interface ColumnInterface
 
     public function setComment(?string $comment): void;
 
-    public function getComment(): string;
+    public function getComment(): ?string;
 
     public function getSize(): ?int;
 
@@ -45,4 +45,14 @@ interface ColumnInterface
     public function setLength($value, string $schema = null, string $engineVersion = null): void;
 
     public function getDefinition(): string;
+
+    public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool;
+
+    public function getAfter(): ?string;
+
+    public function isFirst(): bool;
+
+    public function isAutoIncrement(): bool;
+
+    public function getDefaultMapping(): ?string;
 }

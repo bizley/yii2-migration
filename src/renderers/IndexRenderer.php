@@ -24,32 +24,33 @@ class IndexRenderer implements IndexRendererInterface
 
     public function render(string $tableName, int $indent = 0): ?string
     {
-        $index = $this->getIndex();
-        if ($index === null) {
+        if ($this->index === null) {
             return null;
         }
 
-        $template = str_repeat(' ', $indent) . $this->getTemplate();
+        $template = str_repeat(' ', $indent) . $this->template;
 
-        $indexColumns = $index->getColumns();
+        $indexColumns = $this->index->getColumns();
         $renderedColumns = [];
         foreach ($indexColumns as $indexColumn) {
             $renderedColumns[] = "'$indexColumn'";
         }
 
         return str_replace(
-            ['{indexName}', '{tableName}', '{indexColumns}', '{unique}'],
-            [$index->getName(), $tableName, implode(', ', $renderedColumns), $index->isUnique() ? ', true' : ''],
+            [
+                '{indexName}',
+                '{tableName}',
+                '{indexColumns}',
+                '{unique}',
+            ],
+            [
+                $this->index->getName(),
+                $tableName,
+                implode(', ', $renderedColumns),
+                $this->index->isUnique() ? ', true' : '',
+            ],
             $template
         );
-    }
-
-    /**
-     * @return IndexInterface
-     */
-    public function getIndex(): IndexInterface
-    {
-        return $this->index;
     }
 
     /**
@@ -58,14 +59,6 @@ class IndexRenderer implements IndexRendererInterface
     public function setIndex(IndexInterface $index): void
     {
         $this->index = $index;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate(): string
-    {
-        return $this->template;
     }
 
     /**

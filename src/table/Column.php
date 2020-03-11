@@ -129,9 +129,9 @@ abstract class Column
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDefaultMapping(): string
+    public function getDefaultMapping(): ?string
     {
         return $this->defaultMapping;
     }
@@ -317,9 +317,9 @@ abstract class Column
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getComment(): string
+    public function getComment(): ?string
     {
         return $this->comment;
     }
@@ -333,9 +333,9 @@ abstract class Column
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAfter(): string
+    public function getAfter(): ?string
     {
         return $this->after;
     }

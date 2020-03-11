@@ -37,7 +37,7 @@ class StructureRenderer implements StructureRendererInterface
     /**
      * @var string|null
      */
-    private $createTableTemplate = <<<'TEMPLATE'
+    private $template = <<<'TEMPLATE'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -91,11 +91,11 @@ TEMPLATE;
      */
     public function renderName(?string $tableName): ?string
     {
-        if ($this->isUsePrefix() === false) {
+        if ($this->usePrefix === false) {
             return $tableName;
         }
 
-        $dbPrefix = $this->getDbPrefix();
+        $dbPrefix = $this->dbPrefix;
         if ($dbPrefix !== null && strpos($tableName, $dbPrefix) === 0) {
             $tableName = substr($tableName, mb_strlen($dbPrefix, 'UTF-8'));
         }
@@ -105,21 +105,23 @@ TEMPLATE;
 
     /**
      * Renders the migration structure.
+     * @param string $schema
+     * @param bool $generalSchema
      * @param int $indent
      * @return string
      */
-    public function render(int $indent = 0): string
+    public function render(string $schema, bool $generalSchema, int $indent = 0): string
     {
-        return $this->renderTable($indent)
+        return $this->renderTable($schema, $generalSchema, $indent)
             . $this->renderPrimaryKey($indent)
             . $this->renderIndexes($indent)
             . $this->renderForeignKeys($indent)
             . "\n";
     }
 
-    private function applyIndent(int $indent, string $template): string
+    private function applyIndent(int $indent, ?string $template): ?string
     {
-        if ($indent < 1) {
+        if ($indent < 1 || $template === null) {
             return $template;
         }
 
@@ -133,52 +135,56 @@ TEMPLATE;
 
     /**
      * Renders the table.
+     * @param string $schema
+     * @param bool $generalSchema
+     * @param string|null $engineVersion
      * @param int $indent
      * @return string|null
      */
-    public function renderTable(int $indent = 0): ?string
-    {
-        $structure = $this->getStructure();
-        if ($structure === null) {
+    public function renderTable(
+        string $schema,
+        bool $generalSchema,
+        string $engineVersion = null,
+        int $indent = 0
+    ): ?string {
+        if ($this->structure === null) {
             return null;
         }
 
-        $template = $this->applyIndent($indent, $this->getCreateTableTemplate());
+        $template = $this->applyIndent($indent, $this->template);
 
-        $columns = $structure->getColumns();
+        $columns = $this->structure->getColumns();
         $renderedColumns = [];
         foreach ($columns as $column) {
             $this->columnRenderer->setColumn($column);
-            $renderedColumns[] = $this->columnRenderer->render($indent + 8);
+            $renderedColumns[] = $this->columnRenderer->render($schema, $generalSchema, $engineVersion, $indent + 8);
         }
 
         return str_replace(
             ['{tableName}', '{columns}'],
-            [$this->renderName($structure->getName()), implode("\n", $renderedColumns)],
+            [$this->renderName($this->structure->getName()), implode("\n", $renderedColumns)],
             $template
         );
     }
 
     public function renderPrimaryKey(int $indent = 0): ?string
     {
-        $structure = $this->getStructure();
-        if ($structure === null) {
+        if ($this->structure === null) {
             return null;
         }
 
-        $this->primaryKeyRenderer->setPrimaryKey($structure->getPrimaryKey());
-        return $this->primaryKeyRenderer->render($this->renderName($structure->getName()), $indent);
+        $this->primaryKeyRenderer->setPrimaryKey($this->structure->getPrimaryKey());
+        return $this->primaryKeyRenderer->render($this->renderName($this->structure->getName()), $indent);
     }
 
     public function renderIndexes(int $indent = 0): ?string
     {
-        $structure = $this->getStructure();
-        if ($structure === null) {
+        if ($this->structure === null) {
             return null;
         }
 
-        $indexes = $structure->getIndexes();
-        $foreignKeys = $structure->getForeignKeys();
+        $indexes = $this->structure->getIndexes();
+        $foreignKeys = $this->structure->getForeignKeys();
 
         $renderedIndexes = [];
         /** @var IndexInterface $index */
@@ -191,7 +197,7 @@ TEMPLATE;
             }
 
             $this->indexRenderer->setIndex($index);
-            $renderedIndexes[] = $this->indexRenderer->render($this->renderName($structure->getName()), $indent);
+            $renderedIndexes[] = $this->indexRenderer->render($this->renderName($this->structure->getName()), $indent);
         }
 
         return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
@@ -199,32 +205,23 @@ TEMPLATE;
 
     public function renderForeignKeys(int $indent = 0): ?string
     {
-        $structure = $this->getStructure();
-        if ($structure === null) {
+        if ($this->structure === null) {
             return null;
         }
 
-        $foreignKeys = $structure->getForeignKeys();
+        $foreignKeys = $this->structure->getForeignKeys();
         $renderedForeignKeys = [];
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $this->foreignKeyRenderer->setForeignKey($foreignKey);
             $renderedForeignKeys[] = $this->foreignKeyRenderer->render(
-                $this->renderName($structure->getName()),
+                $this->renderName($this->structure->getName()),
                 $this->renderName($foreignKey->getReferencedTable()),
                 $indent
             );
         }
 
         return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isUsePrefix(): bool
-    {
-        return $this->usePrefix;
     }
 
     /**
@@ -236,14 +233,6 @@ TEMPLATE;
     }
 
     /**
-     * @return string|null
-     */
-    public function getDbPrefix(): ?string
-    {
-        return $this->dbPrefix;
-    }
-
-    /**
      * @param string|null $dbPrefix
      */
     public function setDbPrefix(?string $dbPrefix): void
@@ -252,27 +241,11 @@ TEMPLATE;
     }
 
     /**
-     * @return string|null
+     * @param string|null $template
      */
-    public function getCreateTableTemplate(): ?string
+    public function setTemplate(?string $template): void
     {
-        return $this->createTableTemplate;
-    }
-
-    /**
-     * @param string|null $createTableTemplate
-     */
-    public function setCreateTableTemplate(?string $createTableTemplate): void
-    {
-        $this->createTableTemplate = $createTableTemplate;
-    }
-
-    /**
-     * @return StructureInterface
-     */
-    public function getStructure(): StructureInterface
-    {
-        return $this->structure;
+        $this->template = $template;
     }
 
     /**

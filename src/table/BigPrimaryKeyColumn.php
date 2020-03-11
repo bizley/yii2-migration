@@ -8,7 +8,7 @@ use bizley\migration\SchemaEnum;
 
 use function in_array;
 
-class BigPrimaryKeyColumn extends Column implements ColumnInterface
+class BigPrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
 {
     /**
      * @var array Schemas using length for this column

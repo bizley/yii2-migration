@@ -24,32 +24,31 @@ class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     public function render(string $tableName, int $indent = 0): ?string
     {
-        $primaryKey = $this->getPrimaryKey();
-        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+        if ($this->primaryKey === null || $this->primaryKey->isComposite() === false) {
             return null;
         }
 
-        $template = str_repeat(' ', $indent) . $this->getTemplate();
+        $template = str_repeat(' ', $indent) . $this->template;
 
-        $keyColumns = $primaryKey->getColumns();
+        $keyColumns = $this->primaryKey->getColumns();
         $renderedColumns = [];
         foreach ($keyColumns as $keyColumn) {
             $renderedColumns[] = "'$keyColumn'";
         }
 
         return str_replace(
-            ['{keyName}', '{tableName}', '{keyColumns}'],
-            [$primaryKey->getName(), $tableName, implode(', ', $renderedColumns)],
+            [
+                '{keyName}',
+                '{tableName}',
+                '{keyColumns}',
+            ],
+            [
+                $this->primaryKey->getName(),
+                $tableName,
+                implode(', ', $renderedColumns),
+            ],
             $template
         );
-    }
-
-    /**
-     * @return PrimaryKeyInterface
-     */
-    public function getPrimaryKey(): PrimaryKeyInterface
-    {
-        return $this->primaryKey;
     }
 
     /**
@@ -58,14 +57,6 @@ class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
     public function setPrimaryKey(PrimaryKeyInterface $primaryKey): void
     {
         $this->primaryKey = $primaryKey;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate(): string
-    {
-        return $this->template;
     }
 
     /**
