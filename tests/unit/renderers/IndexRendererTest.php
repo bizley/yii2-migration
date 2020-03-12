@@ -21,7 +21,7 @@ class IndexRendererTest extends TestCase
     /**
      * @test
      */
-    public function shouldReturnNullWhenIndex(): void
+    public function shouldReturnNullWhenNoIndex(): void
     {
         $this->assertNull($this->renderer->render('test'));
     }

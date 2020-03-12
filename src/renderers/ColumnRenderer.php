@@ -91,6 +91,7 @@ class ColumnRenderer implements ColumnRendererInterface
                 $this->isNotNullPossible = false;
             } elseif (
                 $this->column instanceof PrimaryKeyVariantColumnInterface
+                && $this->primaryKey
                 && $this->primaryKey->isComposite() === false
                 && $this->column->isColumnInPrimaryKey($this->primaryKey)
             ) {
@@ -121,20 +122,14 @@ class ColumnRenderer implements ColumnRendererInterface
             return null;
         }
 
-        if ($generalSchema === false) {
+        if ($generalSchema === false || str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
             if ($length === 'max') {
                 return '\'max\'';
             }
             return (string)$length;
         }
 
-        if (str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
-            if ($length === 'max') {
-                return '\'max\'';
-            }
-            return (string)$length;
-        }
-
+        // default value should be null to be automatically set to schema's default for column
         return null;
     }
 

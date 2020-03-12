@@ -21,7 +21,7 @@ class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnInterfac
     /**
      * @param string|null $schema
      * @param string|null $engineVersion
-     * @return int|string
+     * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
     {
