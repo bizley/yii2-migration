@@ -38,6 +38,21 @@ class PrimaryKeyRendererTest extends TestCase
         $this->assertNull($this->renderer->render('test'));
     }
 
+    /**
+     * @test
+     */
+    public function shouldRenderProperTemplate(): void
+    {
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        $primaryKey->method('getColumns')->willReturn([]);
+        $primaryKey->method('getName')->willReturn('pk');
+
+        $this->renderer->setPrimaryKey($primaryKey);
+        $this->renderer->setTemplate('new-template');
+        $this->assertSame('new-template', $this->renderer->render('test'));
+    }
+
     public function providerForRender(): array
     {
         return [

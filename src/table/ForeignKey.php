@@ -37,9 +37,9 @@ class ForeignKey implements ForeignKeyInterface
     private $onUpdate;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

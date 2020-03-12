@@ -41,7 +41,7 @@ TEMPLATE;
             return null;
         }
 
-        $template = str_repeat(' ', $indent) . $this->template;
+        $template = $this->applyIndent($indent, $this->template);
 
         $keyColumns = $this->foreignKey->getColumns();
         $renderedKeyColumns = [];
@@ -79,6 +79,20 @@ TEMPLATE;
             ],
             $template
         );
+    }
+
+    private function applyIndent(int $indent, ?string $template): ?string
+    {
+        if ($indent < 1 || $template === null) {
+            return $template;
+        }
+
+        $rows = explode("\n", $template);
+        foreach ($rows as &$row) {
+            $row = str_repeat(' ', $indent) . $row;
+        }
+
+        return implode("\n", $rows);
     }
 
     /**
