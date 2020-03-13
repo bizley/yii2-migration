@@ -89,7 +89,9 @@ TEMPLATE;
 
         $rows = explode("\n", $template);
         foreach ($rows as &$row) {
-            $row = str_repeat(' ', $indent) . $row;
+            if ($row !== '') {
+                $row = str_repeat(' ', $indent) . $row;
+            }
         }
 
         return implode("\n", $rows);

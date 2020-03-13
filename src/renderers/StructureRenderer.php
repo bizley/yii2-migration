@@ -8,16 +8,17 @@ use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\StructureInterface;
 
+use function array_filter;
 use function count;
 use function explode;
 use function implode;
 use function mb_strlen;
+use function mb_substr;
 use function str_repeat;
 use function str_replace;
 use function strpos;
-use function substr;
 
-class StructureRenderer implements StructureRendererInterface
+final class StructureRenderer implements StructureRendererInterface
 {
     /**
      * @var StructureInterface
@@ -46,7 +47,7 @@ if ($this->db->driverName === 'mysql') {
 $this->createTable(
     '{tableName}',
     [
-{columns}    
+{columns}
     ],
     $tableOptions
 );
@@ -97,7 +98,7 @@ TEMPLATE;
 
         $dbPrefix = $this->dbPrefix;
         if ($dbPrefix !== null && strpos($tableName, $dbPrefix) === 0) {
-            $tableName = substr($tableName, mb_strlen($dbPrefix, 'UTF-8'));
+            $tableName = mb_substr($tableName, mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
 
         return "{{%$tableName}}";
@@ -107,16 +108,22 @@ TEMPLATE;
      * Renders the migration structure.
      * @param string $schema
      * @param bool $generalSchema
+     * @param string|null $engineVersion
      * @param int $indent
      * @return string
      */
-    public function render(string $schema, bool $generalSchema, int $indent = 0): string
+    public function render(string $schema, bool $generalSchema, string $engineVersion = null, int $indent = 0): string
     {
-        return $this->renderTable($schema, $generalSchema, $indent)
-            . $this->renderPrimaryKey($indent)
-            . $this->renderIndexes($indent)
-            . $this->renderForeignKeys($indent)
-            . "\n";
+        $renderedStructure = array_filter(
+            [
+                $this->renderTable($schema, $generalSchema, $engineVersion, $indent),
+                $this->renderPrimaryKey($indent),
+                $this->renderIndexes($indent),
+                $this->renderForeignKeys($indent)
+            ]
+        );
+
+        return implode("\n\n", $renderedStructure);
     }
 
     private function applyIndent(int $indent, ?string $template): ?string
@@ -127,7 +134,9 @@ TEMPLATE;
 
         $rows = explode("\n", $template);
         foreach ($rows as &$row) {
-            $row = str_repeat(' ', $indent) . $row;
+            if ($row !== '') {
+                $row = str_repeat(' ', $indent) . $row;
+            }
         }
 
         return implode("\n", $rows);
