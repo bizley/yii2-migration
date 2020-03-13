@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-class SchemaEnum
+final class SchemaEnum
 {
     public const CUBRID = 'cubrid';
     public const MSSQL = 'mssql';

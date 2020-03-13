@@ -22,7 +22,7 @@ use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\TableSchema;
 
-class TableMapper implements TableMapperInterface
+final class TableMapper implements TableMapperInterface
 {
     /**
      * @var Connection

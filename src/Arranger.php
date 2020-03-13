@@ -12,7 +12,7 @@ use function array_merge_recursive;
 use function array_unique;
 use function count;
 
-class Arranger implements ArrangerInterface
+final class Arranger implements ArrangerInterface
 {
     /**
      * @var TableMapperInterface
