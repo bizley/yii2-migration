@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use bizley\migration\table\ForeignKeyData;
 use bizley\migration\table\Column;
 use bizley\migration\table\ColumnFactory;
 use bizley\migration\table\ForeignKey;
+use bizley\migration\table\ForeignKeyData;
 use bizley\migration\table\Index;
 use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\Structure;
