@@ -18,7 +18,7 @@ use function str_replace;
 use function strpos;
 use function trim;
 
-class ColumnRenderer implements ColumnRendererInterface
+final class ColumnRenderer implements ColumnRendererInterface
 {
     /**
      * @var ColumnInterface

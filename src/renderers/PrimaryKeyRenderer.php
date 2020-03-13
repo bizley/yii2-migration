@@ -10,7 +10,7 @@ use function implode;
 use function str_repeat;
 use function str_replace;
 
-class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
+final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 {
     /**
      * @var PrimaryKeyInterface

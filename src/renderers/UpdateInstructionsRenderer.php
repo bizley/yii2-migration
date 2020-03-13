@@ -2,41 +2,12 @@
 
 declare(strict_types=1);
 
-namespace bizley\migration\table;
-
-use yii\base\BaseObject;
+namespace bizley\migration\renderers;
 
 use function sprintf;
 
-class Plan extends BaseObject
+final class UpdateInstructionsRenderer
 {
-    /** @var array */
-    public $dropColumn = [];
-
-    /** @var array */
-    public $addColumn = [];
-
-    /** @var array */
-    public $alterColumn = [];
-
-    /** @var array */
-    public $dropForeignKey = [];
-
-    /** @var array */
-    public $addForeignKey = [];
-
-    /** @var string */
-    public $dropPrimaryKey;
-
-    /** @var PrimaryKey */
-    public $addPrimaryKey;
-
-    /** @var array */
-    public $dropIndex = [];
-
-    /** @var array */
-    public $createIndex = [];
-
     /**
      * Renders migration changes.
      * @param Structure $table

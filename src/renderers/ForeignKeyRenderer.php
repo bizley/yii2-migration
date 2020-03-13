@@ -6,9 +6,13 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\table\ForeignKeyInterface;
 
+use function explode;
+use function implode;
 use function is_numeric;
+use function str_repeat;
+use function str_replace;
 
-class ForeignKeyRenderer implements ForeignKeyRendererInterface
+final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
     /**
      * @var ForeignKeyInterface

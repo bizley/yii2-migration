@@ -6,7 +6,7 @@ namespace bizley\migration;
 
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\Column;
-use bizley\migration\table\Plan;
+use bizley\migration\table\UpdateInstructions;
 use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\Structure;
 use Yii;
@@ -312,16 +312,16 @@ class Updater extends Generator
         }
     }
 
-    /** @var Plan */
+    /** @var UpdateInstructions */
     private $modifications;
 
     /**
-     * @return Plan
+     * @return UpdateInstructions
      */
-    public function getPlan(): Plan
+    public function getPlan(): UpdateInstructions
     {
         if ($this->modifications === null) {
-            $this->modifications = new Plan();
+            $this->modifications = new UpdateInstructions();
         }
 
         return $this->modifications;

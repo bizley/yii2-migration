@@ -10,7 +10,7 @@ use function implode;
 use function str_repeat;
 use function str_replace;
 
-class IndexRenderer implements IndexRendererInterface
+final class IndexRenderer implements IndexRendererInterface
 {
     /**
      * @var IndexInterface
