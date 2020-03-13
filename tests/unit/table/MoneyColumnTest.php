@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 use bizley\migration\table\MoneyColumn;
 use PHPUnit\Framework\TestCase;
 
@@ -29,12 +29,12 @@ class MoneyColumnTest extends TestCase
     public function providerForGettingLengthWithoutScale(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, '1'],
-            'mssql' => [SchemaEnum::MSSQL, '1'],
-            'mysql' => [SchemaEnum::MYSQL, '1'],
-            'oci' => [SchemaEnum::OCI, '1'],
-            'pgsql' => [SchemaEnum::PGSQL, '1'],
-            'sqlite' => [SchemaEnum::SQLITE, '1'],
+            'cubrid' => [Schema::CUBRID, '1'],
+            'mssql' => [Schema::MSSQL, '1'],
+            'mysql' => [Schema::MYSQL, '1'],
+            'oci' => [Schema::OCI, '1'],
+            'pgsql' => [Schema::PGSQL, '1'],
+            'sqlite' => [Schema::SQLITE, '1'],
         ];
     }
 
@@ -53,12 +53,12 @@ class MoneyColumnTest extends TestCase
     public function providerForGettingLengthWithScale(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, '1, 1'],
-            'mssql' => [SchemaEnum::MSSQL, '1, 1'],
-            'mysql' => [SchemaEnum::MYSQL, '1, 1'],
-            'oci' => [SchemaEnum::OCI, '1, 1'],
-            'pgsql' => [SchemaEnum::PGSQL, '1, 1'],
-            'sqlite' => [SchemaEnum::SQLITE, '1, 1'],
+            'cubrid' => [Schema::CUBRID, '1, 1'],
+            'mssql' => [Schema::MSSQL, '1, 1'],
+            'mysql' => [Schema::MYSQL, '1, 1'],
+            'oci' => [Schema::OCI, '1, 1'],
+            'pgsql' => [Schema::PGSQL, '1, 1'],
+            'sqlite' => [Schema::SQLITE, '1, 1'],
         ];
     }
 
@@ -78,12 +78,12 @@ class MoneyColumnTest extends TestCase
     public function providerForSettingLengthWithoutScale(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, 1, null],
-            'mssql' => [SchemaEnum::MSSQL, 1, null],
-            'mysql' => [SchemaEnum::MYSQL, 1, null],
-            'oci' => [SchemaEnum::OCI, 1, null],
-            'pgsql' => [SchemaEnum::PGSQL, 1, null],
-            'sqlite' => [SchemaEnum::SQLITE, 1, null],
+            'cubrid' => [Schema::CUBRID, 1, null],
+            'mssql' => [Schema::MSSQL, 1, null],
+            'mysql' => [Schema::MYSQL, 1, null],
+            'oci' => [Schema::OCI, 1, null],
+            'pgsql' => [Schema::PGSQL, 1, null],
+            'sqlite' => [Schema::SQLITE, 1, null],
         ];
     }
 
@@ -124,12 +124,12 @@ class MoneyColumnTest extends TestCase
     public function providerForSettingLengthWithScale(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, 1, 1],
-            'mssql' => [SchemaEnum::MSSQL, 1, 1],
-            'mysql' => [SchemaEnum::MYSQL, 1, 1],
-            'oci' => [SchemaEnum::OCI, 1, 1],
-            'pgsql' => [SchemaEnum::PGSQL, 1, 1],
-            'sqlite' => [SchemaEnum::SQLITE, 1, 1],
+            'cubrid' => [Schema::CUBRID, 1, 1],
+            'mssql' => [Schema::MSSQL, 1, 1],
+            'mysql' => [Schema::MYSQL, 1, 1],
+            'oci' => [Schema::OCI, 1, 1],
+            'pgsql' => [Schema::PGSQL, 1, 1],
+            'sqlite' => [Schema::SQLITE, 1, 1],
         ];
     }
 

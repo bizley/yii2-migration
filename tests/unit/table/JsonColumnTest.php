@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 use bizley\migration\table\JsonColumn;
 use PHPUnit\Framework\TestCase;
 
@@ -54,12 +54,12 @@ class JsonColumnTest extends TestCase
     public function providerForGettingLength(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, null],
-            'mssql' => [SchemaEnum::MSSQL, null],
-            'mysql' => [SchemaEnum::MYSQL, null],
-            'oci' => [SchemaEnum::OCI, null],
-            'pgsql' => [SchemaEnum::PGSQL, null],
-            'sqlite' => [SchemaEnum::SQLITE, null],
+            'cubrid' => [Schema::CUBRID, null],
+            'mssql' => [Schema::MSSQL, null],
+            'mysql' => [Schema::MYSQL, null],
+            'oci' => [Schema::OCI, null],
+            'pgsql' => [Schema::PGSQL, null],
+            'sqlite' => [Schema::SQLITE, null],
         ];
     }
 
@@ -77,12 +77,12 @@ class JsonColumnTest extends TestCase
     public function providerForSettingLength(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, null],
-            'mssql' => [SchemaEnum::MSSQL, null],
-            'mysql' => [SchemaEnum::MYSQL, null],
-            'oci' => [SchemaEnum::OCI, null],
-            'pgsql' => [SchemaEnum::PGSQL, null],
-            'sqlite' => [SchemaEnum::SQLITE, null],
+            'cubrid' => [Schema::CUBRID, null],
+            'mssql' => [Schema::MSSQL, null],
+            'mysql' => [Schema::MYSQL, null],
+            'oci' => [Schema::OCI, null],
+            'pgsql' => [Schema::PGSQL, null],
+            'sqlite' => [Schema::SQLITE, null],
         ];
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyColumn;
 use PHPUnit\Framework\TestCase;
 
@@ -29,12 +29,12 @@ class PrimaryKeyColumnTest extends TestCase
     public function providerForGettingLength(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, null],
-            'mssql' => [SchemaEnum::MSSQL, null],
-            'mysql' => [SchemaEnum::MYSQL, 1],
-            'oci' => [SchemaEnum::OCI, 1],
-            'pgsql' => [SchemaEnum::PGSQL, null],
-            'sqlite' => [SchemaEnum::SQLITE, null],
+            'cubrid' => [Schema::CUBRID, null],
+            'mssql' => [Schema::MSSQL, null],
+            'mysql' => [Schema::MYSQL, 1],
+            'oci' => [Schema::OCI, 1],
+            'pgsql' => [Schema::PGSQL, null],
+            'sqlite' => [Schema::SQLITE, null],
         ];
     }
 
@@ -53,12 +53,12 @@ class PrimaryKeyColumnTest extends TestCase
     public function providerForSettingLength(): array
     {
         return [
-            'cubrid' => [SchemaEnum::CUBRID, null, null],
-            'mssql' => [SchemaEnum::MSSQL, null, null],
-            'mysql' => [SchemaEnum::MYSQL, 1, 1],
-            'oci' => [SchemaEnum::OCI, 1, 1],
-            'pgsql' => [SchemaEnum::PGSQL, null, null],
-            'sqlite' => [SchemaEnum::SQLITE, null, null],
+            'cubrid' => [Schema::CUBRID, null, null],
+            'mssql' => [Schema::MSSQL, null, null],
+            'mysql' => [Schema::MYSQL, 1, 1],
+            'oci' => [Schema::OCI, 1, 1],
+            'pgsql' => [Schema::PGSQL, null, null],
+            'sqlite' => [Schema::SQLITE, null, null],
         ];
     }
 

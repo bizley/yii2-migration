@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 
 use function in_array;
 
@@ -14,8 +14,8 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
      * @var array Schemas using length for this column
      */
     private $lengthSchemas = [
-        SchemaEnum::MYSQL,
-        SchemaEnum::OCI,
+        Schema::MYSQL,
+        Schema::OCI,
     ];
 
     /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 
 use function in_array;
 use function preg_match;
@@ -387,7 +387,7 @@ abstract class Column
         }
 
         if (stripos($append, 'PRIMARY KEY') !== false) {
-            return !($schema === SchemaEnum::MSSQL && stripos($append, 'IDENTITY') === false);
+            return !($schema === Schema::MSSQL && stripos($append, 'IDENTITY') === false);
         }
 
         return false;
@@ -403,21 +403,21 @@ abstract class Column
     public function prepareSchemaAppend(string $schema, bool $primaryKey, bool $autoIncrement): ?string
     {
         switch ($schema) {
-            case SchemaEnum::MSSQL:
+            case Schema::MSSQL:
                 $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
                 break;
 
-            case SchemaEnum::OCI:
-            case SchemaEnum::PGSQL:
+            case Schema::OCI:
+            case Schema::PGSQL:
                 $append = $primaryKey ? 'PRIMARY KEY' : '';
                 break;
 
-            case SchemaEnum::SQLITE:
+            case Schema::SQLITE:
                 $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
                 break;
 
-            case SchemaEnum::CUBRID:
-            case SchemaEnum::MYSQL:
+            case Schema::CUBRID:
+            case Schema::MYSQL:
             default:
                 $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
@@ -447,21 +447,21 @@ abstract class Column
         }
 
         switch ($schema) {
-            case SchemaEnum::MSSQL:
+            case Schema::MSSQL:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
                 break;
 
-            case SchemaEnum::OCI:
-            case SchemaEnum::PGSQL:
+            case Schema::OCI:
+            case Schema::PGSQL:
                 $cleanedAppend = str_ireplace('PRIMARY KEY', '', $this->append);
                 break;
 
-            case SchemaEnum::SQLITE:
+            case Schema::SQLITE:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
                 break;
 
-            case SchemaEnum::CUBRID:
-            case SchemaEnum::MYSQL:
+            case Schema::CUBRID:
+            case Schema::MYSQL:
             default:
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 use yii\db\Expression;
 
 use function in_array;
@@ -17,7 +17,7 @@ final class DateTimeColumn extends Column implements ColumnInterface
     /**
      * @var array Schemas using length for this column
      */
-    private $lengthSchemas = [SchemaEnum::PGSQL];
+    private $lengthSchemas = [Schema::PGSQL];
 
     public function setDefault($default): void
     {
@@ -57,7 +57,7 @@ final class DateTimeColumn extends Column implements ColumnInterface
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
-        if ($engineVersion && $schema === SchemaEnum::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
+        if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
             return true;
         }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use bizley\migration\SchemaEnum;
+use bizley\migration\Schema;
 
 use function in_array;
 use function is_array;
@@ -16,11 +16,11 @@ final class DecimalColumn extends Column implements ColumnInterface
      * @var array Schemas using length for this column
      */
     private $lengthSchemas = [
-        SchemaEnum::MYSQL,
-        SchemaEnum::CUBRID,
-        SchemaEnum::PGSQL,
-        SchemaEnum::SQLITE,
-        SchemaEnum::MSSQL,
+        Schema::MYSQL,
+        Schema::CUBRID,
+        Schema::PGSQL,
+        Schema::SQLITE,
+        Schema::MSSQL,
     ];
 
     /**

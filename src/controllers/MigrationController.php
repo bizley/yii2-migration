@@ -6,7 +6,9 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Arranger;
 use bizley\migration\Generator;
-use bizley\migration\table\Structure;
+use bizley\migration\MigrationHistoryManager;
+use bizley\migration\MigrationHistoryManagerInterface;
+use bizley\migration\Schema;
 use bizley\migration\Updater;
 use Yii;
 use yii\base\Action;
@@ -15,7 +17,6 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\console\Controller;
-use yii\console\controllers\MigrateController;
 use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\db\Exception as DbException;
@@ -34,7 +35,6 @@ use function is_array;
 use function is_dir;
 use function strlen;
 use function strpos;
-use function time;
 
 /**
  * Migration creator and updater.
@@ -108,19 +108,13 @@ class MigrationController extends Controller
      */
     public $migrationTable = '{{%migration}}';
 
-    /**
-     * @var bool Whether to only display changes instead of generating update migration.
-     */
+    /** @var bool Whether to only display changes instead of generating update migration. */
     public $showOnly = false;
 
-    /**
-     * @var bool Whether to use general column schema instead of database specific.
-     */
+    /** @var bool Whether to use general column schema instead of database specific. */
     public $generalSchema = true;
 
-    /**
-     * @var bool Whether to add generated migration to migration history.
-     */
+    /** @var bool Whether to add generated migration to migration history. */
     public $fixHistory = false;
 
     /**
@@ -146,14 +140,10 @@ class MigrationController extends Controller
      */
     public $tableOptions = '$tableOptions';
 
-    /**
-     * @var array List of database tables that should be skipped for *-all actions.
-     */
+    /** @var array List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function options($actionID): array // BC declaration
     {
         $defaultOptions = array_merge(parent::options($actionID), ['db']);
@@ -190,9 +180,7 @@ class MigrationController extends Controller
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function optionAliases(): array
     {
         return array_merge(
@@ -214,10 +202,8 @@ class MigrationController extends Controller
         );
     }
 
-    /**
-     * @var string
-     */
-    protected $workingPath;
+    /** @var string */
+    private $workingPath;
 
     /**
      * This method is invoked right before an action is to be executed (after all possible filters).
@@ -235,7 +221,7 @@ class MigrationController extends Controller
 
         if (in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
             if ($this->migrationNamespace !== null) {
-                if (!is_array($this->migrationNamespace)) {
+                if (is_array($this->migrationNamespace) === false) {
                     $this->migrationNamespace = [$this->migrationNamespace];
                 }
                 foreach ($this->migrationNamespace as &$namespace) {
@@ -248,7 +234,7 @@ class MigrationController extends Controller
                     }
                 }
             } elseif ($this->migrationPath !== null) {
-                if (!is_array($this->migrationPath)) {
+                if (is_array($this->migrationPath) === false) {
                     $this->migrationPath = [$this->migrationPath];
                 }
                 foreach ($this->migrationPath as $path) {
@@ -280,72 +266,14 @@ class MigrationController extends Controller
     {
         $translatedPath = Yii::getAlias($path);
 
-        if (!is_dir($translatedPath)) {
+        if (is_dir($translatedPath) === false) {
             FileHelper::createDirectory($translatedPath);
         }
 
         return $translatedPath;
     }
 
-    /**
-     * Creates the migration history table.
-     * @throws DbException
-     */
-    protected function createMigrationHistoryTable(): void
-    {
-        $tableName = $this->db->schema->getRawTableName($this->migrationTable);
 
-        $this->stdout(" > Creating migration history table '{$tableName}' ...", Console::FG_YELLOW);
-        $this
-            ->db
-            ->createCommand()
-            ->createTable(
-                $this->migrationTable,
-                [
-                    'version' => 'varchar(' . MigrateController::MAX_NAME_LENGTH . ') NOT NULL PRIMARY KEY',
-                    'apply_time' => 'integer',
-                ]
-            )
-            ->execute();
-        $this
-            ->db
-            ->createCommand()
-            ->insert(
-                $this->migrationTable,
-                [
-                    'version' => MigrateController::BASE_MIGRATION,
-                    'apply_time' => time(),
-                ]
-            )
-            ->execute();
-
-        $this->stdout("DONE.\n", Console::FG_GREEN);
-    }
-
-    /**
-     * Adds migration history entry.
-     * @param string $version
-     * @param string|null $namespace
-     * @throws DbException
-     */
-    protected function addMigrationHistory(string $version, string $namespace = null): void
-    {
-        $this->stdout(' > Adding migration history entry ...', Console::FG_YELLOW);
-
-        $this
-            ->db
-            ->createCommand()
-            ->insert(
-                $this->migrationTable,
-                [
-                    'version' => ($namespace ? $namespace . '\\' : '') . $version,
-                    'apply_time' => time(),
-                ]
-            )
-            ->execute();
-
-        $this->stdout("DONE.\n", Console::FG_GREEN);
-    }
 
     /**
      * @param string $path
@@ -375,7 +303,7 @@ class MigrationController extends Controller
         );
 
         foreach ($tables as $table) {
-            if (!in_array($table, $excludedTables, true)) {
+            if (in_array($table, $excludedTables, true) === false) {
                 $filteredTables[] = $table;
             }
         }
@@ -457,7 +385,7 @@ class MigrationController extends Controller
 
             if (
                 count($suppressForeignKeys)
-                && Structure::identifySchema(get_class($this->db->schema)) === Structure::SCHEMA_SQLITE
+                && Schema::identifySchema(get_class($this->db->schema)) === Schema::SQLITE
             ) {
                 $this->stdout(
                     "WARNING!\n > Creating provided tables in batch requires manual migration!\n",
@@ -748,4 +676,29 @@ class MigrationController extends Controller
 
         return ExitCode::OK;
     }
+
+    /** @var MigrationHistoryManagerInterface */
+    private $migrationHistoryManager;
+
+    /**
+     * @return MigrationHistoryManagerInterface
+     */
+    public function getMigrationHistoryManager(): MigrationHistoryManagerInterface
+    {
+        if ($this->migrationHistoryManager === null) {
+            $this->migrationHistoryManager = new MigrationHistoryManager($this->db, $this->migrationTable);
+        }
+
+        return $this->migrationHistoryManager;
+    }
+
+    /**
+     * @param MigrationHistoryManagerInterface $migrationHistoryManager
+     */
+    public function setMigrationHistoryManager(MigrationHistoryManagerInterface $migrationHistoryManager): void
+    {
+        $this->migrationHistoryManager = $migrationHistoryManager;
+    }
+
+
 }
