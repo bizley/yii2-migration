@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 use function array_key_exists;
 use function count;
 
-class StructureBuilder
+final class StructureBuilder
 {
     /**
      * @var StructureInterface

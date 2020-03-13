@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class ForeignKey implements ForeignKeyInterface
+final class ForeignKey implements ForeignKeyInterface
 {
     /**
      * @var string

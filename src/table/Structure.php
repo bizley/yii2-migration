@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class Structure implements StructureInterface
+final class Structure implements StructureInterface
 {
     /**
      * @var string

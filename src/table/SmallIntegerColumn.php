@@ -8,7 +8,7 @@ use bizley\migration\SchemaEnum;
 
 use function in_array;
 
-class SmallIntegerColumn extends Column implements ColumnInterface
+final class SmallIntegerColumn extends Column implements ColumnInterface
 {
     /**
      * @var array Schemas using length for this column

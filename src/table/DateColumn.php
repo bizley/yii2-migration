@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class DateColumn extends Column implements ColumnInterface
+final class DateColumn extends Column implements ColumnInterface
 {
     /**
      * @param $value

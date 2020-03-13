@@ -7,7 +7,7 @@ namespace bizley\migration\table;
 use function is_array;
 use function preg_split;
 
-class MoneyColumn extends Column implements ColumnInterface
+final class MoneyColumn extends Column implements ColumnInterface
 {
     public function getLength(string $schema = null, string $engineVersion = null)
     {

@@ -12,7 +12,7 @@ use function is_string;
 use function preg_match;
 use function version_compare;
 
-class TimestampColumn extends Column implements ColumnInterface
+final class TimestampColumn extends Column implements ColumnInterface
 {
     /**
      * @var array Schemas using length for this column

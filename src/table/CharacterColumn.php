@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class CharacterColumn extends Column implements ColumnInterface
+final class CharacterColumn extends Column implements ColumnInterface
 {
     /**
      * @param string|null $schema

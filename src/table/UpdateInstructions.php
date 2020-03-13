@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class UpdateInstructions
+final class UpdateInstructions
 {
     /**
      * @var array

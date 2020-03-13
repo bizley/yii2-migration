@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-class StringColumn extends Column implements ColumnInterface
+final class StringColumn extends Column implements ColumnInterface
 {
     public function getLength(string $schema = null, string $engineVersion = null)
     {

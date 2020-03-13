@@ -7,7 +7,7 @@ namespace bizley\migration\table;
 use function count;
 use function in_array;
 
-class PrimaryKey implements PrimaryKeyInterface
+final class PrimaryKey implements PrimaryKeyInterface
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 

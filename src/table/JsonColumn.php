@@ -9,7 +9,7 @@ use yii\helpers\Json;
 
 use function is_array;
 
-class JsonColumn extends Column implements ColumnInterface
+final class JsonColumn extends Column implements ColumnInterface
 {
     public function setDefault($default): void
     {

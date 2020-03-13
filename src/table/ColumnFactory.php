@@ -7,7 +7,7 @@ namespace bizley\migration\table;
 use InvalidArgumentException;
 use yii\db\Schema;
 
-class ColumnFactory
+final class ColumnFactory
 {
     /**
      * Builds table column object based on the type.

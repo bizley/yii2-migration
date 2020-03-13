@@ -6,7 +6,7 @@ namespace bizley\migration\table;
 
 use yii\base\InvalidConfigException;
 
-class StructureChange
+final class StructureChange
 {
     /**
      * @var string

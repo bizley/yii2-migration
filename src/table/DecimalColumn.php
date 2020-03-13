@@ -10,7 +10,7 @@ use function in_array;
 use function is_array;
 use function preg_split;
 
-class DecimalColumn extends Column implements ColumnInterface
+final class DecimalColumn extends Column implements ColumnInterface
 {
     /**
      * @var array Schemas using length for this column

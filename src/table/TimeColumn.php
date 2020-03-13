@@ -9,7 +9,7 @@ use bizley\migration\SchemaEnum;
 use function in_array;
 use function version_compare;
 
-class TimeColumn extends Column implements ColumnInterface
+final class TimeColumn extends Column implements ColumnInterface
 {
     /**
      * @var array Schemas using length for this column
