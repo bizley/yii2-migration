@@ -75,8 +75,8 @@ final class StructureRendererTest extends TestCase
      */
     public function shouldRenderNothingWhenThereIsNoStructure(): void
     {
-        $this->assertSame('', $this->structureRenderer->render('', null, true));
-        $this->assertSame('', $this->structureRenderer->render('', null, false));
+        $this->assertSame('', $this->structureRenderer->renderStructure('', null, true));
+        $this->assertSame('', $this->structureRenderer->renderStructure('', null, false));
     }
 
     /**
@@ -106,7 +106,7 @@ column-render
 );
 TEMPLATE
             ,
-            $this->structureRenderer->render('', null, true)
+            $this->structureRenderer->renderStructure('', null, true)
         );
     }
 
@@ -136,7 +136,7 @@ TEMPLATE
     );
 TEMPLATE
             ,
-            $this->structureRenderer->render('', '', true, 4)
+            $this->structureRenderer->renderStructure('', '', true, 4)
         );
     }
 
@@ -150,7 +150,7 @@ TEMPLATE
         $this->structureRenderer->setStructure($structure);
         $this->structureRenderer->setTemplate('custom-template');
 
-        $this->assertSame('custom-template', $this->structureRenderer->render('', null, true));
+        $this->assertSame('custom-template', $this->structureRenderer->renderStructure('', null, true));
     }
 
     /**
@@ -181,7 +181,7 @@ $this->createTable(
 primary-key-render
 TEMPLATE
             ,
-            $this->structureRenderer->render('', null, true)
+            $this->structureRenderer->renderStructure('', null, true)
         );
     }
 
@@ -216,7 +216,7 @@ index-render
 index-render
 TEMPLATE
             ,
-            $this->structureRenderer->render('', null, true)
+            $this->structureRenderer->renderStructure('', null, true)
         );
     }
 
@@ -255,7 +255,7 @@ $this->createTable(
 index-render
 TEMPLATE
             ,
-            $this->structureRenderer->render('', null, true)
+            $this->structureRenderer->renderStructure('', null, true)
         );
     }
 
@@ -289,7 +289,7 @@ $this->createTable(
 foreign-key-render
 TEMPLATE
             ,
-            $this->structureRenderer->render('', null, true)
+            $this->structureRenderer->renderStructure('', null, true)
         );
     }
 }

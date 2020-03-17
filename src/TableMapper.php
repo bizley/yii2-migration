@@ -26,14 +26,10 @@ use yii\db\TableSchema;
 
 final class TableMapper implements TableMapperInterface
 {
-    /**
-     * @var Connection
-     */
+    /** @var Connection */
     private $db;
 
-    /**
-     * @var StructureInterface
-     */
+    /** @var StructureInterface */
     private $structure;
 
     public function __construct(Connection $db)
@@ -41,20 +37,32 @@ final class TableMapper implements TableMapperInterface
         $this->db = $db;
     }
 
+    /** @var array */
+    private $suppressedForeignKeys = [];
+
     /**
      * @param string $table
+     * @param array $referencesToPostpone
      * @return StructureInterface
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
-    public function getStructureOf(string $table): StructureInterface
+    public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface
     {
+        $foreignKeys = $this->getForeignKeys($table);
+        /** @var ForeignKeyInterface $foreignKey */
+        foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
+            if (in_array($foreignKey->getReferencedTable(), $referencesToPostpone, true)) {
+                $this->suppressedForeignKeys[] = $foreignKey;
+                unset($foreignKeys[$foreignKeyName]);
+            }
+        }
+
         $indexes = $this->getIndexes($table);
 
         $this->structure = new Structure();
         $this->structure->setName($table);
         $this->structure->setPrimaryKey($this->getPrimaryKey($table));
-        $this->structure->setForeignKeys($this->getForeignKeys($table));
+        $this->structure->setForeignKeys($foreignKeys);
         $this->structure->setIndexes($indexes);
         $this->structure->setColumns($this->getColumns($table, $indexes));
 
@@ -136,12 +144,14 @@ final class TableMapper implements TableMapperInterface
      * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<ColumnInterface>
-     * @throws InvalidConfigException
      */
     private function getColumns(string $table, array $indexes = []): array
     {
         $mappedColumns = [];
         $tableSchema = $this->getTableSchema($table);
+        if ($tableSchema === null) {
+            return [];
+        }
 
         foreach ($tableSchema->columns as $column) {
             $isUnique = false;
@@ -172,6 +182,11 @@ final class TableMapper implements TableMapperInterface
         }
 
         return $mappedColumns;
+    }
+
+    public function getSuppressedForeignKeys(): array
+    {
+        return $this->suppressedForeignKeys;
     }
 
     public function getTableSchema(string $table): ?TableSchema

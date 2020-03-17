@@ -6,8 +6,8 @@ declare(strict_types=1);
  * This is the template for generating the migration of postponed foreign keys.
  *
  * @var $fks \bizley\migration\table\ForeignKeyData[] Foreign keys data
- * @var $className string Class name
- * @var $namespace string Migration namespace
+ * @var string $className Migration class name
+ * @var string $namespace Migration namespace
  */
 
 echo "<?php\n";

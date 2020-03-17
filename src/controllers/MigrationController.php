@@ -21,6 +21,7 @@ use bizley\migration\TableMapper;
 use bizley\migration\TableMapperInterface;
 use bizley\migration\TableMissingException;
 use bizley\migration\Updater;
+use Closure;
 use Throwable;
 use Yii;
 use yii\base\Action;
@@ -133,22 +134,31 @@ class MigrationController extends Controller
     /** @var array List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
 
+    /** @var string|array|Closure */
     public $historyManagerClass = HistoryManager::class;
 
+    /** @var string|array|Closure */
     public $tableMapperClass = TableMapper::class;
 
+    /** @var string|array|Closure */
     public $arrangerClass = Arranger::class;
 
+    /** @var string|array|Closure */
     public $generatorClass = Generator::class;
 
+    /** @var string|array|Closure */
     public $structureRendererClass = StructureRenderer::class;
 
+    /** @var string|array|Closure */
     public $columnRendererClass = ColumnRenderer::class;
 
+    /** @var string|array|Closure */
     public $primaryKeyRendererClass = PrimaryKeyRenderer::class;
 
+    /** @var string|array|Closure */
     public $indexRendererClass = IndexRenderer::class;
 
+    /** @var string|array|Closure */
     public $foreignKeyRendererClass = ForeignKeyRenderer::class;
 
     /** {@inheritdoc} */
@@ -211,6 +221,9 @@ class MigrationController extends Controller
     /** @var string */
     private $workingPath;
 
+    /** @var string|null */
+    private $workingNamespace;
+
     /**
      * It checks the existence of the workingPath and makes sure DB connection is prepared.
      * @param Action $action the action to be executed.
@@ -236,6 +249,7 @@ class MigrationController extends Controller
                         $this->workingPath = $this->preparePathDirectory(
                             '@' . FileHelper::normalizePath($namespace, '/')
                         );
+                        $this->workingNamespace = $namespace;
                     }
                 }
             } elseif ($this->migrationPath !== null) {
@@ -462,14 +476,14 @@ class MigrationController extends Controller
         }
 
         $countTables = count($inputTables);
-        $suppressForeignKeys = [];
+        $referencesToPostpone = [];
         $tables = $inputTables;
         if ($countTables > 1) {
             $this->getArranger()->arrangeMigrations($inputTables);
             $tables = $this->getArranger()->getTablesInOrder();
-            $suppressForeignKeys = $this->getArranger()->getSuppressedForeignKeys();
+            $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 
-            if (count($suppressForeignKeys) && Schema::isSQLite($this->db->schema)) {
+            if (count($referencesToPostpone) && Schema::isSQLite($this->db->schema)) {
                 $this->stdout(
                     "ERROR!\n > Generating migrations for provided tables in batch is not possible "
                     . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
@@ -500,7 +514,13 @@ class MigrationController extends Controller
             $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
             try {
-                $migration = $this->getGenerator()->generateFor($tableName);
+                $migration = $this->getGenerator()->generateForTable(
+                    $tableName,
+                    $migrationClassName,
+                    $referencesToPostpone,
+                    $this->generalSchema,
+                    $this->workingNamespace
+                );
             } catch (TableMissingException $exception) {
                 $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
                 return ExitCode::DATAERR;
@@ -509,24 +529,7 @@ class MigrationController extends Controller
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            $generator
-                = new Generator([
-                    'db' => $this->db,
-                    'view' => $this->view,
-                    'useTablePrefix' => $this->useTablePrefix,
-                    'templateFileCreate' => $this->templateFileCreate,
-                    'tableName' => $tableName,
-                    'className' => $migrationClassName,
-                    'namespace' => $this->migrationNamespace,
-                    'generalSchema' => $this->generalSchema,
-                    'tableOptionsInit' => $this->tableOptionsInit,
-                    'tableOptions' => $this->tableOptions,
-                    'suppressForeignKey' => $suppressForeignKeys[$tableName] ?? [],
-                ]);
-
-
-
-            if ($this->generateFile($file, $generator->generateMigration()) === false) {
+            if ($this->generateFile($file, $migration) === false) {
                 $this->stdout(
                     "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
                     Console::FG_RED
@@ -541,45 +544,44 @@ class MigrationController extends Controller
             $this->stdout(" > Saved as '{$file}'\n");
 
             if ($this->fixHistory) {
-                if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
-                    $this->createMigrationHistoryTable();
+                try {
+                    $this->historyManager->addHistory($migrationClassName, $this->workingNamespace);
+                } catch (DbException $exception) {
+                    $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                    return ExitCode::UNSPECIFIED_ERROR;
                 }
-
-                $this->addMigrationHistory($migrationClassName, $this->migrationNamespace);
             }
 
             $this->stdout("\n");
 
-            $suppressedKeys = $generator->getSuppressedForeignKeys();
-            foreach ($suppressedKeys as $suppressedKey) {
+            $suppressedForeignKeys = $this->getGenerator()->getSuppressedForeignKeys();
+            foreach ($suppressedForeignKeys as $suppressedKey) {
                 $postponedForeignKeys[] = $suppressedKey;
             }
         }
 
         if ($postponedForeignKeys) {
-            $this->stdout(' > Generating create migration for foreign keys ...', Console::FG_YELLOW);
+            $this->stdout(' > Generating migration for creating foreign keys ...', Console::FG_YELLOW);
 
-            $migrationClassName
-                = sprintf(
-                    "m%s_%0{$counterSize}d_create_foreign_keys",
-                    gmdate('ymd_His'),
-                    ++$migrationsGenerated
-                );
+            $migrationClassName = sprintf(
+                "m%s_%0{$counterSize}d_create_foreign_keys",
+                gmdate('ymd_His'),
+                ++$migrationsGenerated
+            );
             $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
-            if (
-                $this->generateFile(
-                    $file,
-                    $this->view->renderFile(
-                        Yii::getAlias($this->templateFileForeignKey),
-                        [
-                            'fks' => $postponedForeignKeys,
-                            'className' => $migrationClassName,
-                            'namespace' => $this->migrationNamespace
-                        ]
-                    )
-                ) === false
-            ) {
+            try {
+                $migration = $this->getGenerator()->generateForForeignKeys(
+                    $postponedForeignKeys,
+                    $migrationClassName,
+                    $this->workingNamespace
+                );
+            } catch (Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+
+            if ($this->generateFile($file, $migration) === false) {
                 $this->stdout(
                     "ERROR!\n > Migration file for foreign keys can not be generated!\n\n",
                     Console::FG_RED
@@ -592,12 +594,20 @@ class MigrationController extends Controller
             $this->stdout(" > Saved as '{$file}'\n");
 
             if ($this->fixHistory) {
-                $this->addMigrationHistory($migrationClassName, $this->migrationNamespace);
+                try {
+                    $this->historyManager->addHistory($migrationClassName, $this->workingNamespace);
+                } catch (DbException $exception) {
+                    $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                    return ExitCode::UNSPECIFIED_ERROR;
+                }
             }
         }
 
         if ($migrationsGenerated) {
-            $this->stdout(" Generated $migrationsGenerated file(s).\n", Console::FG_YELLOW);
+            $this->stdout(
+                " Generated $migrationsGenerated file" . ($migrationsGenerated > 1 ? 's' : '') . "\n",
+                Console::FG_YELLOW
+            );
             $this->stdout(" (!) Remember to verify files before applying migration.\n\n", Console::FG_YELLOW);
         } else {
             $this->stdout(" No files generated.\n\n", Console::FG_YELLOW);

@@ -381,7 +381,7 @@ class OldMigrationController extends Controller
             $arranger = $this->getArranger();
             $arranger->arrangeMigrations($tables);
             $tables = $arranger->getTablesInOrder();
-            $suppressForeignKeys = $arranger->getSuppressedForeignKeys();
+            $suppressForeignKeys = $arranger->getReferencesToPostpone();
 
             if (
                 count($suppressForeignKeys)

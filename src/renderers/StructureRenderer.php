@@ -112,7 +112,7 @@ TEMPLATE;
      * @param int $indent
      * @return string
      */
-    public function render(
+    public function renderStructure(
         string $schema,
         string $engineVersion = null,
         bool $generalSchema = true,
@@ -123,7 +123,7 @@ TEMPLATE;
                 $this->renderTable($schema, $engineVersion, $generalSchema, $indent),
                 $this->renderPrimaryKey($indent),
                 $this->renderIndexes($indent),
-                $this->renderForeignKeys($indent)
+                $this->renderStructureForeignKeys($indent)
             ]
         );
 
@@ -154,7 +154,7 @@ TEMPLATE;
      * @param int $indent
      * @return string|null
      */
-    public function renderTable(
+    private function renderTable(
         string $schema,
         string $engineVersion = null,
         bool $generalSchema = true,
@@ -180,7 +180,7 @@ TEMPLATE;
         );
     }
 
-    public function renderPrimaryKey(int $indent = 0): ?string
+    private function renderPrimaryKey(int $indent = 0): ?string
     {
         if ($this->structure === null) {
             return null;
@@ -190,7 +190,7 @@ TEMPLATE;
         return $this->primaryKeyRenderer->render($this->renderName($this->structure->getName()), $indent);
     }
 
-    public function renderIndexes(int $indent = 0): ?string
+    private function renderIndexes(int $indent = 0): ?string
     {
         if ($this->structure === null) {
             return null;
@@ -216,13 +216,22 @@ TEMPLATE;
         return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
     }
 
-    public function renderForeignKeys(int $indent = 0): ?string
+    private function renderStructureForeignKeys(int $indent = 0): ?string
     {
         if ($this->structure === null) {
             return null;
         }
 
-        $foreignKeys = $this->structure->getForeignKeys();
+        return $this->renderForeignKeys($this->structure->getForeignKeys(), $indent);
+    }
+
+    /**
+     * @param array<ForeignKeyInterface> $foreignKeys
+     * @param int $indent
+     * @return string|null
+     */
+    public function renderForeignKeys(array $foreignKeys, int $indent = 0): ?string
+    {
         $renderedForeignKeys = [];
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {

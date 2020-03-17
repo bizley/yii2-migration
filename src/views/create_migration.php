@@ -5,9 +5,10 @@ declare(strict_types=1);
 /**
  * This is the template for generating the migration of a specified table.
  *
- * @var $table \bizley\migration\table\Structure Table data
- * @var $className string Class name
- * @var $namespace string Migration namespace
+ * @var string $tableName Table name
+ * @var string $body Migration content
+ * @var string $className Migration class name
+ * @var string $namespace Migration namespace
  */
 
 echo "<?php\n";
@@ -22,11 +23,11 @@ class <?= $className ?> extends Migration
 {
     public function up()
     {
-<?= $table->render() ?>
+<?= $body ?>
     }
 
     public function down()
     {
-        $this->dropTable('<?= $table->renderName() ?>');
+        $this->dropTable('<?= $tableName ?>');
     }
 }

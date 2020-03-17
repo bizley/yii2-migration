@@ -9,9 +9,9 @@ use yii\db\Exception;
 interface HistoryManagerInterface
 {
     /**
-     * @param string $version
+     * @param string $migrationName
      * @param string|null $namespace
      * @throws Exception
      */
-    public function addHistory(string $version, string $namespace = null): void;
+    public function addHistory(string $migrationName, string $namespace = null): void;
 }

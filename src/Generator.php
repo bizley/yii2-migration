@@ -9,7 +9,7 @@ use Yii;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
-class Generator implements GeneratorInterface
+final class Generator implements GeneratorInterface
 {
     /** @var TableMapperInterface */
     private $tableMapper;
@@ -30,9 +30,14 @@ class Generator implements GeneratorInterface
         $this->view = $view;
     }
 
-    public function getTemplate(): string
+    public function getCreateTableMigrationTemplate(): string
     {
         return Yii::getAlias('@bizley/migration/views/create_migration.php');
+    }
+
+    public function getCreateForeignKeysMigrationTemplate(): string
+    {
+        return Yii::getAlias('@bizley/migration/views/create_fk_migration.php');
     }
 
     private function getNormalizedNamespace(?string $namespace): ?string
@@ -43,14 +48,16 @@ class Generator implements GeneratorInterface
     /**
      * @param string $tableName
      * @param string $migrationName
+     * @param array $referencesToPostpone
      * @param bool $generalSchema
      * @param string|null $namespace
      * @return string
      * @throws TableMissingException
      */
-    public function generateFor(
+    public function generateForTable(
         string $tableName,
         string $migrationName,
+        array $referencesToPostpone = [],
         bool $generalSchema = true,
         string $namespace = null
     ): string {
@@ -58,19 +65,47 @@ class Generator implements GeneratorInterface
             throw new TableMissingException("Table $tableName does not exists.");
         }
 
-        $this->structureRenderer->setStructure($this->tableMapper->getStructureOf($tableName));
+        $this->structureRenderer->setStructure($this->tableMapper->getStructureOf($tableName, $referencesToPostpone));
 
         return $this->view->renderFile(
-            $this->getTemplate(),
+            $this->getCreateTableMigrationTemplate(),
             [
-                'body' => $this->structureRenderer->render(
+                'tableName' => $this->structureRenderer->renderName($tableName),
+                'className' => $migrationName,
+                'namespace' => $this->getNormalizedNamespace($namespace),
+                'body' => $this->structureRenderer->renderStructure(
                     $this->tableMapper->getSchemaType(),
                     $this->tableMapper->getEngineVersion(),
                     $generalSchema,
                     8
-                ),
+                )
+            ]
+        );
+    }
+
+    public function getSuppressedForeignKeys(): array
+    {
+        return $this->tableMapper->getSuppressedForeignKeys();
+    }
+
+    /**
+     * @param array $foreignKeys
+     * @param string $migrationName
+     * @param string|null $namespace
+     * @return string
+     */
+    public function generateForForeignKeys(
+        array $foreignKeys,
+        string $migrationName,
+        string $namespace = null
+    ): string {
+        return $this->view->renderFile(
+            $this->getCreateForeignKeysMigrationTemplate(),
+            [
+                'tableName' => $this->structureRenderer->renderName($tableName),
                 'className' => $migrationName,
-                'namespace' => $this->getNormalizedNamespace($namespace)
+                'namespace' => $this->getNormalizedNamespace($namespace),
+                'body' => $this->structureRenderer->get
             ]
         );
     }

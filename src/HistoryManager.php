@@ -54,11 +54,11 @@ final class HistoryManager implements HistoryManagerInterface
 
     /**
      * Adds migration history entry.
-     * @param string $version
+     * @param string $migrationName
      * @param string|null $namespace
      * @throws Exception
      */
-    public function addHistory(string $version, string $namespace = null): void
+    public function addHistory(string $migrationName, string $namespace = null): void
     {
         if ($this->db->schema->getTableSchema($this->table, true) === null) {
             $this->createTable();
@@ -69,7 +69,7 @@ final class HistoryManager implements HistoryManagerInterface
             ->insert(
                 $this->table,
                 [
-                    'version' => ($namespace ? $namespace . '\\' : '') . $version,
+                    'version' => ($namespace ? $namespace . '\\' : '') . $migrationName,
                     'apply_time' => time(),
                 ]
             )

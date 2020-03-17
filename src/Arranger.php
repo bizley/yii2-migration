@@ -70,11 +70,11 @@ final class Arranger implements ArrangerInterface
     /**
      * @var array
      */
-    private $suppressedForeignKeys = [];
+    private $referencesToPostpone = [];
 
-    public function getSuppressedForeignKeys(): array
+    public function getReferencesToPostpone(): array
     {
-        return $this->suppressedForeignKeys;
+        return $this->referencesToPostpone;
     }
 
     private function arrangeTables(array $input): void
@@ -119,13 +119,13 @@ final class Arranger implements ArrangerInterface
                 $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
                     [$lastCheckedName => [$lastCheckedDependency]],
-                    $this->getSuppressedForeignKeys()
+                    $this->getReferencesToPostpone()
                 );
-                $filteredLink = [];
+                $filteredDependencies = [];
                 foreach ($postLinkMerged as $name => $dependencies) {
-                    $filteredLink[$name] = array_unique($dependencies);
+                    $filteredDependencies[$name] = array_unique($dependencies);
                 }
-                $this->suppressedForeignKeys = $filteredLink;
+                $this->referencesToPostpone = $filteredDependencies;
             }
         }
 

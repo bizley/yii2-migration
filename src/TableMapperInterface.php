@@ -9,8 +9,9 @@ use yii\db\TableSchema;
 
 interface TableMapperInterface
 {
-    public function getStructureOf(string $table): StructureInterface;
+    public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface;
     public function getTableSchema(string $table): ?TableSchema;
     public function getSchemaType(): string;
     public function getEngineVersion(): ?string;
+    public function getSuppressedForeignKeys(): array;
 }

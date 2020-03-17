@@ -77,6 +77,6 @@ class ArrangerTest extends TestCase
         $arranger->arrangeMigrations(array_keys($inputData));
 
         $this->assertSame($tablesInOrder, $arranger->getTablesInOrder());
-        $this->assertSame($suppressedForeignKeys, $arranger->getSuppressedForeignKeys());
+        $this->assertSame($suppressedForeignKeys, $arranger->getReferencesToPostpone());
     }
 }

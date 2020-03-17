@@ -10,5 +10,5 @@ interface ArrangerInterface
 
     public function getTablesInOrder(): array;
 
-    public function getSuppressedForeignKeys(): array;
+    public function getReferencesToPostpone(): array;
 }
