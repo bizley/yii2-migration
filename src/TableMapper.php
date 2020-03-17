@@ -41,25 +41,11 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * @param string $table
+     * @return StructureInterface
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
-    public function mapTable(string $table): void
-    {
-        $this->setStructure($table);
-    }
-
-    public function getStructure(): StructureInterface
-    {
-        return $this->structure;
-    }
-
-    /**
-     * @param string $table
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     */
-    private function setStructure(string $table): void
+    public function getStructureOf(string $table): StructureInterface
     {
         $indexes = $this->getIndexes($table);
 
@@ -69,6 +55,8 @@ final class TableMapper implements TableMapperInterface
         $this->structure->setForeignKeys($this->getForeignKeys($table));
         $this->structure->setIndexes($indexes);
         $this->structure->setColumns($this->getColumns($table, $indexes));
+
+        return $this->structure;
     }
 
     /**
@@ -184,7 +172,7 @@ final class TableMapper implements TableMapperInterface
         return $mappedColumns;
     }
 
-    public function getSchema(string $table): TableSchema
+    public function getSchema(string $table): ?TableSchema
     {
         return $this->db->getTableSchema($table);
     }

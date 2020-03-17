@@ -71,7 +71,7 @@ class ArrangerTest extends TestCase
         $structure->method('getForeignKeys')->willReturnOnConsecutiveCalls(...$callbacks);
         /** @var TableMapperInterface|MockObject $tableMapper */
         $tableMapper = $this->createMock(TableMapperInterface::class);
-        $tableMapper->method('getStructure')->willReturn($structure);
+        $tableMapper->method('getStructureOf')->willReturn($structure);
         $arranger = new Arranger($tableMapper);
 
         $arranger->arrangeMigrations(array_keys($inputData));

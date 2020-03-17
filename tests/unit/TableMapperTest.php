@@ -65,8 +65,7 @@ class TableMapperTest extends TestCase
     {
         $this->prepareSchemaMock();
 
-        $this->mapper->mapTable('abcdef');
-        $structure = $this->mapper->getStructure();
+        $structure = $this->mapper->getStructureOf('abcdef');
         $this->assertSame('abcdef', $structure->getName());
         $this->assertNull($structure->getPrimaryKey());
         $this->assertSame([], $structure->getForeignKeys());
@@ -100,8 +99,7 @@ class TableMapperTest extends TestCase
 
         $this->prepareSchemaMock(true, [], [], $primaryKey);
 
-        $this->mapper->mapTable('abcdef');
-        $structurePrimaryKey = $this->mapper->getStructure()->getPrimaryKey();
+        $structurePrimaryKey = $this->mapper->getStructureOf('abcdef')->getPrimaryKey();
         $this->assertSame($primaryKey->name, $structurePrimaryKey->getName());
         $this->assertSame($primaryKey->columnNames, $structurePrimaryKey->getColumns());
     }
@@ -170,11 +168,9 @@ class TableMapperTest extends TestCase
 
         $this->prepareSchemaMock(true, $foreignKeys);
 
-        $this->mapper->mapTable('abcdef');
-
         /** @var ForeignKeyConstraint $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
-            $structureForeignKey = $this->mapper->getStructure()->getForeignKey($foreignKey->name);
+            $structureForeignKey = $this->mapper->getStructureOf('abcdef')->getForeignKey($foreignKey->name);
 
             $this->assertSame($foreignKey->name, $structureForeignKey->getName());
             $this->assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
@@ -239,11 +235,9 @@ class TableMapperTest extends TestCase
 
         $this->prepareSchemaMock(true, [], $indexes);
 
-        $this->mapper->mapTable('abcdef');
-
         /** @var IndexConstraint $index */
         foreach ($indexes as $index) {
-            $structureIndex = $this->mapper->getStructure()->getIndex($index->name);
+            $structureIndex = $this->mapper->getStructureOf('abcdef')->getIndex($index->name);
 
             $this->assertSame($index->name, $structureIndex->getName());
             $this->assertSame($index->columnNames, $structureIndex->getColumns());
@@ -264,9 +258,7 @@ class TableMapperTest extends TestCase
             [new IndexConstraint(['name' => 'aaa', 'isPrimary' => true])]
         );
 
-        $this->mapper->mapTable('abcdef');
-
-        $this->assertNull($this->mapper->getStructure()->getIndex('aaa'));
+        $this->assertNull($this->mapper->getStructureOf('abcdef')->getIndex('aaa'));
     }
 
     /**
@@ -295,9 +287,7 @@ class TableMapperTest extends TestCase
         $tableSchema->columns = [$column];
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->mapper->mapTable('abcdef');
-
-        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
         $this->assertNotNull($structureColumn);
         $this->assertInstanceOf(CharacterColumn::class, $structureColumn);
         $this->assertSame('column-name', $structureColumn->getName());
@@ -346,9 +336,7 @@ class TableMapperTest extends TestCase
         $tableSchema->columns = [$column];
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->mapper->mapTable('abcdef');
-
-        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
         $this->assertNotNull($structureColumn);
         $this->assertTrue($structureColumn->isUnique());
     }
@@ -387,9 +375,7 @@ class TableMapperTest extends TestCase
         $tableSchema->columns = [$column];
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->mapper->mapTable('abcdef');
-
-        $structureColumn = $this->mapper->getStructure()->getColumn('column-name');
+        $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
         $this->assertNotNull($structureColumn);
         $this->assertFalse($structureColumn->isUnique());
     }
