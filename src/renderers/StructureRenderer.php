@@ -107,13 +107,17 @@ TEMPLATE;
     /**
      * Renders the migration structure.
      * @param string $schema
-     * @param bool $generalSchema
      * @param string|null $engineVersion
+     * @param bool $generalSchema
      * @param int $indent
      * @return string
      */
-    public function render(string $schema, bool $generalSchema, string $engineVersion = null, int $indent = 0): string
-    {
+    public function render(
+        string $schema,
+        string $engineVersion = null,
+        bool $generalSchema = true,
+        int $indent = 0
+    ): string {
         $renderedStructure = array_filter(
             [
                 $this->renderTable($schema, $generalSchema, $engineVersion, $indent),

@@ -14,6 +14,8 @@ use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
+use PDO;
+use Throwable;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Connection;
@@ -139,7 +141,7 @@ final class TableMapper implements TableMapperInterface
     private function getColumns(string $table, array $indexes = []): array
     {
         $mappedColumns = [];
-        $tableSchema = $this->getSchema($table);
+        $tableSchema = $this->getTableSchema($table);
 
         foreach ($tableSchema->columns as $column) {
             $isUnique = false;
@@ -172,8 +174,22 @@ final class TableMapper implements TableMapperInterface
         return $mappedColumns;
     }
 
-    public function getSchema(string $table): ?TableSchema
+    public function getTableSchema(string $table): ?TableSchema
     {
         return $this->db->getTableSchema($table);
+    }
+
+    public function getSchemaType(): string
+    {
+        return Schema::identifySchema($this->db->schema);
+    }
+
+    public function getEngineVersion(): ?string
+    {
+        try {
+            return $this->db->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+        } catch (Throwable $exception) {
+            return null;
+        }
     }
 }

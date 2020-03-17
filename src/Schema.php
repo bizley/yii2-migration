@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use yii\db\Schema as YiiSchema;
+
 final class Schema
 {
     public const CUBRID = 'cubrid';
@@ -15,12 +17,12 @@ final class Schema
 
     /**
      * Returns schema code based on its class name.
-     * @param null|string $schemaClass
+     * @param YiiSchema $schema
      * @return string
      */
-    public static function identifySchema(?string $schemaClass): string
+    public static function identifySchema(YiiSchema $schema): string
     {
-        switch ($schemaClass) {
+        switch (get_class($schema)) {
             case 'yii\db\mssql\Schema':
                 return self::MSSQL;
 
@@ -42,5 +44,10 @@ final class Schema
             default:
                 return 'unsupported';
         }
+    }
+
+    public static function isSQLite(YiiSchema $schema): bool
+    {
+        return static::identifySchema($schema) === self::SQLITE;
     }
 }

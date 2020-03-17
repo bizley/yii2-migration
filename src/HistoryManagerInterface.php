@@ -6,7 +6,7 @@ namespace bizley\migration;
 
 use yii\db\Exception;
 
-interface MigrationHistoryManagerInterface
+interface HistoryManagerInterface
 {
     /**
      * @param string $version

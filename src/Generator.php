@@ -4,86 +4,73 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use bizley\migration\renderers\StructureRendererInterface;
 use Yii;
-use yii\base\Component;
-use yii\base\InvalidConfigException;
 use yii\base\View;
-use yii\db\Connection;
 use yii\helpers\FileHelper;
 
-use function is_array;
-
-class Generator extends Component implements GeneratorInterface
+class Generator implements GeneratorInterface
 {
-    /** @var Connection DB connection */
-    public $db;
-
-    /** @var string Table name to be generated (before prefix) */
-    public $tableName;
-
-    /** @var string Migration class name */
-    public $className;
+    /** @var TableMapperInterface */
+    private $tableMapper;
 
     /** @var View View used in controller */
     public $view;
 
-    /** @var bool Table prefix flag */
-    public $useTablePrefix = true;
+    /** @var StructureRendererInterface */
+    private $structureRenderer;
 
-    /** @var string Create migration template file */
-    public $templateFileCreate;
-
-    /** @var string Update migration template file */
-    public $templateFileUpdate;
-
-    /** @var string|array Migration namespaces */
-    public $namespace;
-
-    /** @var bool Whether to use general column schema instead of database specific */
-    public $generalSchema = true;
-
-    /** @var string */
-    public $tableOptionsInit;
-
-    /** @var string */
-    public $tableOptions;
-
-    /** @var array */
-    public $suppressForeignKey = [];
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function init(): void
-    {
-        parent::init();
-
-        if ($this->db instanceof Connection === false) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
-        }
-
-        if ($this->namespace !== null && is_array($this->namespace) === false) {
-            $this->namespace = [$this->namespace];
-        }
+    public function __construct(
+        TableMapperInterface $tableMapper,
+        StructureRendererInterface $structureRenderer,
+        View $view
+    ) {
+        $this->tableMapper = $tableMapper;
+        $this->structureRenderer = $structureRenderer;
+        $this->view = $view;
     }
 
-    public function getNormalizedNamespace(): ?string
+    public function getTemplate(): string
     {
-        return !empty($this->namespace) ? FileHelper::normalizePath(reset($this->namespace), '\\') : null;
+        return Yii::getAlias('@bizley/migration/views/create_migration.php');
+    }
+
+    private function getNormalizedNamespace(?string $namespace): ?string
+    {
+        return !empty($namespace) ? FileHelper::normalizePath($namespace, '\\') : null;
     }
 
     /**
+     * @param string $tableName
+     * @param string $migrationName
+     * @param bool $generalSchema
+     * @param string|null $namespace
      * @return string
-     * @throws InvalidConfigException
+     * @throws TableMissingException
      */
-    public function generateMigration(): string
-    {
+    public function generateFor(
+        string $tableName,
+        string $migrationName,
+        bool $generalSchema = true,
+        string $namespace = null
+    ): string {
+        if ($this->tableMapper->getTableSchema($tableName) === null) {
+            throw new TableMissingException("Table $tableName does not exists.");
+        }
+
+        $this->structureRenderer->setStructure($this->tableMapper->getStructureOf($tableName));
+
         return $this->view->renderFile(
-            Yii::getAlias($this->templateFileCreate),
+            $this->getTemplate(),
             [
-                'table' => $this->getTableStructure(),
-                'className' => $this->className,
-                'namespace' => $this->getNormalizedNamespace()
+                'body' => $this->structureRenderer->render(
+                    $this->tableMapper->getSchemaType(),
+                    $this->tableMapper->getEngineVersion(),
+                    $generalSchema,
+                    8
+                ),
+                'className' => $migrationName,
+                'namespace' => $this->getNormalizedNamespace($namespace)
             ]
         );
     }

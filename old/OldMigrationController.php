@@ -5,23 +5,11 @@ declare(strict_types=1);
 namespace bizley\migration\controllers;
 
 use bizley\migration\Arranger;
-use bizley\migration\ArrangerInterface;
 use bizley\migration\Generator;
-use bizley\migration\GeneratorInterface;
 use bizley\migration\HistoryManager;
 use bizley\migration\HistoryManagerInterface;
-use bizley\migration\renderers\ColumnRenderer;
-use bizley\migration\renderers\ForeignKeyRenderer;
-use bizley\migration\renderers\IndexRenderer;
-use bizley\migration\renderers\PrimaryKeyRenderer;
-use bizley\migration\renderers\StructureRenderer;
-use bizley\migration\renderers\StructureRendererInterface;
 use bizley\migration\Schema;
-use bizley\migration\TableMapper;
-use bizley\migration\TableMapperInterface;
-use bizley\migration\TableMissingException;
 use bizley\migration\Updater;
-use Throwable;
 use Yii;
 use yii\base\Action;
 use yii\base\ErrorException;
@@ -45,7 +33,6 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_dir;
-use function sprintf;
 use function strlen;
 use function strpos;
 
@@ -58,10 +45,10 @@ use function strpos;
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
-class MigrationController extends Controller
+class OldMigrationController extends Controller
 {
     /** @var string */
-    private $version = '4.0.0';
+    protected $version = '4.0.0';
 
     /** @var string Default command action. */
     public $defaultAction = 'list';
@@ -84,6 +71,12 @@ class MigrationController extends Controller
      * When this property is given $migrationPath is ignored.
      */
     public $migrationNamespace;
+
+    /**
+     * @var string Template file for generating new migrations.
+     * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
+     */
+    public $templateFileCreate = '@bizley/migration/views/create_migration.php';
 
     /**
      * @var string Template file for generating updating migrations.
@@ -130,26 +123,25 @@ class MigrationController extends Controller
      */
     public $skipMigrations = [];
 
+    /**
+     * @var string String rendered in the create migration template to initialize table options.
+     * By default it adds variable "$tableOptions" with optional collate configuration for MySQL DBMS to be used with
+     * default $tableOptions.
+     */
+    public $tableOptionsInit = '$tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }';
+
+    /**
+     * @var string String rendered in the create migration template for table options.
+     * By default it renders "$tableOptions" to indicate that options should be taken from variable
+     * set in $tableOptionsInit property.
+     */
+    public $tableOptions = '$tableOptions';
+
     /** @var array List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
-
-    public $historyManagerClass = HistoryManager::class;
-
-    public $tableMapperClass = TableMapper::class;
-
-    public $arrangerClass = Arranger::class;
-
-    public $generatorClass = Generator::class;
-
-    public $structureRendererClass = StructureRenderer::class;
-
-    public $columnRendererClass = ColumnRenderer::class;
-
-    public $primaryKeyRendererClass = PrimaryKeyRenderer::class;
-
-    public $indexRendererClass = IndexRenderer::class;
-
-    public $foreignKeyRendererClass = ForeignKeyRenderer::class;
 
     /** {@inheritdoc} */
     public function options($actionID): array // BC declaration
@@ -199,6 +191,8 @@ class MigrationController extends Controller
                 'h' => 'fixHistory',
                 'K' => 'templateFileForeignKey',
                 'n' => 'migrationNamespace',
+                'O' => 'tableOptionsInit',
+                'o' => 'tableOptions',
                 'P' => 'useTablePrefix',
                 'p' => 'migrationPath',
                 's' => 'showOnly',
@@ -212,6 +206,7 @@ class MigrationController extends Controller
     private $workingPath;
 
     /**
+     * This method is invoked right before an action is to be executed (after all possible filters).
      * It checks the existence of the workingPath and makes sure DB connection is prepared.
      * @param Action $action the action to be executed.
      * @return bool whether the action should continue to be executed.
@@ -220,7 +215,7 @@ class MigrationController extends Controller
      */
     public function beforeAction($action): bool // BC declaration
     {
-        if (parent::beforeAction($action) === false) {
+        if (!parent::beforeAction($action)) {
             return false;
         }
 
@@ -261,101 +256,13 @@ class MigrationController extends Controller
         return true;
     }
 
-    /** @var HistoryManagerInterface */
-    private $historyManager;
-
-    /**
-     * @return HistoryManagerInterface
-     * @throws InvalidConfigException
-     */
-    public function getHistoryManager(): HistoryManagerInterface
-    {
-        if ($this->historyManager === null) {
-            $this->historyManager = Yii::createObject($this->historyManagerClass, [$this->db, $this->migrationTable]);
-        }
-
-        return $this->historyManager;
-    }
-
-    /** @var TableMapperInterface */
-    private $tableMapper;
-
-    /**
-     * @return TableMapperInterface
-     * @throws InvalidConfigException
-     */
-    public function getTableMapper(): TableMapperInterface
-    {
-        if ($this->tableMapper === null) {
-            $this->tableMapper = Yii::createObject($this->tableMapperClass, [$this->db]);
-        }
-
-        return $this->tableMapper;
-    }
-
-    /** @var ArrangerInterface */
-    private $arranger;
-
-    /**
-     * @return ArrangerInterface
-     * @throws InvalidConfigException
-     */
-    public function getArranger(): ArrangerInterface
-    {
-        if ($this->arranger === null) {
-            $this->arranger = Yii::createObject($this->arrangerClass, [$this->getTableMapper()]);
-        }
-
-        return $this->arranger;
-    }
-
-    /** @var StructureRendererInterface */
-    private $structureRenderer;
-
-    /**
-     * @return StructureRendererInterface
-     * @throws InvalidConfigException
-     */
-    public function getStructureRenderer(): StructureRendererInterface
-    {
-        if ($this->structureRenderer === null) {
-            $this->structureRenderer = Yii::createObject(
-                $this->structureRendererClass,
-                [
-                    Yii::createObject($this->columnRendererClass),
-                    Yii::createObject($this->primaryKeyRendererClass),
-                    Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass)
-                ]
-            );
-        }
-
-        return $this->structureRenderer;
-    }
-
-    /** @var GeneratorInterface */
-    private $generator;
-
-    /**
-     * @return GeneratorInterface
-     * @throws InvalidConfigException
-     */
-    public function getGenerator(): GeneratorInterface
-    {
-        if ($this->generator === null) {
-            $this->generator = Yii::createObject($this->generatorClass, [$this->getTableMapper(), $this->view]);
-        }
-
-        return $this->generator;
-    }
-
     /**
      * Prepares path directory.
      * @param string $path
      * @return string
      * @throws Exception
      */
-    private function preparePathDirectory(string $path): string
+    protected function preparePathDirectory(string $path): string
     {
         $translatedPath = Yii::getAlias($path);
 
@@ -365,6 +272,8 @@ class MigrationController extends Controller
 
         return $translatedPath;
     }
+
+
 
     /**
      * @param string $path
@@ -381,9 +290,9 @@ class MigrationController extends Controller
      * @param array $tables
      * @return array
      */
-    private function removeExcludedTables(array $tables): array
+    protected function removeExcludedTables(array $tables): array
     {
-        if (count($tables) === 0) {
+        if (!$tables) {
             return [];
         }
 
@@ -410,10 +319,10 @@ class MigrationController extends Controller
     {
         $tables = $this->db->schema->getTableNames();
 
-        $tablesCount = count($tables);
-        if ($tablesCount === 0) {
+        if (!$tables) {
             $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
+            $tablesCount = count($tables);
             $this->stdout(" > Your database contains {$tablesCount} table" . ($tablesCount > 1 ? 's' : '') . ":\n");
 
             foreach ($tables as $table) {
@@ -447,32 +356,39 @@ class MigrationController extends Controller
         return ExitCode::OK;
     }
 
+    protected function getArranger(): Arranger
+    {
+        return new Arranger(['db' => $this->db]);
+    }
+
     /**
      * Creates new migration for the given tables.
-     * @param string $inputTable Table name or names separated by commas.
+     * @param string $table Table names separated by commas.
      * @return int
+     * @throws DbException
      * @throws InvalidConfigException
      */
-    public function actionCreate(string $inputTable): int
+    public function actionCreate(string $table): int
     {
-        if (strpos($inputTable, ',') !== false) {
-            $inputTables = explode(',', $inputTable);
-        } else {
-            $inputTables = [$inputTable];
+        $tables = [$table];
+        if (strpos($table, ',') !== false) {
+            $tables = explode(',', $table);
         }
 
-        $countTables = count($inputTables);
+        $countTables = count($tables);
         $suppressForeignKeys = [];
-        $tables = $inputTables;
         if ($countTables > 1) {
-            $this->getArranger()->arrangeMigrations($inputTables);
-            $tables = $this->getArranger()->getTablesInOrder();
-            $suppressForeignKeys = $this->getArranger()->getSuppressedForeignKeys();
+            $arranger = $this->getArranger();
+            $arranger->arrangeMigrations($tables);
+            $tables = $arranger->getTablesInOrder();
+            $suppressForeignKeys = $arranger->getSuppressedForeignKeys();
 
-            if (count($suppressForeignKeys) && Schema::isSQLite($this->db->schema)) {
+            if (
+                count($suppressForeignKeys)
+                && Schema::identifySchema(get_class($this->db->schema)) === Schema::SQLITE
+            ) {
                 $this->stdout(
-                    "ERROR!\n > Generating migrations for provided tables in batch is not possible "
-                    . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
+                    "WARNING!\n > Creating provided tables in batch requires manual migration!\n",
                     Console::FG_RED
                 );
 
@@ -484,30 +400,21 @@ class MigrationController extends Controller
 
         $counterSize = strlen((string) $countTables) + 1;
         $migrationsGenerated = 0;
-        foreach ($tables as $tableName) {
-            $this->stdout(" > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
+        foreach ($tables as $name) {
+            $this->stdout(" > Generating create migration for table '{$name}' ...", Console::FG_YELLOW);
 
             if ($countTables > 1) {
-                $migrationClassName = sprintf(
-                    "m%s_%0{$counterSize}d_create_table_%s",
-                    gmdate('ymd_His'),
-                    $migrationsGenerated + 1,
-                    $tableName
-                );
+                $className
+                    = sprintf(
+                        "m%s_%0{$counterSize}d_create_table_%s",
+                        gmdate('ymd_His'),
+                        $migrationsGenerated + 1,
+                        $name
+                    );
             } else {
-                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $tableName);
+                $className = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $name);
             }
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
-
-            try {
-                $migration = $this->getGenerator()->generateFor($tableName);
-            } catch (TableMissingException $exception) {
-                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
-                return ExitCode::DATAERR;
-            } catch (Throwable $exception) {
-                $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             $generator
                 = new Generator([
@@ -515,20 +422,24 @@ class MigrationController extends Controller
                     'view' => $this->view,
                     'useTablePrefix' => $this->useTablePrefix,
                     'templateFileCreate' => $this->templateFileCreate,
-                    'tableName' => $tableName,
-                    'className' => $migrationClassName,
+                    'tableName' => $name,
+                    'className' => $className,
                     'namespace' => $this->migrationNamespace,
                     'generalSchema' => $this->generalSchema,
                     'tableOptionsInit' => $this->tableOptionsInit,
                     'tableOptions' => $this->tableOptions,
-                    'suppressForeignKey' => $suppressForeignKeys[$tableName] ?? [],
+                    'suppressForeignKey' => $suppressForeignKeys[$name] ?? [],
                 ]);
 
+            if ($generator->getTableSchema() === null) {
+                $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
 
+                return ExitCode::DATAERR;
+            }
 
             if ($this->generateFile($file, $generator->generateMigration()) === false) {
                 $this->stdout(
-                    "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
+                    "ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n",
                     Console::FG_RED
                 );
 
@@ -545,7 +456,7 @@ class MigrationController extends Controller
                     $this->createMigrationHistoryTable();
                 }
 
-                $this->addMigrationHistory($migrationClassName, $this->migrationNamespace);
+                $this->addMigrationHistory($className, $this->migrationNamespace);
             }
 
             $this->stdout("\n");
@@ -559,13 +470,13 @@ class MigrationController extends Controller
         if ($postponedForeignKeys) {
             $this->stdout(' > Generating create migration for foreign keys ...', Console::FG_YELLOW);
 
-            $migrationClassName
+            $className
                 = sprintf(
                     "m%s_%0{$counterSize}d_create_foreign_keys",
                     gmdate('ymd_His'),
                     ++$migrationsGenerated
                 );
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             if (
                 $this->generateFile(
@@ -574,7 +485,7 @@ class MigrationController extends Controller
                         Yii::getAlias($this->templateFileForeignKey),
                         [
                             'fks' => $postponedForeignKeys,
-                            'className' => $migrationClassName,
+                            'className' => $className,
                             'namespace' => $this->migrationNamespace
                         ]
                     )
@@ -592,7 +503,7 @@ class MigrationController extends Controller
             $this->stdout(" > Saved as '{$file}'\n");
 
             if ($this->fixHistory) {
-                $this->addMigrationHistory($migrationClassName, $this->migrationNamespace);
+                $this->addMigrationHistory($className, $this->migrationNamespace);
             }
         }
 
@@ -765,4 +676,29 @@ class MigrationController extends Controller
 
         return ExitCode::OK;
     }
+
+    /** @var HistoryManagerInterface */
+    private $migrationHistoryManager;
+
+    /**
+     * @return HistoryManagerInterface
+     */
+    public function getMigrationHistoryManager(): HistoryManagerInterface
+    {
+        if ($this->migrationHistoryManager === null) {
+            $this->migrationHistoryManager = new HistoryManager($this->db, $this->migrationTable);
+        }
+
+        return $this->migrationHistoryManager;
+    }
+
+    /**
+     * @param HistoryManagerInterface $migrationHistoryManager
+     */
+    public function setMigrationHistoryManager(HistoryManagerInterface $migrationHistoryManager): void
+    {
+        $this->migrationHistoryManager = $migrationHistoryManager;
+    }
+
+
 }

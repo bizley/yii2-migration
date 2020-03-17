@@ -10,7 +10,7 @@ use yii\db\Exception;
 
 use function time;
 
-final class MigrationHistoryManager implements MigrationHistoryManagerInterface
+final class HistoryManager implements HistoryManagerInterface
 {
     /** @var Connection */
     private $db;

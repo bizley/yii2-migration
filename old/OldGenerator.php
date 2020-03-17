@@ -29,7 +29,7 @@ use function get_class;
 use function in_array;
 use function is_array;
 
-class OldGenerator extends Component implements GeneratorInterface
+class OldGenerator extends Component
 {
     /** @var Connection DB connection */
     public $db;

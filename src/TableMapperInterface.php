@@ -10,5 +10,7 @@ use yii\db\TableSchema;
 interface TableMapperInterface
 {
     public function getStructureOf(string $table): StructureInterface;
-    public function getSchema(string $table): ?TableSchema;
+    public function getTableSchema(string $table): ?TableSchema;
+    public function getSchemaType(): string;
+    public function getEngineVersion(): ?string;
 }
