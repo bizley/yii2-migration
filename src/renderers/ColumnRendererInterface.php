@@ -15,8 +15,8 @@ interface ColumnRendererInterface
 
     public function render(
         string $schema,
-        bool $generalSchema = true,
         string $engineVersion = null,
+        bool $generalSchema = true,
         int $indent = 0
     ): ?string;
 }

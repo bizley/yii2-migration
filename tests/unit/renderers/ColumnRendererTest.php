@@ -86,7 +86,7 @@ class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
         $this->renderer->setColumn($column);
-        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', false));
+        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', null, false));
     }
 
     /**
@@ -99,7 +99,7 @@ class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
         $this->renderer->setColumn($column);
-        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', null, true));
     }
 
     /**
@@ -116,7 +116,7 @@ class ColumnRendererTest extends TestCase
 
         $this->renderer->setColumn($column);
         $this->renderer->setPrimaryKey($primaryKey);
-        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', null, true));
     }
 
     /**
@@ -134,7 +134,7 @@ class ColumnRendererTest extends TestCase
 
         $this->renderer->setColumn($column);
         $this->renderer->setPrimaryKey($primaryKey);
-        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', null, true));
     }
 
     /**
@@ -153,7 +153,7 @@ class ColumnRendererTest extends TestCase
 
         $this->renderer->setColumn($column);
         $this->renderer->setPrimaryKey($primaryKey);
-        $this->assertSame('\'col\' => $this->primaryKeyDef(),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->primaryKeyDef(),', $this->renderer->render('test', null, true));
     }
 
     /**
@@ -167,7 +167,7 @@ class ColumnRendererTest extends TestCase
         $column->method('getLength')->willReturn('12');
 
         $this->renderer->setColumn($column);
-        $this->assertSame('\'col\' => $this->def(12),', $this->renderer->render('test', false));
+        $this->assertSame('\'col\' => $this->def(12),', $this->renderer->render('test', null, false));
     }
 
     public function providerForDefaultLengths(): array
@@ -200,7 +200,7 @@ class ColumnRendererTest extends TestCase
         $column->method('getDefaultMapping')->willReturn($mapping);
 
         $this->renderer->setColumn($column);
-        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->def(),', $this->renderer->render('test', null, true));
     }
 
     /**
@@ -215,7 +215,7 @@ class ColumnRendererTest extends TestCase
         $column->method('getDefaultMapping')->willReturn('(9,3)');
 
         $this->renderer->setColumn($column);
-        $this->assertSame('\'col\' => $this->def(11),', $this->renderer->render('test', true));
+        $this->assertSame('\'col\' => $this->def(11),', $this->renderer->render('test', null, true));
     }
 
     /**

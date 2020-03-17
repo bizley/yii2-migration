@@ -120,7 +120,7 @@ TEMPLATE;
     ): string {
         $renderedStructure = array_filter(
             [
-                $this->renderTable($schema, $generalSchema, $engineVersion, $indent),
+                $this->renderTable($schema, $engineVersion, $generalSchema, $indent),
                 $this->renderPrimaryKey($indent),
                 $this->renderIndexes($indent),
                 $this->renderForeignKeys($indent)
@@ -149,15 +149,15 @@ TEMPLATE;
     /**
      * Renders the table.
      * @param string $schema
-     * @param bool $generalSchema
      * @param string|null $engineVersion
+     * @param bool $generalSchema
      * @param int $indent
      * @return string|null
      */
     public function renderTable(
         string $schema,
-        bool $generalSchema,
         string $engineVersion = null,
+        bool $generalSchema = true,
         int $indent = 0
     ): ?string {
         if ($this->structure === null) {
@@ -170,7 +170,7 @@ TEMPLATE;
         $renderedColumns = [];
         foreach ($columns as $column) {
             $this->columnRenderer->setColumn($column);
-            $renderedColumns[] = $this->columnRenderer->render($schema, $generalSchema, $engineVersion, $indent + 8);
+            $renderedColumns[] = $this->columnRenderer->render($schema, $engineVersion, $generalSchema, $indent + 8);
         }
 
         return str_replace(

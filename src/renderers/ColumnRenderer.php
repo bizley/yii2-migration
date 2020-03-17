@@ -52,8 +52,8 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     public function render(
         string $schema,
-        bool $generalSchema = true,
         string $engineVersion = null,
+        bool $generalSchema = true,
         int $indent = 0
     ): ?string {
         if ($this->column === null) {
@@ -61,7 +61,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         }
 
         return str_repeat(' ', $indent)
-            . "'{$this->column->getName()}' => {$this->renderDefinition($schema, $generalSchema, $engineVersion)},";
+            . "'{$this->column->getName()}' => {$this->renderDefinition($schema, $engineVersion, $generalSchema)},";
     }
 
     /**
@@ -71,7 +71,7 @@ final class ColumnRenderer implements ColumnRendererInterface
      * @param string|null $engineVersion
      * @return string
      */
-    private function renderDefinition(string $schema, bool $generalSchema = true, string $engineVersion = null): string
+    private function renderDefinition(string $schema, string $engineVersion = null, bool $generalSchema = true): string
     {
         $this->definition = [];
 
