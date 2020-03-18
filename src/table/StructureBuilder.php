@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 use function array_key_exists;
 use function count;
 
-final class StructureBuilder
+final class StructureBuilder implements StructureBuilderInterface
 {
     /**
      * @var StructureInterface
@@ -22,10 +22,14 @@ final class StructureBuilder
      */
     private $schema;
 
-    public function __construct(StructureInterface $structure, string $schema)
+    public function __construct(string $schema)
+    {
+        $this->schema = $schema;
+    }
+
+    public function setStructure(StructureInterface $structure): void
     {
         $this->structure = $structure;
-        $this->schema = $schema;
     }
 
     /**

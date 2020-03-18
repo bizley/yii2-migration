@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @var $table \bizley\migration\table\Structure Table structure
  * @var $className string Class name
  * @var $namespace string Namespace
- * @var $plan \bizley\migration\table\UpdateInstructions Changes definitions
+ * @var $plan \bizley\migration\table\Blueprint Changes definitions
  */
 
 echo "<?php\n";

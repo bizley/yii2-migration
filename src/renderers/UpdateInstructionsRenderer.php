@@ -6,7 +6,7 @@ namespace bizley\migration\renderers;
 
 use function sprintf;
 
-final class UpdateInstructionsRenderer
+final class UpdateInstructionsRenderer implements UpdateInstructionsRendererInterface
 {
     /**
      * Renders migration changes.

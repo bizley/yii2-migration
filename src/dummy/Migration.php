@@ -3,17 +3,13 @@
 namespace yii\db;
 
 use bizley\migration\table\StructureChange;
-use bizley\migration\table\Structure;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
-use yii\di\Instance;
 
 use function array_key_exists;
-use function get_class;
 use function is_array;
 use function preg_match;
 use function preg_split;
@@ -33,31 +29,26 @@ class Migration extends Component implements MigrationInterface
     public $compact = false;
 
     /**
-     * @var array List of all migration actions in form of 'table' => [array of changes]
+     * @var array<StructureChange> List of all migration actions
      */
-    public $changes = [];
+    private $changes = [];
 
     /**
      * @var Connection|array|string
      */
-    public $db = 'db';
+    public $db;
 
     /**
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function init()
     {
         parent::init();
 
-        $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDb()
     {
         return $this->db;
@@ -90,7 +81,7 @@ class Migration extends Component implements MigrationInterface
      * @return array
      * @throws ReflectionException
      */
-    protected function extractColumns(array $columns): array
+    private function extractColumns(array $columns): array
     {
         $schema = [];
 
@@ -108,7 +99,7 @@ class Migration extends Component implements MigrationInterface
      * @param array $dbToKey
      * @return array
      */
-    protected function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
+    private function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
     {
         $schema = [];
 
@@ -169,7 +160,7 @@ class Migration extends Component implements MigrationInterface
      * @throws ReflectionException
      * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
      */
-    protected function extractColumn(ColumnSchemaBuilder $columnData): array
+    private function extractColumn(ColumnSchemaBuilder $columnData): array
     {
         if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
@@ -214,7 +205,7 @@ class Migration extends Component implements MigrationInterface
         return $schema;
     }
 
-    public function getRawTableName(string $table): string
+    private function getRawTableName(string $table): string
     {
         return $this->db->schema->getRawTableName($table);
     }
@@ -225,7 +216,7 @@ class Migration extends Component implements MigrationInterface
      * @param string $method
      * @param mixed $data
      */
-    public function addChange(string $table, string $method, $data): void
+    private function addChange(string $table, string $method, $data): void
     {
         $table = $this->getRawTableName($table);
 
@@ -233,123 +224,93 @@ class Migration extends Component implements MigrationInterface
             $this->changes[$table] = [];
         }
 
-        $this->changes[$table][]
-            = new StructureChange([
-                'schema' => Structure::identifySchema(get_class($this->db->schema)),
-                'table' => $table,
-                'method' => $method,
-                'data' => $data,
-                'db' => $this->db,
-            ]);
+        $change = new StructureChange();
+        $change->setData($data);
+        $change->setMethod($method);
+        $change->setTable($table);
+
+        $this->changes[$table][] = $change;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function getChanges(): array
+    {
+        return $this->changes;
+    }
+
     public function execute($sql, $params = [])
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function insert($table, $columns)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function batchInsert($table, $columns, $rows)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function update($table, $columns, $condition = '', $params = [])
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function delete($table, $condition = '', $params = [])
     {
         // not supported
     }
 
     /**
-     * {@inheritdoc}
+     * @throws ReflectionException
      */
     public function createTable($table, $columns, $options = null)
     {
         $this->addChange($table, 'createTable', $this->extractColumns($columns));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renameTable($table, $newName)
     {
         $this->addChange($table, 'renameTable', $this->getRawTableName($newName));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropTable($table)
     {
         $this->addChange($table, 'dropTable', null);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function truncateTable($table)
     {
         // not supported
     }
 
     /**
-     * {@inheritdoc}
+     * @throws ReflectionException
      */
     public function addColumn($table, $column, $type)
     {
         $this->addChange($table, 'addColumn', [$column, $this->extractColumn($type)]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropColumn($table, $column)
     {
         $this->addChange($table, 'dropColumn', $column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renameColumn($table, $name, $newName)
     {
         $this->addChange($table, 'renameColumn', [$name, $newName]);
     }
 
     /**
-     * {@inheritdoc}
+     * @throws ReflectionException
      */
     public function alterColumn($table, $column, $type)
     {
         $this->addChange($table, 'alterColumn', [$column, $this->extractColumn($type)]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addPrimaryKey($name, $table, $columns)
     {
         $this->addChange(
@@ -362,17 +323,11 @@ class Migration extends Component implements MigrationInterface
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropPrimaryKey($name, $table)
     {
         $this->addChange($table, 'dropPrimaryKey', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
         $this->addChange($table, 'addForeignKey', [
@@ -385,17 +340,11 @@ class Migration extends Component implements MigrationInterface
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropForeignKey($name, $table)
     {
         $this->addChange($table, 'dropForeignKey', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createIndex($name, $table, $columns, $unique = false)
     {
         $this->addChange(
@@ -409,49 +358,31 @@ class Migration extends Component implements MigrationInterface
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropIndex($name, $table)
     {
         $this->addChange($table, 'dropIndex', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addCommentOnColumn($table, $column, $comment)
     {
         $this->addChange($table, 'addCommentOnColumn', [$column, $comment]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addCommentOnTable($table, $comment)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropCommentFromColumn($table, $column)
     {
         $this->addChange($table, 'dropCommentFromColumn', $column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropCommentFromTable($table)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
     {
         // not supported

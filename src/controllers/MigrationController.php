@@ -626,13 +626,13 @@ class MigrationController extends Controller
     {
         $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
 
-        if (!$tables) {
+        $tablesCount = count($tables);
+        if ($tablesCount === 0) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
 
             return ExitCode::OK;
         }
 
-        $tablesCount = count($tables);
         if (
             $this->confirm(
                 " > Are you sure you want to generate $tablesCount migration"
@@ -656,18 +656,19 @@ class MigrationController extends Controller
      * @throws DbException
      * @throws InvalidConfigException
      */
-    public function actionUpdate(string $table): int
+    public function actionUpdate(string $inputTable): int
     {
-        $tables = [$table];
-        if (strpos($table, ',') !== false) {
-            $tables = explode(',', $table);
+        if (strpos($inputTable, ',') !== false) {
+            $inputTables = explode(',', $inputTable);
+        } else {
+            $inputTables = [$inputTable];
         }
 
         $migrationsGenerated = 0;
-        foreach ($tables as $name) {
-            $this->stdout(" > Generating update migration for table '{$name}' ...", Console::FG_YELLOW);
+        foreach ($inputTables as $tableName) {
+            $this->stdout(" > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
-            $className = 'm' . gmdate('ymd_His') . '_update_table_' . $name;
+            $className = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
             $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
             $updater
@@ -677,7 +678,7 @@ class MigrationController extends Controller
                     'useTablePrefix' => $this->useTablePrefix,
                     'templateFileCreate' => $this->templateFileCreate,
                     'templateFileUpdate' => $this->templateFileUpdate,
-                    'tableName' => $name,
+                    'tableName' => $tableName,
                     'className' => $className,
                     'namespace' => $this->migrationNamespace,
                     'migrationPath' => $this->migrationPath,
@@ -688,7 +689,7 @@ class MigrationController extends Controller
                 ]);
 
             if ($updater->getTableSchema() === null) {
-                $this->stdout("ERROR!\n > Table '{$name}' does not exist!\n\n", Console::FG_RED);
+                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
 
                 return ExitCode::DATAERR;
             }
@@ -700,7 +701,10 @@ class MigrationController extends Controller
                     continue;
                 }
             } catch (NotSupportedException $exception) {
-                $this->stdout("WARNING!\n > Updating table '{$name}' requires manual migration!\n", Console::FG_RED);
+                $this->stdout(
+                    "WARNING!\n > Updating table '{$tableName}' requires manual migration!\n",
+                    Console::FG_RED
+                );
                 $this->stdout(' > ' . $exception->getMessage() . "\n\n", Console::FG_RED);
 
                 continue;
@@ -709,7 +713,7 @@ class MigrationController extends Controller
             if (!$this->showOnly) {
                 if ($this->generateFile($file, $updater->generateMigration()) === false) {
                     $this->stdout(
-                        "ERROR!\n > Migration file for table '{$name}' can not be generated!\n\n",
+                        "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
                         Console::FG_RED
                     );
 
@@ -754,13 +758,13 @@ class MigrationController extends Controller
     {
         $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
 
-        if (!$tables) {
+        $tablesCount = count($tables);
+        if ($tablesCount === 0) {
             $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
 
             return ExitCode::OK;
         }
 
-        $tablesCount = count($tables);
         if (
             $this->confirm(
                 " > Are you sure you want to potentially generate $tablesCount migration"

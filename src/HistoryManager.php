@@ -7,8 +7,14 @@ namespace bizley\migration;
 use yii\console\controllers\MigrateController;
 use yii\db\Connection;
 use yii\db\Exception;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
+use function preg_match;
+use function str_replace;
+use function strcasecmp;
 use function time;
+use function usort;
 
 final class HistoryManager implements HistoryManagerInterface
 {
@@ -16,12 +22,12 @@ final class HistoryManager implements HistoryManagerInterface
     private $db;
 
     /** @var string */
-    private $table;
+    private $historyTable;
 
-    public function __construct(Connection $db, string $table)
+    public function __construct(Connection $db, string $historyTable)
     {
         $this->db = $db;
-        $this->table = $table;
+        $this->historyTable = $historyTable;
     }
 
     /**
@@ -33,7 +39,7 @@ final class HistoryManager implements HistoryManagerInterface
         $this->db
             ->createCommand()
             ->createTable(
-                $this->table,
+                $this->historyTable,
                 [
                     'version' => 'varchar(' . MigrateController::MAX_NAME_LENGTH . ') NOT NULL PRIMARY KEY',
                     'apply_time' => 'integer',
@@ -43,7 +49,7 @@ final class HistoryManager implements HistoryManagerInterface
         $this->db
             ->createCommand()
             ->insert(
-                $this->table,
+                $this->historyTable,
                 [
                     'version' => MigrateController::BASE_MIGRATION,
                     'apply_time' => time(),
@@ -60,19 +66,72 @@ final class HistoryManager implements HistoryManagerInterface
      */
     public function addHistory(string $migrationName, string $namespace = null): void
     {
-        if ($this->db->schema->getTableSchema($this->table, true) === null) {
+        if ($this->db->schema->getTableSchema($this->historyTable, true) === null) {
             $this->createTable();
         }
 
         $this->db
             ->createCommand()
             ->insert(
-                $this->table,
+                $this->historyTable,
                 [
                     'version' => ($namespace ? $namespace . '\\' : '') . $migrationName,
                     'apply_time' => time(),
                 ]
             )
             ->execute();
+    }
+
+    /**
+     * Returns the migration history.
+     * This is slightly modified Yii's MigrateController::getMigrationHistory() method.
+     * Migrations are fetched from newest to oldest.
+     * @return array the migration history
+     */
+    public function fetchHistory(): array
+    {
+        if ($this->db->schema->getTableSchema($this->historyTable, true) === null) {
+            return [];
+        }
+
+        $rows = (new Query())
+            ->select(['version', 'apply_time'])
+            ->from($this->historyTable)
+            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+            ->all($this->db);
+
+        $history = [];
+        foreach ($rows as $key => $row) {
+            if ($row['version'] === MigrateController::BASE_MIGRATION) {
+                continue;
+            }
+
+            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?$/is', $row['version'], $matches)) {
+                $row['canonicalVersion'] = str_replace('_', '', $matches[1]);
+            } else {
+                $row['canonicalVersion'] = $row['version'];
+            }
+
+            $row['apply_time'] = (int)$row['apply_time'];
+
+            $history[] = $row;
+        }
+
+        usort(
+            $history,
+            static function ($a, $b) {
+                if ($a['apply_time'] === $b['apply_time']) {
+                    if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
+                        return $compareResult;
+                    }
+
+                    return strcasecmp($b['version'], $a['version']);
+                }
+
+                return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
+            }
+        );
+
+        return ArrayHelper::map($history, 'version', 'apply_time');
     }
 }

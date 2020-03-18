@@ -14,4 +14,6 @@ interface HistoryManagerInterface
      * @throws Exception
      */
     public function addHistory(string $migrationName, string $namespace = null): void;
+
+    public function fetchHistory(): array;
 }

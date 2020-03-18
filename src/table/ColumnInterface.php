@@ -55,4 +55,10 @@ interface ColumnInterface
     public function isAutoIncrement(): bool;
 
     public function getDefaultMapping(): ?string;
+
+    public function setUnique(bool $unique): void;
+
+    public function setAfter(?string $after): void;
+
+    public function setFirst(bool $first): void;
 }
