@@ -120,9 +120,9 @@ TEMPLATE;
     ): string {
         $renderedStructure = array_filter(
             [
-                $this->renderTable($schema, $engineVersion, $generalSchema, $indent),
-                $this->renderPrimaryKey($indent),
-                $this->renderIndexes($indent),
+                $this->renderStructureTable($schema, $engineVersion, $generalSchema, $indent),
+                $this->renderStructurePrimaryKey($indent),
+                $this->renderStructureIndexes($indent),
                 $this->renderStructureForeignKeys($indent)
             ]
         );
@@ -154,7 +154,7 @@ TEMPLATE;
      * @param int $indent
      * @return string|null
      */
-    private function renderTable(
+    private function renderStructureTable(
         string $schema,
         string $engineVersion = null,
         bool $generalSchema = true,
@@ -180,7 +180,7 @@ TEMPLATE;
         );
     }
 
-    private function renderPrimaryKey(int $indent = 0): ?string
+    private function renderStructurePrimaryKey(int $indent = 0): ?string
     {
         if ($this->structure === null) {
             return null;
@@ -190,7 +190,7 @@ TEMPLATE;
         return $this->primaryKeyRenderer->render($this->renderName($this->structure->getName()), $indent);
     }
 
-    private function renderIndexes(int $indent = 0): ?string
+    private function renderStructureIndexes(int $indent = 0): ?string
     {
         if ($this->structure === null) {
             return null;
