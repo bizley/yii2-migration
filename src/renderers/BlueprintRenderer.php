@@ -4,10 +4,20 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\table\BlueprintInterface;
+
 use function sprintf;
 
-final class UpdateInstructionsRenderer implements UpdateInstructionsRendererInterface
+final class BlueprintRenderer implements BlueprintRendererInterface
 {
+    /** @var BlueprintInterface */
+    private $blueprint;
+
+    public function setBlueprint(BlueprintInterface $blueprint): void
+    {
+        $this->blueprint = $blueprint;
+    }
+
     /**
      * Renders migration changes.
      * @param Structure $table

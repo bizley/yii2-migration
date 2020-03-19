@@ -4,32 +4,14 @@ declare(strict_types=1);
 
 namespace bizley\migration\controllers;
 
-use bizley\migration\Arranger;
-use bizley\migration\ArrangerInterface;
-use bizley\migration\Generator;
-use bizley\migration\GeneratorInterface;
-use bizley\migration\HistoryManager;
-use bizley\migration\HistoryManagerInterface;
-use bizley\migration\renderers\ColumnRenderer;
-use bizley\migration\renderers\ForeignKeyRenderer;
-use bizley\migration\renderers\IndexRenderer;
-use bizley\migration\renderers\PrimaryKeyRenderer;
-use bizley\migration\renderers\StructureRenderer;
-use bizley\migration\renderers\StructureRendererInterface;
 use bizley\migration\Schema;
-use bizley\migration\TableMapper;
-use bizley\migration\TableMapperInterface;
 use bizley\migration\TableMissingException;
-use bizley\migration\Updater;
-use Closure;
 use Throwable;
 use Yii;
 use yii\base\Action;
-use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
-use yii\console\Controller;
 use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\db\Exception as DbException;
@@ -59,13 +41,10 @@ use function strpos;
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
-class MigrationController extends Controller
+class MigrationController extends BaseMigrationController
 {
     /** @var string */
     private $version = '4.0.0';
-
-    /** @var string Default command action. */
-    public $defaultAction = 'list';
 
     /**
      * @var string|array Directory storing the migration classes.
@@ -104,20 +83,8 @@ class MigrationController extends Controller
      */
     public $useTablePrefix = true;
 
-    /**
-     * @var Connection|array|string DB connection object, configuration array, or the application component ID of
-     * the DB connection.
-     */
-    public $db = 'db';
-
-    /**
-     * @var string Name of the table for keeping applied migration information.
-     * The same as in yii\console\controllers\MigrateController::$migrationTable.
-     */
-    public $migrationTable = '{{%migration}}';
-
     /** @var bool Whether to only display changes instead of generating update migration. */
-    public $showOnly = false;
+    public $onlyShow = false;
 
     /** @var bool Whether to use general column schema instead of database specific. */
     public $generalSchema = true;
@@ -133,33 +100,6 @@ class MigrationController extends Controller
 
     /** @var array List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
-
-    /** @var string|array|Closure */
-    public $historyManagerClass = HistoryManager::class;
-
-    /** @var string|array|Closure */
-    public $tableMapperClass = TableMapper::class;
-
-    /** @var string|array|Closure */
-    public $arrangerClass = Arranger::class;
-
-    /** @var string|array|Closure */
-    public $generatorClass = Generator::class;
-
-    /** @var string|array|Closure */
-    public $structureRendererClass = StructureRenderer::class;
-
-    /** @var string|array|Closure */
-    public $columnRendererClass = ColumnRenderer::class;
-
-    /** @var string|array|Closure */
-    public $primaryKeyRendererClass = PrimaryKeyRenderer::class;
-
-    /** @var string|array|Closure */
-    public $indexRendererClass = IndexRenderer::class;
-
-    /** @var string|array|Closure */
-    public $foreignKeyRendererClass = ForeignKeyRenderer::class;
 
     /** {@inheritdoc} */
     public function options($actionID): array // BC declaration
@@ -245,7 +185,7 @@ class MigrationController extends Controller
                 foreach ($this->migrationNamespace as &$namespace) {
                     $namespace = FileHelper::normalizePath($namespace, '\\');
 
-                    if ($this->workingPath === null && $this->showOnly === false) {
+                    if ($this->workingPath === null && $this->onlyShow === false) {
                         $this->workingPath = $this->preparePathDirectory(
                             '@' . FileHelper::normalizePath($namespace, '/')
                         );
@@ -257,7 +197,7 @@ class MigrationController extends Controller
                     $this->migrationPath = [$this->migrationPath];
                 }
                 foreach ($this->migrationPath as $path) {
-                    if ($this->workingPath === null && $this->showOnly === false) {
+                    if ($this->workingPath === null && $this->onlyShow === false) {
                         $this->workingPath = $this->preparePathDirectory($path);
                         break;
                     }
@@ -273,94 +213,6 @@ class MigrationController extends Controller
         $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
 
         return true;
-    }
-
-    /** @var HistoryManagerInterface */
-    private $historyManager;
-
-    /**
-     * @return HistoryManagerInterface
-     * @throws InvalidConfigException
-     */
-    public function getHistoryManager(): HistoryManagerInterface
-    {
-        if ($this->historyManager === null) {
-            $this->historyManager = Yii::createObject($this->historyManagerClass, [$this->db, $this->migrationTable]);
-        }
-
-        return $this->historyManager;
-    }
-
-    /** @var TableMapperInterface */
-    private $tableMapper;
-
-    /**
-     * @return TableMapperInterface
-     * @throws InvalidConfigException
-     */
-    public function getTableMapper(): TableMapperInterface
-    {
-        if ($this->tableMapper === null) {
-            $this->tableMapper = Yii::createObject($this->tableMapperClass, [$this->db]);
-        }
-
-        return $this->tableMapper;
-    }
-
-    /** @var ArrangerInterface */
-    private $arranger;
-
-    /**
-     * @return ArrangerInterface
-     * @throws InvalidConfigException
-     */
-    public function getArranger(): ArrangerInterface
-    {
-        if ($this->arranger === null) {
-            $this->arranger = Yii::createObject($this->arrangerClass, [$this->getTableMapper()]);
-        }
-
-        return $this->arranger;
-    }
-
-    /** @var StructureRendererInterface */
-    private $structureRenderer;
-
-    /**
-     * @return StructureRendererInterface
-     * @throws InvalidConfigException
-     */
-    public function getStructureRenderer(): StructureRendererInterface
-    {
-        if ($this->structureRenderer === null) {
-            $this->structureRenderer = Yii::createObject(
-                $this->structureRendererClass,
-                [
-                    Yii::createObject($this->columnRendererClass),
-                    Yii::createObject($this->primaryKeyRendererClass),
-                    Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass)
-                ]
-            );
-        }
-
-        return $this->structureRenderer;
-    }
-
-    /** @var GeneratorInterface */
-    private $generator;
-
-    /**
-     * @return GeneratorInterface
-     * @throws InvalidConfigException
-     */
-    public function getGenerator(): GeneratorInterface
-    {
-        if ($this->generator === null) {
-            $this->generator = Yii::createObject($this->generatorClass, [$this->getTableMapper(), $this->view]);
-        }
-
-        return $this->generator;
     }
 
     /**
@@ -545,7 +397,7 @@ class MigrationController extends Controller
 
             if ($this->fixHistory) {
                 try {
-                    $this->historyManager->addHistory($migrationClassName, $this->workingNamespace);
+                    $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
                 } catch (DbException $exception) {
                     $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
                     return ExitCode::UNSPECIFIED_ERROR;
@@ -595,7 +447,7 @@ class MigrationController extends Controller
 
             if ($this->fixHistory) {
                 try {
-                    $this->historyManager->addHistory($migrationClassName, $this->workingNamespace);
+                    $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
                 } catch (DbException $exception) {
                     $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
                     return ExitCode::UNSPECIFIED_ERROR;
@@ -619,7 +471,6 @@ class MigrationController extends Controller
     /**
      * Creates new migrations for every table in database.
      * @return int
-     * @throws DbException
      * @throws InvalidConfigException
      */
     public function actionCreateAll(): int
@@ -650,10 +501,8 @@ class MigrationController extends Controller
 
     /**
      * Creates new update migration for the given tables.
-     * @param string $table Table names separated by commas.
+     * @param string $inputTable
      * @return int
-     * @throws ErrorException
-     * @throws DbException
      * @throws InvalidConfigException
      */
     public function actionUpdate(string $inputTable): int
@@ -668,38 +517,31 @@ class MigrationController extends Controller
         foreach ($inputTables as $tableName) {
             $this->stdout(" > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
-            $className = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
-
-            $updater
-                = new Updater([
-                    'db' => $this->db,
-                    'view' => $this->view,
-                    'useTablePrefix' => $this->useTablePrefix,
-                    'templateFileCreate' => $this->templateFileCreate,
-                    'templateFileUpdate' => $this->templateFileUpdate,
-                    'tableName' => $tableName,
-                    'className' => $className,
-                    'namespace' => $this->migrationNamespace,
-                    'migrationPath' => $this->migrationPath,
-                    'migrationTable' => $this->migrationTable,
-                    'showOnly' => $this->showOnly,
-                    'generalSchema' => $this->generalSchema,
-                    'skipMigrations' => $this->skipMigrations,
-                ]);
-
-            if ($updater->getTableSchema() === null) {
-                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
-
-                return ExitCode::DATAERR;
-            }
+            $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
+            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
             try {
-                if ($updater->isUpdateRequired() === false) {
+                if (
+                    $this->getUpdater()->isUpdateRequired(
+                        $tableName,
+                        $this->onlyShow,
+                        $this->skipMigrations,
+                        $this->migrationPath
+                    ) === false
+                ) {
                     $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
 
                     continue;
                 }
+
+                $migration = $this->getUpdater()->generateForPendingTable(
+                    $migrationClassName,
+                    $this->generalSchema,
+                    $this->workingNamespace
+                );
+            } catch (TableMissingException $exception) {
+                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
+                return ExitCode::DATAERR;
             } catch (NotSupportedException $exception) {
                 $this->stdout(
                     "WARNING!\n > Updating table '{$tableName}' requires manual migration!\n",
@@ -708,10 +550,13 @@ class MigrationController extends Controller
                 $this->stdout(' > ' . $exception->getMessage() . "\n\n", Console::FG_RED);
 
                 continue;
+            } catch (Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            if (!$this->showOnly) {
-                if ($this->generateFile($file, $updater->generateMigration()) === false) {
+            if ($this->onlyShow === false) {
+                if ($this->generateFile($file, $migration) === false) {
                     $this->stdout(
                         "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
                         Console::FG_RED
@@ -726,11 +571,12 @@ class MigrationController extends Controller
                 $this->stdout(" > Saved as '{$file}'\n");
 
                 if ($this->fixHistory) {
-                    if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
-                        $this->createMigrationHistoryTable();
+                    try {
+                        $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
+                    } catch (DbException $exception) {
+                        $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                        return ExitCode::UNSPECIFIED_ERROR;
                     }
-
-                    $this->addMigrationHistory($className, $this->migrationNamespace);
                 }
             }
 
@@ -738,7 +584,10 @@ class MigrationController extends Controller
         }
 
         if ($migrationsGenerated) {
-            $this->stdout(" Generated $migrationsGenerated file(s).\n", Console::FG_YELLOW);
+            $this->stdout(
+                " Generated $migrationsGenerated file" . ($migrationsGenerated > 1 ? 's' : '') . "\n",
+                Console::FG_YELLOW
+            );
             $this->stdout(" (!) Remember to verify files before applying migration.\n\n", Console::FG_YELLOW);
         } else {
             $this->stdout(" No files generated.\n\n", Console::FG_YELLOW);
@@ -750,8 +599,6 @@ class MigrationController extends Controller
     /**
      * Creates new update migrations for every table in database.
      * @return int
-     * @throws ErrorException
-     * @throws DbException
      * @throws InvalidConfigException
      */
     public function actionUpdateAll(): int

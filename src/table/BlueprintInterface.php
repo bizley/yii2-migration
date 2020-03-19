@@ -6,6 +6,12 @@ namespace bizley\migration\table;
 
 interface BlueprintInterface
 {
+    public function setStartFromScratch(bool $startFromScratch): void;
+
+    public function addDescription(string $description): void;
+
+    public function isPending(): bool;
+
     public function addColumn(ColumnInterface $column): void;
 
     public function alterColumn(ColumnInterface $column): void;

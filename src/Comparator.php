@@ -27,16 +27,11 @@ final class Comparator implements ComparatorInterface
     /** @var bool */
     private $isSchemaSQLite;
 
-    /** @var BlueprintInterface */
-    private $blueprint;
-
     public function __construct(
-        BlueprintInterface $blueprint,
         ?string $schema,
         ?string $engineVersion,
         bool $generalSchema
     ) {
-        $this->blueprint = $blueprint;
         $this->schema = $schema;
         $this->engineVersion = $engineVersion;
         $this->generalSchema = $generalSchema;
@@ -44,8 +39,13 @@ final class Comparator implements ComparatorInterface
         $this->isSchemaSQLite = $schema === Schema::SQLITE;
     }
 
-    /** @var array */
-    private $differencesDescription = [];
+    /** @var BlueprintInterface */
+    private $blueprint;
+
+    public function setBlueprint(BlueprintInterface $blueprint): void
+    {
+        $this->blueprint = $blueprint;
+    }
 
     /**
      * Compares migration virtual structure with database structure and gathers required modifications.
@@ -81,16 +81,13 @@ final class Comparator implements ComparatorInterface
         /** @var ColumnInterface $column */
         foreach ($newColumns as $name => $column) {
             if (array_key_exists($name, $oldColumns) === false) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "missing column '$name'";
+                $this->blueprint->addDescription("missing column '$name'");
+                if ($previousColumn) {
+                    $column->setAfter($previousColumn);
                 } else {
-                    if ($previousColumn) {
-                        $column->setAfter($previousColumn);
-                    } else {
-                        $column->setFirst(true);
-                    }
-                    $this->blueprint->addColumn($column);
+                    $column->setFirst(true);
                 }
+                $this->blueprint->addColumn($column);
 
                 $previousColumn = $name;
                 continue;
@@ -119,6 +116,7 @@ final class Comparator implements ComparatorInterface
                     'getComment',
                 ] as $propertyFetch
             ) {
+                /** @var ColumnInterface $oldColumn */
                 $oldColumn = $oldStructure->getColumn($name);
                 if ($propertyFetch === 'getLength') {
                     $oldProperty = $oldColumn->getLength($this->schema, $this->engineVersion);
@@ -142,22 +140,21 @@ final class Comparator implements ComparatorInterface
                         continue;
                     }
 
-                    if ($onlyShow) {
-                        $this->differencesDescription[] = "different '$name' column property: $propertyFetch ("
-                            . 'DB: ' . $this->stringifyValue($newProperty) . ' != '
-                            . 'MIG: ' . $this->stringifyValue($oldProperty) . ')';
+                    $this->blueprint->addDescription(
+                        "different '$name' column property: $propertyFetch ("
+                        . 'DB: ' . $this->stringifyValue($newProperty) . ' != '
+                        . 'MIG: ' . $this->stringifyValue($oldProperty) . ')'
+                    );
 
-                        if ($this->isSchemaSQLite) {
-                            $this->differencesDescription[]
-                                = '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually';
-                        }
-                    } else {
-                        if ($this->isSchemaSQLite) {
+                    if ($this->isSchemaSQLite) {
+                        $this->blueprint->addDescription(
+                            '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
+                        );
+                        if ($onlyShow === false) {
                             throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
                         }
-
-                        $this->blueprint->alterColumn($column);
                     }
+                    $this->blueprint->alterColumn($column);
                 }
             }
         }
@@ -165,20 +162,17 @@ final class Comparator implements ComparatorInterface
         /** @var ColumnInterface $column */
         foreach ($oldColumns as $name => $column) {
             if (array_key_exists($name, $newColumns) === false) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "excessive column '$name'";
-
-                    if ($this->isSchemaSQLite) {
-                        $this->differencesDescription[]
-                            = '(!) DROP COLUMN is not supported by SQLite: Migration must be created manually';
-                    }
-                } else {
-                    if ($this->isSchemaSQLite) {
+                $this->blueprint->addDescription("excessive column '$name'");
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP COLUMN is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('DROP COLUMN is not supported by SQLite.');
                     }
-
-                    $this->blueprint->dropColumn($name);
                 }
+
+                $this->blueprint->dropColumn($name);
             }
         }
     }
@@ -199,24 +193,23 @@ final class Comparator implements ComparatorInterface
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($newForeignKeys as $name => $foreignKey) {
             if (array_key_exists($name, $oldForeignKeys) === false) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "missing foreign key '$name'";
+                $this->blueprint->addDescription("missing foreign key '$name'");
 
-                    if ($this->isSchemaSQLite) {
-                        $this->differencesDescription[]
-                            = '(!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually';
-                    }
-                } else {
-                    if ($this->isSchemaSQLite) {
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->addForeignKey($foreignKey);
                 }
+
+                $this->blueprint->addForeignKey($foreignKey);
 
                 continue;
             }
 
+            /** @var ForeignKeyInterface $oldForeignKey */
             $oldForeignKey = $oldStructure->getForeignKey($name);
             $newForeignKeyColumns = $foreignKey->getColumns();
             $oldForeignKeyColumns = $oldForeignKey->getColumns();
@@ -230,23 +223,23 @@ final class Comparator implements ComparatorInterface
                     )
                 )
             ) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "different foreign key '$name' columns ("
-                        . 'DB: ' . $this->stringifyValue($newForeignKeyColumns) . ' != '
-                        . 'MIG: ' . $this->stringifyValue($oldForeignKeyColumns) . ')';
+                $this->blueprint->addDescription(
+                    "different foreign key '$name' columns ("
+                    . 'DB: ' . $this->stringifyValue($newForeignKeyColumns) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyColumns) . ')'
+                );
 
-                    if ($this->isSchemaSQLite) {
-                        $this->differencesDescription[]
-                            = '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually';
-                    }
-                } else {
-                    if ($this->isSchemaSQLite) {
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->dropForeignKey($name);
-                    $this->blueprint->addForeignKey($foreignKey);
                 }
+
+                $this->blueprint->dropForeignKey($name);
+                $this->blueprint->addForeignKey($foreignKey);
 
                 continue;
             }
@@ -263,43 +256,41 @@ final class Comparator implements ComparatorInterface
                     )
                 )
             ) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "different foreign key '$name' referral columns ("
-                        . 'DB: ' . $this->stringifyValue($newForeignKeyReferencedColumns) . ' != '
-                        . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferencedColumns) . ')';
+                $this->blueprint->addDescription(
+                    "different foreign key '$name' referral columns ("
+                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferencedColumns) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferencedColumns) . ')'
+                );
 
-                    if ($this->isSchemaSQLite) {
-                        $this->differencesDescription[]
-                            = '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually';
-                    }
-                } else {
-                    if ($this->isSchemaSQLite) {
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->dropForeignKey($name);
-                    $this->blueprint->addForeignKey($foreignKey);
                 }
+
+                $this->blueprint->dropForeignKey($name);
+                $this->blueprint->addForeignKey($foreignKey);
             }
         }
 
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($oldForeignKeys as $name => $foreignKey) {
             if (array_key_exists($name, $newForeignKeys) === false) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "excessive foreign key '$name'";
+                $this->blueprint->addDescription("excessive foreign key '$name'");
 
-                    if ($this->isSchemaSQLite) {
-                        $this->differencesDescription[]
-                            = '(!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually';
-                    }
-                } else {
-                    if ($this->isSchemaSQLite) {
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->dropForeignKey($name);
                 }
+
+                $this->blueprint->dropForeignKey($name);
             }
         }
     }
@@ -325,32 +316,35 @@ final class Comparator implements ComparatorInterface
         );
 
         if (count($differentColumns)) {
-            if ($onlyShow) {
-                $this->differencesDescription[] = 'different primary key definition';
+            $this->blueprint->addDescription('different primary key definition');
 
+            if (count($oldPrimaryKeyColumns)) {
                 if ($this->isSchemaSQLite) {
-                    $this->differencesDescription[]
-                        = '(!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually';
-                }
-            } else {
-                if (count($oldPrimaryKeyColumns)) {
-                    if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->dropPrimaryKey($oldPrimaryKey->getName());
                 }
 
-                $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
-                if ($this->shouldPrimaryKeyBeAdded($differentColumns, $newPrimaryKeyColumnsCount)) {
-                    $this->removeExcessivePrimaryKeyStatements($differentColumns, $newPrimaryKeyColumnsCount);
+                $this->blueprint->dropPrimaryKey($oldPrimaryKey->getName());
+            }
 
-                    if ($this->isSchemaSQLite) {
+            $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
+            if ($this->shouldPrimaryKeyBeAdded($differentColumns, $newPrimaryKeyColumnsCount)) {
+                $this->removeExcessivePrimaryKeyStatements($differentColumns, $newPrimaryKeyColumnsCount);
+
+                if ($this->isSchemaSQLite) {
+                    $this->blueprint->addDescription(
+                        '(!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
                         throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
                     }
-
-                    $this->blueprint->addPrimaryKey($newPrimaryKey);
                 }
+
+                $this->blueprint->addPrimaryKey($newPrimaryKey);
             }
         }
     }
@@ -414,6 +408,11 @@ final class Comparator implements ComparatorInterface
         return true;
     }
 
+    /**
+     * @param StructureInterface $newStructure
+     * @param StructureInterface $oldStructure
+     * @param bool $onlyShow
+     */
     private function compareIndexes(
         StructureInterface $newStructure,
         StructureInterface $oldStructure,
@@ -426,7 +425,7 @@ final class Comparator implements ComparatorInterface
         foreach ($newIndexes as $name => $index) {
             if (array_key_exists($name, $oldIndexes) === false) {
                 if ($onlyShow) {
-                    $this->differencesDescription[] = "missing index '$name'";
+                    $this->blueprint->addDescription("missing index '$name'");
                 } else {
                     $this->blueprint->createIndex($index);
                 }
@@ -434,16 +433,16 @@ final class Comparator implements ComparatorInterface
                 continue;
             }
 
+            /** @var IndexInterface $oldIndex */
             $oldIndex = $oldStructure->getIndex($name);
             if ($oldIndex->isUnique() !== $index->isUnique()) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "different index '$name' definition (DB: unique "
-                        . $this->stringifyValue($index->isUnique())
-                        . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')';
-                } else {
-                    $this->blueprint->dropIndex($name);
-                    $this->blueprint->createIndex($index);
-                }
+                $this->blueprint->addDescription(
+                    "different index '$name' definition (DB: unique "
+                    . $this->stringifyValue($index->isUnique())
+                    . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')'
+                );
+                $this->blueprint->dropIndex($name);
+                $this->blueprint->createIndex($index);
 
                 continue;
             }
@@ -460,24 +459,20 @@ final class Comparator implements ComparatorInterface
                     )
                 )
             ) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "different index '$name' columns (DB: "
-                        . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
-                        . $this->stringifyValue($oldIndexColumns) . '))';
-                } else {
-                    $this->blueprint->dropIndex($name);
-                    $this->blueprint->createIndex($index);
-                }
+                $this->blueprint->addDescription(
+                    "different index '$name' columns (DB: "
+                    . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
+                    . $this->stringifyValue($oldIndexColumns) . '))'
+                );
+                $this->blueprint->dropIndex($name);
+                $this->blueprint->createIndex($index);
             }
         }
 
         foreach ($oldIndexes as $name => $index) {
             if (array_key_exists($name, $newIndexes) === false) {
-                if ($onlyShow) {
-                    $this->differencesDescription[] = "excessive index '$name'";
-                } else {
-                    $this->blueprint->dropIndex($name);
-                }
+                $this->blueprint->addDescription("excessive index '$name'");
+                $this->blueprint->dropIndex($name);
             }
         }
     }

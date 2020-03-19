@@ -25,23 +25,19 @@ final class StructureBuilder implements StructureBuilderInterface
     public function __construct(string $schema)
     {
         $this->schema = $schema;
-
-        $this->structure = new Structure();
-    }
-
-    public function getStructure(): StructureInterface
-    {
-        return $this->structure;
     }
 
     /**
      * Builds table structure based on the list of changes from the Updater.
      * @param array<StructureChange> $changes
+     * @return StructureInterface
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    public function build(array $changes): void
+    public function build(array $changes): StructureInterface
     {
+        $this->structure = new Structure();
+
         /** @var $change StructureChange */
         foreach ($changes as $change) {
             if ($change instanceof StructureChange === false) {

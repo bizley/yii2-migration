@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use bizley\migration\renderers\UpdateInstructionsRendererInterface;
+use bizley\migration\renderers\BlueprintRendererInterface;
+use bizley\migration\table\BlueprintInterface;
 use Yii;
 use yii\base\View;
 
@@ -16,16 +17,21 @@ final class Updater implements UpdaterInterface
     /** @var View */
     private $view;
 
-    /** @var UpdateInstructionsRendererInterface */
-    private $instructionsRenderer;
+    /** @var BlueprintRendererInterface */
+    private $blueprintRenderer;
+
+    /** @var InspectorInterface */
+    private $inspector;
 
     public function __construct(
         TableMapperInterface $tableMapper,
-        UpdateInstructionsRendererInterface $instructionsRenderer,
+        InspectorInterface $inspector,
+        BlueprintRendererInterface $blueprintRenderer,
         View $view
     ) {
         $this->tableMapper = $tableMapper;
-        $this->instructionsRenderer = $instructionsRenderer;
+        $this->inspector = $inspector;
+        $this->blueprintRenderer = $blueprintRenderer;
         $this->view = $view;
     }
 
@@ -34,20 +40,49 @@ final class Updater implements UpdaterInterface
         return Yii::getAlias('@bizley/migration/views/update_migration.php');
     }
 
-    public function generateForTable(
+    /** @var BlueprintInterface */
+    private $blueprint;
+
+    /**
+     * @param string $tableName
+     * @param bool $onlyShow
+     * @param array $migrationsToSkip
+     * @param array $migrationPaths
+     * @return bool
+     * @throws TableMissingException
+     */
+    public function isUpdateRequired(
         string $tableName,
-        string $migrationName,
-        array $referencesToPostpone = [],
-        bool $generalSchema = true,
-        string $namespace = null
-    ): string {
+        bool $onlyShow,
+        array $migrationsToSkip,
+        array $migrationPaths
+    ): bool {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
             throw new TableMissingException("Table $tableName does not exists.");
         }
 
+        $this->blueprint = $this->inspector->prepareBlueprint(
+            $this->tableMapper->getStructureOf($tableName),
+            $onlyShow,
+            $migrationsToSkip,
+            $migrationPaths
+        );
 
+        return $this->blueprint->isPending();
+    }
 
-        $this->instructionsRenderer->setPlan($this->tableMapper->getStructureOf($tableName, $referencesToPostpone));
+    /**
+     * @param string $migrationName
+     * @param bool $generalSchema
+     * @param string|null $namespace
+     * @return string
+     */
+    public function generateForPendingTable(
+        string $migrationName,
+        bool $generalSchema = true,
+        string $namespace = null
+    ): string {
+        $this->blueprintRenderer->setBlueprint($this->blueprint);
 
         return $this->view->renderFile(
             $this->getUpdateTableMigrationTemplate(),

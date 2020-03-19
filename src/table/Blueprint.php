@@ -4,52 +4,57 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use function count;
+
 final class Blueprint implements BlueprintInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $columnsToDrop = [];
 
-    /**
-     * @var array<ColumnInterface>
-     */
+    /** @var array */
     private $columnsToAdd = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $columnsToAlter = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $foreignKeysToDrop = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $foreignKeysToAdd = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $primaryKeyToDrop;
 
-    /**
-     * @var PrimaryKey
-     */
+    /** @var PrimaryKey */
     private $primaryKeyToAdd;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $indexesToDrop = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $indexToAdd = [];
+
+    /** @var array */
+    private $description = [];
+
+    /** @var bool */
+    private $startFromScratch = false;
+
+    public function setStartFromScratch(bool $startFromScratch): void
+    {
+        $this->startFromScratch = $startFromScratch;
+    }
+
+    public function addDescription(string $description): void
+    {
+        $this->description[] = $description;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->startFromScratch === true || count($this->description) > 0;
+    }
 
     public function addColumn(ColumnInterface $column): void
     {

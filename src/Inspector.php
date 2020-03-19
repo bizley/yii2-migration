@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use bizley\migration\table\Blueprint;
+use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureInterface;
@@ -49,17 +51,19 @@ final class Inspector implements InspectorInterface
      * @param bool $onlyShow
      * @param array $migrationsToSkip
      * @param array $migrationPaths
-     * @return bool
+     * @return BlueprintInterface
      * @throws InvalidConfigException
      */
-    public function isUpdateRequired(
+    public function prepareBlueprint(
         StructureInterface $newStructure,
         bool $onlyShow,
         array $migrationsToSkip = [],
         array $migrationPaths = []
-    ): bool {
+    ): BlueprintInterface {
         $this->currentTable = $newStructure->getName();
         $history = $this->historyManager->fetchHistory();
+
+        $blueprint = new Blueprint();
 
         if (count($history)) {
             foreach ($history as $migration => $time) {
@@ -75,19 +79,19 @@ final class Inspector implements InspectorInterface
                 }
             }
 
-            if (count($this->appliedChanges) === 0) {
-                return true;
+            if (count($this->appliedChanges)) {
+                $this->comparator->setBlueprint($blueprint);
+                $this->comparator->compare(
+                    $newStructure,
+                    $this->structureBuilder->build(array_reverse($this->appliedChanges)),
+                    $onlyShow
+                );
+            } else {
+                $blueprint->setStartFromScratch(true);
             }
-
-            $this->structureBuilder->build(array_reverse($this->appliedChanges));
-            $this->comparator->compare(
-                $newStructure,
-                $this->structureBuilder->getStructure(),
-                $onlyShow
-            );
         }
 
-        return true;
+        return $blueprint;
     }
 
     /** @var array<StructureChange> */
