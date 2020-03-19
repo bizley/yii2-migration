@@ -7,6 +7,7 @@ namespace bizley\migration;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
+use bizley\migration\table\IndexInterface;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\StructureInterface;
 use yii\base\NotSupportedException;
@@ -58,83 +59,7 @@ final class Comparator implements ComparatorInterface
         $this->compareColumns($newStructure, $oldStructure, $onlyShow);
         $this->compareForeignKeys($newStructure, $oldStructure, $onlyShow);
         $this->comparePrimaryKeys($newStructure->getPrimaryKey(), $oldStructure->getPrimaryKey(), $onlyShow);
-
-
-
-        foreach ($this->getTableStructure()->indexes as $name => $index) {
-            if (array_key_exists($name, $this->getOldStructure()->indexes) === false) {
-                if ($this->showOnly) {
-                    echo "   - missing index '$name'\n";
-                } else {
-                    $this->getPlan()->createIndex[$name] = $index;
-                }
-
-                $different = true;
-
-                continue;
-            }
-
-            if ($this->getOldStructure()->indexes[$name]->unique !== $this->getTableStructure()->indexes[$name]->unique) {
-                if ($this->showOnly) {
-                    echo "   - different index '$name' definition (DB: unique "
-                        . $this->stringifyValue($this->getTableStructure()->indexes[$name]->unique)
-                        . ' <> MIG: unique ' . $this->stringifyValue($this->getOldStructure()->indexes[$name]->unique)
-                        . ")\n";
-                } else {
-                    $this->getPlan()->dropIndex[] = $name;
-                    $this->getPlan()->createIndex[$name] = $index;
-                }
-
-                $different = true;
-
-                continue;
-            }
-
-            $tableIndexColumns
-                = !empty($this->getTableStructure()->indexes[$name]->columns)
-                ? $this->getTableStructure()->indexes[$name]->columns
-                : [];
-            $oldTableIndexColumns
-                = !empty($this->getOldStructure()->indexes[$name]->columns)
-                ? $this->getOldStructure()->indexes[$name]->columns
-                : [];
-
-            if (
-            count(
-                array_merge(
-                    array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
-                    array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
-                )
-            )
-            ) {
-                if ($this->showOnly) {
-                    echo "   - different index '$name' columns (DB: ("
-                        . implode(', ', $tableIndexColumns)
-                        . ') <> MIG: ('
-                        . implode(', ', $oldTableIndexColumns)
-                        . "))\n";
-                } else {
-                    $this->getPlan()->dropIndex[] = $name;
-                    $this->getPlan()->createIndex[$name] = $index;
-                }
-
-                $different = true;
-            }
-        }
-
-        foreach ($this->getOldStructure()->indexes as $name => $index) {
-            if (array_key_exists($name, $this->getTableStructure()->indexes) === false) {
-                if ($this->showOnly) {
-                    echo "   - excessive index '$name'\n";
-                } else {
-                    $this->getPlan()->dropIndex[] = $name;
-                }
-
-                $different = true;
-            }
-        }
-
-        return $different;
+        $this->compareIndexes($newStructure, $oldStructure, $onlyShow);
     }
 
     /**
@@ -164,7 +89,7 @@ final class Comparator implements ComparatorInterface
                     } else {
                         $column->setFirst(true);
                     }
-                    $this->blueprint->addColumn($name, $column);
+                    $this->blueprint->addColumn($column);
                 }
 
                 $previousColumn = $name;
@@ -231,7 +156,7 @@ final class Comparator implements ComparatorInterface
                             throw new NotSupportedException('ALTER COLUMN is not supported by SQLite.');
                         }
 
-                        $this->blueprint->alterColumn($name, $column);
+                        $this->blueprint->alterColumn($column);
                     }
                 }
             }
@@ -286,7 +211,7 @@ final class Comparator implements ComparatorInterface
                         throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
                     }
 
-                    $this->blueprint->addForeignKey($name, $foreignKey);
+                    $this->blueprint->addForeignKey($foreignKey);
                 }
 
                 continue;
@@ -320,7 +245,7 @@ final class Comparator implements ComparatorInterface
                     }
 
                     $this->blueprint->dropForeignKey($name);
-                    $this->blueprint->addForeignKey($name, $foreignKey);
+                    $this->blueprint->addForeignKey($foreignKey);
                 }
 
                 continue;
@@ -353,7 +278,7 @@ final class Comparator implements ComparatorInterface
                     }
 
                     $this->blueprint->dropForeignKey($name);
-                    $this->blueprint->addForeignKey($name, $foreignKey);
+                    $this->blueprint->addForeignKey($foreignKey);
                 }
             }
         }
@@ -487,6 +412,74 @@ final class Comparator implements ComparatorInterface
         }
 
         return true;
+    }
+
+    private function compareIndexes(
+        StructureInterface $newStructure,
+        StructureInterface $oldStructure,
+        bool $onlyShow
+    ): void {
+        $newIndexes = $newStructure->getIndexes();
+        $oldIndexes = $oldStructure->getIndexes();
+
+        /** @var IndexInterface $index */
+        foreach ($newIndexes as $name => $index) {
+            if (array_key_exists($name, $oldIndexes) === false) {
+                if ($onlyShow) {
+                    $this->differencesDescription[] = "missing index '$name'";
+                } else {
+                    $this->blueprint->createIndex($index);
+                }
+
+                continue;
+            }
+
+            $oldIndex = $oldStructure->getIndex($name);
+            if ($oldIndex->isUnique() !== $index->isUnique()) {
+                if ($onlyShow) {
+                    $this->differencesDescription[] = "different index '$name' definition (DB: unique "
+                        . $this->stringifyValue($index->isUnique())
+                        . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')';
+                } else {
+                    $this->blueprint->dropIndex($name);
+                    $this->blueprint->createIndex($index);
+                }
+
+                continue;
+            }
+
+            $newIndexColumns = $index->getColumns();
+            $oldIndexColumns = $oldIndex->getColumns();
+            $intersection = array_intersect($newIndexColumns, $oldIndexColumns);
+
+            if (
+                count(
+                    array_merge(
+                        array_diff($newIndexColumns, $intersection),
+                        array_diff($oldIndexColumns, $intersection)
+                    )
+                )
+            ) {
+                if ($onlyShow) {
+                    $this->differencesDescription[] = "different index '$name' columns (DB: "
+                        . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
+                        . $this->stringifyValue($oldIndexColumns) . '))';
+                } else {
+                    $this->blueprint->dropIndex($name);
+                    $this->blueprint->createIndex($index);
+                }
+            }
+        }
+
+        foreach ($oldIndexes as $name => $index) {
+            if (array_key_exists($name, $newIndexes) === false) {
+                if ($onlyShow) {
+                    $this->differencesDescription[] = "excessive index '$name'";
+                } else {
+                    $this->blueprint->dropIndex($name);
+                }
+            }
+        }
     }
 
     private function isAppendSame(string $append, ColumnInterface $column): bool

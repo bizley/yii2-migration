@@ -51,14 +51,14 @@ final class Blueprint implements BlueprintInterface
      */
     private $indexToAdd = [];
 
-    public function addColumn(string $name, ColumnInterface $column): void
+    public function addColumn(ColumnInterface $column): void
     {
-        $this->columnsToAdd[$name] = $column;
+        $this->columnsToAdd[$column->getName()] = $column;
     }
 
-    public function alterColumn(string $name, ColumnInterface $column): void
+    public function alterColumn(ColumnInterface $column): void
     {
-        $this->columnsToAlter[$name] = $column;
+        $this->columnsToAlter[$column->getName()] = $column;
     }
 
     public function dropColumn(string $name): void
@@ -66,9 +66,9 @@ final class Blueprint implements BlueprintInterface
         $this->columnsToDrop[] = $name;
     }
 
-    public function addForeignKey(string $name, ForeignKeyInterface $foreignKey): void
+    public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        $this->foreignKeysToAdd[$name] = $foreignKey;
+        $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
     }
 
     public function dropForeignKey(string $name): void
@@ -84,6 +84,16 @@ final class Blueprint implements BlueprintInterface
     public function addPrimaryKey(PrimaryKeyInterface $primaryKey): void
     {
         $this->primaryKeyToAdd = $primaryKey;
+    }
+
+    public function createIndex(IndexInterface $index): void
+    {
+        $this->indexToAdd[$index->getName()] = $index;
+    }
+
+    public function dropIndex(string $name): void
+    {
+        $this->indexesToDrop[] = $name;
     }
 
     public function getAddedColumns(): array
