@@ -25,11 +25,13 @@ final class StructureBuilder implements StructureBuilderInterface
     public function __construct(string $schema)
     {
         $this->schema = $schema;
+
+        $this->structure = new Structure();
     }
 
-    public function setStructure(StructureInterface $structure): void
+    public function getStructure(): StructureInterface
     {
-        $this->structure = $structure;
+        return $this->structure;
     }
 
     /**
@@ -38,7 +40,7 @@ final class StructureBuilder implements StructureBuilderInterface
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    public function apply(array $changes): void
+    public function build(array $changes): void
     {
         /** @var $change StructureChange */
         foreach ($changes as $change) {

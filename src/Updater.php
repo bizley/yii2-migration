@@ -10,9 +10,6 @@ use yii\base\View;
 
 final class Updater implements UpdaterInterface
 {
-    /** @var HistoryManagerInterface */
-    private $historyManager;
-
     /** @var TableMapperInterface */
     private $tableMapper;
 
@@ -25,23 +22,17 @@ final class Updater implements UpdaterInterface
     public function __construct(
         TableMapperInterface $tableMapper,
         UpdateInstructionsRendererInterface $instructionsRenderer,
-        HistoryManagerInterface $historyManager,
         View $view
     ) {
         $this->tableMapper = $tableMapper;
         $this->instructionsRenderer = $instructionsRenderer;
-        $this->historyManager = $historyManager;
         $this->view = $view;
     }
-
-
 
     public function getUpdateTableMigrationTemplate(): string
     {
         return Yii::getAlias('@bizley/migration/views/update_migration.php');
     }
-
-
 
     public function generateForTable(
         string $tableName,

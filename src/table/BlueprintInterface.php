@@ -17,4 +17,10 @@ interface BlueprintInterface
     public function dropForeignKey(string $name): void;
 
     public function dropPrimaryKey(string $name): void;
+
+    public function addPrimaryKey(PrimaryKeyInterface $primaryKey): void;
+
+    public function getAddedColumns(): array;
+
+    public function getAlteredColumns(): array;
 }

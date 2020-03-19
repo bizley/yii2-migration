@@ -61,4 +61,6 @@ interface ColumnInterface
     public function setAfter(?string $after): void;
 
     public function setFirst(bool $first): void;
+
+    public function getType(): string;
 }

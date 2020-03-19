@@ -80,4 +80,19 @@ final class Blueprint implements BlueprintInterface
     {
         $this->primaryKeyToDrop = $name;
     }
+
+    public function addPrimaryKey(PrimaryKeyInterface $primaryKey): void
+    {
+        $this->primaryKeyToAdd = $primaryKey;
+    }
+
+    public function getAddedColumns(): array
+    {
+        return $this->columnsToAdd;
+    }
+
+    public function getAlteredColumns(): array
+    {
+        return $this->columnsToAlter;
+    }
 }
