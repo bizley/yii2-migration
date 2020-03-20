@@ -65,7 +65,9 @@ final class Updater implements UpdaterInterface
             $this->tableMapper->getStructureOf($tableName),
             $onlyShow,
             $migrationsToSkip,
-            $migrationPaths
+            $migrationPaths,
+            $this->tableMapper->getSchemaType(),
+            $this->tableMapper->getEngineVersion()
         );
 
         return $this->blueprint->isPending();

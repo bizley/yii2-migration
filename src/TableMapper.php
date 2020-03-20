@@ -16,7 +16,6 @@ use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
 use PDO;
 use Throwable;
-use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Connection;
 use yii\db\Constraint;

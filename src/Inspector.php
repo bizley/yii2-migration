@@ -51,14 +51,18 @@ final class Inspector implements InspectorInterface
      * @param bool $onlyShow
      * @param array $migrationsToSkip
      * @param array $migrationPaths
+     * @param string|null $schema
+     * @param string|null $engineVersion
      * @return BlueprintInterface
      * @throws InvalidConfigException
      */
     public function prepareBlueprint(
         StructureInterface $newStructure,
         bool $onlyShow,
-        array $migrationsToSkip = [],
-        array $migrationPaths = []
+        array $migrationsToSkip,
+        array $migrationPaths,
+        ?string $schema,
+        ?string $engineVersion
     ): BlueprintInterface {
         $this->currentTable = $newStructure->getName();
         $history = $this->historyManager->fetchHistory();
@@ -84,7 +88,9 @@ final class Inspector implements InspectorInterface
                 $this->comparator->compare(
                     $newStructure,
                     $this->structureBuilder->build(array_reverse($this->appliedChanges)),
-                    $onlyShow
+                    $onlyShow,
+                    $schema,
+                    $engineVersion
                 );
             } else {
                 $blueprint->setStartFromScratch(true);

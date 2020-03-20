@@ -11,5 +11,11 @@ interface ComparatorInterface
 {
     public function setBlueprint(BlueprintInterface $blueprint): void;
 
-    public function compare(StructureInterface $newStructure, StructureInterface $oldStructure, bool $onlyShow): void;
+    public function compare(
+        StructureInterface $newStructure,
+        StructureInterface $oldStructure,
+        bool $onlyShow,
+        ?string $schema,
+        ?string $engineVersion
+    ): void;
 }

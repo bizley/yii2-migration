@@ -15,32 +15,16 @@ use yii\helpers\Json;
 
 final class Comparator implements ComparatorInterface
 {
-    /** @var string|null */
-    private $schema;
-
-    /** @var string|null */
-    private $engineVersion;
-
     /** @var bool */
     private $generalSchema;
 
-    /** @var bool */
-    private $isSchemaSQLite;
-
-    public function __construct(
-        ?string $schema,
-        ?string $engineVersion,
-        bool $generalSchema
-    ) {
-        $this->schema = $schema;
-        $this->engineVersion = $engineVersion;
-        $this->generalSchema = $generalSchema;
-
-        $this->isSchemaSQLite = $schema === Schema::SQLITE;
-    }
-
     /** @var BlueprintInterface */
     private $blueprint;
+
+    public function __construct(bool $generalSchema)
+    {
+        $this->generalSchema = $generalSchema;
+    }
 
     public function setBlueprint(BlueprintInterface $blueprint): void
     {
@@ -52,13 +36,20 @@ final class Comparator implements ComparatorInterface
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param bool $onlyShow whether changes should be only displayed
+     * @param string|null $schema
+     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
-    public function compare(StructureInterface $newStructure, StructureInterface $oldStructure, bool $onlyShow): void
-    {
-        $this->compareColumns($newStructure, $oldStructure, $onlyShow);
-        $this->compareForeignKeys($newStructure, $oldStructure, $onlyShow);
-        $this->comparePrimaryKeys($newStructure->getPrimaryKey(), $oldStructure->getPrimaryKey(), $onlyShow);
+    public function compare(
+        StructureInterface $newStructure,
+        StructureInterface $oldStructure,
+        bool $onlyShow,
+        ?string $schema,
+        ?string $engineVersion
+    ): void {
+        $this->compareColumns($newStructure, $oldStructure, $onlyShow, $schema, $engineVersion);
+        $this->compareForeignKeys($newStructure, $oldStructure, $onlyShow, $schema);
+        $this->comparePrimaryKeys($newStructure->getPrimaryKey(), $oldStructure->getPrimaryKey(), $onlyShow, $schema);
         $this->compareIndexes($newStructure, $oldStructure, $onlyShow);
     }
 
@@ -66,12 +57,16 @@ final class Comparator implements ComparatorInterface
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param bool $onlyShow
+     * @param string|null $schema
+     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
     private function compareColumns(
         StructureInterface $newStructure,
         StructureInterface $oldStructure,
-        bool $onlyShow
+        bool $onlyShow,
+        ?string $schema,
+        ?string $engineVersion
     ): void {
         $previousColumn = null;
         $newColumns = $newStructure->getColumns();
@@ -100,7 +95,7 @@ final class Comparator implements ComparatorInterface
                 && $newPrimaryKey->isComposite() === false
                 && $column->isColumnInPrimaryKey($newPrimaryKey)
             ) {
-                $column->setAppend($column->prepareSchemaAppend($this->schema, true, $column->isAutoIncrement()));
+                $column->setAppend($column->prepareSchemaAppend($schema, true, $column->isAutoIncrement()));
             }
 
             $previousColumn = $name;
@@ -119,8 +114,8 @@ final class Comparator implements ComparatorInterface
                 /** @var ColumnInterface $oldColumn */
                 $oldColumn = $oldStructure->getColumn($name);
                 if ($propertyFetch === 'getLength') {
-                    $oldProperty = $oldColumn->getLength($this->schema, $this->engineVersion);
-                    $newProperty = $column->getLength($this->schema, $this->engineVersion);
+                    $oldProperty = $oldColumn->getLength($schema, $engineVersion);
+                    $newProperty = $column->getLength($schema, $engineVersion);
                 } else {
                     $oldProperty = $oldColumn->$propertyFetch();
                     $newProperty = $column->$propertyFetch();
@@ -146,7 +141,7 @@ final class Comparator implements ComparatorInterface
                         . 'MIG: ' . $this->stringifyValue($oldProperty) . ')'
                     );
 
-                    if ($this->isSchemaSQLite) {
+                    if ($schema === Schema::SQLITE) {
                         $this->blueprint->addDescription(
                             '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
                         );
@@ -163,7 +158,7 @@ final class Comparator implements ComparatorInterface
         foreach ($oldColumns as $name => $column) {
             if (array_key_exists($name, $newColumns) === false) {
                 $this->blueprint->addDescription("excessive column '$name'");
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP COLUMN is not supported by SQLite: Migration must be created manually'
                     );
@@ -181,12 +176,14 @@ final class Comparator implements ComparatorInterface
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param bool $onlyShow
+     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function compareForeignKeys(
         StructureInterface $newStructure,
         StructureInterface $oldStructure,
-        bool $onlyShow
+        bool $onlyShow,
+        ?string $schema
     ): void {
         $newForeignKeys = $newStructure->getForeignKeys();
         $oldForeignKeys = $oldStructure->getForeignKeys();
@@ -195,7 +192,7 @@ final class Comparator implements ComparatorInterface
             if (array_key_exists($name, $oldForeignKeys) === false) {
                 $this->blueprint->addDescription("missing foreign key '$name'");
 
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -229,7 +226,7 @@ final class Comparator implements ComparatorInterface
                     . 'MIG: ' . $this->stringifyValue($oldForeignKeyColumns) . ')'
                 );
 
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -262,7 +259,7 @@ final class Comparator implements ComparatorInterface
                     . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferencedColumns) . ')'
                 );
 
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -281,7 +278,7 @@ final class Comparator implements ComparatorInterface
             if (array_key_exists($name, $newForeignKeys) === false) {
                 $this->blueprint->addDescription("excessive foreign key '$name'");
 
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -299,12 +296,14 @@ final class Comparator implements ComparatorInterface
      * @param PrimaryKeyInterface|null $newPrimaryKey
      * @param PrimaryKeyInterface|null $oldPrimaryKey
      * @param bool $onlyShow
+     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function comparePrimaryKeys(
         ?PrimaryKeyInterface $newPrimaryKey,
         ?PrimaryKeyInterface $oldPrimaryKey,
-        bool $onlyShow
+        bool $onlyShow,
+        ?string $schema
     ): void {
         $newPrimaryKeyColumns = $newPrimaryKey ? $newPrimaryKey->getColumns() : [];
         $oldPrimaryKeyColumns = $oldPrimaryKey ? $oldPrimaryKey->getColumns() : [];
@@ -319,7 +318,7 @@ final class Comparator implements ComparatorInterface
             $this->blueprint->addDescription('different primary key definition');
 
             if (count($oldPrimaryKeyColumns)) {
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -332,10 +331,10 @@ final class Comparator implements ComparatorInterface
             }
 
             $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
-            if ($this->shouldPrimaryKeyBeAdded($differentColumns, $newPrimaryKeyColumnsCount)) {
-                $this->removeExcessivePrimaryKeyStatements($differentColumns, $newPrimaryKeyColumnsCount);
+            if ($this->shouldPrimaryKeyBeAdded($differentColumns, $newPrimaryKeyColumnsCount, $schema)) {
+                $this->removeExcessivePrimaryKeyStatements($differentColumns, $newPrimaryKeyColumnsCount, $schema);
 
-                if ($this->isSchemaSQLite) {
+                if ($schema === Schema::SQLITE) {
                     $this->blueprint->addDescription(
                         '(!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually'
                     );
@@ -352,10 +351,12 @@ final class Comparator implements ComparatorInterface
     /**
      * @param array $differentColumns
      * @param int $newPrimaryKeyColumnsCount
+     * @param string|null $schema
      */
     private function removeExcessivePrimaryKeyStatements(
         array $differentColumns,
-        int $newPrimaryKeyColumnsCount
+        int $newPrimaryKeyColumnsCount,
+        ?string $schema
     ): void {
         if ($newPrimaryKeyColumnsCount > 1) {
             $addedColumns = $this->blueprint->getAddedColumns();
@@ -364,14 +365,14 @@ final class Comparator implements ComparatorInterface
                 /** @var ColumnInterface $column */
                 foreach ($addedColumns as $name => $column) {
                     if ($name === $differentColumn) {
-                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($this->schema));
+                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                         break;
                     }
                 }
 
                 foreach ($alteredColumns as $name => $column) {
                     if ($name === $differentColumn) {
-                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($this->schema));
+                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                         break;
                     }
                 }
@@ -382,22 +383,23 @@ final class Comparator implements ComparatorInterface
     /**
      * @param array $differentColumns
      * @param int $columnsCount
+     * @param string|null $schema
      * @return bool
      */
-    private function shouldPrimaryKeyBeAdded(array $differentColumns, int $columnsCount): bool
+    private function shouldPrimaryKeyBeAdded(array $differentColumns, int $columnsCount, ?string $schema): bool
     {
         if ($columnsCount === 1 && count($differentColumns) === 1) {
             $addedColumns = $this->blueprint->getAddedColumns();
             /** @var ColumnInterface $column */
             foreach ($addedColumns as $name => $column) {
-                if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($this->schema)) {
+                if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
                 }
             }
 
             $alteredColumns = $this->blueprint->getAlteredColumns();
             foreach ($alteredColumns as $name => $column) {
-                if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($this->schema)) {
+                if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
                 }
             }

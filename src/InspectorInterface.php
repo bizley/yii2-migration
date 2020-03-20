@@ -12,7 +12,9 @@ interface InspectorInterface
     public function prepareBlueprint(
         StructureInterface $newStructure,
         bool $onlyShow,
-        array $migrationsToSkip = [],
-        array $migrationPaths = []
+        array $migrationsToSkip,
+        array $migrationPaths,
+        ?string $schema,
+        ?string $engineVersion
     ): BlueprintInterface;
 }
