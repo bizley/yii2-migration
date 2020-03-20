@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * This is the template for generating the update migration of a specified table.
  *
- * @var $table \bizley\migration\table\Structure Table structure
- * @var $className string Class name
- * @var $namespace string Namespace
- * @var $plan \bizley\migration\table\Blueprint Changes definitions
+ * @var string $bodyUp Migration content for up()
+ * @var string $bodyDown Migration content for down()
+ * @var string $className Migration class name
+ * @var string $namespace Migration namespace
  */
 
 echo "<?php\n";
@@ -23,12 +23,11 @@ class <?= $className ?> extends Migration
 {
     public function up()
     {
-<?= $plan->render($table) ?>
+<?= $bodyUp ?>
     }
 
     public function down()
     {
-        echo "<?= $className ?> cannot be reverted.\n";
-        return false;
+<?= $bodyDown ?>
     }
 }
