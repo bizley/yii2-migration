@@ -8,7 +8,10 @@ use bizley\migration\table\ForeignKeyInterface;
 
 interface ForeignKeyRendererInterface
 {
-    public function setForeignKey(ForeignKeyInterface $foreignKey): void;
-
-    public function render(string $tableName, string $referencedTableName, int $indent = 0): ?string;
+    public function render(
+        ForeignKeyInterface $foreignKey,
+        string $tableName,
+        string $referencedTableName,
+        int $indent = 0
+    ): ?string;
 }

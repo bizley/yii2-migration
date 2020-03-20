@@ -10,7 +10,8 @@ interface GeneratorInterface
      * @param string $tableName
      * @param string $migrationName
      * @param array $referencesToPostpone
-     * @param bool $generalSchema
+     * @param bool $usePrefix
+     * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
      */
@@ -18,7 +19,8 @@ interface GeneratorInterface
         string $tableName,
         string $migrationName,
         array $referencesToPostpone = [],
-        bool $generalSchema = true,
+        bool $usePrefix = true,
+        string $dbPrefix = '',
         string $namespace = null
     ): string;
 

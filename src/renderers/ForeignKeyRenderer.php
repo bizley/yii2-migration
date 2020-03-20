@@ -14,14 +14,7 @@ use function str_replace;
 
 final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
-    /**
-     * @var ForeignKeyInterface
-     */
-    private $foreignKey;
-
-    /**
-     * @var string
-     */
+    /** @var string|null */
     private $template = <<<'TEMPLATE'
 $this->addForeignKey(
     '{keyName}',
@@ -39,28 +32,28 @@ TEMPLATE;
      */
     private $keyNameTemplate = 'fk-{tableName}-{keyColumns}';
 
-    public function render(string $tableName, string $referencedTableName, int $indent = 0): ?string
-    {
-        if ($this->foreignKey === null) {
-            return null;
-        }
-
+    public function render(
+        ForeignKeyInterface $foreignKey,
+        string $tableName,
+        string $referencedTableName,
+        int $indent = 0
+    ): ?string {
         $template = $this->applyIndent($indent, $this->template);
 
-        $keyColumns = $this->foreignKey->getColumns();
+        $keyColumns = $foreignKey->getColumns();
         $renderedKeyColumns = [];
         foreach ($keyColumns as $keyColumn) {
             $renderedKeyColumns[] = "'$keyColumn'";
         }
 
-        $referencedColumns = $this->foreignKey->getReferencedColumns();
+        $referencedColumns = $foreignKey->getReferencedColumns();
         $renderedReferencedColumns = [];
         foreach ($referencedColumns as $referencedColumn) {
             $renderedReferencedColumns[] = "'$referencedColumn'";
         }
 
-        $onDelete = $this->foreignKey->getOnDelete();
-        $onUpdate = $this->foreignKey->getOnUpdate();
+        $onDelete = $foreignKey->getOnDelete();
+        $onUpdate = $foreignKey->getOnUpdate();
 
         return str_replace(
             [
@@ -73,7 +66,7 @@ TEMPLATE;
                 '{onUpdate}',
             ],
             [
-                $this->renderName($tableName),
+                $this->renderName($foreignKey, $tableName),
                 $tableName,
                 implode(', ', $renderedKeyColumns),
                 $referencedTableName,
@@ -103,30 +96,29 @@ TEMPLATE;
 
     /**
      * Renders key name.
+     * @param ForeignKeyInterface $foreignKey
      * @param string $table
      * @return string
      */
-    private function renderName(string $table): string
+    private function renderName(ForeignKeyInterface $foreignKey, string $table): string
     {
-        $name = $this->foreignKey->getName();
+        $name = $foreignKey->getName();
 
         if ($name !== null && is_numeric($name) === false) {
             return $name;
         }
 
         return str_replace(
-            ['{tableName}', '{keyColumns}'],
-            [$table, implode('-', $this->foreignKey->getColumns())],
+            [
+                '{tableName}',
+                '{keyColumns}',
+            ],
+            [
+                $table,
+                implode('-', $foreignKey->getColumns()),
+            ],
             $this->keyNameTemplate
         );
-    }
-
-    /**
-     * @param ForeignKeyInterface $foreignKey
-     */
-    public function setForeignKey(ForeignKeyInterface $foreignKey): void
-    {
-        $this->foreignKey = $foreignKey;
     }
 
     /**

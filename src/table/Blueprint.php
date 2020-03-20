@@ -8,6 +8,9 @@ use function count;
 
 final class Blueprint implements BlueprintInterface
 {
+    /** @var string|null */
+    private $tableName;
+
     /** @var array */
     private $columnsToDrop = [];
 
@@ -23,23 +26,28 @@ final class Blueprint implements BlueprintInterface
     /** @var array */
     private $foreignKeysToAdd = [];
 
-    /** @var string */
+    /** @var string|null */
     private $primaryKeyToDrop;
 
-    /** @var PrimaryKey */
+    /** @var PrimaryKey|null */
     private $primaryKeyToAdd;
 
     /** @var array */
     private $indexesToDrop = [];
 
     /** @var array */
-    private $indexToAdd = [];
+    private $indexesToAdd = [];
 
     /** @var array */
     private $description = [];
 
     /** @var bool */
     private $startFromScratch = false;
+
+    public function getTableName(): ?string
+    {
+        return $this->tableName;
+    }
 
     public function setStartFromScratch(bool $startFromScratch): void
     {
@@ -93,12 +101,17 @@ final class Blueprint implements BlueprintInterface
 
     public function createIndex(IndexInterface $index): void
     {
-        $this->indexToAdd[$index->getName()] = $index;
+        $this->indexesToAdd[$index->getName()] = $index;
     }
 
     public function dropIndex(string $name): void
     {
         $this->indexesToDrop[] = $name;
+    }
+
+    public function getDroppedColumns(): array
+    {
+        return $this->columnsToDrop;
     }
 
     public function getAddedColumns(): array
@@ -109,5 +122,35 @@ final class Blueprint implements BlueprintInterface
     public function getAlteredColumns(): array
     {
         return $this->columnsToAlter;
+    }
+
+    public function getDroppedForeignKeys(): array
+    {
+        return $this->foreignKeysToDrop;
+    }
+
+    public function getAddedForeignKeys(): array
+    {
+        return $this->foreignKeysToAdd;
+    }
+
+    public function getDroppedPrimaryKey(): ?string
+    {
+        return $this->primaryKeyToDrop;
+    }
+
+    public function getAddedPrimaryKey(): ?PrimaryKeyInterface
+    {
+        return $this->primaryKeyToAdd;
+    }
+
+    public function getDroppedIndexes(): array
+    {
+        return $this->indexesToDrop;
+    }
+
+    public function getAddedIndexes(): array
+    {
+        return $this->indexesToAdd;
     }
 }

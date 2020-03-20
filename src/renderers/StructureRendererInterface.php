@@ -8,16 +8,22 @@ use bizley\migration\table\StructureInterface;
 
 interface StructureRendererInterface
 {
-    public function setStructure(StructureInterface $structure): void;
-
     public function renderStructure(
-        string $schema,
+        StructureInterface $structure,
+        int $indent = 0,
+        string $schema = null,
         string $engineVersion = null,
-        bool $generalSchema = true,
-        int $indent = 0
+        bool $usePrefix = true,
+        string $dbPrefix = null
     ): string;
 
-    public function renderName(?string $tableName): ?string;
+    public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string;
 
-    public function renderForeignKeys(array $foreignKeys, int $indent = 0): ?string;
+    public function renderForeignKeys(
+        StructureInterface $structure,
+        array $foreignKeys,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string;
 }

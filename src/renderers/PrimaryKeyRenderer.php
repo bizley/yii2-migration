@@ -12,25 +12,18 @@ use function str_replace;
 
 final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 {
-    /**
-     * @var PrimaryKeyInterface
-     */
-    private $primaryKey;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $template = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
 
-    public function render(string $tableName, int $indent = 0): ?string
+    public function render(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
-        if ($this->primaryKey === null || $this->primaryKey->isComposite() === false) {
+        if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;
         }
 
         $template = str_repeat(' ', $indent) . $this->template;
 
-        $keyColumns = $this->primaryKey->getColumns();
+        $keyColumns = $primaryKey->getColumns();
         $renderedColumns = [];
         foreach ($keyColumns as $keyColumn) {
             $renderedColumns[] = "'$keyColumn'";
@@ -43,20 +36,12 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
                 '{keyColumns}',
             ],
             [
-                $this->primaryKey->getName(),
+                $primaryKey->getName(),
                 $tableName,
                 implode(', ', $renderedColumns),
             ],
             $template
         );
-    }
-
-    /**
-     * @param PrimaryKeyInterface|null $primaryKey
-     */
-    public function setPrimaryKey(?PrimaryKeyInterface $primaryKey): void
-    {
-        $this->primaryKey = $primaryKey;
     }
 
     /**

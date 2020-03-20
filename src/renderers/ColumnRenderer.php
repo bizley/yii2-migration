@@ -14,115 +14,129 @@ use yii\helpers\Json;
 use function array_unshift;
 use function is_array;
 use function preg_match;
+use function str_repeat;
 use function str_replace;
 use function strpos;
 use function trim;
 
 final class ColumnRenderer implements ColumnRendererInterface
 {
-    /**
-     * @var ColumnInterface
-     */
-    private $column;
-
-    /**
-     * @var PrimaryKeyInterface
-     */
-    private $primaryKey;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     private $definition = [];
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isUnsignedPossible = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isNotNullPossible = true;
 
-    /**
-     * @var bool
-     */
-    protected $isPrimaryKeyPossible = true;
+    /** @var bool */
+    private $isPrimaryKeyPossible = true;
+
+    /** @var string */
+    private $template = "'{columnName}' => {columnDefinition},";
+
+    /** @var bool */
+    private $generalSchema;
+
+    public function __construct(bool $generalSchema)
+    {
+        $this->generalSchema = $generalSchema;
+    }
 
     public function render(
-        string $schema,
-        string $engineVersion = null,
-        bool $generalSchema = true,
-        int $indent = 0
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
     ): ?string {
-        if ($this->column === null) {
-            return null;
-        }
+        $template = str_repeat(' ', $indent) . $this->template;
 
-        return str_repeat(' ', $indent)
-            . "'{$this->column->getName()}' => {$this->renderDefinition($schema, $engineVersion, $generalSchema)},";
+        return str_replace(
+            [
+                '{columnName}',
+                '{columnDefinition}'
+            ],
+            [
+                $column->getName(),
+                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
+            ],
+            $template
+        );
     }
 
     /**
      * Renders column definition.
+     * @param ColumnInterface $column
+     * @param PrimaryKeyInterface|null $primaryKey
      * @param string $schema
-     * @param bool $generalSchema
      * @param string|null $engineVersion
-     * @return string
+     * @return string|null
      */
-    private function renderDefinition(string $schema, string $engineVersion = null, bool $generalSchema = true): string
-    {
+    public function renderDefinition(
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
+        string $schema,
+        string $engineVersion = null
+    ): ?string {
         $this->definition = [];
 
-        $this->buildColumnDefinition($schema, $generalSchema, $engineVersion);
-        $this->buildGeneralDefinition($schema);
+        $this->buildColumnDefinition($column, $primaryKey, $schema, $engineVersion);
+        $this->buildGeneralDefinition($column, $primaryKey, $schema);
 
         return implode('->', $this->definition);
     }
 
-    private function buildColumnDefinition(string $schema, bool $generalSchema, string $engineVersion = null): void
-    {
-        $definition = $this->column->getDefinition();
+    private function buildColumnDefinition(
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
+        string $schema,
+        string $engineVersion = null
+    ): void {
+        $definition = $column->getDefinition();
 
-        if ($generalSchema) {
-            if ($this->column instanceof PrimaryKeyColumnInterface) {
+        if ($this->generalSchema) {
+            if ($column instanceof PrimaryKeyColumnInterface) {
                 $this->isPrimaryKeyPossible = false;
                 $this->isNotNullPossible = false;
             } elseif (
-                $this->column instanceof PrimaryKeyVariantColumnInterface
-                && $this->primaryKey
-                && $this->primaryKey->isComposite() === false
-                && $this->column->isColumnInPrimaryKey($this->primaryKey)
+                $column instanceof PrimaryKeyVariantColumnInterface
+                && $primaryKey
+                && $primaryKey->isComposite() === false
+                && $column->isColumnInPrimaryKey($primaryKey)
             ) {
                 $this->isPrimaryKeyPossible = false;
                 $this->isNotNullPossible = false;
-                $definition = $this->column->getPrimaryKeyDefinition();
+                $definition = $column->getPrimaryKeyDefinition();
             }
         }
 
         $this->definition[] = str_replace(
             '{renderLength}',
-            $this->getRenderedLength($schema, $generalSchema, $engineVersion),
+            $this->getRenderedLength($column, $schema, $engineVersion),
             $definition
         );
     }
 
     /**
+     * @param ColumnInterface $column
      * @param string $schema
-     * @param bool $generalSchema
      * @param string|null $engineVersion
      * @return string|null
      */
-    private function getRenderedLength(string $schema, bool $generalSchema, string $engineVersion = null): ?string
+    private function getRenderedLength(ColumnInterface $column, string $schema, string $engineVersion = null): ?string
     {
-        $length = $this->column->getLength($schema, $engineVersion);
+        $length = $column->getLength($schema, $engineVersion);
 
         if ($length === null) {
             return null;
         }
 
-        if ($generalSchema === false || str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
+        if (
+            $this->generalSchema === false
+            || str_replace(' ', '', (string)$length) !== $this->getDefaultLength($column)
+        ) {
             if ($length === 'max') {
                 return '\'max\'';
             }
@@ -133,9 +147,9 @@ final class ColumnRenderer implements ColumnRendererInterface
         return null;
     }
 
-    private function getDefaultLength(): ?string
+    private function getDefaultLength(ColumnInterface $column): ?string
     {
-        $defaultMapping = $this->column->getDefaultMapping();
+        $defaultMapping = $column->getDefaultMapping();
         if ($defaultMapping !== null) {
             if (preg_match('/\(([\d,]+)\)/', $defaultMapping, $matches)) {
                 return $matches[1];
@@ -151,21 +165,26 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Builds general methods chain for column definition.
+     * @param ColumnInterface $column
+     * @param PrimaryKeyInterface|null $primaryKey
      * @param string $schema
      */
-    private function buildGeneralDefinition(string $schema): void
-    {
+    private function buildGeneralDefinition(
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
+        string $schema
+    ): void {
         array_unshift($this->definition, '$this');
 
-        if ($this->isUnsignedPossible && $this->column->isUnsigned()) {
+        if ($this->isUnsignedPossible && $column->isUnsigned()) {
             $this->definition[] = 'unsigned()';
         }
 
-        if ($this->isNotNullPossible && $this->column->isNotNull()) {
+        if ($this->isNotNullPossible && $column->isNotNull()) {
             $this->definition[] = 'notNull()';
         }
 
-        $default = $this->column->getDefault();
+        $default = $column->getDefault();
         if ($default !== null) {
             if ($default instanceof Expression) {
                 $this->definition[] = "defaultExpression('{$this->escapeQuotes($default->expression)}')";
@@ -176,14 +195,14 @@ final class ColumnRenderer implements ColumnRendererInterface
             }
         }
 
-        $columnAppend = $this->column->getAppend();
+        $columnAppend = $column->getAppend();
         if (
             $this->isPrimaryKeyPossible
-            && $this->primaryKey
-            && $this->primaryKey->isComposite() === false
-            && $this->column->isColumnInPrimaryKey($this->primaryKey)
+            && $primaryKey
+            && $primaryKey->isComposite() === false
+            && $column->isColumnInPrimaryKey($primaryKey)
         ) {
-            $schemaAppend = $this->column->prepareSchemaAppend($schema, true, $this->column->isAutoIncrement());
+            $schemaAppend = $column->prepareSchemaAppend($schema, true, $column->isAutoIncrement());
 
             if (!empty($columnAppend)) {
                 $schemaAppend .= ' ' . trim(str_replace($schemaAppend, '', $columnAppend));
@@ -193,15 +212,15 @@ final class ColumnRenderer implements ColumnRendererInterface
             $this->definition[] = "append('" . $this->escapeQuotes(trim($columnAppend)) . "')";
         }
 
-        $comment = $this->column->getComment();
+        $comment = $column->getComment();
         if ($comment) {
             $this->definition[] = "comment('" . $this->escapeQuotes((string)$comment) . "')";
         }
 
-        $after = $this->column->getAfter();
+        $after = $column->getAfter();
         if ($after) {
             $this->definition[] = "after('" . $this->escapeQuotes($after) . "')";
-        } elseif ($this->column->isFirst()) {
+        } elseif ($column->isFirst()) {
             $this->definition[] = 'first()';
         }
     }
@@ -217,15 +236,10 @@ final class ColumnRenderer implements ColumnRendererInterface
     }
 
     /**
-     * @param ColumnInterface $column
+     * @param string $template
      */
-    public function setColumn(ColumnInterface $column): void
+    public function setTemplate(string $template): void
     {
-        $this->column = $column;
-    }
-
-    public function setPrimaryKey(PrimaryKeyInterface $primaryKey): void
-    {
-        $this->primaryKey = $primaryKey;
+        $this->template = $template;
     }
 }

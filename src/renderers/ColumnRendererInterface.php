@@ -9,14 +9,18 @@ use bizley\migration\table\PrimaryKeyInterface;
 
 interface ColumnRendererInterface
 {
-    public function setColumn(ColumnInterface $column): void;
-
-    public function setPrimaryKey(PrimaryKeyInterface $primaryKey): void;
-
     public function render(
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string;
+
+    public function renderDefinition(
+        ColumnInterface $column,
+        ?PrimaryKeyInterface $primaryKey,
         string $schema,
-        string $engineVersion = null,
-        bool $generalSchema = true,
-        int $indent = 0
+        string $engineVersion = null
     ): ?string;
 }

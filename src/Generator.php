@@ -49,7 +49,8 @@ final class Generator implements GeneratorInterface
      * @param string $tableName
      * @param string $migrationName
      * @param array $referencesToPostpone
-     * @param bool $generalSchema
+     * @param bool $usePrefix
+     * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
      * @throws TableMissingException
@@ -58,26 +59,27 @@ final class Generator implements GeneratorInterface
         string $tableName,
         string $migrationName,
         array $referencesToPostpone = [],
-        bool $generalSchema = true,
+        bool $usePrefix = true,
+        string $dbPrefix = '',
         string $namespace = null
     ): string {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
             throw new TableMissingException("Table $tableName does not exists.");
         }
 
-        $this->structureRenderer->setStructure($this->tableMapper->getStructureOf($tableName, $referencesToPostpone));
-
         return $this->view->renderFile(
             $this->getCreateTableMigrationTemplate(),
             [
-                'tableName' => $this->structureRenderer->renderName($tableName),
+                'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
                 'body' => $this->structureRenderer->renderStructure(
+                    $this->tableMapper->getStructureOf($tableName, $referencesToPostpone),
+                    8,
                     $this->tableMapper->getSchemaType(),
                     $this->tableMapper->getEngineVersion(),
-                    $generalSchema,
-                    8
+                    $usePrefix,
+                    $dbPrefix
                 )
             ]
         );
@@ -97,12 +99,14 @@ final class Generator implements GeneratorInterface
     public function generateForForeignKeys(
         array $foreignKeys,
         string $migrationName,
+        bool $usePrefix = true,
+        string $dbPrefix = '',
         string $namespace = null
     ): string {
         return $this->view->renderFile(
             $this->getCreateForeignKeysMigrationTemplate(),
             [
-                'tableName' => $this->structureRenderer->renderName($tableName),
+                'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
                 'body' => $this->structureRenderer->get

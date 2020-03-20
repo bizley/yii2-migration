@@ -13,24 +13,15 @@ use function str_replace;
 final class IndexRenderer implements IndexRendererInterface
 {
     /**
-     * @var IndexInterface
-     */
-    private $index;
-
-    /**
      * @var string
      */
     private $template = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
 
-    public function render(string $tableName, int $indent = 0): ?string
+    public function render(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
-        if ($this->index === null) {
-            return null;
-        }
-
         $template = str_repeat(' ', $indent) . $this->template;
 
-        $indexColumns = $this->index->getColumns();
+        $indexColumns = $index->getColumns();
         $renderedColumns = [];
         foreach ($indexColumns as $indexColumn) {
             $renderedColumns[] = "'$indexColumn'";
@@ -44,21 +35,13 @@ final class IndexRenderer implements IndexRendererInterface
                 '{unique}',
             ],
             [
-                $this->index->getName(),
+                $index->getName(),
                 $tableName,
                 implode(', ', $renderedColumns),
-                $this->index->isUnique() ? ', true' : '',
+                $index->isUnique() ? ', true' : '',
             ],
             $template
         );
-    }
-
-    /**
-     * @param IndexInterface $index
-     */
-    public function setIndex(IndexInterface $index): void
-    {
-        $this->index = $index;
     }
 
     /**

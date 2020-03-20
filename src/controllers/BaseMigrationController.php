@@ -162,7 +162,7 @@ class BaseMigrationController extends Controller
             $this->structureRenderer = Yii::createObject(
                 $this->structureRendererClass,
                 [
-                    Yii::createObject($this->columnRendererClass),
+                    Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
                     Yii::createObject($this->primaryKeyRendererClass),
                     Yii::createObject($this->indexRendererClass),
                     Yii::createObject($this->foreignKeyRendererClass)
