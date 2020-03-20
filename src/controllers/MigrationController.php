@@ -86,9 +86,6 @@ class MigrationController extends BaseMigrationController
     /** @var bool Whether to only display changes instead of generating update migration. */
     public $onlyShow = false;
 
-    /** @var bool Whether to use general column schema instead of database specific. */
-    public $generalSchema = true;
-
     /** @var bool Whether to add generated migration to migration history. */
     public $fixHistory = false;
 
@@ -541,6 +538,7 @@ class MigrationController extends BaseMigrationController
                 );
             } catch (TableMissingException $exception) {
                 $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
+
                 return ExitCode::DATAERR;
             } catch (NotSupportedException $exception) {
                 $this->stdout(
@@ -552,6 +550,7 @@ class MigrationController extends BaseMigrationController
                 continue;
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 

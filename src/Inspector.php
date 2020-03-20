@@ -87,7 +87,7 @@ final class Inspector implements InspectorInterface
                 $this->comparator->setBlueprint($blueprint);
                 $this->comparator->compare(
                     $newStructure,
-                    $this->structureBuilder->build(array_reverse($this->appliedChanges)),
+                    $this->structureBuilder->build(array_reverse($this->appliedChanges), $schema),
                     $onlyShow,
                     $schema,
                     $engineVersion

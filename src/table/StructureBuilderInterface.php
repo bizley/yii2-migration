@@ -6,5 +6,5 @@ namespace bizley\migration\table;
 
 interface StructureBuilderInterface
 {
-    public function build(array $changes): StructureInterface;
+    public function build(array $changes, ?string $schema): StructureInterface;
 }

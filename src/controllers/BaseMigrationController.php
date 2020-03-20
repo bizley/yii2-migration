@@ -6,18 +6,26 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Arranger;
 use bizley\migration\ArrangerInterface;
+use bizley\migration\Comparator;
+use bizley\migration\ComparatorInterface;
+use bizley\migration\Extractor;
+use bizley\migration\ExtractorInterface;
 use bizley\migration\Generator;
 use bizley\migration\GeneratorInterface;
 use bizley\migration\HistoryManager;
 use bizley\migration\HistoryManagerInterface;
 use bizley\migration\Inspector;
 use bizley\migration\InspectorInterface;
+use bizley\migration\renderers\BlueprintRenderer;
+use bizley\migration\renderers\BlueprintRendererInterface;
 use bizley\migration\renderers\ColumnRenderer;
 use bizley\migration\renderers\ForeignKeyRenderer;
 use bizley\migration\renderers\IndexRenderer;
 use bizley\migration\renderers\PrimaryKeyRenderer;
 use bizley\migration\renderers\StructureRenderer;
 use bizley\migration\renderers\StructureRendererInterface;
+use bizley\migration\table\StructureBuilder;
+use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\TableMapper;
 use bizley\migration\TableMapperInterface;
 use bizley\migration\Updater;
@@ -44,6 +52,9 @@ class BaseMigrationController extends Controller
      * The same as in yii\console\controllers\MigrateController::$migrationTable.
      */
     public $migrationTable = '{{%migration}}';
+
+    /** @var bool Whether to use general column schema instead of database specific. */
+    public $generalSchema = true;
 
     /** @var string|array|Closure */
     public $historyManagerClass = HistoryManager::class;
@@ -77,6 +88,18 @@ class BaseMigrationController extends Controller
 
     /** @var string|array|Closure */
     public $inspectorClass = Inspector::class;
+
+    /** @var string|array|Closure */
+    private $blueprintRendererClass = BlueprintRenderer::class;
+
+    /** @var string|array|Closure */
+    private $extractorClass = Extractor::class;
+
+    /** @var string|array|Closure */
+    private $structureBuilderClass = StructureBuilder::class;
+
+    /** @var string|array|Closure */
+    private $comparatorClass = Comparator::class;
 
     /** @var HistoryManagerInterface */
     private $historyManager;
@@ -160,26 +183,65 @@ class BaseMigrationController extends Controller
     public function getGenerator(): GeneratorInterface
     {
         if ($this->generator === null) {
-            $this->generator = Yii::createObject($this->generatorClass, [$this->getTableMapper(), $this->view]);
+            $this->generator = Yii::createObject(
+                $this->generatorClass,
+                [
+                    $this->getTableMapper(),
+                    $this->getStructureRenderer(),
+                    $this->view
+                ]
+            );
         }
 
         return $this->generator;
     }
 
-    /** @var UpdaterInterface */
-    private $updater;
+    /** @var ExtractorInterface */
+    private $extractor;
 
     /**
-     * @return UpdaterInterface
+     * @return ExtractorInterface
      * @throws InvalidConfigException
      */
-    public function getUpdater(): UpdaterInterface
+    public function getExtractor(): ExtractorInterface
     {
-        if ($this->updater === null) {
-            $this->updater = Yii::createObject($this->updaterClass, [$this->getTableMapper(), $this->view]);
+        if ($this->extractor === null) {
+            $this->extractor = Yii::createObject($this->extractorClass, [$this->db]);
         }
 
-        return $this->updater;
+        return $this->extractor;
+    }
+
+    /** @var StructureBuilderInterface */
+    private $structureBuilder;
+
+    /**
+     * @return StructureBuilderInterface
+     * @throws InvalidConfigException
+     */
+    public function getStructureBuilder(): StructureBuilderInterface
+    {
+        if ($this->structureBuilder === null) {
+            $this->structureBuilder = Yii::createObject($this->structureBuilderClass);
+        }
+
+        return $this->structureBuilder;
+    }
+
+    /** @var ComparatorInterface */
+    private $comparator;
+
+    /**
+     * @return ComparatorInterface
+     * @throws InvalidConfigException
+     */
+    public function getComparator(): ComparatorInterface
+    {
+        if ($this->comparator === null) {
+            $this->comparator = Yii::createObject($this->comparatorClass, [$this->generalSchema]);
+        }
+
+        return $this->comparator;
     }
 
     /** @var InspectorInterface */
@@ -192,9 +254,62 @@ class BaseMigrationController extends Controller
     public function getInspector(): InspectorInterface
     {
         if ($this->inspector === null) {
-            $this->inspector = Yii::createObject($this->inspectorClass, [$this->getTableMapper(), $this->view]);
+            $this->inspector = Yii::createObject(
+                $this->inspectorClass,
+                [
+                    $this->getHistoryManager(),
+                    $this->getExtractor(),
+                    $this->getStructureBuilder(),
+                    $this->getComparator()
+                ]
+            );
         }
 
         return $this->inspector;
+    }
+
+    /** @var BlueprintRendererInterface */
+    private $blueprintRenderer;
+
+    /**
+     * @return BlueprintRendererInterface
+     * @throws InvalidConfigException
+     */
+    public function getBlueprintRenderer(): BlueprintRendererInterface
+    {
+        if ($this->blueprintRenderer === null) {
+            $this->blueprintRenderer = Yii::createObject(
+                $this->blueprintRendererClass,
+                [
+
+                ]
+            );
+        }
+
+        return $this->blueprintRenderer;
+    }
+
+    /** @var UpdaterInterface */
+    private $updater;
+
+    /**
+     * @return UpdaterInterface
+     * @throws InvalidConfigException
+     */
+    public function getUpdater(): UpdaterInterface
+    {
+        if ($this->updater === null) {
+            $this->updater = Yii::createObject(
+                $this->updaterClass,
+                [
+                    $this->getTableMapper(),
+                    $this->getInspector(),
+                    $this->getBlueprintRenderer(),
+                    $this->view
+                ]
+            );
+        }
+
+        return $this->updater;
     }
 }

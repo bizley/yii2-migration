@@ -12,29 +12,17 @@ use function count;
 
 final class StructureBuilder implements StructureBuilderInterface
 {
-    /**
-     * @var StructureInterface
-     */
+    /** @var StructureInterface */
     private $structure;
-
-    /**
-     * @var string
-     */
-    private $schema;
-
-    public function __construct(string $schema)
-    {
-        $this->schema = $schema;
-    }
 
     /**
      * Builds table structure based on the list of changes from the Updater.
      * @param array<StructureChange> $changes
+     * @param string|null $schema
      * @return StructureInterface
-     * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    public function build(array $changes): StructureInterface
+    public function build(array $changes, ?string $schema): StructureInterface
     {
         $this->structure = new Structure();
 
@@ -46,12 +34,12 @@ final class StructureBuilder implements StructureBuilderInterface
 
             switch ($change->getMethod()) {
                 case 'createTable':
-                    $this->applyCreateTableValue($change->getValue());
+                    $this->applyCreateTableValue($change->getValue(), $schema);
                     break;
 
                 case 'addColumn':
                 case 'alterColumn':
-                    $this->applyAddColumnValue($change->getValue());
+                    $this->applyAddColumnValue($change->getValue(), $schema);
                     break;
 
                 case 'dropColumn':
@@ -63,11 +51,11 @@ final class StructureBuilder implements StructureBuilderInterface
                     break;
 
                 case 'addPrimaryKey':
-                    $this->applyAddPrimaryKeyValue($change->getValue());
+                    $this->applyAddPrimaryKeyValue($change->getValue(), $schema);
                     break;
 
                 case 'dropPrimaryKey':
-                    $this->applyDropPrimaryKeyValue();
+                    $this->applyDropPrimaryKeyValue($schema);
                     break;
 
                 case 'addForeignKey':
@@ -95,20 +83,22 @@ final class StructureBuilder implements StructureBuilderInterface
                     break;
             }
         }
+
+        return $this->structure;
     }
 
-    private function applyCreateTableValue(array $columns): void
+    private function applyCreateTableValue(array $columns, ?string $schema): void
     {
         foreach ($columns as $column) {
-            $this->applyAddColumnValue($column);
+            $this->applyAddColumnValue($column, $schema);
         }
     }
 
-    private function applyAddColumnValue(ColumnInterface $column): void
+    private function applyAddColumnValue(ColumnInterface $column, ?string $schema): void
     {
         $this->structure->addColumn($column);
 
-        if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended($this->schema)) {
+        if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended($schema)) {
             $primaryKey = $this->structure->getPrimaryKey();
             if ($primaryKey === null) {
                 $primaryKey = new PrimaryKey();
@@ -136,7 +126,7 @@ final class StructureBuilder implements StructureBuilderInterface
         }
     }
 
-    private function applyAddPrimaryKeyValue(PrimaryKeyInterface $primaryKey): void
+    private function applyAddPrimaryKeyValue(PrimaryKeyInterface $primaryKey, ?string $schema): void
     {
         $this->structure->setPrimaryKey($primaryKey);
 
@@ -148,15 +138,15 @@ final class StructureBuilder implements StructureBuilderInterface
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
-                    $column->setAppend($column->prepareSchemaAppend($this->schema, true, false));
-                } elseif ($column->isPrimaryKeyInfoAppended($this->schema) === false) {
-                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend($this->schema, true, false));
+                    $column->setAppend($column->prepareSchemaAppend($schema, true, false));
+                } elseif ($column->isPrimaryKeyInfoAppended($schema) === false) {
+                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend($schema, true, false));
                 }
             }
         }
     }
 
-    private function applyDropPrimaryKeyValue(): void
+    private function applyDropPrimaryKeyValue(?string $schema): void
     {
         $primaryKey = $this->structure->getPrimaryKey();
         if ($primaryKey) {
@@ -167,7 +157,7 @@ final class StructureBuilder implements StructureBuilderInterface
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (array_key_exists($column, $columns) && !empty($columnAppend)) {
-                    $column->setAppend($column->removeAppendedPrimaryKeyInfo($this->schema));
+                    $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                 }
             }
         }
