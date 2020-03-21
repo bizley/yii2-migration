@@ -43,19 +43,33 @@ class IndexRendererTest extends TestCase
     public function providerForRender(): array
     {
         return [
-            '1col 0ind non-unique' => [0, ['aaa'], false, '$this->createIndex(\'idx\', \'test\', [\'aaa\']);'],
-            '1col 4ind unique' => [4, ['bbb'], true, '    $this->createIndex(\'idx\', \'test\', [\'bbb\'], true);'],
+            '1col 0ind non-unique' => [
+                0,
+                ['aaa'],
+                false,
+                '$this->createIndex(\'idx\', \'test\', [\'aaa\']);',
+                '$this->dropIndex(\'idx\', \'test\');',
+            ],
+            '1col 4ind unique' => [
+                4,
+                ['bbb'],
+                true,
+                '    $this->createIndex(\'idx\', \'test\', [\'bbb\'], true);',
+                '    $this->dropIndex(\'idx\', \'test\');',
+            ],
             '2col 0ind non-unique' => [
                 0,
                 ['ccc', 'ddd'],
                 false,
                 '$this->createIndex(\'idx\', \'test\', [\'ccc\', \'ddd\']);',
+                '$this->dropIndex(\'idx\', \'test\');',
             ],
             '2col 3ind unique' => [
                 3,
                 ['ccc', 'ddd'],
                 true,
                 '   $this->createIndex(\'idx\', \'test\', [\'ccc\', \'ddd\'], true);',
+                '   $this->dropIndex(\'idx\', \'test\');',
             ],
         ];
     }
@@ -66,15 +80,22 @@ class IndexRendererTest extends TestCase
      * @param int $indent
      * @param array $columns
      * @param bool $unique
-     * @param string $expected
+     * @param string $expectedCreate
+     * @param string $expectedDrop
      */
-    public function shouldRenderProperlyPrimaryKey(int $indent, array $columns, bool $unique, string $expected): void
-    {
+    public function shouldRenderProperlyPrimaryKey(
+        int $indent,
+        array $columns,
+        bool $unique,
+        string $expectedCreate,
+        string $expectedDrop
+    ): void {
         $index = $this->createMock(IndexInterface::class);
         $index->method('getColumns')->willReturn($columns);
         $index->method('getName')->willReturn('idx');
         $index->method('isUnique')->willReturn($unique);
 
-        $this->assertSame($expected, $this->renderer->renderUp($index, 'test', $indent));
+        $this->assertSame($expectedCreate, $this->renderer->renderUp($index, 'test', $indent));
+        $this->assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
     }
 }
