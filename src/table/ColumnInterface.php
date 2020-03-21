@@ -18,7 +18,7 @@ interface ColumnInterface
 
     public function setAppend(?string $append): void;
 
-    public function prepareSchemaAppend(string $schema, bool $primaryKey, bool $autoIncrement): ?string;
+    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string;
 
     public function removeAppendedPrimaryKeyInfo(string $schema): ?string;
 

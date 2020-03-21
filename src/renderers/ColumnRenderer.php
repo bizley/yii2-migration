@@ -46,7 +46,7 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     public function render(
         ColumnInterface $column,
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
         string $schema = null,
         string $engineVersion = null
@@ -70,14 +70,14 @@ final class ColumnRenderer implements ColumnRendererInterface
      * Renders column definition.
      * @param ColumnInterface $column
      * @param PrimaryKeyInterface|null $primaryKey
-     * @param string $schema
+     * @param string|null $schema
      * @param string|null $engineVersion
      * @return string|null
      */
     public function renderDefinition(
         ColumnInterface $column,
-        ?PrimaryKeyInterface $primaryKey,
-        string $schema,
+        PrimaryKeyInterface $primaryKey = null,
+        string $schema = null,
         string $engineVersion = null
     ): ?string {
         $this->definition = [];
@@ -91,7 +91,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     private function buildColumnDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
-        string $schema,
+        string $schema = null,
         string $engineVersion = null
     ): void {
         $definition = $column->getDefinition();
@@ -125,8 +125,11 @@ final class ColumnRenderer implements ColumnRendererInterface
      * @param string|null $engineVersion
      * @return string|null
      */
-    private function getRenderedLength(ColumnInterface $column, string $schema, string $engineVersion = null): ?string
-    {
+    private function getRenderedLength(
+        ColumnInterface $column,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string {
         $length = $column->getLength($schema, $engineVersion);
 
         if ($length === null) {
@@ -167,12 +170,12 @@ final class ColumnRenderer implements ColumnRendererInterface
      * Builds general methods chain for column definition.
      * @param ColumnInterface $column
      * @param PrimaryKeyInterface|null $primaryKey
-     * @param string $schema
+     * @param string|null $schema
      */
     private function buildGeneralDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
-        string $schema
+        string $schema = null
     ): void {
         array_unshift($this->definition, '$this');
 
@@ -202,7 +205,7 @@ final class ColumnRenderer implements ColumnRendererInterface
             && $primaryKey->isComposite() === false
             && $column->isColumnInPrimaryKey($primaryKey)
         ) {
-            $schemaAppend = $column->prepareSchemaAppend($schema, true, $column->isAutoIncrement());
+            $schemaAppend = $column->prepareSchemaAppend(true, $column->isAutoIncrement(), $schema);
 
             if (!empty($columnAppend)) {
                 $schemaAppend .= ' ' . trim(str_replace($schemaAppend, '', $columnAppend));

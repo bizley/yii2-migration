@@ -395,12 +395,12 @@ abstract class Column
 
     /**
      * Prepares append SQL based on schema.
-     * @param string $schema
      * @param bool $primaryKey
      * @param bool $autoIncrement
+     * @param string|null $schema
      * @return string|null
      */
-    public function prepareSchemaAppend(string $schema, bool $primaryKey, bool $autoIncrement): ?string
+    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string
     {
         switch ($schema) {
             case Schema::MSSQL:

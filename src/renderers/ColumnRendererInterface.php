@@ -11,7 +11,7 @@ interface ColumnRendererInterface
 {
     public function render(
         ColumnInterface $column,
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
         string $schema = null,
         string $engineVersion = null
@@ -19,8 +19,8 @@ interface ColumnRendererInterface
 
     public function renderDefinition(
         ColumnInterface $column,
-        ?PrimaryKeyInterface $primaryKey,
-        string $schema,
+        PrimaryKeyInterface $primaryKey = null,
+        string $schema = null,
         string $engineVersion = null
     ): ?string;
 }
