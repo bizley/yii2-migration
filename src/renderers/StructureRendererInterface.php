@@ -19,8 +19,16 @@ interface StructureRendererInterface
 
     public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string;
 
-    public function renderForeignKeys(
-        StructureInterface $structure,
+    public function renderForeignKeysUp(
+        string $structureName,
+        array $foreignKeys,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string;
+
+    public function renderForeignKeysDown(
+        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,

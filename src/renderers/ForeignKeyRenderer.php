@@ -14,8 +14,8 @@ use function str_replace;
 
 final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
-    /** @var string|null */
-    private $template = <<<'TEMPLATE'
+    /** @var string */
+    private $addKeyTemplate = <<<'TEMPLATE'
 $this->addForeignKey(
     '{keyName}',
     '{tableName}',
@@ -27,18 +27,19 @@ $this->addForeignKey(
 );
 TEMPLATE;
 
-    /**
-     * @var string
-     */
+    /** @var string */
+    private $dropKeyTemplate = '$this->dropForeignKey(\'{keyName}\', \'{tableName}\');';
+
+    /** @var string */
     private $keyNameTemplate = 'fk-{tableName}-{keyColumns}';
 
-    public function render(
+    public function renderUp(
         ForeignKeyInterface $foreignKey,
         string $tableName,
         string $referencedTableName,
         int $indent = 0
-    ): ?string {
-        $template = $this->applyIndent($indent, $this->template);
+    ): string {
+        $template = $this->applyIndent($indent, $this->addKeyTemplate);
 
         $keyColumns = $foreignKey->getColumns();
         $renderedKeyColumns = [];
@@ -73,6 +74,26 @@ TEMPLATE;
                 implode(', ', $renderedReferencedColumns),
                 $onDelete ? "'$onDelete'" : 'null',
                 $onUpdate ? "'$onUpdate'" : 'null'
+            ],
+            $template
+        );
+    }
+
+    public function renderDown(
+        ForeignKeyInterface $foreignKey,
+        string $tableName,
+        int $indent = 0
+    ): string {
+        $template = $this->applyIndent($indent, $this->dropKeyTemplate);
+
+        return str_replace(
+            [
+                '{keyName}',
+                '{tableName}'
+            ],
+            [
+                $foreignKey->getName(),
+                $tableName
             ],
             $template
         );
@@ -121,19 +142,21 @@ TEMPLATE;
         );
     }
 
-    /**
-     * @param string $template
-     */
-    public function setTemplate(string $template): void
+    /** @param string $addKeyTemplate */
+    public function setAddKeyTemplate(string $addKeyTemplate): void
     {
-        $this->template = $template;
+        $this->addKeyTemplate = $addKeyTemplate;
     }
 
-    /**
-     * @param string $keyNameTemplate
-     */
+    /** @param string $keyNameTemplate */
     public function setKeyNameTemplate(string $keyNameTemplate): void
     {
         $this->keyNameTemplate = $keyNameTemplate;
+    }
+
+    /** @param string $dropKeyTemplate */
+    public function setDropKeyTemplate(string $dropKeyTemplate): void
+    {
+        $this->dropKeyTemplate = $dropKeyTemplate;
     }
 }

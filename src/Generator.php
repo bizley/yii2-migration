@@ -9,6 +9,8 @@ use Yii;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
+use function array_reverse;
+
 final class Generator implements GeneratorInterface
 {
     /** @var TableMapperInterface */
@@ -92,12 +94,16 @@ final class Generator implements GeneratorInterface
 
     /**
      * @param array $foreignKeys
+     * @param string $tableName
      * @param string $migrationName
+     * @param bool $usePrefix
+     * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
      */
     public function generateForForeignKeys(
         array $foreignKeys,
+        string $tableName,
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
@@ -109,7 +115,20 @@ final class Generator implements GeneratorInterface
                 'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
-                'body' => $this->structureRenderer->get
+                'bodyUp' => $this->structureRenderer->renderForeignKeysUp(
+                    $tableName,
+                    $foreignKeys,
+                    8,
+                    $usePrefix,
+                    $dbPrefix
+                ),
+                'bodyDown' => $this->structureRenderer->renderForeignKeysDown(
+                    $tableName,
+                    array_reverse($foreignKeys),
+                    8,
+                    $usePrefix,
+                    $dbPrefix
+                )
             ]
         );
     }

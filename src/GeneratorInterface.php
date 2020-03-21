@@ -26,13 +26,19 @@ interface GeneratorInterface
 
     /**
      * @param array $foreignKeys
+     * @param string $tableName
      * @param string $migrationName
+     * @param bool $usePrefix
+     * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
      */
     public function generateForForeignKeys(
         array $foreignKeys,
+        string $tableName,
         string $migrationName,
+        bool $usePrefix = true,
+        string $dbPrefix = '',
         string $namespace = null
     ): string;
 

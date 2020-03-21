@@ -219,19 +219,25 @@ TEMPLATE;
         bool $usePrefix = true,
         string $dbPrefix = null
     ): ?string {
-        return $this->renderForeignKeys($structure, $structure->getForeignKeys(), $indent, $usePrefix, $dbPrefix);
+        return $this->renderForeignKeysUp(
+            $structure->getName(),
+            $structure->getForeignKeys(),
+            $indent,
+            $usePrefix,
+            $dbPrefix
+        );
     }
 
     /**
-     * @param StructureInterface $structure
+     * @param string $structureName
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix
      * @return string|null
      */
-    public function renderForeignKeys(
-        StructureInterface $structure,
+    public function renderForeignKeysUp(
+        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
@@ -240,10 +246,38 @@ TEMPLATE;
         $renderedForeignKeys = [];
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
-            $renderedForeignKeys[] = $this->foreignKeyRenderer->render(
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
                 $foreignKey,
-                $this->renderName($structure->getName(), $usePrefix, $dbPrefix),
+                $this->renderName($structureName, $usePrefix, $dbPrefix),
                 $this->renderName($foreignKey->getReferencedTable(), $usePrefix, $dbPrefix),
+                $indent
+            );
+        }
+
+        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
+    }
+
+    /**
+     * @param string $structureName
+     * @param array $foreignKeys
+     * @param int $indent
+     * @param bool $usePrefix
+     * @param string|null $dbPrefix
+     * @return string|null
+     */
+    public function renderForeignKeysDown(
+        string $structureName,
+        array $foreignKeys,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedForeignKeys = [];
+        /** @var ForeignKeyInterface $foreignKey */
+        foreach ($foreignKeys as $foreignKey) {
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown(
+                $foreignKey,
+                $this->renderName($structureName, $usePrefix, $dbPrefix),
                 $indent
             );
         }

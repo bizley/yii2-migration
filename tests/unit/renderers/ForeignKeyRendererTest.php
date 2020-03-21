@@ -39,7 +39,7 @@ class ForeignKeyRendererTest extends TestCase
         $foreignKey->method('getName')->willReturn('fk');
 
         $this->renderer->setForeignKey($foreignKey);
-        $this->renderer->setTemplate('new-template');
+        $this->renderer->setAddKeyTemplate('new-template');
         $this->assertSame('new-template', $this->renderer->render('test', 'refTable'));
     }
 
