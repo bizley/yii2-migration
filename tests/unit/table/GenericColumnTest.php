@@ -128,7 +128,7 @@ class GenericColumnTest extends TestCase
         bool $autoIncrement,
         ?string $expected
     ): void {
-        $this->assertSame($expected, $this->column->prepareSchemaAppend($schema, $primaryKey, $autoIncrement));
+        $this->assertSame($expected, $this->column->prepareSchemaAppend($primaryKey, $autoIncrement, $schema));
     }
 
     public function providerForEscapingQuotes(): array
