@@ -8,5 +8,5 @@ use bizley\migration\table\IndexInterface;
 
 interface IndexRendererInterface
 {
-    public function render(IndexInterface $index, string $tableName, int $indent = 0): ?string;
+    public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string;
 }

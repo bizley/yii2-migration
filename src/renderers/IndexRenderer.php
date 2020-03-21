@@ -17,7 +17,7 @@ final class IndexRenderer implements IndexRendererInterface
      */
     private $template = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
 
-    public function render(IndexInterface $index, string $tableName, int $indent = 0): ?string
+    public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
         $template = str_repeat(' ', $indent) . $this->template;
 

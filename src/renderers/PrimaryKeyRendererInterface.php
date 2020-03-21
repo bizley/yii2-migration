@@ -8,5 +8,5 @@ use bizley\migration\table\PrimaryKeyInterface;
 
 interface PrimaryKeyRendererInterface
 {
-    public function render(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string;
+    public function renderUp(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string;
 }

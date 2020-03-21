@@ -15,7 +15,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
     /** @var string */
     private $template = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
 
-    public function render(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
+    public function renderUp(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
         if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;

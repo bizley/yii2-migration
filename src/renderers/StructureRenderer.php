@@ -204,7 +204,7 @@ TEMPLATE;
         bool $usePrefix = true,
         string $dbPrefix = null
     ): ?string {
-        return $this->primaryKeyRenderer->render(
+        return $this->primaryKeyRenderer->renderUp(
             $structure->getPrimaryKey(),
             $this->renderName($structure->getName(), $usePrefix, $dbPrefix),
             $indent
@@ -230,7 +230,7 @@ TEMPLATE;
                 }
             }
 
-            $renderedIndexes[] = $this->indexRenderer->render(
+            $renderedIndexes[] = $this->indexRenderer->renderUp(
                 $index,
                 $this->renderName($structure->getName(), $usePrefix, $dbPrefix),
                 $indent
