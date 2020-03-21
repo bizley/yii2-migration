@@ -64,34 +64,19 @@ final class StructureRendererTest extends TestCase
      */
     public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, ?string $name, ?string $expected): void
     {
-        $this->structureRenderer->setUsePrefix($usePrefix);
-        $this->structureRenderer->setDbPrefix($dbPrefix);
-
-        $this->assertSame($expected, $this->structureRenderer->renderName($name));
+        $this->assertSame($expected, $this->structureRenderer->renderName($name, $usePrefix, $dbPrefix));
     }
 
-    /**
-     * @test
-     */
-    public function shouldRenderNothingWhenThereIsNoStructure(): void
-    {
-        $this->assertSame('', $this->structureRenderer->renderStructure('', null, true));
-        $this->assertSame('', $this->structureRenderer->renderStructure('', null, false));
-    }
-
-    /**
-     * @test
-     */
-    public function shouldRenderProperlyWithTable(): void
+    /** @test */
+    public function shouldRenderProperlyWithTableForUp(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getColumns')->willReturn([$this->createMock(ColumnInterface::class)]);
         $structure->method('getName')->willReturn('table');
-        $this->structureRenderer->setStructure($structure);
         $this->columnRenderer->method('render')->willReturn('column-render');
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -104,24 +89,34 @@ column-render
     ],
     $tableOptions
 );
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', null, true)
+            $this->structureRenderer->renderStructureUp($structure)
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
+    public function shouldRenderProperlyWithTableForDown(): void
+    {
+        $structure = $this->createMock(StructureInterface::class);
+        $structure->method('getName')->willReturn('table');
+        $this->columnRenderer->method('render')->willReturn('column-render');
+
+        $this->assertSame(
+            '$this->dropTable(\'{{%table}}\');',
+            $this->structureRenderer->renderStructureDown($structure)
+        );
+    }
+
+    /** @test */
     public function shouldRenderProperlyWithIndent(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getColumns')->willReturn([]);
         $structure->method('getName')->willReturn('table');
-        $this->structureRenderer->setStructure($structure);
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
     $tableOptions = null;
     if ($this->db->driverName === 'mysql') {
         $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -134,37 +129,31 @@ TEMPLATE
         ],
         $tableOptions
     );
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', '', true, 4)
+            $this->structureRenderer->renderStructureUp($structure, 4)
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldRenderProperlyWithTableAndCustomTemplate(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getColumns')->willReturn([]);
-        $this->structureRenderer->setStructure($structure);
         $this->structureRenderer->setCreateTableTemplate('custom-template');
 
-        $this->assertSame('custom-template', $this->structureRenderer->renderStructure('', null, true));
+        $this->assertSame('custom-template', $this->structureRenderer->renderStructureUp($structure));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldRenderProperlyWithPrimaryKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
-        $this->primaryKeyRenderer->method('render')->willReturn('primary-key-render');
-        $this->structureRenderer->setStructure($structure);
+        $this->primaryKeyRenderer->method('renderUp')->willReturn('primary-key-render');
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -179,26 +168,23 @@ $this->createTable(
 );
 
 primary-key-render
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', null, true)
+            $this->structureRenderer->renderStructureUp($structure)
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldRenderProperlyWithIndexes(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $index = $this->createMock(IndexInterface::class);
         $structure->method('getIndexes')->willReturn([$index, $index]);
-        $this->indexRenderer->method('render')->willReturn('index-render');
-        $this->structureRenderer->setStructure($structure);
+        $this->indexRenderer->method('renderUp')->willReturn('index-render');
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -214,15 +200,13 @@ $this->createTable(
 
 index-render
 index-render
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', null, true)
+            $this->structureRenderer->renderStructureUp($structure)
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldRenderProperlyWithNoIndexForForeignKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -234,11 +218,10 @@ TEMPLATE
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getName')->willReturn('same-name');
         $structure->method('getForeignKeys')->willReturn([$foreignKey]);
-        $this->indexRenderer->method('render')->willReturn('index-render');
-        $this->structureRenderer->setStructure($structure);
+        $this->indexRenderer->method('renderUp')->willReturn('index-render');
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -253,26 +236,23 @@ $this->createTable(
 );
 
 index-render
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', null, true)
+            $this->structureRenderer->renderStructureUp($structure)
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldRenderProperlyWithForeignKeys(): void
     {
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $structure->method('getForeignKeys')->willReturn([$foreignKey]);
-        $this->foreignKeyRenderer->method('render')->willReturn('foreign-key-render');
-        $this->structureRenderer->setStructure($structure);
+        $this->foreignKeyRenderer->method('renderUp')->willReturn('foreign-key-render');
 
         $this->assertSame(
-            <<<'TEMPLATE'
+            <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -287,9 +267,9 @@ $this->createTable(
 );
 
 foreign-key-render
-TEMPLATE
+RENDERED
             ,
-            $this->structureRenderer->renderStructure('', null, true)
+            $this->structureRenderer->renderStructureUp($structure)
         );
     }
 }
