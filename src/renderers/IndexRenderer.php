@@ -12,14 +12,15 @@ use function str_replace;
 
 final class IndexRenderer implements IndexRendererInterface
 {
-    /**
-     * @var string
-     */
-    private $template = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
+    /** @var string */
+    private $createIndexTemplate = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
+
+    /** @var string */
+    private $dropIndexTemplate = '$this->dropIndex(\'{indexName}\', \'{tableName}\');';
 
     public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
-        $template = str_repeat(' ', $indent) . $this->template;
+        $template = str_repeat(' ', $indent) . $this->createIndexTemplate;
 
         $indexColumns = $index->getColumns();
         $renderedColumns = [];
@@ -44,11 +45,32 @@ final class IndexRenderer implements IndexRendererInterface
         );
     }
 
-    /**
-     * @param string $template
-     */
-    public function setTemplate(string $template): void
+    public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
-        $this->template = $template;
+        $template = str_repeat(' ', $indent) . $this->dropIndexTemplate;
+
+        return str_replace(
+            [
+                '{indexName}',
+                '{tableName}'
+            ],
+            [
+                $index->getName(),
+                $tableName
+            ],
+            $template
+        );
+    }
+
+    /** @param string $createIndexTemplate */
+    public function setCreateIndexTemplate(string $createIndexTemplate): void
+    {
+        $this->createIndexTemplate = $createIndexTemplate;
+    }
+
+    /** @param string $dropIndexTemplate */
+    public function setDropIndexTemplate(string $dropIndexTemplate): void
+    {
+        $this->dropIndexTemplate = $dropIndexTemplate;
     }
 }

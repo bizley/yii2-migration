@@ -37,7 +37,7 @@ class IndexRendererTest extends TestCase
         $index->method('isUnique')->willReturn(false);
 
         $this->renderer->setIndex($index);
-        $this->renderer->setTemplate('new-template');
+        $this->renderer->setCreateIndexTemplate('new-template');
         $this->assertSame('new-template', $this->renderer->render('test'));
     }
 
