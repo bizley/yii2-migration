@@ -23,4 +23,24 @@ interface ColumnRendererInterface
         string $schema = null,
         string $engineVersion = null
     ): ?string;
+
+    public function renderAdd(
+        ColumnInterface $column,
+        string $tableName,
+        PrimaryKeyInterface $primaryKey = null,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string;
+
+    public function renderAlter(
+        ColumnInterface $column,
+        string $tableName,
+        PrimaryKeyInterface $primaryKey = null,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string;
+
+    public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string;
 }

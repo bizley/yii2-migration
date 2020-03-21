@@ -42,7 +42,7 @@ interface BlueprintInterface
 
     public function getAddedForeignKeys(): array;
 
-    public function getDroppedPrimaryKey(): ?string;
+    public function getDroppedPrimaryKey(): ?PrimaryKeyInterface;
 
     public function getAddedPrimaryKey(): ?PrimaryKeyInterface;
 

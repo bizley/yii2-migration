@@ -26,10 +26,10 @@ final class Blueprint implements BlueprintInterface
     /** @var array */
     private $foreignKeysToAdd = [];
 
-    /** @var string|null */
+    /** @var PrimaryKeyInterface|null */
     private $primaryKeyToDrop;
 
-    /** @var PrimaryKey|null */
+    /** @var PrimaryKeyInterface|null */
     private $primaryKeyToAdd;
 
     /** @var array */
@@ -134,7 +134,7 @@ final class Blueprint implements BlueprintInterface
         return $this->foreignKeysToAdd;
     }
 
-    public function getDroppedPrimaryKey(): ?string
+    public function getDroppedPrimaryKey(): ?PrimaryKeyInterface
     {
         return $this->primaryKeyToDrop;
     }

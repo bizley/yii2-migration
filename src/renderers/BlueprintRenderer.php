@@ -6,57 +6,67 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ColumnInterface;
+use bizley\migration\table\ForeignKeyInterface;
+use bizley\migration\table\IndexInterface;
 
 use function array_filter;
 use function implode;
-use function sprintf;
-use function str_replace;
 
 final class BlueprintRenderer implements BlueprintRendererInterface
 {
-    /** @var bool */
-    private $usePrefix = true;
-
-    /** @var string|null */
-    private $dbPrefix;
-
-    /** @var string */
-    private $dropColumnTemplate = '$this->dropColumn(\'{tableName}\', \'{columnName}\');';
-
-    /** @var string */
-    private $addColumnTemplate = '$this->addColumn(\'{tableName}\', \'{columnName}\', {columnDefinition})';
-
-    /** @var BlueprintInterface */
-    private $blueprint;
-
     /** @var ColumnRendererInterface */
     private $columnRenderer;
 
-    public function __construct(ColumnRendererInterface $columnRenderer)
-    {
+    /** @var PrimaryKeyRendererInterface */
+    private $primaryKeyRenderer;
+
+    /** @var IndexRendererInterface */
+    private $indexRenderer;
+
+    /** @var ForeignKeyRendererInterface */
+    private $foreignKeyRenderer;
+
+    public function __construct(
+        ColumnRendererInterface $columnRenderer,
+        PrimaryKeyRendererInterface $primaryKeyRenderer,
+        IndexRendererInterface $indexRenderer,
+        ForeignKeyRendererInterface $foreignKeyRenderer
+    ) {
         $this->columnRenderer = $columnRenderer;
+        $this->primaryKeyRenderer = $primaryKeyRenderer;
+        $this->indexRenderer = $indexRenderer;
+        $this->foreignKeyRenderer = $foreignKeyRenderer;
     }
 
     /**
      * Renders the blueprint for up().
-     * @param string $schema
-     * @param string|null $engineVersion
+     * @param BlueprintInterface $blueprint
      * @param int $indent
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @param bool $usePrefix
+     * @param string|null $dbPrefix
      * @return string
      */
-    public function renderUp(string $schema, string $engineVersion = null, int $indent = 0): string
-    {
+    public function renderUp(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): string {
         $renderedBlueprint = array_filter(
             [
-                $this->renderColumnsToDrop($indent),
-                $this->renderColumnsToAdd($schema, $engineVersion, $indent),
-                $this->renderColumnsToAlter($indent),
-                $this->renderForeignKeysToDrop($indent),
-                $this->renderForeignKeysToAdd($indent),
-                $this->renderIndexesToDrop($indent),
-                $this->renderIndexesToAdd($indent),
-                $this->renderPrimaryKeyToDrop($indent),
-                $this->renderPrimaryKeyToAdd($indent),
+                $this->renderColumnsToDrop($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderColumnsToAdd($blueprint, $indent, $schema, $engineVersion, $usePrefix, $dbPrefix),
+                $this->renderColumnsToAlter($blueprint, $indent, $schema, $engineVersion, $usePrefix, $dbPrefix),
+                $this->renderForeignKeysToDrop($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderForeignKeysToAdd($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderIndexesToDrop($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderIndexesToAdd($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderPrimaryKeyToDrop($blueprint, $indent, $usePrefix, $dbPrefix),
+                $this->renderPrimaryKeyToAdd($blueprint, $indent, $usePrefix, $dbPrefix),
             ]
         );
 
@@ -66,15 +76,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     /**
      * Renders table name.
      * @param string|null $tableName
+     * @param bool $usePrefix
+     * @param string|null $dbPrefix
      * @return string|null
      */
-    public function renderName(?string $tableName): ?string
+    public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string
     {
-        if ($this->usePrefix === false) {
+        if ($usePrefix === false) {
             return $tableName;
         }
 
-        $dbPrefix = $this->dbPrefix;
         if ($dbPrefix !== null && strpos($tableName, $dbPrefix) === 0) {
             $tableName = mb_substr($tableName, mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
@@ -82,165 +93,187 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         return "{{%$tableName}}";
     }
 
-    private function renderColumnsToDrop(int $indent = 0): ?string
-    {
+    private function renderColumnsToDrop(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
         $renderedColumns = [];
 
-        $template = str_repeat(' ', $indent) . $this->dropColumnTemplate;
-
-        $columns = $this->blueprint->getDroppedColumns();
+        $columns = $blueprint->getDroppedColumns();
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
-            $renderedColumns[] = str_replace(
-                [
-                    '{tableName}',
-                    '{columnName}'
-                ],
-                [
-                    $this->renderName($this->blueprint->getTableName()),
-                    $column->getName()
-                ],
-                $template
+            $renderedColumns[] = $this->columnRenderer->renderDrop(
+                $column,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                $indent
             );
         }
 
         return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
     }
 
-    private function renderColumnsToAdd(string $schema, string $engineVersion = null, int $indent = 0): ?string
-    {
+    private function renderColumnsToAdd(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
         $renderedColumns = [];
 
-        $template = str_repeat(' ', $indent) . $this->addColumnTemplate;
-
-        $columns = $this->blueprint->getAddedColumns();
+        $columns = $blueprint->getAddedColumns();
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
-            $renderedColumns[] = str_replace(
-                [
-                    '{tableName}',
-                    '{columnName}',
-                    '{columnDefinition}'
-                ],
-                [
-                    $this->renderName($this->blueprint->getTableName()),
-                    $column->getName(),
-                    $this->columnRenderer->renderDefinition($schema, $engineVersion)
-                ],
-                $template
+            $renderedColumns[] = $this->columnRenderer->renderAdd(
+                $column,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                null, // TODO should there be primary key?
+                $indent,
+                $schema,
+                $engineVersion
             );
         }
 
         return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
     }
 
+    private function renderColumnsToAlter(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedColumns = [];
 
-
-
-
-
-
-
-
-
-
-
-
-    public function render(int $indent = 0): string
-    {
-        $output = '';
-
-//        foreach ($this->dropColumn as $name) {
-//            $output .= sprintf('        $this->dropColumn(\'%s\', \'%s\');', $table->renderName(), $name) . "\n";
-//        }
-
-        /* @var $column Column */
-        foreach ($this->addColumn as $name => $column) {
-            $output .= sprintf(
-                '        $this->addColumn(\'%s\', \'%s\', %s);',
-                $table->renderName(),
-                $name,
-                $column->renderDefinition($table)
-            ) . "\n";
+        $columns = $blueprint->getAlteredColumns();
+        /** @var ColumnInterface $column */
+        foreach ($columns as $column) {
+            $renderedColumns[] = $this->columnRenderer->renderAlter(
+                $column,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                null, // TODO should there be primary key?
+                $indent,
+                $schema,
+                $engineVersion
+            );
         }
 
-        /* @var $column Column */
-        foreach ($this->alterColumn as $name => $column) {
-            $output .= sprintf(
-                '        $this->alterColumn(\'%s\', \'%s\', %s);',
-                $table->renderName(),
-                $name,
-                $column->renderDefinition($table)
-            ) . "\n";
-        }
-
-        foreach ($this->dropForeignKey as $name) {
-            $output .= sprintf('        $this->dropForeignKey(\'%s\', \'%s\');', $name, $table->renderName()) . "\n";
-        }
-
-        /* @var $foreignKey ForeignKey */
-        foreach ($this->addForeignKey as $name => $foreignKey) {
-            $output .= $foreignKey->render($table);
-        }
-
-        foreach ($this->dropIndex as $name) {
-            $output .= sprintf('        $this->dropIndex(\'%s\', \'%s\');', $name, $table->renderName()) . "\n";
-        }
-
-        /* @var $index Index */
-        foreach ($this->createIndex as $name => $index) {
-            $output .= $index->render($table) . "\n";
-        }
-
-        if (!empty($this->dropPrimaryKey)) {
-            $output .= sprintf(
-                '        $this->dropPrimaryKey(\'%s\', \'%s\');',
-                $this->dropPrimaryKey,
-                $table->renderName()
-            ) . "\n";
-        }
-
-        if ($this->addPrimaryKey) {
-            $output .= $this->addPrimaryKey->render($table) . "\n";
-        }
-
-        return $output;
+        return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
     }
 
-    public function setBlueprint(BlueprintInterface $blueprint): void
-    {
-        $this->blueprint = $blueprint;
+    private function renderForeignKeysToDrop(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedForeignKeys = [];
+
+        $foreignKeys = $blueprint->getDroppedForeignKeys();
+        /** @var ForeignKeyInterface $foreignKey */
+        foreach ($foreignKeys as $foreignKey) {
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown(
+                $foreignKey,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                $indent
+            );
+        }
+
+        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
 
-    /**
-     * @param bool $usePrefix
-     */
-    public function setUsePrefix(bool $usePrefix): void
-    {
-        $this->usePrefix = $usePrefix;
+    private function renderForeignKeysToAdd(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedForeignKeys = [];
+
+        $foreignKeys = $blueprint->getAddedForeignKeys();
+        /** @var ForeignKeyInterface $foreignKey */
+        foreach ($foreignKeys as $foreignKey) {
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
+                $foreignKey,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                $this->renderName($foreignKey->getReferencedTable(), $usePrefix, $dbPrefix),
+                $indent
+            );
+        }
+
+        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
 
-    /**
-     * @param string|null $dbPrefix
-     */
-    public function setDbPrefix(?string $dbPrefix): void
-    {
-        $this->dbPrefix = $dbPrefix;
+    private function renderIndexesToDrop(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedIndexes = [];
+
+        $indexes = $blueprint->getDroppedIndexes();
+        /** @var IndexInterface $index */
+        foreach ($indexes as $index) {
+            $renderedIndexes[] = $this->indexRenderer->renderDown(
+                $index,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                $indent
+            );
+        }
+
+        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
     }
 
-    /**
-     * @param string $dropColumnTemplate
-     */
-    public function setDropColumnTemplate(string $dropColumnTemplate): void
-    {
-        $this->dropColumnTemplate = $dropColumnTemplate;
+    private function renderIndexesToAdd(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $renderedIndexes = [];
+
+        $indexes = $blueprint->getAddedIndexes();
+        /** @var IndexInterface $index */
+        foreach ($indexes as $index) {
+            $renderedIndexes[] = $this->indexRenderer->renderUp(
+                $index,
+                $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+                $indent
+            );
+        }
+
+        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
     }
 
-    /**
-     * @param string $addColumnTemplate
-     */
-    public function setAddColumnTemplate(string $addColumnTemplate): void
-    {
-        $this->addColumnTemplate = $addColumnTemplate;
+    private function renderPrimaryKeyToDrop(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        return $this->primaryKeyRenderer->renderDown(
+            $blueprint->getDroppedPrimaryKey(),
+            $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+            $indent
+        );
+    }
+
+    private function renderPrimaryKeyToAdd(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        return $this->primaryKeyRenderer->renderUp(
+            $blueprint->getDroppedPrimaryKey(),
+            $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix),
+            $indent
+        );
     }
 }

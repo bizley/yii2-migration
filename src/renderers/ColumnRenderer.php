@@ -34,7 +34,16 @@ final class ColumnRenderer implements ColumnRendererInterface
     private $isPrimaryKeyPossible = true;
 
     /** @var string */
-    private $template = "'{columnName}' => {columnDefinition},";
+    private $definitionTemplate = "'{columnName}' => {columnDefinition},";
+
+    /** @var string */
+    private $addColumnTemplate = '$this->addColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
+
+    /** @var string */
+    private $alterColumnTemplate = '$this->alterColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
+
+    /** @var string */
+    private $dropColumnTemplate = '$this->dropColumn(\'{tableName}\', \'{columnName}\');';
 
     /** @var bool */
     private $generalSchema;
@@ -51,7 +60,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         string $schema = null,
         string $engineVersion = null
     ): ?string {
-        $template = str_repeat(' ', $indent) . $this->template;
+        $template = str_repeat(' ', $indent) . $this->definitionTemplate;
 
         return str_replace(
             [
@@ -61,6 +70,73 @@ final class ColumnRenderer implements ColumnRendererInterface
             [
                 $column->getName(),
                 $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
+            ],
+            $template
+        );
+    }
+
+    public function renderAdd(
+        ColumnInterface $column,
+        string $tableName,
+        PrimaryKeyInterface $primaryKey = null,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string {
+        $template = str_repeat(' ', $indent) . $this->addColumnTemplate;
+
+        return str_replace(
+            [
+                '{tableName}',
+                '{columnName}',
+                '{columnDefinition}'
+            ],
+            [
+                $tableName,
+                $column->getName(),
+                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
+            ],
+            $template
+        );
+    }
+
+    public function renderAlter(
+        ColumnInterface $column,
+        string $tableName,
+        PrimaryKeyInterface $primaryKey = null,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null
+    ): ?string {
+        $template = str_repeat(' ', $indent) . $this->alterColumnTemplate;
+
+        return str_replace(
+            [
+                '{tableName}',
+                '{columnName}',
+                '{columnDefinition}'
+            ],
+            [
+                $tableName,
+                $column->getName(),
+                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
+            ],
+            $template
+        );
+    }
+
+    public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string
+    {
+        $template = str_repeat(' ', $indent) . $this->dropColumnTemplate;
+
+        return str_replace(
+            [
+                '{tableName}',
+                '{columnName}'
+            ],
+            [
+                $tableName,
+                $column->getName(),
             ],
             $template
         );
@@ -238,11 +314,27 @@ final class ColumnRenderer implements ColumnRendererInterface
         return str_replace('\'', '\\\'', $value);
     }
 
-    /**
-     * @param string $template
-     */
-    public function setTemplate(string $template): void
+    /** @param string $definitionTemplate */
+    public function setDefinitionTemplate(string $definitionTemplate): void
     {
-        $this->template = $template;
+        $this->definitionTemplate = $definitionTemplate;
+    }
+
+    /** @param string $dropColumnTemplate */
+    public function setDropColumnTemplate(string $dropColumnTemplate): void
+    {
+        $this->dropColumnTemplate = $dropColumnTemplate;
+    }
+
+    /** @param string $addColumnTemplate */
+    public function setAddColumnTemplate(string $addColumnTemplate): void
+    {
+        $this->addColumnTemplate = $addColumnTemplate;
+    }
+
+    /** @param string $alterColumnTemplate */
+    public function setAlterColumnTemplate(string $alterColumnTemplate): void
+    {
+        $this->alterColumnTemplate = $alterColumnTemplate;
     }
 }
