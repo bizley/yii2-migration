@@ -69,20 +69,23 @@ final class Generator implements GeneratorInterface
             throw new TableMissingException("Table $tableName does not exists.");
         }
 
+        $structure = $this->tableMapper->getStructureOf($tableName, $referencesToPostpone);
+
         return $this->view->renderFile(
             $this->getCreateTableMigrationTemplate(),
             [
                 'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
-                'body' => $this->structureRenderer->renderStructure(
-                    $this->tableMapper->getStructureOf($tableName, $referencesToPostpone),
+                'bodyUp' => $this->structureRenderer->renderStructureUp(
+                    $structure,
                     8,
                     $this->tableMapper->getSchemaType(),
                     $this->tableMapper->getEngineVersion(),
                     $usePrefix,
                     $dbPrefix
-                )
+                ),
+                'bodyDown' => $this->structureRenderer->renderStructureDown($structure, 8, $usePrefix, $dbPrefix)
             ]
         );
     }

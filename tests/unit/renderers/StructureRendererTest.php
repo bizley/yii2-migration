@@ -148,7 +148,7 @@ TEMPLATE
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getColumns')->willReturn([]);
         $this->structureRenderer->setStructure($structure);
-        $this->structureRenderer->setTemplate('custom-template');
+        $this->structureRenderer->setCreateTableTemplate('custom-template');
 
         $this->assertSame('custom-template', $this->structureRenderer->renderStructure('', null, true));
     }

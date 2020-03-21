@@ -20,8 +20,8 @@ use function strpos;
 
 final class StructureRenderer implements StructureRendererInterface
 {
-    /** @var string|null */
-    private $template = <<<'TEMPLATE'
+    /** @var string */
+    private $createTableTemplate = <<<'TEMPLATE'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
     $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
@@ -35,6 +35,9 @@ $this->createTable(
     $tableOptions
 );
 TEMPLATE;
+
+    /** @var string */
+    private $dropTableTemplate = '$this->dropTable(\'{tableName}\');';
 
     /** @var ColumnRendererInterface */
     private $columnRenderer;
@@ -90,7 +93,7 @@ TEMPLATE;
      * @param string|null $dbPrefix
      * @return string
      */
-    public function renderStructure(
+    public function renderStructureUp(
         StructureInterface $structure,
         int $indent = 0,
         string $schema = null,
@@ -100,14 +103,23 @@ TEMPLATE;
     ): string {
         $renderedStructure = array_filter(
             [
-                $this->renderStructureTable($structure, $indent, $schema, $engineVersion, $usePrefix, $dbPrefix),
-                $this->renderStructurePrimaryKey($structure, $indent, $usePrefix, $dbPrefix),
-                $this->renderStructureIndexes($structure, $indent, $usePrefix, $dbPrefix),
-                $this->renderStructureForeignKeys($structure, $indent, $usePrefix, $dbPrefix)
+                $this->renderStructureTableUp($structure, $indent, $schema, $engineVersion, $usePrefix, $dbPrefix),
+                $this->renderStructurePrimaryKeyUp($structure, $indent, $usePrefix, $dbPrefix),
+                $this->renderStructureIndexesUp($structure, $indent, $usePrefix, $dbPrefix),
+                $this->renderStructureForeignKeysUp($structure, $indent, $usePrefix, $dbPrefix)
             ]
         );
 
         return implode("\n\n", $renderedStructure);
+    }
+
+    public function renderStructureDown(
+        StructureInterface $structure,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): string {
+        return $this->renderStructureTableDown($structure, $indent, $usePrefix, $dbPrefix);
     }
 
     private function applyIndent(int $indent, ?string $template): ?string
@@ -136,7 +148,7 @@ TEMPLATE;
      * @param int $indent
      * @return string|null
      */
-    private function renderStructureTable(
+    private function renderStructureTableUp(
         StructureInterface $structure,
         int $indent = 0,
         string $schema = null,
@@ -144,7 +156,7 @@ TEMPLATE;
         bool $usePrefix = true,
         string $dbPrefix = null
     ): ?string {
-        $template = $this->applyIndent($indent, $this->template);
+        $template = $this->applyIndent($indent, $this->createTableTemplate);
 
         $columns = $structure->getColumns();
         $renderedColumns = [];
@@ -171,7 +183,22 @@ TEMPLATE;
         );
     }
 
-    private function renderStructurePrimaryKey(
+    private function renderStructureTableDown(
+        StructureInterface $structure,
+        int $indent = 0,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): ?string {
+        $template = $this->applyIndent($indent, $this->dropTableTemplate);
+
+        return str_replace(
+            ['{tableName}'],
+            [$this->renderName($structure->getName(), $usePrefix, $dbPrefix)],
+            $template
+        );
+    }
+
+    private function renderStructurePrimaryKeyUp(
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
@@ -184,7 +211,7 @@ TEMPLATE;
         );
     }
 
-    private function renderStructureIndexes(
+    private function renderStructureIndexesUp(
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
@@ -213,7 +240,7 @@ TEMPLATE;
         return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
     }
 
-    private function renderStructureForeignKeys(
+    private function renderStructureForeignKeysUp(
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
@@ -285,11 +312,15 @@ TEMPLATE;
         return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
 
-    /**
-     * @param string|null $template
-     */
-    public function setTemplate(?string $template): void
+    /** @param string|null $createTableTemplate */
+    public function setCreateTableTemplate(?string $createTableTemplate): void
     {
-        $this->template = $template;
+        $this->createTableTemplate = $createTableTemplate;
+    }
+
+    /** @param string $dropTableTemplate */
+    public function setDropTableTemplate(string $dropTableTemplate): void
+    {
+        $this->dropTableTemplate = $dropTableTemplate;
     }
 }

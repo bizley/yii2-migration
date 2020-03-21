@@ -5,8 +5,8 @@ declare(strict_types=1);
 /**
  * This is the template for generating the migration of a specified table.
  *
- * @var string $tableName Table name
- * @var string $body Migration content
+ * @var string $bodyUp Migration content for up()
+ * @var string $bodyDown Migration content for down()
  * @var string $className Migration class name
  * @var string $namespace Migration namespace
  */
@@ -23,11 +23,12 @@ class <?= $className ?> extends Migration
 {
     public function up()
     {
-<?= $body ?>
+<?= $bodyUp ?>
     }
 
     public function down()
     {
+<?= $bodyDown ?>
         $this->dropTable('<?= $tableName ?>');
     }
 }
