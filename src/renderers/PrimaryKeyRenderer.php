@@ -13,7 +13,10 @@ use function str_replace;
 final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 {
     /** @var string */
-    private $template = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
+    private $addKeyTemplate = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
+
+    /** @var string */
+    private $dropKeyTemplate = '$this->dropPrimaryKey(\'{keyName}\', \'{tableName}\');';
 
     public function renderUp(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
@@ -21,7 +24,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             return null;
         }
 
-        $template = str_repeat(' ', $indent) . $this->template;
+        $template = str_repeat(' ', $indent) . $this->addKeyTemplate;
 
         $keyColumns = $primaryKey->getColumns();
         $renderedColumns = [];
@@ -44,11 +47,36 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
         );
     }
 
-    /**
-     * @param string $template
-     */
-    public function setTemplate(string $template): void
+    public function renderDown(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
-        $this->template = $template;
+        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+            return null;
+        }
+
+        $template = str_repeat(' ', $indent) . $this->dropKeyTemplate;
+
+        return str_replace(
+            [
+                '{keyName}',
+                '{tableName}'
+            ],
+            [
+                $primaryKey->getName(),
+                $tableName
+            ],
+            $template
+        );
+    }
+
+    /** @param string $addKeyTemplate */
+    public function setAddKeyTemplate(string $addKeyTemplate): void
+    {
+        $this->addKeyTemplate = $addKeyTemplate;
+    }
+
+    /** @param string $dropKeyTemplate */
+    public function setDropKeyTemplate(string $dropKeyTemplate): void
+    {
+        $this->dropKeyTemplate = $dropKeyTemplate;
     }
 }

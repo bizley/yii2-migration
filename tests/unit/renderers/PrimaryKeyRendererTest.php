@@ -49,7 +49,7 @@ class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('getName')->willReturn('pk');
 
         $this->renderer->setPrimaryKey($primaryKey);
-        $this->renderer->setTemplate('new-template');
+        $this->renderer->setAddKeyTemplate('new-template');
         $this->assertSame('new-template', $this->renderer->render('test'));
     }
 
