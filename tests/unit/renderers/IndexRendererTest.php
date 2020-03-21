@@ -18,27 +18,26 @@ class IndexRendererTest extends TestCase
         $this->renderer = new IndexRenderer();
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnNullWhenNoIndex(): void
-    {
-        $this->assertNull($this->renderer->render('test'));
-    }
-
-    /**
-     * @test
-     */
-    public function shouldRenderProperTemplate(): void
+    /** @test */
+    public function shouldRenderProperTemplateForUp(): void
     {
         $index = $this->createMock(IndexInterface::class);
         $index->method('getColumns')->willReturn([]);
         $index->method('getName')->willReturn('pk');
         $index->method('isUnique')->willReturn(false);
 
-        $this->renderer->setIndex($index);
         $this->renderer->setCreateIndexTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->render('test'));
+        $this->assertSame('new-template', $this->renderer->renderUp($index, 'test'));
+    }
+
+    /** @test */
+    public function shouldRenderProperTemplateForDown(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getName')->willReturn('pk');
+
+        $this->renderer->setDropIndexTemplate('new-template');
+        $this->assertSame('new-template', $this->renderer->renderDown($index, 'test'));
     }
 
     public function providerForRender(): array
@@ -76,7 +75,6 @@ class IndexRendererTest extends TestCase
         $index->method('getName')->willReturn('idx');
         $index->method('isUnique')->willReturn($unique);
 
-        $this->renderer->setIndex($index);
-        $this->assertSame($expected, $this->renderer->render('test', $indent));
+        $this->assertSame($expected, $this->renderer->renderUp($index, 'test', $indent));
     }
 }
