@@ -92,7 +92,7 @@ TEMPLATE;
                 '{tableName}'
             ],
             [
-                $foreignKey->getName(),
+                $this->renderName($foreignKey, $tableName),
                 $tableName
             ],
             $template

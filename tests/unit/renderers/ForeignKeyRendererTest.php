@@ -18,18 +18,8 @@ class ForeignKeyRendererTest extends TestCase
         $this->renderer = new ForeignKeyRenderer();
     }
 
-    /**
-     * @test
-     */
-    public function shouldReturnNullWhenNoForeignKey(): void
-    {
-        $this->assertNull($this->renderer->render('test', 'refTable'));
-    }
-
-    /**
-     * @test
-     */
-    public function shouldRenderProperTemplate(): void
+    /** @test */
+    public function shouldRenderProperTemplateForUp(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn([]);
@@ -38,9 +28,18 @@ class ForeignKeyRendererTest extends TestCase
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->renderer->setForeignKey($foreignKey);
         $this->renderer->setAddKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->render('test', 'refTable'));
+        $this->assertSame('new-template', $this->renderer->renderUp($foreignKey, 'table', 'refTable'));
+    }
+
+    /** @test */
+    public function shouldRenderProperTemplateForDown(): void
+    {
+        $foreignKey = $this->createMock(ForeignKeyInterface::class);
+        $foreignKey->method('getName')->willReturn('fk');
+
+        $this->renderer->setDropKeyTemplate('new-template');
+        $this->assertSame('new-template', $this->renderer->renderDown($foreignKey, 'table'));
     }
 
     public function providerForRender(): array
@@ -52,7 +51,7 @@ class ForeignKeyRendererTest extends TestCase
                 ['b'],
                 null,
                 null,
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk',
     'test',
@@ -62,7 +61,8 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#2' => [
                 4,
@@ -70,7 +70,7 @@ TEMPLATE
                 ['d'],
                 null,
                 null,
-                <<<'TEMPLATE'
+                <<<'RENDERED'
     $this->addForeignKey(
         'fk',
         'test',
@@ -80,7 +80,8 @@ TEMPLATE
         null,
         null
     );
-TEMPLATE
+RENDERED,
+                '    $this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#3' => [
                 0,
@@ -88,7 +89,7 @@ TEMPLATE
                 ['c'],
                 'abc',
                 'eee',
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk',
     'test',
@@ -98,7 +99,8 @@ $this->addForeignKey(
     'abc',
     'eee'
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#4' => [
                 0,
@@ -106,7 +108,7 @@ TEMPLATE
                 ['c', 'd'],
                 'a',
                 '',
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk',
     'test',
@@ -116,7 +118,8 @@ $this->addForeignKey(
     'a',
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk\', \'test\');'
             ],
         ];
     }
@@ -129,7 +132,8 @@ TEMPLATE
      * @param array $refColumns
      * @param string|null $onDelete
      * @param string|null $onUpdate
-     * @param string $expected
+     * @param string $expectedAdd
+     * @param string $expectedDrop
      */
     public function shouldRenderProperlyForeignKey(
         int $indent,
@@ -137,7 +141,8 @@ TEMPLATE
         array $refColumns,
         ?string $onDelete,
         ?string $onUpdate,
-        string $expected
+        string $expectedAdd,
+        string $expectedDrop
     ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
@@ -146,8 +151,8 @@ TEMPLATE
         $foreignKey->method('getOnUpdate')->willReturn($onUpdate);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->renderer->setForeignKey($foreignKey);
-        $this->assertSame($expected, $this->renderer->render('test', 'refTable', $indent));
+        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable', $indent));
+        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test', $indent));
     }
 
     public function providerForRenderName(): array
@@ -156,7 +161,7 @@ TEMPLATE
             'not numeric' => [
                 'aaa',
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'aaa',
     'test',
@@ -166,12 +171,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'aaa\', \'test\');'
             ],
             'numeric no columns' => [
                 '123',
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk-test-',
     'test',
@@ -181,12 +187,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null no columns' => [
                 null,
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk-test-',
     'test',
@@ -196,12 +203,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null columns' => [
                 null,
                 ['a', 'b'],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'fk-test-a-b',
     'test',
@@ -211,7 +219,8 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'fk-test-a-b\', \'test\');'
             ],
         ];
     }
@@ -221,10 +230,15 @@ TEMPLATE
      * @dataProvider providerForRenderName
      * @param string|null $name
      * @param array $columns
-     * @param string $expected
+     * @param string $expectedAdd
+     * @param string $expectedDrop
      */
-    public function shouldRenderProperlyForeignKeyName(?string $name, array $columns, string $expected): void
-    {
+    public function shouldRenderProperlyForeignKeyName(
+        ?string $name,
+        array $columns,
+        string $expectedAdd,
+        string $expectedDrop
+    ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
         $foreignKey->method('getReferencedColumns')->willReturn([]);
@@ -232,8 +246,8 @@ TEMPLATE
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn($name);
 
-        $this->renderer->setForeignKey($foreignKey);
-        $this->assertSame($expected, $this->renderer->render('test', 'refTable'));
+        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
+        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
     }
 
     public function providerForRenderNameWithCustomTemplate(): array
@@ -242,7 +256,7 @@ TEMPLATE
             'not numeric' => [
                 'aaa',
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'aaa',
     'test',
@@ -252,12 +266,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'aaa\', \'test\');'
             ],
             'numeric no columns' => [
                 '123',
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'key-template',
     'test',
@@ -267,12 +282,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'key-template\', \'test\');'
             ],
             'null no columns' => [
                 null,
                 [],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'key-template',
     'test',
@@ -282,12 +298,13 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'key-template\', \'test\');'
             ],
             'null columns' => [
                 null,
                 ['a', 'b'],
-                <<<'TEMPLATE'
+                <<<'RENDERED'
 $this->addForeignKey(
     'key-template',
     'test',
@@ -297,7 +314,8 @@ $this->addForeignKey(
     null,
     null
 );
-TEMPLATE
+RENDERED,
+                '$this->dropForeignKey(\'key-template\', \'test\');'
             ],
         ];
     }
@@ -307,12 +325,14 @@ TEMPLATE
      * @dataProvider providerForRenderNameWithCustomTemplate
      * @param string|null $name
      * @param array $columns
-     * @param string $expected
+     * @param string $expectedAdd
+     * @param string $expectedDrop
      */
     public function shouldRenderProperlyForeignKeyNameWithCustomTemplate(
         ?string $name,
         array $columns,
-        string $expected
+        string $expectedAdd,
+        string $expectedDrop
     ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
@@ -321,8 +341,8 @@ TEMPLATE
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn($name);
 
-        $this->renderer->setForeignKey($foreignKey);
         $this->renderer->setKeyNameTemplate('key-template');
-        $this->assertSame($expected, $this->renderer->render('test', 'refTable'));
+        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
+        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
     }
 }
