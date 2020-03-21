@@ -18,51 +18,72 @@ class PrimaryKeyRendererTest extends TestCase
         $this->renderer = new PrimaryKeyRenderer();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldReturnNullWhenNoPrimaryKey(): void
     {
-        $this->assertNull($this->renderer->render('test'));
+        $this->assertNull($this->renderer->renderUp(null, 'test'));
+        $this->assertNull($this->renderer->renderDown(null, 'test'));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldReturnNullWhenPrimaryKeyIsNotComposite(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->renderer->setPrimaryKey($primaryKey);
-        $this->assertNull($this->renderer->render('test'));
+        $this->assertNull($this->renderer->renderUp($primaryKey, 'test'));
+        $this->assertNull($this->renderer->renderDown($primaryKey, 'test'));
     }
 
-    /**
-     * @test
-     */
-    public function shouldRenderProperTemplate(): void
+    /** @test */
+    public function shouldRenderProperTemplateForUp(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(true);
         $primaryKey->method('getColumns')->willReturn([]);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->renderer->setPrimaryKey($primaryKey);
         $this->renderer->setAddKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->render('test'));
+        $this->assertSame('new-template', $this->renderer->renderUp($primaryKey, 'test'));
+    }
+
+    /** @test */
+    public function shouldRenderProperTemplateForDown(): void
+    {
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        $primaryKey->method('getName')->willReturn('pk');
+
+        $this->renderer->setDropKeyTemplate('new-template');
+        $this->assertSame('new-template', $this->renderer->renderDown($primaryKey, 'test'));
     }
 
     public function providerForRender(): array
     {
         return [
-            '1col 0ind' => [0, ['aaa'], '$this->addPrimaryKey(\'pk\', \'test\', [\'aaa\']);'],
-            '1col 5ind' => [5, ['bbb'], '     $this->addPrimaryKey(\'pk\', \'test\', [\'bbb\']);'],
-            '2col 0ind' => [0, ['ccc', 'ddd'], '$this->addPrimaryKey(\'pk\', \'test\', [\'ccc\', \'ddd\']);'],
+            '1col 0ind' => [
+                0,
+                ['aaa'],
+                '$this->addPrimaryKey(\'pk\', \'test\', [\'aaa\']);',
+                '$this->dropPrimaryKey(\'pk\', \'test\');',
+            ],
+            '1col 5ind' => [
+                5,
+                ['bbb'],
+                '     $this->addPrimaryKey(\'pk\', \'test\', [\'bbb\']);',
+                '     $this->dropPrimaryKey(\'pk\', \'test\');',
+            ],
+            '2col 0ind' => [
+                0,
+                ['ccc', 'ddd'],
+                '$this->addPrimaryKey(\'pk\', \'test\', [\'ccc\', \'ddd\']);',
+                '$this->dropPrimaryKey(\'pk\', \'test\');',
+            ],
             '3col 4ind' => [
                 4,
                 ['eee', 'fff', 'ggg'],
                 '    $this->addPrimaryKey(\'pk\', \'test\', [\'eee\', \'fff\', \'ggg\']);',
+                '    $this->dropPrimaryKey(\'pk\', \'test\');',
             ],
         ];
     }
@@ -72,16 +93,21 @@ class PrimaryKeyRendererTest extends TestCase
      * @dataProvider providerForRender
      * @param int $indent
      * @param array $columns
-     * @param string $expected
+     * @param string $expectedAdd
+     * @param string $expectedDrop
      */
-    public function shouldRenderProperlyPrimaryKey(int $indent, array $columns, string $expected): void
-    {
+    public function shouldRenderProperlyPrimaryKey(
+        int $indent,
+        array $columns,
+        string $expectedAdd,
+        string $expectedDrop
+    ): void {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(true);
         $primaryKey->method('getColumns')->willReturn($columns);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->renderer->setPrimaryKey($primaryKey);
-        $this->assertSame($expected, $this->renderer->render('test', $indent));
+        $this->assertSame($expectedAdd, $this->renderer->renderUp($primaryKey, 'test', $indent));
+        $this->assertSame($expectedDrop, $this->renderer->renderDown($primaryKey, 'test', $indent));
     }
 }
