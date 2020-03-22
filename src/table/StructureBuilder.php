@@ -5,132 +5,130 @@ declare(strict_types=1);
 namespace bizley\migration\table;
 
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 
 use function array_key_exists;
 use function count;
 
 final class StructureBuilder implements StructureBuilderInterface
 {
-    /** @var StructureInterface */
-    private $structure;
-
     /**
      * Builds table structure based on the list of changes from the Updater.
-     * @param array<StructureChange> $changes
+     * @param array<StructureChangeInterface> $changes
      * @param string|null $schema
      * @return StructureInterface
-     * @throws InvalidConfigException
      */
     public function build(array $changes, ?string $schema): StructureInterface
     {
-        $this->structure = new Structure();
+        $structure = new Structure();
 
-        /** @var $change StructureChange */
+        /** @var $change StructureChangeInterface */
         foreach ($changes as $change) {
-            if ($change instanceof StructureChange === false) {
-                throw new InvalidArgumentException('You must provide array of Change objects.');
+            if ($change instanceof StructureChangeInterface === false) {
+                throw new InvalidArgumentException('You must provide array of StructureChangeInterface objects.');
             }
 
             switch ($change->getMethod()) {
                 case 'createTable':
-                    $this->applyCreateTableValue($change->getValue(), $schema);
+                    $this->applyCreateTableValue($structure, $change->getValue(), $schema);
                     break;
 
                 case 'addColumn':
                 case 'alterColumn':
-                    $this->applyAddColumnValue($change->getValue(), $schema);
+                    $this->applyAddColumnValue($structure, $change->getValue(), $schema);
                     break;
 
                 case 'dropColumn':
-                    $this->applyDropColumnValue($change->getValue());
+                    $this->applyDropColumnValue($structure, $change->getValue());
                     break;
 
                 case 'renameColumn':
-                    $this->applyRenameColumnValue($change->getValue());
+                    $this->applyRenameColumnValue($structure, $change->getValue());
                     break;
 
                 case 'addPrimaryKey':
-                    $this->applyAddPrimaryKeyValue($change->getValue(), $schema);
+                    $this->applyAddPrimaryKeyValue($structure, $change->getValue(), $schema);
                     break;
 
                 case 'dropPrimaryKey':
-                    $this->applyDropPrimaryKeyValue($schema);
+                    $this->applyDropPrimaryKeyValue($structure, $schema);
                     break;
 
                 case 'addForeignKey':
-                    $this->applyAddForeignKeyValue($change->getValue());
+                    $this->applyAddForeignKeyValue($structure, $change->getValue());
                     break;
 
                 case 'dropForeignKey':
-                    $this->applyDropForeignKeyValue($change->getValue());
+                    $this->applyDropForeignKeyValue($structure, $change->getValue());
                     break;
 
                 case 'createIndex':
-                    $this->applyCreateIndexValue($change->getValue());
+                    $this->applyCreateIndexValue($structure, $change->getValue());
                     break;
 
                 case 'dropIndex':
-                    $this->applyDropIndexValue($change->getValue());
+                    $this->applyDropIndexValue($structure, $change->getValue());
                     break;
 
                 case 'addCommentOnColumn':
-                    $this->applyAddCommentOnColumnValue($change->getValue());
+                    $this->applyAddCommentOnColumnValue($structure, $change->getValue());
                     break;
 
                 case 'dropCommentFromColumn':
-                    $this->applyDropCommentFromColumnValue($change->getValue());
+                    $this->applyDropCommentFromColumnValue($structure, $change->getValue());
                     break;
             }
         }
 
-        return $this->structure;
+        return $structure;
     }
 
-    private function applyCreateTableValue(array $columns, ?string $schema): void
+    private function applyCreateTableValue(StructureInterface $structure, array $columns, ?string $schema): void
     {
         foreach ($columns as $column) {
-            $this->applyAddColumnValue($column, $schema);
+            $this->applyAddColumnValue($structure, $column, $schema);
         }
     }
 
-    private function applyAddColumnValue(ColumnInterface $column, ?string $schema): void
+    private function applyAddColumnValue(StructureInterface $structure, ColumnInterface $column, ?string $schema): void
     {
-        $this->structure->addColumn($column);
+        $structure->addColumn($column);
 
         if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended($schema)) {
-            $primaryKey = $this->structure->getPrimaryKey();
+            $primaryKey = $structure->getPrimaryKey();
             if ($primaryKey === null) {
                 $primaryKey = new PrimaryKey();
                 $primaryKey->setColumns([$column->getName()]);
             } else {
                 $primaryKey->addColumn($column->getName());
             }
-            $this->structure->setPrimaryKey($primaryKey);
+            $structure->setPrimaryKey($primaryKey);
         }
     }
 
-    private function applyDropColumnValue(string $columnName): void
+    private function applyDropColumnValue(StructureInterface $structure, string $columnName): void
     {
-        $this->structure->removeColumn($columnName);
+        $structure->removeColumn($columnName);
     }
 
-    private function applyRenameColumnValue(array $data): void
+    private function applyRenameColumnValue(StructureInterface $structure, array $data): void
     {
-        $oldColumn = $this->structure->getColumn($data['old']);
+        $oldColumn = $structure->getColumn($data['old']);
         if ($oldColumn) {
             $newColumn = clone $oldColumn;
             $newColumn->setName($data['new']);
-            $this->structure->addColumn($newColumn);
-            $this->structure->removeColumn($data['old']);
+            $structure->addColumn($newColumn);
+            $structure->removeColumn($data['old']);
         }
     }
 
-    private function applyAddPrimaryKeyValue(PrimaryKeyInterface $primaryKey, ?string $schema): void
-    {
-        $this->structure->setPrimaryKey($primaryKey);
+    private function applyAddPrimaryKeyValue(
+        StructureInterface $structure,
+        PrimaryKeyInterface $primaryKey,
+        ?string $schema
+    ): void {
+        $structure->setPrimaryKey($primaryKey);
 
-        $columns = $this->structure->getColumns();
+        $columns = $structure->getColumns();
 
         foreach ($primaryKey->getColumns() as $columnName) {
             if (array_key_exists($columnName, $columns)) {
@@ -138,19 +136,19 @@ final class StructureBuilder implements StructureBuilderInterface
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
-                    $column->setAppend($column->prepareSchemaAppend($schema, true, false));
+                    $column->setAppend($column->prepareSchemaAppend(true, false, $schema));
                 } elseif ($column->isPrimaryKeyInfoAppended($schema) === false) {
-                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend($schema, true, false));
+                    $column->setAppend($columnAppend . ' ' . $column->prepareSchemaAppend(true, false, $schema));
                 }
             }
         }
     }
 
-    private function applyDropPrimaryKeyValue(?string $schema): void
+    private function applyDropPrimaryKeyValue(StructureInterface $structure, ?string $schema): void
     {
-        $primaryKey = $this->structure->getPrimaryKey();
+        $primaryKey = $structure->getPrimaryKey();
         if ($primaryKey) {
-            $columns = $this->structure->getColumns();
+            $columns = $structure->getColumns();
 
             foreach ($primaryKey->getColumns() as $columnName) {
                 /** @var ColumnInterface $column */
@@ -162,62 +160,62 @@ final class StructureBuilder implements StructureBuilderInterface
             }
         }
 
-        $this->structure->setPrimaryKey(null);
+        $structure->setPrimaryKey(null);
     }
 
-    private function applyAddForeignKeyValue(ForeignKeyInterface $foreignKey): void
+    private function applyAddForeignKeyValue(StructureInterface $structure, ForeignKeyInterface $foreignKey): void
     {
-        $this->structure->addForeignKey($foreignKey);
+        $structure->addForeignKey($foreignKey);
     }
 
-    private function applyDropForeignKeyValue(string $name): void
+    private function applyDropForeignKeyValue(StructureInterface $structure, string $name): void
     {
-        $this->structure->removeForeignKey($name);
+        $structure->removeForeignKey($name);
     }
 
-    private function applyCreateIndexValue(IndexInterface $index): void
+    private function applyCreateIndexValue(StructureInterface $structure, IndexInterface $index): void
     {
-        $this->structure->addIndex($index);
+        $structure->addIndex($index);
 
         $indexColumns = $index->getColumns();
         if (
             $index->isUnique()
             && count($indexColumns) === 1
-            && array_key_exists($indexColumns[0], $this->structure->getColumns())
+            && array_key_exists($indexColumns[0], $structure->getColumns())
         ) {
-            $this->structure->getColumn($indexColumns[0])->setUnique(true);
+            $structure->getColumn($indexColumns[0])->setUnique(true);
         }
     }
 
-    private function applyDropIndexValue(string $name): void
+    private function applyDropIndexValue(StructureInterface $structure, string $name): void
     {
-        $index = $this->structure->getIndex($name);
+        $index = $structure->getIndex($name);
         if ($index) {
             $indexColumns = $index->getColumns();
             if (
                 $index->isUnique()
                 && count($indexColumns) === 1
-                && array_key_exists($indexColumns[0], $this->structure->getColumns())
-                && $this->structure->getColumn($indexColumns[0])->isUnique()
+                && array_key_exists($indexColumns[0], $structure->getColumns())
+                && $structure->getColumn($indexColumns[0])->isUnique()
             ) {
-                $this->structure->getColumn($indexColumns[0])->setUnique(false);
+                $structure->getColumn($indexColumns[0])->setUnique(false);
             }
 
-            $this->structure->removeIndex($name);
+            $structure->removeIndex($name);
         }
     }
 
-    private function applyAddCommentOnColumnValue(array $data): void
+    private function applyAddCommentOnColumnValue(StructureInterface $structure, array $data): void
     {
-        $column = $this->structure->getColumn($data['name']);
+        $column = $structure->getColumn($data['name']);
         if ($column) {
             $column->setComment($data['comment']);
         }
     }
 
-    private function applyDropCommentFromColumnValue(string $columnName): void
+    private function applyDropCommentFromColumnValue(StructureInterface $structure, string $columnName): void
     {
-        $column = $this->structure->getColumn($columnName);
+        $column = $structure->getColumn($columnName);
         if ($column) {
             $column->setComment(null);
         }

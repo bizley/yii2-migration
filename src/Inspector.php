@@ -7,7 +7,7 @@ namespace bizley\migration;
 use bizley\migration\table\Blueprint;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\StructureBuilderInterface;
-use bizley\migration\table\StructureChange;
+use bizley\migration\table\StructureChangeInterface;
 use bizley\migration\table\StructureInterface;
 use yii\base\InvalidConfigException;
 
@@ -100,11 +100,11 @@ final class Inspector implements InspectorInterface
         return $blueprint;
     }
 
-    /** @var array<StructureChange> */
+    /** @var array<StructureChangeInterface> */
     private $appliedChanges = [];
 
     /**
-     * @param array<StructureChange> $changes
+     * @param array<StructureChangeInterface> $changes
      * @return bool true if more data can be analysed or false if this must be last one
      * @throws InvalidConfigException
      */
@@ -116,7 +116,7 @@ final class Inspector implements InspectorInterface
 
         $data = array_reverse($changes[$this->currentTable]);
 
-        /** @var StructureChange $change */
+        /** @var StructureChangeInterface $change */
         foreach ($data as $change) {
             $method = $change->getMethod();
 

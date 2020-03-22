@@ -3,6 +3,7 @@
 namespace yii\db;
 
 use bizley\migration\table\StructureChange;
+use bizley\migration\table\StructureChangeInterface;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
@@ -28,19 +29,13 @@ class Migration extends Component implements MigrationInterface
     public $maxSqlOutputLength;
     public $compact = false;
 
-    /**
-     * @var array<StructureChange> List of all migration actions
-     */
+    /** @var array<StructureChangeInterface> List of all migration actions */
     private $changes = [];
 
-    /**
-     * @var Connection|array|string
-     */
+    /** @var Connection|array|string */
     public $db;
 
-    /**
-     * @throws NotSupportedException
-     */
+    /** @throws NotSupportedException */
     public function init()
     {
         parent::init();
@@ -232,6 +227,7 @@ class Migration extends Component implements MigrationInterface
         $this->changes[$table][] = $change;
     }
 
+    /** @return array<StructureChangeInterface> */
     public function getChanges(): array
     {
         return $this->changes;
@@ -262,9 +258,7 @@ class Migration extends Component implements MigrationInterface
         // not supported
     }
 
-    /**
-     * @throws ReflectionException
-     */
+    /** @throws ReflectionException */
     public function createTable($table, $columns, $options = null)
     {
         $this->addChange($table, 'createTable', $this->extractColumns($columns));
@@ -285,9 +279,7 @@ class Migration extends Component implements MigrationInterface
         // not supported
     }
 
-    /**
-     * @throws ReflectionException
-     */
+    /** @throws ReflectionException */
     public function addColumn($table, $column, $type)
     {
         $this->addChange($table, 'addColumn', [$column, $this->extractColumn($type)]);
@@ -303,9 +295,7 @@ class Migration extends Component implements MigrationInterface
         $this->addChange($table, 'renameColumn', [$name, $newName]);
     }
 
-    /**
-     * @throws ReflectionException
-     */
+    /** @throws ReflectionException */
     public function alterColumn($table, $column, $type)
     {
         $this->addChange($table, 'alterColumn', [$column, $this->extractColumn($type)]);

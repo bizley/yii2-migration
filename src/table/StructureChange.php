@@ -4,78 +4,50 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use yii\base\InvalidConfigException;
-
-final class StructureChange
+final class StructureChange implements StructureChangeInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $table;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $method;
 
-    /**
-     * @var array|string
-     */
+    /** @var array|string */
     private $data;
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return $this->table;
     }
 
-    /**
-     * @param string $table
-     */
     public function setTable(string $table): void
     {
         $this->table = $table;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @param string $method
-     */
     public function setMethod(string $method): void
     {
         $this->method = $method;
     }
 
-    /**
-     * @return array|string
-     */
+    /** @return array|string */
     public function getData()
     {
         return $this->data;
     }
 
-    /**
-     * @param array|string $data
-     */
+    /** @param array|string $data */
     public function setData($data): void
     {
         $this->data = $data;
     }
 
-    /**
-     * Returns change value.
-     * @return array|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface
-     * @throws InvalidConfigException
-     */
+    /** @return array|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
     public function getValue()
     {
         switch ($this->getMethod()) {
@@ -113,10 +85,7 @@ final class StructureChange
         }
     }
 
-    /**
-     * @return array
-     * @throws InvalidConfigException
-     */
+    /** @return array */
     private function getValueForCreateTable(): array
     {
         $columns = [];
@@ -152,10 +121,6 @@ final class StructureChange
         ];
     }
 
-    /**
-     * @return Column
-     * @throws InvalidConfigException
-     */
     private function getValueForAddColumn(): Column
     {
         $data = $this->getData();
