@@ -12,11 +12,15 @@ interface BlueprintInterface
 
     public function addDescription(string $description): void;
 
+    public function getDescriptions(): array;
+
     public function isPending(): bool;
 
     public function addColumn(ColumnInterface $column): void;
 
     public function alterColumn(ColumnInterface $column): void;
+
+    public function reverseColumn(ColumnInterface $column): void;
 
     public function dropColumn(string $name): void;
 
@@ -37,6 +41,8 @@ interface BlueprintInterface
     public function getAddedColumns(): array;
 
     public function getAlteredColumns(): array;
+
+    public function getReversedColumns(): array;
 
     public function getDroppedForeignKeys(): array;
 

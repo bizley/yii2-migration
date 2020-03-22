@@ -75,6 +75,33 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         return implode("\n\n", $renderedBlueprint);
     }
 
+    public function renderDown(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): string {
+        $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
+
+        $renderedBlueprint = array_filter(
+            [ // TODO blueprint must store previous columns for alter
+                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, true),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, true),
+                $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
+                $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, true),
+                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $usePrefix, $dbPrefix, true),
+                $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion, true),
+                $this->renderColumnsToDrop($blueprint, $tableName, $indent, true),
+                $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion, true),
+            ]
+        );
+
+        return implode("\n\n", $renderedBlueprint);
+    }
+
     /**
      * Renders table name.
      * @param string|null $tableName
@@ -98,11 +125,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderColumnsToDrop(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
         $renderedColumns = [];
 
-        $columns = $blueprint->getDroppedColumns();
+        if ($inverse) {
+            $columns = $blueprint->getAddedColumns();
+        } else {
+            $columns = $blueprint->getDroppedColumns();
+        }
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderDrop($column, $tableName, $indent);
@@ -116,11 +148,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         string $tableName,
         int $indent = 0,
         string $schema = null,
-        string $engineVersion = null
+        string $engineVersion = null,
+        bool $inverse = false
     ): ?string {
         $renderedColumns = [];
 
-        $columns = $blueprint->getAddedColumns();
+        if ($inverse) {
+            $columns = $blueprint->getDroppedColumns();
+        } else {
+            $columns = $blueprint->getAddedColumns();
+        }
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAdd(
@@ -141,10 +178,12 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         string $tableName,
         int $indent = 0,
         string $schema = null,
-        string $engineVersion = null
+        string $engineVersion = null,
+        bool $inverse = false
     ): ?string {
         $renderedColumns = [];
 
+        // TODO old versions of columns
         $columns = $blueprint->getAlteredColumns();
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
@@ -164,11 +203,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderForeignKeysToDrop(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
         $renderedForeignKeys = [];
 
-        $foreignKeys = $blueprint->getDroppedForeignKeys();
+        if ($inverse) {
+            $foreignKeys = $blueprint->getAddedForeignKeys();
+        } else {
+            $foreignKeys = $blueprint->getDroppedForeignKeys();
+        }
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent);
@@ -182,11 +226,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         string $tableName,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        string $dbPrefix = null,
+        bool $inverse = false
     ): ?string {
         $renderedForeignKeys = [];
 
-        $foreignKeys = $blueprint->getAddedForeignKeys();
+        if ($inverse) {
+            $foreignKeys = $blueprint->getDroppedForeignKeys();
+        } else {
+            $foreignKeys = $blueprint->getAddedForeignKeys();
+        }
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
@@ -203,11 +252,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderIndexesToDrop(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
         $renderedIndexes = [];
 
-        $indexes = $blueprint->getDroppedIndexes();
+        if ($inverse) {
+            $indexes = $blueprint->getAddedIndexes();
+        } else {
+            $indexes = $blueprint->getDroppedIndexes();
+        }
         /** @var IndexInterface $index */
         foreach ($indexes as $index) {
             $renderedIndexes[] = $this->indexRenderer->renderDown($index, $tableName, $indent);
@@ -219,11 +273,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderIndexesToAdd(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
         $renderedIndexes = [];
 
-        $indexes = $blueprint->getAddedIndexes();
+        if ($inverse) {
+            $indexes = $blueprint->getDroppedIndexes();
+        } else {
+            $indexes = $blueprint->getAddedIndexes();
+        }
         /** @var IndexInterface $index */
         foreach ($indexes as $index) {
             $renderedIndexes[] = $this->indexRenderer->renderUp($index, $tableName, $indent);
@@ -235,16 +294,28 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderPrimaryKeyToDrop(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
-        return $this->primaryKeyRenderer->renderDown($blueprint->getDroppedPrimaryKey(), $tableName, $indent);
+        if ($inverse) {
+            $primaryKey = $blueprint->getAddedPrimaryKey();
+        } else {
+            $primaryKey = $blueprint->getDroppedPrimaryKey();
+        }
+        return $this->primaryKeyRenderer->renderDown($primaryKey, $tableName, $indent);
     }
 
     private function renderPrimaryKeyToAdd(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        bool $inverse = false
     ): ?string {
-        return $this->primaryKeyRenderer->renderUp($blueprint->getDroppedPrimaryKey(), $tableName, $indent);
+        if ($inverse) {
+            $primaryKey = $blueprint->getDroppedPrimaryKey();
+        } else {
+            $primaryKey = $blueprint->getAddedPrimaryKey();
+        }
+        return $this->primaryKeyRenderer->renderUp($primaryKey, $tableName, $indent);
     }
 }

@@ -8,6 +8,7 @@ use bizley\migration\renderers\BlueprintRendererInterface;
 use bizley\migration\table\BlueprintInterface;
 use Yii;
 use yii\base\View;
+use yii\helpers\FileHelper;
 
 final class Updater implements UpdaterInterface
 {
@@ -40,28 +41,25 @@ final class Updater implements UpdaterInterface
         return Yii::getAlias('@bizley/migration/views/update_migration.php');
     }
 
-    /** @var BlueprintInterface */
-    private $blueprint;
-
     /**
      * @param string $tableName
      * @param bool $onlyShow
      * @param array $migrationsToSkip
      * @param array $migrationPaths
-     * @return bool
+     * @return BlueprintInterface
      * @throws TableMissingException
      */
-    public function isUpdateRequired(
+    public function prepareBlueprint(
         string $tableName,
         bool $onlyShow,
         array $migrationsToSkip,
         array $migrationPaths
-    ): bool {
+    ): BlueprintInterface {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
             throw new TableMissingException("Table $tableName does not exists.");
         }
 
-        $this->blueprint = $this->inspector->prepareBlueprint(
+        return $this->inspector->prepareBlueprint(
             $this->tableMapper->getStructureOf($tableName),
             $onlyShow,
             $migrationsToSkip,
@@ -69,34 +67,48 @@ final class Updater implements UpdaterInterface
             $this->tableMapper->getSchemaType(),
             $this->tableMapper->getEngineVersion()
         );
+    }
 
-        return $this->blueprint->isPending();
+    private function getNormalizedNamespace(?string $namespace): ?string
+    {
+        return !empty($namespace) ? FileHelper::normalizePath($namespace, '\\') : null;
     }
 
     /**
+     * @param BlueprintInterface $blueprint
      * @param string $migrationName
-     * @param bool $generalSchema
+     * @param bool $usePrefix
+     * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
      */
-    public function generateForPendingTable(
+    public function generateFromBlueprint(
+        BlueprintInterface $blueprint,
         string $migrationName,
-        bool $generalSchema = true,
+        bool $usePrefix = true,
+        string $dbPrefix = '',
         string $namespace = null
     ): string {
-        $this->blueprintRenderer->setBlueprint($this->blueprint);
-
         return $this->view->renderFile(
             $this->getUpdateTableMigrationTemplate(),
             [
-                'tableName' => $this->structureRenderer->renderName($tableName),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
-                'body' => $this->structureRenderer->renderStructure(
+                'bodyUp' => $this->blueprintRenderer->renderUp(
+                    $blueprint,
+                    8,
                     $this->tableMapper->getSchemaType(),
                     $this->tableMapper->getEngineVersion(),
-                    $generalSchema,
-                    8
+                    $usePrefix,
+                    $dbPrefix
+                ),
+                'bodyDown' => $this->blueprintRenderer->renderDown(
+                    $blueprint,
+                    8,
+                    $this->tableMapper->getSchemaType(),
+                    $this->tableMapper->getEngineVersion(),
+                    $usePrefix,
+                    $dbPrefix
                 )
             ]
         );

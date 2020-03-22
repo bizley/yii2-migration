@@ -16,4 +16,13 @@ interface BlueprintRendererInterface
         bool $usePrefix = true,
         string $dbPrefix = null
     ): string;
+
+    public function renderDown(
+        BlueprintInterface $blueprint,
+        int $indent = 0,
+        string $schema = null,
+        string $engineVersion = null,
+        bool $usePrefix = true,
+        string $dbPrefix = null
+    ): string;
 }

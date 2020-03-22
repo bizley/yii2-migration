@@ -595,7 +595,7 @@ class OldMigrationController extends Controller
             }
 
             try {
-                if ($updater->isUpdateRequired() === false) {
+                if ($updater->prepareBlueprint() === false) {
                     $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
 
                     continue;

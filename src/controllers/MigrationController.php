@@ -31,6 +31,7 @@ use function is_dir;
 use function sprintf;
 use function strlen;
 use function strpos;
+use function trim;
 
 /**
  * Migration creator and updater.
@@ -204,6 +205,10 @@ class MigrationController extends BaseMigrationController
                     'You must provide either "migrationPath" or "migrationNamespace" for this action.'
                 );
             }
+        }
+
+        foreach ($this->skipMigrations as $index => $migration) {
+            $this->skipMigrations[$index] = trim($migration, '\\');
         }
 
         $this->db = Instance::ensure($this->db, Connection::class);
@@ -518,20 +523,20 @@ class MigrationController extends BaseMigrationController
             $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
             try {
-                if (
-                    $this->getUpdater()->isUpdateRequired(
-                        $tableName,
-                        $this->onlyShow,
-                        $this->skipMigrations,
-                        $this->migrationPath
-                    ) === false
-                ) {
+                $blueprint = $this->getUpdater()->prepareBlueprint(
+                    $tableName,
+                    $this->onlyShow,
+                    $this->skipMigrations,
+                    $this->migrationPath
+                );
+                if ($blueprint->isPending() === false) {
                     $this->stdout("UPDATE NOT REQUIRED.\n\n", Console::FG_YELLOW);
 
                     continue;
                 }
 
-                $migration = $this->getUpdater()->generateForPendingTable(
+                $migration = $this->getUpdater()->generateFromBlueprint(
+                    $blueprint,
                     $migrationClassName,
                     $this->generalSchema,
                     $this->workingNamespace
@@ -554,7 +559,16 @@ class MigrationController extends BaseMigrationController
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            if ($this->onlyShow === false) {
+            if ($this->onlyShow) {
+                $this->stdout("Showing differences:\n");
+                $differences = $blueprint->getDescriptions();
+                foreach ($differences as $difference) {
+                    $this->stdout(
+                        "   - $difference\n",
+                        strpos($difference, '(!)') !== false ? Console::FG_RED : Console::FG_YELLOW
+                    );
+                }
+            } else {
                 if ($this->generateFile($file, $migration) === false) {
                     $this->stdout(
                         "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",

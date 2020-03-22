@@ -21,6 +21,9 @@ final class Blueprint implements BlueprintInterface
     private $columnsToAlter = [];
 
     /** @var array */
+    private $columnsToReverse = [];
+
+    /** @var array */
     private $foreignKeysToDrop = [];
 
     /** @var array */
@@ -59,6 +62,11 @@ final class Blueprint implements BlueprintInterface
         $this->description[] = $description;
     }
 
+    public function getDescriptions(): array
+    {
+        return $this->description;
+    }
+
     public function isPending(): bool
     {
         return $this->startFromScratch === true || count($this->description) > 0;
@@ -72,6 +80,11 @@ final class Blueprint implements BlueprintInterface
     public function alterColumn(ColumnInterface $column): void
     {
         $this->columnsToAlter[$column->getName()] = $column;
+    }
+
+    public function reverseColumn(ColumnInterface $column): void
+    {
+        $this->columnsToReverse[$column->getName()] = $column;
     }
 
     public function dropColumn(string $name): void
@@ -122,6 +135,11 @@ final class Blueprint implements BlueprintInterface
     public function getAlteredColumns(): array
     {
         return $this->columnsToAlter;
+    }
+
+    public function getReversedColumns(): array
+    {
+        return $this->columnsToReverse;
     }
 
     public function getDroppedForeignKeys(): array
