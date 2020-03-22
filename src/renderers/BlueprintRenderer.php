@@ -155,15 +155,17 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         if ($inverse) {
             $columns = $blueprint->getDroppedColumns();
+            $primaryKey = $blueprint->getTableOldPrimaryKey();
         } else {
             $columns = $blueprint->getAddedColumns();
+            $primaryKey = $blueprint->getTableNewPrimaryKey();
         }
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAdd(
                 $column,
                 $tableName,
-                null, // TODO should there be primary key?
+                $primaryKey,
                 $indent,
                 $schema,
                 $engineVersion
@@ -185,15 +187,17 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         if ($inverse) {
             $columns = $blueprint->getUnalteredColumns();
+            $primaryKey = $blueprint->getTableOldPrimaryKey();
         } else {
             $columns = $blueprint->getAlteredColumns();
+            $primaryKey = $blueprint->getTableNewPrimaryKey();
         }
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAlter(
                 $column,
                 $tableName,
-                null, // TODO should there be primary key?
+                $primaryKey,
                 $indent,
                 $schema,
                 $engineVersion

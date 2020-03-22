@@ -11,6 +11,12 @@ final class Blueprint implements BlueprintInterface
     /** @var string|null */
     private $tableName;
 
+    /** @var PrimaryKeyInterface|null */
+    private $tableOldPrimaryKey;
+
+    /** @var PrimaryKeyInterface|null */
+    private $tableNewPrimaryKey;
+
     /** @var array<ColumnInterface> */
     private $columnsToDrop = [];
 
@@ -178,5 +184,25 @@ final class Blueprint implements BlueprintInterface
     public function getAddedIndexes(): array
     {
         return $this->indexesToAdd;
+    }
+
+    public function getTableOldPrimaryKey(): ?PrimaryKeyInterface
+    {
+        return $this->tableOldPrimaryKey;
+    }
+
+    public function setTableOldPrimaryKey(?PrimaryKeyInterface $tableOldPrimaryKey): void
+    {
+        $this->tableOldPrimaryKey = $tableOldPrimaryKey;
+    }
+
+    public function getTableNewPrimaryKey(): ?PrimaryKeyInterface
+    {
+        return $this->tableNewPrimaryKey;
+    }
+
+    public function setTableNewPrimaryKey(?PrimaryKeyInterface $tableNewPrimaryKey): void
+    {
+        $this->tableNewPrimaryKey = $tableNewPrimaryKey;
     }
 }

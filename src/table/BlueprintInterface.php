@@ -63,4 +63,12 @@ interface BlueprintInterface
 
     /** @return array<IndexInterface> */
     public function getAddedIndexes(): array;
+
+    public function getTableOldPrimaryKey(): ?PrimaryKeyInterface;
+
+    public function setTableOldPrimaryKey(?PrimaryKeyInterface $tablePrimaryKey): void;
+
+    public function getTableNewPrimaryKey(): ?PrimaryKeyInterface;
+
+    public function setTableNewPrimaryKey(?PrimaryKeyInterface $tablePrimaryKey): void;
 }

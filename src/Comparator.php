@@ -312,6 +312,9 @@ final class Comparator implements ComparatorInterface
         bool $onlyShow,
         ?string $schema
     ): void {
+        $blueprint->setTableNewPrimaryKey($newPrimaryKey);
+        $blueprint->setTableOldPrimaryKey($oldPrimaryKey);
+
         $newPrimaryKeyColumns = $newPrimaryKey ? $newPrimaryKey->getColumns() : [];
         $oldPrimaryKeyColumns = $oldPrimaryKey ? $oldPrimaryKey->getColumns() : [];
         $intersection = array_intersect($newPrimaryKeyColumns, $oldPrimaryKeyColumns);
