@@ -86,7 +86,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
 
         $renderedBlueprint = array_filter(
-            [ // TODO blueprint must store previous columns for alter
+            [
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, true),
                 $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, true),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
@@ -183,8 +183,11 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): ?string {
         $renderedColumns = [];
 
-        // TODO old versions of columns
-        $columns = $blueprint->getAlteredColumns();
+        if ($inverse) {
+            $columns = $blueprint->getUnalteredColumns();
+        } else {
+            $columns = $blueprint->getAlteredColumns();
+        }
         /** @var ColumnInterface $column */
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAlter(

@@ -46,7 +46,7 @@ interface BlueprintInterface
     public function getAlteredColumns(): array;
 
     /** @return array<ColumnInterface> */
-    public function getReversedColumns(): array;
+    public function getUnalteredColumns(): array;
 
     /** @return array<ForeignKeyInterface> */
     public function getDroppedForeignKeys(): array;

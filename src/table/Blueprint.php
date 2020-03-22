@@ -21,7 +21,7 @@ final class Blueprint implements BlueprintInterface
     private $columnsToAlter = [];
 
     /** @var array<ColumnInterface> */
-    private $columnsToReverse = [];
+    private $columnsToUnalter = [];
 
     /** @var array<ForeignKeyInterface> */
     private $foreignKeysToDrop = [];
@@ -84,7 +84,7 @@ final class Blueprint implements BlueprintInterface
 
     public function reverseColumn(ColumnInterface $column): void
     {
-        $this->columnsToReverse[$column->getName()] = $column;
+        $this->columnsToUnalter[$column->getName()] = $column;
     }
 
     public function dropColumn(ColumnInterface $column): void
@@ -141,9 +141,9 @@ final class Blueprint implements BlueprintInterface
     }
 
     /** @return array<ColumnInterface> */
-    public function getReversedColumns(): array
+    public function getUnalteredColumns(): array
     {
-        return $this->columnsToReverse;
+        return $this->columnsToUnalter;
     }
 
     /** @return array<ForeignKeyInterface> */
