@@ -9,11 +9,10 @@ use bizley\migration\table\StructureInterface;
 
 interface ComparatorInterface
 {
-    public function setBlueprint(BlueprintInterface $blueprint): void;
-
     public function compare(
         StructureInterface $newStructure,
         StructureInterface $oldStructure,
+        BlueprintInterface $blueprint,
         bool $onlyShow,
         ?string $schema,
         ?string $engineVersion
