@@ -152,6 +152,7 @@ final class Comparator implements ComparatorInterface
                         }
                     }
                     $blueprint->alterColumn($column);
+                    $blueprint->reverseColumn($oldColumn);
                 }
             }
         }
@@ -169,7 +170,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-                $blueprint->dropColumn($name);
+                $blueprint->dropColumn($column);
             }
         }
     }
@@ -239,7 +240,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-                $blueprint->dropForeignKey($name);
+                $blueprint->dropForeignKey($oldForeignKey);
                 $blueprint->addForeignKey($foreignKey);
 
                 continue;
@@ -272,7 +273,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-                $blueprint->dropForeignKey($name);
+                $blueprint->dropForeignKey($oldForeignKey);
                 $blueprint->addForeignKey($foreignKey);
             }
         }
@@ -291,7 +292,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-                $blueprint->dropForeignKey($name);
+                $blueprint->dropForeignKey($foreignKey);
             }
         }
     }
@@ -333,7 +334,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-                $blueprint->dropPrimaryKey($oldPrimaryKey->getName());
+                $blueprint->dropPrimaryKey($oldPrimaryKey);
             }
 
             $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
@@ -463,7 +464,7 @@ final class Comparator implements ComparatorInterface
                     . $this->stringifyValue($index->isUnique())
                     . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')'
                 );
-                $blueprint->dropIndex($name);
+                $blueprint->dropIndex($oldIndex);
                 $blueprint->createIndex($index);
 
                 continue;
@@ -486,7 +487,7 @@ final class Comparator implements ComparatorInterface
                     . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
                     . $this->stringifyValue($oldIndexColumns) . '))'
                 );
-                $blueprint->dropIndex($name);
+                $blueprint->dropIndex($oldIndex);
                 $blueprint->createIndex($index);
             }
         }
@@ -494,7 +495,7 @@ final class Comparator implements ComparatorInterface
         foreach ($oldIndexes as $name => $index) {
             if (array_key_exists($name, $newIndexes) === false) {
                 $blueprint->addDescription("excessive index '$name'");
-                $blueprint->dropIndex($name);
+                $blueprint->dropIndex($index);
             }
         }
     }

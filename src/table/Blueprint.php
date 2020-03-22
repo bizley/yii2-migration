@@ -11,22 +11,22 @@ final class Blueprint implements BlueprintInterface
     /** @var string|null */
     private $tableName;
 
-    /** @var array */
+    /** @var array<ColumnInterface> */
     private $columnsToDrop = [];
 
-    /** @var array */
+    /** @var array<ColumnInterface> */
     private $columnsToAdd = [];
 
-    /** @var array */
+    /** @var array<ColumnInterface> */
     private $columnsToAlter = [];
 
-    /** @var array */
+    /** @var array<ColumnInterface> */
     private $columnsToReverse = [];
 
-    /** @var array */
+    /** @var array<ForeignKeyInterface> */
     private $foreignKeysToDrop = [];
 
-    /** @var array */
+    /** @var array<ForeignKeyInterface> */
     private $foreignKeysToAdd = [];
 
     /** @var PrimaryKeyInterface|null */
@@ -35,13 +35,13 @@ final class Blueprint implements BlueprintInterface
     /** @var PrimaryKeyInterface|null */
     private $primaryKeyToAdd;
 
-    /** @var array */
+    /** @var array<IndexInterface> */
     private $indexesToDrop = [];
 
-    /** @var array */
+    /** @var array<IndexInterface> */
     private $indexesToAdd = [];
 
-    /** @var array */
+    /** @var array<string> */
     private $description = [];
 
     /** @var bool */
@@ -87,9 +87,9 @@ final class Blueprint implements BlueprintInterface
         $this->columnsToReverse[$column->getName()] = $column;
     }
 
-    public function dropColumn(string $name): void
+    public function dropColumn(ColumnInterface $column): void
     {
-        $this->columnsToDrop[] = $name;
+        $this->columnsToDrop[$column->getName()] = $column;
     }
 
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
@@ -97,14 +97,14 @@ final class Blueprint implements BlueprintInterface
         $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
     }
 
-    public function dropForeignKey(string $name): void
+    public function dropForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        $this->foreignKeysToDrop[] = $name;
+        $this->foreignKeysToDrop[$foreignKey->getName()] = $foreignKey;
     }
 
-    public function dropPrimaryKey(string $name): void
+    public function dropPrimaryKey(PrimaryKeyInterface $primaryKey): void
     {
-        $this->primaryKeyToDrop = $name;
+        $this->primaryKeyToDrop = $primaryKey;
     }
 
     public function addPrimaryKey(PrimaryKeyInterface $primaryKey): void
@@ -117,36 +117,42 @@ final class Blueprint implements BlueprintInterface
         $this->indexesToAdd[$index->getName()] = $index;
     }
 
-    public function dropIndex(string $name): void
+    public function dropIndex(IndexInterface $index): void
     {
-        $this->indexesToDrop[] = $name;
+        $this->indexesToDrop[$index->getName()] = $index;
     }
 
+    /** @return array<ColumnInterface> */
     public function getDroppedColumns(): array
     {
         return $this->columnsToDrop;
     }
 
+    /** @return array<ColumnInterface> */
     public function getAddedColumns(): array
     {
         return $this->columnsToAdd;
     }
 
+    /** @return array<ColumnInterface> */
     public function getAlteredColumns(): array
     {
         return $this->columnsToAlter;
     }
 
+    /** @return array<ColumnInterface> */
     public function getReversedColumns(): array
     {
         return $this->columnsToReverse;
     }
 
+    /** @return array<ForeignKeyInterface> */
     public function getDroppedForeignKeys(): array
     {
         return $this->foreignKeysToDrop;
     }
 
+    /** @return array<ForeignKeyInterface> */
     public function getAddedForeignKeys(): array
     {
         return $this->foreignKeysToAdd;
@@ -162,11 +168,13 @@ final class Blueprint implements BlueprintInterface
         return $this->primaryKeyToAdd;
     }
 
+    /** @return array<IndexInterface> */
     public function getDroppedIndexes(): array
     {
         return $this->indexesToDrop;
     }
 
+    /** @return array<IndexInterface> */
     public function getAddedIndexes(): array
     {
         return $this->indexesToAdd;
