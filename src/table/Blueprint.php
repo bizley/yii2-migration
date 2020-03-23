@@ -63,6 +63,11 @@ final class Blueprint implements BlueprintInterface
         $this->startFromScratch = $startFromScratch;
     }
 
+    public function isStartFromScratch(): bool
+    {
+        return $this->startFromScratch;
+    }
+
     public function addDescription(string $description): void
     {
         $this->description[] = $description;

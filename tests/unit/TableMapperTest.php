@@ -73,38 +73,6 @@ class TableMapperTest extends TestCase
         $this->assertSame([], $structure->getColumns());
     }
 
-    /**
-     * @test
-     * @throws NotSupportedException
-     */
-    public function shouldSetProperDefaultValuesInBatch(): void
-    {
-        $this->prepareSchemaMock();
-
-        $batch = $this->mapper->getStructuresOf(
-            [
-                'abc' => [],
-                'def' => [],
-            ]
-        );
-
-        $structure1 = $batch->get('abc');
-        $structure2 = $batch->get('def');
-        $this->assertNull($batch->get('other'));
-
-        $this->assertSame('abc', $structure1->getName());
-        $this->assertNull($structure1->getPrimaryKey());
-        $this->assertSame([], $structure1->getForeignKeys());
-        $this->assertSame([], $structure1->getIndexes());
-        $this->assertSame([], $structure1->getColumns());
-
-        $this->assertSame('def', $structure2->getName());
-        $this->assertNull($structure2->getPrimaryKey());
-        $this->assertSame([], $structure2->getForeignKeys());
-        $this->assertSame([], $structure2->getIndexes());
-        $this->assertSame([], $structure2->getColumns());
-    }
-
     public function providerForPrimaryKey(): array
     {
         return [
@@ -209,6 +177,25 @@ class TableMapperTest extends TestCase
             $this->assertSame($foreignKey->onDelete, $structureForeignKey->getOnDelete());
             $this->assertSame($foreignKey->onUpdate, $structureForeignKey->getOnUpdate());
         }
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldSuppressForeignKey(): void
+    {
+        $foreignKey = new ForeignKeyConstraint(
+            [
+                'name' => 'suppressed',
+                'columnNames' => ['abc'],
+                'foreignTableName' => 'tab',
+                'foreignColumnNames' => ['eee'],
+            ]
+        );
+        $this->prepareSchemaMock(true, [$foreignKey]);
+
+        $this->assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey($foreignKey->name));
     }
 
     public function providerForIndexes(): array

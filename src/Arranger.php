@@ -14,9 +14,7 @@ use function count;
 
 final class Arranger implements ArrangerInterface
 {
-    /**
-     * @var TableMapperInterface
-     */
+    /** @var TableMapperInterface */
     private $mapper;
 
     public function __construct(TableMapperInterface $mapper)
@@ -24,14 +22,10 @@ final class Arranger implements ArrangerInterface
         $this->mapper = $mapper;
     }
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $dependency = [];
 
-    /**
-     * @param array $inputTables
-     */
+    /** @param array<string> $inputTables */
     public function arrangeMigrations(array $inputTables): void
     {
         foreach ($inputTables as $inputTable) {
@@ -57,9 +51,7 @@ final class Arranger implements ArrangerInterface
         }
     }
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $tablesInOrder = [];
 
     public function getTablesInOrder(): array
@@ -67,9 +59,7 @@ final class Arranger implements ArrangerInterface
         return $this->tablesInOrder;
     }
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $referencesToPostpone = [];
 
     public function getReferencesToPostpone(): array

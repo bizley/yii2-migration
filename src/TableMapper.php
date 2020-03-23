@@ -14,8 +14,6 @@ use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
-use bizley\migration\table\StructuresBatch;
-use bizley\migration\table\StructuresBatchInterface;
 use PDO;
 use Throwable;
 use yii\base\NotSupportedException;
@@ -37,22 +35,6 @@ final class TableMapper implements TableMapperInterface
 
     /** @var array */
     private $suppressedForeignKeys = [];
-
-    /**
-     * @param array $tablesWithReferencesToPostpone
-     * @return StructuresBatchInterface
-     * @throws NotSupportedException
-     */
-    public function getStructuresOf(array $tablesWithReferencesToPostpone): StructuresBatchInterface
-    {
-        $batch = new StructuresBatch();
-
-        foreach ($tablesWithReferencesToPostpone as $table => $referencesToPostpone) {
-            $batch->add($this->getStructureOf($table, $referencesToPostpone));
-        }
-
-        return $batch;
-    }
 
     /**
      * @param string $table

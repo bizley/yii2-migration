@@ -10,6 +10,8 @@ interface BlueprintInterface
 
     public function setStartFromScratch(bool $startFromScratch): void;
 
+    public function isStartFromScratch(): bool;
+
     public function addDescription(string $description): void;
 
     public function getDescriptions(): array;

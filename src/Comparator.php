@@ -206,6 +206,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
+
                 $blueprint->addForeignKey($foreignKey);
 
                 continue;
