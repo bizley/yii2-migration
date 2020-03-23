@@ -28,6 +28,7 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_dir;
+use function preg_match;
 use function sprintf;
 use function strlen;
 use function strpos;
@@ -35,7 +36,7 @@ use function trim;
 
 /**
  * Migration creator and updater.
- * Generates migration file based on the existing database table and previous migrations.
+ * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
  * @version 4.0.0
@@ -263,18 +264,16 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Creates new migration for the given tables.
+     * Generates creating migration for the given tables.
+     * For multiple tables separate the names with comma.
+     * You can use * as a wildcard for tables with common name part (i.e. prefix_*).
      * @param string $inputTable Table name or names separated by commas.
      * @return int
      * @throws InvalidConfigException
      */
     public function actionCreate(string $inputTable): int
     {
-        if (strpos($inputTable, ',') !== false) {
-            $inputTables = explode(',', $inputTable);
-        } else {
-            $inputTables = [$inputTable];
-        }
+        $inputTables = $this->prepareTableNames($inputTable);
 
         $countTables = count($inputTables);
         $referencesToPostpone = [];
@@ -391,7 +390,9 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Creates new update migration for the given tables.
+     * Generates updating migration for the given tables.
+     * For multiple tables separate the names with comma.
+     * You can use * as a wildcard for tables with common name part (i.e. prefix_*).
      * @param string $inputTable
      * @return int
      * @throws InvalidConfigException
@@ -630,41 +631,14 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Removes excluded tables names from the tables list.
-     * @param array $tables
-     * @return array
-     */
-    private function removeExcludedTables(array $tables): array
-    {
-        if (count($tables) === 0) {
-            return [];
-        }
-
-        $filteredTables = [];
-        $excludedTables = array_merge(
-            [$this->db->schema->getRawTableName($this->migrationTable)],
-            $this->excludeTables
-        );
-
-        foreach ($tables as $table) {
-            if (in_array($table, $excludedTables, true) === false) {
-                $filteredTables[] = $table;
-            }
-        }
-
-        return $filteredTables;
-    }
-
-    /**
      * @param string $migrationClassName
-     * @param string $workingNamespace
      * @throws DbException
      * @throws InvalidConfigException
      */
-    private function fixHistory(string $migrationClassName, string $workingNamespace): void
+    private function fixHistory(string $migrationClassName): void
     {
         if ($this->fixHistory) {
-            $this->getHistoryManager()->addHistory($migrationClassName, $workingNamespace);
+            $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
         }
     }
 
@@ -691,7 +665,7 @@ class MigrationController extends BaseMigrationController
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
 
-        $this->fixHistory($migrationClassName, $this->workingNamespace);
+        $this->fixHistory($migrationClassName);
     }
 
     /**
@@ -716,7 +690,7 @@ class MigrationController extends BaseMigrationController
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
 
-        $this->fixHistory($migrationClassName, $this->workingNamespace);
+        $this->fixHistory($migrationClassName);
     }
 
     /**
@@ -746,6 +720,67 @@ class MigrationController extends BaseMigrationController
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
 
-        $this->fixHistory($migrationClassName, $this->workingNamespace);
+        $this->fixHistory($migrationClassName);
+    }
+
+    /**
+     * @param string|array $inputTables
+     * @return array
+     */
+    private function prepareTableNames($inputTables): array
+    {
+        if (strpos($inputTables, ',') !== false) {
+            $inputTables = explode(',', $inputTables);
+        } else {
+            $inputTables = [$inputTables];
+        }
+
+        $tables = [];
+
+        if (in_array('*', $inputTables, true)) {
+            $tables = $this->findMatchingTables();
+        } else {
+            foreach ($inputTables as $inputTable) {
+                if (strpos($inputTable, '*') === false) {
+                    $tables[] = $inputTable;
+                } else {
+                    $matchedTables = $this->findMatchingTables($inputTable);
+                    foreach ($matchedTables as $matchedTable) {
+                        $tables[] = $matchedTable;
+                    }
+                }
+            }
+        }
+
+
+
+
+
+        return $tables;
+    }
+
+    private function findMatchingTables(string $pattern = null): array
+    {
+        $allTables = $this->db->schema->getTableNames();
+        if (count($allTables) === 0) {
+            return [];
+        }
+
+        $filteredTables = [];
+        $excludedTables = array_merge(
+            [$this->db->schema->getRawTableName($this->migrationTable)],
+            $this->excludeTables
+        );
+
+        foreach ($allTables as $table) {
+            if (in_array($table, $excludedTables, true) === false) {
+                if ($pattern && preg_match('/' . str_replace('*', '(.+)', $pattern) . '/', $table) === 0) {
+                    continue;
+                }
+                $filteredTables[] = $table;
+            }
+        }
+
+        return $filteredTables;
     }
 }
