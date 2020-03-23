@@ -14,6 +14,8 @@ use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
+use bizley\migration\table\StructuresBatch;
+use bizley\migration\table\StructuresBatchInterface;
 use PDO;
 use Throwable;
 use yii\base\NotSupportedException;
@@ -28,9 +30,6 @@ final class TableMapper implements TableMapperInterface
     /** @var Connection */
     private $db;
 
-    /** @var StructureInterface */
-    private $structure;
-
     public function __construct(Connection $db)
     {
         $this->db = $db;
@@ -38,6 +37,22 @@ final class TableMapper implements TableMapperInterface
 
     /** @var array */
     private $suppressedForeignKeys = [];
+
+    /**
+     * @param array $tablesWithReferencesToPostpone
+     * @return StructuresBatchInterface
+     * @throws NotSupportedException
+     */
+    public function getStructuresOf(array $tablesWithReferencesToPostpone): StructuresBatchInterface
+    {
+        $batch = new StructuresBatch();
+
+        foreach ($tablesWithReferencesToPostpone as $table => $referencesToPostpone) {
+            $batch->add($this->getStructureOf($table, $referencesToPostpone));
+        }
+
+        return $batch;
+    }
 
     /**
      * @param string $table
@@ -58,14 +73,14 @@ final class TableMapper implements TableMapperInterface
 
         $indexes = $this->getIndexes($table);
 
-        $this->structure = new Structure();
-        $this->structure->setName($table);
-        $this->structure->setPrimaryKey($this->getPrimaryKey($table));
-        $this->structure->setForeignKeys($foreignKeys);
-        $this->structure->setIndexes($indexes);
-        $this->structure->setColumns($this->getColumns($table, $indexes));
+        $structure = new Structure();
+        $structure->setName($table);
+        $structure->setPrimaryKey($this->getPrimaryKey($table));
+        $structure->setForeignKeys($foreignKeys);
+        $structure->setIndexes($indexes);
+        $structure->setColumns($this->getColumns($table, $indexes));
 
-        return $this->structure;
+        return $structure;
     }
 
     /**

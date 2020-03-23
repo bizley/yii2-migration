@@ -8,7 +8,6 @@ use bizley\migration\table\CharacterColumn;
 use bizley\migration\TableMapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
@@ -22,8 +21,10 @@ class TableMapperTest extends TestCase
 {
     /** @var MockObject|Connection */
     private $db;
+
     /** @var TableMapper */
     private $mapper;
+
     /** @var MockObject|Schema */
     private $schema;
 
@@ -58,7 +59,6 @@ class TableMapperTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetProperDefaultValues(): void
@@ -71,6 +71,38 @@ class TableMapperTest extends TestCase
         $this->assertSame([], $structure->getForeignKeys());
         $this->assertSame([], $structure->getIndexes());
         $this->assertSame([], $structure->getColumns());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldSetProperDefaultValuesInBatch(): void
+    {
+        $this->prepareSchemaMock();
+
+        $batch = $this->mapper->getStructuresOf(
+            [
+                'abc' => [],
+                'def' => [],
+            ]
+        );
+
+        $structure1 = $batch->get('abc');
+        $structure2 = $batch->get('def');
+        $this->assertNull($batch->get('other'));
+
+        $this->assertSame('abc', $structure1->getName());
+        $this->assertNull($structure1->getPrimaryKey());
+        $this->assertSame([], $structure1->getForeignKeys());
+        $this->assertSame([], $structure1->getIndexes());
+        $this->assertSame([], $structure1->getColumns());
+
+        $this->assertSame('def', $structure2->getName());
+        $this->assertNull($structure2->getPrimaryKey());
+        $this->assertSame([], $structure2->getForeignKeys());
+        $this->assertSame([], $structure2->getIndexes());
+        $this->assertSame([], $structure2->getColumns());
     }
 
     public function providerForPrimaryKey(): array
@@ -87,7 +119,6 @@ class TableMapperTest extends TestCase
      * @dataProvider providerForPrimaryKey
      * @param string $primaryKeyName
      * @param array $primaryKeyColumns
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetProperPrimaryKey(string $primaryKeyName, array $primaryKeyColumns): void
@@ -156,7 +187,6 @@ class TableMapperTest extends TestCase
      * @test
      * @dataProvider providerForForeignKeys
      * @param array $foreignKeyData
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetProperForeignKeys(array $foreignKeyData): void
@@ -223,7 +253,6 @@ class TableMapperTest extends TestCase
      * @test
      * @dataProvider providerForIndexes
      * @param array $indexData
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetProperIndexes(array $indexData): void
@@ -247,7 +276,6 @@ class TableMapperTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldIgnorePrimaryIndex(): void
@@ -263,7 +291,6 @@ class TableMapperTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetColumn(): void
@@ -304,7 +331,6 @@ class TableMapperTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldSetUniqueColumnWithUniqueIndex(): void
@@ -343,7 +369,6 @@ class TableMapperTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function shouldNotSetUniqueColumnWithoutIndex(): void
