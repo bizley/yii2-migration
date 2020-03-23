@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration\controllers;
 
 use bizley\migration\Schema;
-use bizley\migration\TableMissingException;
+use RuntimeException;
 use Throwable;
 use Yii;
 use yii\base\Action;
@@ -237,11 +237,13 @@ class MigrationController extends BaseMigrationController
     /**
      * @param string $path
      * @param mixed $content
-     * @return bool|int
+     * @throws RuntimeException
      */
-    protected function generateFile(string $path, $content)
+    protected function generateFile(string $path, $content): void
     {
-        return file_put_contents($path, $content);
+        if (file_put_contents($path, $content) === false) {
+            throw new RuntimeException('Migration file can not be saved!');
+        }
     }
 
     /**
@@ -350,7 +352,7 @@ class MigrationController extends BaseMigrationController
 
         $postponedForeignKeys = [];
 
-        $counterSize = strlen((string) $countTables) + 1;
+        $counterSize = strlen((string)$countTables) + 1;
         $migrationsGenerated = 0;
         foreach ($tables as $tableName) {
             $this->stdout(" > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
@@ -365,46 +367,15 @@ class MigrationController extends BaseMigrationController
             } else {
                 $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $tableName);
             }
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
             try {
-                $migration = $this->getGenerator()->generateForTable(
-                    $tableName,
-                    $migrationClassName,
-                    $referencesToPostpone,
-                    $this->generalSchema,
-                    $this->workingNamespace
-                );
-            } catch (TableMissingException $exception) {
-                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
-                return ExitCode::DATAERR;
+                $this->generateMigrationForTableCreation($tableName, $migrationClassName, $referencesToPostpone);
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            if ($this->generateFile($file, $migration) === false) {
-                $this->stdout(
-                    "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
-                    Console::FG_RED
-                );
-
-                return ExitCode::SOFTWARE;
-            }
-
             $migrationsGenerated++;
-
-            $this->stdout("DONE!\n", Console::FG_GREEN);
-            $this->stdout(" > Saved as '{$file}'\n");
-
-            if ($this->fixHistory) {
-                try {
-                    $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
-                } catch (DbException $exception) {
-                    $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
-                    return ExitCode::UNSPECIFIED_ERROR;
-                }
-            }
 
             $this->stdout("\n");
 
@@ -415,45 +386,18 @@ class MigrationController extends BaseMigrationController
         }
 
         if ($postponedForeignKeys) {
-            $this->stdout(' > Generating migration for creating foreign keys ...', Console::FG_YELLOW);
-
-            $migrationClassName = sprintf(
-                "m%s_%0{$counterSize}d_create_foreign_keys",
-                gmdate('ymd_His'),
-                ++$migrationsGenerated
-            );
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
-
             try {
-                $migration = $this->getGenerator()->generateForForeignKeys(
+                $this->generateMigrationForForeignKeys(
                     $postponedForeignKeys,
-                    $migrationClassName,
-                    $this->workingNamespace
+                    sprintf(
+                        "m%s_%0{$counterSize}d_create_foreign_keys",
+                        gmdate('ymd_His'),
+                        ++$migrationsGenerated
+                    )
                 );
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            if ($this->generateFile($file, $migration) === false) {
-                $this->stdout(
-                    "ERROR!\n > Migration file for foreign keys can not be generated!\n\n",
-                    Console::FG_RED
-                );
-
-                return ExitCode::SOFTWARE;
-            }
-
-            $this->stdout("DONE!\n", Console::FG_GREEN);
-            $this->stdout(" > Saved as '{$file}'\n");
-
-            if ($this->fixHistory) {
-                try {
-                    $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
-                } catch (DbException $exception) {
-                    $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
-                    return ExitCode::UNSPECIFIED_ERROR;
-                }
             }
         }
 
@@ -554,10 +498,6 @@ class MigrationController extends BaseMigrationController
 
                     $this->stdout("\n");
                 }
-            } catch (TableMissingException $exception) {
-                $this->stdout("ERROR!\n > Table '{$tableName}' does not exist!\n\n", Console::FG_RED);
-
-                return ExitCode::DATAERR;
             } catch (NotSupportedException $exception) {
                 $this->stdout(
                     "WARNING!\n > Updating table '{$tableName}' requires manual migration!\n",
@@ -582,7 +522,7 @@ class MigrationController extends BaseMigrationController
         $referencesToPostpone = [];
         if ($countTables > 1) {
             $this->getArranger()->arrangeMigrations($newTables);
-            $tables = $this->getArranger()->getTablesInOrder();
+            $newTables = $this->getArranger()->getTablesInOrder();
             $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 
             if (count($referencesToPostpone) && Schema::isSQLite($this->db->schema)) {
@@ -596,50 +536,77 @@ class MigrationController extends BaseMigrationController
             }
         }
 
+        $postponedForeignKeys = [];
 
-
+        $counterSize = strlen((string)$countTables) + 1;
         $migrationsGenerated = 0;
-        foreach ($blueprints as $tableName => $blueprint) {
-            $this->stdout(" > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
-
-            $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
-            $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
+        foreach ($newTables as $tableName) {
+            $this->stdout(" > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
 
             try {
-                $migration = $this->getUpdater()->generateFromBlueprint(
-                    $blueprint,
-                    $migrationClassName,
-                    $this->generalSchema,
-                    $this->workingNamespace
+                $this->generateMigrationForTableCreation(
+                    $tableName,
+                    sprintf(
+                        "m%s_%0{$counterSize}d_create_table_%s",
+                        gmdate('ymd_His'),
+                        $migrationsGenerated + 1,
+                        $tableName
+                    ),
+                    $referencesToPostpone
                 );
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
-
                 return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            if ($this->generateFile($file, $migration) === false) {
-                $this->stdout(
-                    "ERROR!\n > Migration file for table '{$tableName}' can not be generated!\n\n",
-                    Console::FG_RED
-                );
-
-                return ExitCode::SOFTWARE;
             }
 
             $migrationsGenerated++;
 
-            $this->stdout("DONE!\n", Console::FG_GREEN);
-            $this->stdout(" > Saved as '{$file}'\n");
+            $this->stdout("\n");
 
-            if ($this->fixHistory) {
-                try {
-                    $this->getHistoryManager()->addHistory($migrationClassName, $this->workingNamespace);
-                } catch (DbException $exception) {
-                    $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
-                    return ExitCode::UNSPECIFIED_ERROR;
-                }
+            $suppressedForeignKeys = $this->getGenerator()->getSuppressedForeignKeys();
+            foreach ($suppressedForeignKeys as $suppressedKey) {
+                $postponedForeignKeys[] = $suppressedKey;
             }
+        }
+
+        if ($postponedForeignKeys) {
+            try {
+                $this->generateMigrationForForeignKeys(
+                    $postponedForeignKeys,
+                    sprintf(
+                        "m%s_%0{$counterSize}d_create_foreign_keys",
+                        gmdate('ymd_His'),
+                        ++$migrationsGenerated
+                    )
+                );
+            } catch (Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        }
+
+        foreach ($blueprints as $tableName => $blueprint) {
+            $this->stdout(" > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
+
+            if ($migrationsGenerated === 0) {
+                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
+            } else {
+                $migrationClassName = sprintf(
+                    "m%s_%0{$counterSize}d_update_table_%s",
+                    gmdate('ymd_His'),
+                    $migrationsGenerated + 1,
+                    $tableName
+                );
+            }
+
+            try {
+                $this->generateMigrationWithBlueprint($blueprint, $migrationClassName);
+            } catch (Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n\n", Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+
+            $migrationsGenerated++;
 
             $this->stdout("\n");
         }
@@ -686,5 +653,99 @@ class MigrationController extends BaseMigrationController
         $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
 
         return ExitCode::OK;
+    }
+
+    /**
+     * @param string $migrationClassName
+     * @param string $workingNamespace
+     * @throws DbException
+     * @throws InvalidConfigException
+     */
+    private function fixHistory(string $migrationClassName, string $workingNamespace): void
+    {
+        if ($this->fixHistory) {
+            $this->getHistoryManager()->addHistory($migrationClassName, $workingNamespace);
+        }
+    }
+
+    /**
+     * @param array $postponedForeignKeys
+     * @param string $migrationClassName
+     * @throws DbException
+     * @throws InvalidConfigException
+     */
+    private function generateMigrationForForeignKeys(array $postponedForeignKeys, string $migrationClassName): void
+    {
+        $this->stdout(' > Generating migration for creating foreign keys ...', Console::FG_YELLOW);
+
+        $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
+
+        $migration = $this->getGenerator()->generateForForeignKeys(
+            $postponedForeignKeys,
+            $migrationClassName,
+            $this->workingNamespace
+        );
+
+        $this->generateFile($file, $migration);
+
+        $this->stdout("DONE!\n", Console::FG_GREEN);
+        $this->stdout(" > Saved as '{$file}'\n");
+
+        $this->fixHistory($migrationClassName, $this->workingNamespace);
+    }
+
+    /**
+     * @param $blueprint
+     * @param string $migrationClassName
+     * @throws DbException
+     * @throws InvalidConfigException
+     */
+    private function generateMigrationWithBlueprint($blueprint, string $migrationClassName): void
+    {
+        $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
+
+        $migration = $this->getUpdater()->generateFromBlueprint(
+            $blueprint,
+            $migrationClassName,
+            $this->generalSchema,
+            $this->workingNamespace
+        );
+
+        $this->generateFile($file, $migration);
+
+        $this->stdout("DONE!\n", Console::FG_GREEN);
+        $this->stdout(" > Saved as '{$file}'\n");
+
+        $this->fixHistory($migrationClassName, $this->workingNamespace);
+    }
+
+    /**
+     * @param string $tableName
+     * @param string $migrationClassName
+     * @param array $referencesToPostpone
+     * @throws DbException
+     * @throws InvalidConfigException
+     */
+    private function generateMigrationForTableCreation(
+        string $tableName,
+        string $migrationClassName,
+        array $referencesToPostpone
+    ): void {
+        $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
+
+        $migration = $this->getGenerator()->generateForTable(
+            $tableName,
+            $migrationClassName,
+            $referencesToPostpone,
+            $this->generalSchema,
+            $this->workingNamespace
+        );
+
+        $this->generateFile($file, $migration);
+
+        $this->stdout("DONE!\n", Console::FG_GREEN);
+        $this->stdout(" > Saved as '{$file}'\n");
+
+        $this->fixHistory($migrationClassName, $this->workingNamespace);
     }
 }

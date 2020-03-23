@@ -66,7 +66,7 @@ final class Generator implements GeneratorInterface
         string $namespace = null
     ): string {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
-            throw new TableMissingException("Table $tableName does not exists.");
+            throw new TableMissingException("Table '$tableName' does not exists!");
         }
 
         $structure = $this->tableMapper->getStructureOf($tableName, $referencesToPostpone);

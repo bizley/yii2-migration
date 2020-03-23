@@ -56,7 +56,7 @@ final class Updater implements UpdaterInterface
         array $migrationPaths
     ): BlueprintInterface {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
-            throw new TableMissingException("Table $tableName does not exists.");
+            throw new TableMissingException("Table '$tableName' does not exists!");
         }
 
         return $this->inspector->prepareBlueprint(
