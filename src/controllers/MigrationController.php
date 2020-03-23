@@ -218,61 +218,6 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Prepares path directory.
-     * @param string $path
-     * @return string
-     * @throws Exception
-     */
-    private function preparePathDirectory(string $path): string
-    {
-        $translatedPath = Yii::getAlias($path);
-
-        if (is_dir($translatedPath) === false) {
-            FileHelper::createDirectory($translatedPath);
-        }
-
-        return $translatedPath;
-    }
-
-    /**
-     * @param string $path
-     * @param mixed $content
-     * @throws RuntimeException
-     */
-    protected function generateFile(string $path, $content): void
-    {
-        if (file_put_contents($path, $content) === false) {
-            throw new RuntimeException('Migration file can not be saved!');
-        }
-    }
-
-    /**
-     * Removes excluded tables names from the tables list.
-     * @param array $tables
-     * @return array
-     */
-    private function removeExcludedTables(array $tables): array
-    {
-        if (count($tables) === 0) {
-            return [];
-        }
-
-        $filteredTables = [];
-        $excludedTables = array_merge(
-            [$this->db->schema->getRawTableName($this->migrationTable)],
-            $this->excludeTables
-        );
-
-        foreach ($tables as $table) {
-            if (in_array($table, $excludedTables, true) === false) {
-                $filteredTables[] = $table;
-            }
-        }
-
-        return $filteredTables;
-    }
-
-    /**
      * Lists all tables in the database.
      * @return int
      */
@@ -653,6 +598,61 @@ class MigrationController extends BaseMigrationController
         $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
 
         return ExitCode::OK;
+    }
+
+    /**
+     * Prepares path directory.
+     * @param string $path
+     * @return string
+     * @throws Exception
+     */
+    private function preparePathDirectory(string $path): string
+    {
+        $translatedPath = Yii::getAlias($path);
+
+        if (is_dir($translatedPath) === false) {
+            FileHelper::createDirectory($translatedPath);
+        }
+
+        return $translatedPath;
+    }
+
+    /**
+     * @param string $path
+     * @param mixed $content
+     * @throws RuntimeException
+     */
+    private function generateFile(string $path, $content): void
+    {
+        if (file_put_contents($path, $content) === false) {
+            throw new RuntimeException('Migration file can not be saved!');
+        }
+    }
+
+    /**
+     * Removes excluded tables names from the tables list.
+     * @param array $tables
+     * @return array
+     */
+    private function removeExcludedTables(array $tables): array
+    {
+        if (count($tables) === 0) {
+            return [];
+        }
+
+        $filteredTables = [];
+        $excludedTables = array_merge(
+            [$this->db->schema->getRawTableName($this->migrationTable)],
+            $this->excludeTables
+        );
+
+        foreach ($tables as $table) {
+            if (in_array($table, $excludedTables, true) === false) {
+                $filteredTables[] = $table;
+            }
+        }
+
+        return $filteredTables;
     }
 
     /**
