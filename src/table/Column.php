@@ -28,13 +28,13 @@ abstract class Column
     /** @var bool|null */
     private $notNull;
 
-    /** @var int */
+    /** @var int|null */
     private $size;
 
-    /** @var int */
+    /** @var int|null */
     private $precision;
 
-    /** @var int */
+    /** @var int|null */
     private $scale;
 
     /** @var bool */

@@ -12,9 +12,9 @@ final class ColumnFactory
     /**
      * Builds table column object based on the type.
      * @param string $type
-     * @return Column
+     * @return ColumnInterface
      */
-    public static function build(string $type): Column
+    public static function build(string $type): ColumnInterface
     {
         switch ($type) {
             case Schema::TYPE_PK:

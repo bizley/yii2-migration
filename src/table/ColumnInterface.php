@@ -12,6 +12,10 @@ interface ColumnInterface
 
     public function isPrimaryKey(): bool;
 
+    public function setPrimaryKey(bool $primaryKey): void;
+
+    public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool;
+
     public function isPrimaryKeyInfoAppended(string $schema): bool;
 
     public function getAppend(): string;
@@ -28,17 +32,35 @@ interface ColumnInterface
 
     public function getSize(): ?int;
 
+    /** @param int|string|null $size */
+    public function setSize($size): void;
+
     public function getPrecision(): ?int;
+
+    /** @param int|string|null $precision */
+    public function setPrecision($precision): void;
 
     public function getScale(): ?int;
 
+    /** @param int|string|null $scale */
+    public function setScale($scale): void;
+
     public function isNotNull(): ?bool;
+
+    public function setNotNull(?bool $notNull): void;
 
     public function getDefault();
 
+    /** @param mixed $default */
+    public function setDefault($default): void;
+
     public function isUnsigned(): bool;
 
+    public function setUnsigned(bool $unsigned): void;
+
     public function isUnique(): bool;
+
+    public function setUnique(bool $unique): void;
 
     public function getLength(string $schema = null, string $engineVersion = null);
 
@@ -46,21 +68,19 @@ interface ColumnInterface
 
     public function getDefinition(): string;
 
-    public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool;
-
     public function getAfter(): ?string;
-
-    public function isFirst(): bool;
-
-    public function isAutoIncrement(): bool;
-
-    public function getDefaultMapping(): ?string;
-
-    public function setUnique(bool $unique): void;
 
     public function setAfter(?string $after): void;
 
+    public function isFirst(): bool;
+
     public function setFirst(bool $first): void;
+
+    public function isAutoIncrement(): bool;
+
+    public function setAutoIncrement(bool $autoIncrement): void;
+
+    public function getDefaultMapping(): ?string;
 
     public function getType(): string;
 }

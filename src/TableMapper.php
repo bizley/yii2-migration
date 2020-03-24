@@ -151,7 +151,7 @@ final class TableMapper implements TableMapperInterface
     /**
      * @param string $table
      * @param array<IndexInterface> $indexes
-     * @return array<ColumnInterface>
+     * @return array<string, ColumnInterface>
      */
     private function getColumns(string $table, array $indexes = []): array
     {

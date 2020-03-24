@@ -85,7 +85,7 @@ final class StructureChange implements StructureChangeInterface
         }
     }
 
-    /** @return array */
+    /** @return array<ColumnInterface> */
     private function getValueForCreateTable(): array
     {
         $columns = [];
@@ -111,6 +111,7 @@ final class StructureChange implements StructureChangeInterface
         return $columns;
     }
 
+    /** @return array<string, string> */
     private function getValueForRenameColumn(): array
     {
         $data = $this->getData();
@@ -121,7 +122,7 @@ final class StructureChange implements StructureChangeInterface
         ];
     }
 
-    private function getValueForAddColumn(): Column
+    private function getValueForAddColumn(): ColumnInterface
     {
         $data = $this->getData();
 
@@ -142,7 +143,7 @@ final class StructureChange implements StructureChangeInterface
         return $column;
     }
 
-    private function getValueForAddPrimaryKey(): PrimaryKey
+    private function getValueForAddPrimaryKey(): PrimaryKeyInterface
     {
         $data = $this->getData();
 
@@ -153,7 +154,7 @@ final class StructureChange implements StructureChangeInterface
         return $primaryKey;
     }
 
-    private function getValueForAddForeignKey(): ForeignKey
+    private function getValueForAddForeignKey(): ForeignKeyInterface
     {
         $data = $this->getData();
 
@@ -166,7 +167,7 @@ final class StructureChange implements StructureChangeInterface
         return $foreignKey;
     }
 
-    private function getValueForCreateIndex(): Index
+    private function getValueForCreateIndex(): IndexInterface
     {
         $data = $this->getData();
 
@@ -178,6 +179,7 @@ final class StructureChange implements StructureChangeInterface
         return $index;
     }
 
+    /** @return array<string, string> */
     private function getValueForAddCommentOnColumn(): array
     {
         $data = $this->getData();
