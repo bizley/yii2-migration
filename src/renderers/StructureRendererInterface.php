@@ -25,10 +25,9 @@ interface StructureRendererInterface
         string $dbPrefix = null
     ): string;
 
-    public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string;
+    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string;
 
     /**
-     * @param string $structureName
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
@@ -36,7 +35,6 @@ interface StructureRendererInterface
      * @return string|null
      */
     public function renderForeignKeysUp(
-        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
@@ -44,7 +42,6 @@ interface StructureRendererInterface
     ): ?string;
 
     /**
-     * @param string $structureName
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
@@ -52,7 +49,6 @@ interface StructureRendererInterface
      * @return string|null
      */
     public function renderForeignKeysDown(
-        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,

@@ -86,6 +86,7 @@ final class TableMapper implements TableMapperInterface
         /** @var ForeignKeyConstraint $foreignKey */
         foreach ($tableForeignKeys as $foreignKey) {
             $mappedForeignKey = new ForeignKey();
+            $mappedForeignKey->setTableName($table);
             $mappedForeignKey->setName($foreignKey->name);
             $mappedForeignKey->setColumns($foreignKey->columnNames);
             $mappedForeignKey->setReferencedTable($foreignKey->foreignTableName);

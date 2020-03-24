@@ -8,7 +8,7 @@ use function count;
 
 final class Blueprint implements BlueprintInterface
 {
-    /** @var string|null */
+    /** @var string */
     private $tableName;
 
     /** @var PrimaryKeyInterface|null */
@@ -53,7 +53,7 @@ final class Blueprint implements BlueprintInterface
     /** @var bool */
     private $startFromScratch = false;
 
-    public function getTableName(): ?string
+    public function getTableName(): string
     {
         return $this->tableName;
     }

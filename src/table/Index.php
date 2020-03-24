@@ -6,7 +6,7 @@ namespace bizley\migration\table;
 
 final class Index implements IndexInterface
 {
-    /** @var string */
+    /** @var string|null */
     private $name;
 
     /** @var bool */
@@ -15,12 +15,12 @@ final class Index implements IndexInterface
     /** @var array<string> */
     private $columns = [];
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -41,9 +41,11 @@ final class Index implements IndexInterface
         return $this->columns;
     }
 
-    /** @param array<string> $columns */
-    public function setColumns(array $columns): void
+    /** @param array<string>|null $columns */
+    public function setColumns(?array $columns): void
     {
-        $this->columns = $columns;
+        if ($columns !== null) {
+            $this->columns = $columns;
+        }
     }
 }

@@ -99,9 +99,9 @@ TEMPLATE;
         );
     }
 
-    private function applyIndent(int $indent, ?string $template): ?string
+    private function applyIndent(int $indent, string $template): string
     {
-        if ($indent < 1 || $template === null) {
+        if ($indent < 1) {
             return $template;
         }
 

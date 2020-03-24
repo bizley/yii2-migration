@@ -341,6 +341,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
+                /** @var PrimaryKeyInterface $oldPrimaryKey */
                 $blueprint->dropPrimaryKey($oldPrimaryKey);
             }
 
@@ -362,6 +363,7 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
+                /** @var PrimaryKeyInterface $newPrimaryKey */
                 $blueprint->addPrimaryKey($newPrimaryKey);
             }
         }

@@ -6,7 +6,7 @@ namespace bizley\migration\table;
 
 interface BlueprintInterface
 {
-    public function getTableName(): ?string;
+    public function getTableName(): string;
 
     public function setStartFromScratch(bool $startFromScratch): void;
 

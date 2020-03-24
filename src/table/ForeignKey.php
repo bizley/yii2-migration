@@ -6,7 +6,7 @@ namespace bizley\migration\table;
 
 final class ForeignKey implements ForeignKeyInterface
 {
-    /** @var string */
+    /** @var string|null */
     private $name;
 
     /** @var array<string> */
@@ -18,18 +18,21 @@ final class ForeignKey implements ForeignKeyInterface
     /** @var array<string> */
     private $referencedColumns;
 
-    /** @var string */
+    /** @var string|null */
     private $onDelete;
 
-    /** @var string */
+    /** @var string|null */
     private $onUpdate;
+
+    /** @var string */
+    private $tableName;
 
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -40,10 +43,12 @@ final class ForeignKey implements ForeignKeyInterface
         return $this->columns;
     }
 
-    /** @param array<string> $columns */
-    public function setColumns(array $columns): void
+    /** @param array<string>|null $columns */
+    public function setColumns(?array $columns): void
     {
-        $this->columns = $columns;
+        if ($columns !== null) {
+            $this->columns = $columns;
+        }
     }
 
     public function getReferencedTable(): string
@@ -86,5 +91,15 @@ final class ForeignKey implements ForeignKeyInterface
     public function setOnUpdate(?string $onUpdate): void
     {
         $this->onUpdate = $onUpdate;
+    }
+
+    public function getTableName(): string
+    {
+        return $this->tableName;
+    }
+
+    public function setTableName(string $tableName): void
+    {
+        $this->tableName = $tableName;
     }
 }

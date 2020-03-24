@@ -28,7 +28,6 @@ interface GeneratorInterface
 
     /**
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param string $tableName
      * @param string $migrationName
      * @param bool $usePrefix
      * @param string $dbPrefix
@@ -37,7 +36,6 @@ interface GeneratorInterface
      */
     public function generateForForeignKeys(
         array $foreignKeys,
-        string $tableName,
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',

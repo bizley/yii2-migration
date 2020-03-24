@@ -615,9 +615,13 @@ class MigrationController extends BaseMigrationController
 
         $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
+        /** @var Connection $db */
+        $db = $this->db;
         $migration = $this->getGenerator()->generateForForeignKeys(
             $postponedForeignKeys,
             $migrationClassName,
+            $this->useTablePrefix,
+            $db->tablePrefix,
             $this->workingNamespace
         );
 
@@ -639,10 +643,13 @@ class MigrationController extends BaseMigrationController
     {
         $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
+        /** @var Connection $db */
+        $db = $this->db;
         $migration = $this->getUpdater()->generateFromBlueprint(
             $blueprint,
             $migrationClassName,
-            $this->generalSchema,
+            $this->useTablePrefix,
+            $db->tablePrefix,
             $this->workingNamespace
         );
 
@@ -668,11 +675,14 @@ class MigrationController extends BaseMigrationController
     ): void {
         $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 
+        /** @var Connection $db */
+        $db = $this->db;
         $migration = $this->getGenerator()->generateForTable(
             $tableName,
             $migrationClassName,
             $referencesToPostpone,
-            $this->generalSchema,
+            $this->useTablePrefix,
+            $db->tablePrefix,
             $this->workingNamespace
         );
 

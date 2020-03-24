@@ -16,7 +16,7 @@ interface ColumnInterface
 
     public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool;
 
-    public function isPrimaryKeyInfoAppended(string $schema): bool;
+    public function isPrimaryKeyInfoAppended(?string $schema): bool;
 
     public function getAppend(): ?string;
 
@@ -24,7 +24,7 @@ interface ColumnInterface
 
     public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string;
 
-    public function removeAppendedPrimaryKeyInfo(string $schema): ?string;
+    public function removeAppendedPrimaryKeyInfo(?string $schema): ?string;
 
     public function setComment(?string $comment): void;
 

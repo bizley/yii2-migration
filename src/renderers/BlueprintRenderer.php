@@ -104,12 +104,12 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders table name.
-     * @param string|null $tableName
+     * @param string $tableName
      * @param bool $usePrefix
      * @param string|null $dbPrefix
-     * @return string|null
+     * @return string
      */
-    public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string
+    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
     {
         if ($usePrefix === false) {
             return $tableName;

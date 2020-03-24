@@ -11,7 +11,7 @@ final class PrimaryKey implements PrimaryKeyInterface
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 
-    /** @var string */
+    /** @var string|null */
     private $name;
 
     /** @var array<string> */
@@ -31,7 +31,7 @@ final class PrimaryKey implements PrimaryKeyInterface
         return $this->name ?? self::GENERIC_PRIMARY_KEY;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -42,10 +42,12 @@ final class PrimaryKey implements PrimaryKeyInterface
         return $this->columns;
     }
 
-    /** @param array<string> $columns */
-    public function setColumns(array $columns): void
+    /** @param array<string>|null $columns */
+    public function setColumns(?array $columns): void
     {
-        $this->columns = $columns;
+        if ($columns !== null) {
+            $this->columns = $columns;
+        }
     }
 
     /**

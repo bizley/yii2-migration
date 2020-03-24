@@ -192,7 +192,9 @@ final class StructureBuilder implements StructureBuilderInterface
             && count($indexColumns) === 1
             && array_key_exists($indexColumns[0], $structure->getColumns())
         ) {
-            $structure->getColumn($indexColumns[0])->setUnique(true);
+            /** @var ColumnInterface $column */
+            $column = $structure->getColumn($indexColumns[0]);
+            $column->setUnique(true);
         }
     }
 
@@ -205,9 +207,10 @@ final class StructureBuilder implements StructureBuilderInterface
                 $index->isUnique()
                 && count($indexColumns) === 1
                 && array_key_exists($indexColumns[0], $structure->getColumns())
-                && $structure->getColumn($indexColumns[0])->isUnique()
+                && ($column = $structure->getColumn($indexColumns[0])) !== null
+                && $column->isUnique()
             ) {
-                $structure->getColumn($indexColumns[0])->setUnique(false);
+                $column->setUnique(false);
             }
 
             $structure->removeIndex($name);

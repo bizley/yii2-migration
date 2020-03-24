@@ -65,12 +65,12 @@ TEMPLATE;
 
     /**
      * Renders table name.
-     * @param string|null $tableName
+     * @param string $tableName
      * @param bool $usePrefix
      * @param string|null $dbPrefix
-     * @return string|null
+     * @return string
      */
-    public function renderName(?string $tableName, bool $usePrefix, string $dbPrefix = null): ?string
+    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
     {
         if ($usePrefix === false) {
             return $tableName;
@@ -127,9 +127,9 @@ TEMPLATE;
         );
     }
 
-    private function applyIndent(int $indent, ?string $template): ?string
+    private function applyIndent(int $indent, string $template): string
     {
-        if ($indent < 1 || $template === null) {
+        if ($indent < 1) {
             return $template;
         }
 
@@ -242,7 +242,6 @@ TEMPLATE;
         string $dbPrefix = null
     ): ?string {
         return $this->renderForeignKeysUp(
-            $structure->getName(),
             $structure->getForeignKeys(),
             $indent,
             $usePrefix,
@@ -251,7 +250,6 @@ TEMPLATE;
     }
 
     /**
-     * @param string $structureName
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
@@ -259,19 +257,17 @@ TEMPLATE;
      * @return string|null
      */
     public function renderForeignKeysUp(
-        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
         string $dbPrefix = null
     ): ?string {
         $renderedForeignKeys = [];
-        $tableName = $this->renderName($structureName, $usePrefix, $dbPrefix);
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
                 $foreignKey,
-                $tableName,
+                $this->renderName($foreignKey->getTableName(), $usePrefix, $dbPrefix),
                 $this->renderName($foreignKey->getReferencedTable(), $usePrefix, $dbPrefix),
                 $indent
             );
@@ -281,7 +277,6 @@ TEMPLATE;
     }
 
     /**
-     * @param string $structureName
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
@@ -289,29 +284,29 @@ TEMPLATE;
      * @return string|null
      */
     public function renderForeignKeysDown(
-        string $structureName,
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
         string $dbPrefix = null
     ): ?string {
         $renderedForeignKeys = [];
-        $tableName = $this->renderName($structureName, $usePrefix, $dbPrefix);
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
-            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent);
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown(
+                $foreignKey,
+                $this->renderName($foreignKey->getTableName(), $usePrefix, $dbPrefix),
+                $indent
+            );
         }
 
         return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
 
-    /** @param string|null $createTableTemplate */
-    public function setCreateTableTemplate(?string $createTableTemplate): void
+    public function setCreateTableTemplate(string $createTableTemplate): void
     {
         $this->createTableTemplate = $createTableTemplate;
     }
 
-    /** @param string $dropTableTemplate */
     public function setDropTableTemplate(string $dropTableTemplate): void
     {
         $this->dropTableTemplate = $dropTableTemplate;

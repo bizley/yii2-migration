@@ -79,7 +79,6 @@ final class Generator implements GeneratorInterface
         return $this->view->renderFile(
             $this->getCreateTableMigrationTemplate(),
             [
-                'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
                 'bodyUp' => $this->structureRenderer->renderStructureUp(
@@ -102,7 +101,6 @@ final class Generator implements GeneratorInterface
 
     /**
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param string $tableName
      * @param string $migrationName
      * @param bool $usePrefix
      * @param string $dbPrefix
@@ -111,7 +109,6 @@ final class Generator implements GeneratorInterface
      */
     public function generateForForeignKeys(
         array $foreignKeys,
-        string $tableName,
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
@@ -120,18 +117,15 @@ final class Generator implements GeneratorInterface
         return $this->view->renderFile(
             $this->getCreateForeignKeysMigrationTemplate(),
             [
-                'tableName' => $this->structureRenderer->renderName($tableName, $usePrefix, $dbPrefix),
                 'className' => $migrationName,
                 'namespace' => $this->getNormalizedNamespace($namespace),
                 'bodyUp' => $this->structureRenderer->renderForeignKeysUp(
-                    $tableName,
                     $foreignKeys,
                     8,
                     $usePrefix,
                     $dbPrefix
                 ),
                 'bodyDown' => $this->structureRenderer->renderForeignKeysDown(
-                    $tableName,
                     array_reverse($foreignKeys),
                     8,
                     $usePrefix,

@@ -190,7 +190,7 @@ final class ColumnRenderer implements ColumnRendererInterface
 
         $this->definition[] = str_replace(
             '{renderLength}',
-            $this->getRenderedLength($column, $schema, $engineVersion),
+            $this->getRenderedLength($column, $schema, $engineVersion) ?? '',
             $definition
         );
     }
@@ -283,10 +283,13 @@ final class ColumnRenderer implements ColumnRendererInterface
         ) {
             $schemaAppend = $column->prepareSchemaAppend(true, $column->isAutoIncrement(), $schema);
 
-            if (!empty($columnAppend)) {
-                $schemaAppend .= ' ' . trim(str_replace($schemaAppend, '', $columnAppend));
+            if ($schemaAppend !== null) {
+                if (!empty($columnAppend)) {
+                    $schemaAppend .= ' ' . trim(str_replace($schemaAppend, '', $columnAppend));
+                }
+                $schemaAppend = trim($schemaAppend);
             }
-            $this->definition[] = "append('" . $this->escapeQuotes(trim($schemaAppend)) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes($schemaAppend) . "')";
         } elseif (!empty($columnAppend)) {
             $this->definition[] = "append('" . $this->escapeQuotes(trim($columnAppend)) . "')";
         }
@@ -306,11 +309,14 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Escapes single quotes.
-     * @param string $value
-     * @return string
+     * @param string|null $value
+     * @return string|null
      */
-    public function escapeQuotes(string $value): string
+    public function escapeQuotes(?string $value): ?string
     {
+        if ($value === null) {
+            return null;
+        }
         return str_replace('\'', '\\\'', $value);
     }
 

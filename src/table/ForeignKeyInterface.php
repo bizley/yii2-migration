@@ -8,6 +8,8 @@ interface ForeignKeyInterface
 {
     public function getName(): ?string;
 
+    public function getTableName(): string;
+
     /** @return array<string> */
     public function getColumns(): array;
 

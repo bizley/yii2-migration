@@ -55,10 +55,10 @@ abstract class Column
     /** @var string|null */
     private $append;
 
-    /** @var string */
+    /** @var string|null */
     private $comment;
 
-    /** @var string */
+    /** @var string|null */
     private $after;
 
     /** @var bool */
@@ -253,10 +253,10 @@ abstract class Column
 
     /**
      * Checks if information of primary key is set in append property.
-     * @param string $schema
+     * @param string|null $schema
      * @return bool
      */
-    public function isPrimaryKeyInfoAppended(string $schema): bool
+    public function isPrimaryKeyInfoAppended(?string $schema): bool
     {
         $append = $this->getAppend();
         if (empty($append)) {
@@ -314,12 +314,12 @@ abstract class Column
 
     /**
      * Removes information of primary key in append property and returns what is left.
-     * @param string $schema
+     * @param string|null $schema
      * @return null|string
      */
-    public function removeAppendedPrimaryKeyInfo(string $schema): ?string
+    public function removeAppendedPrimaryKeyInfo(?string $schema): ?string
     {
-        if ($this->isPrimaryKeyInfoAppended($schema) === false) {
+        if ($this->append === null || $this->isPrimaryKeyInfoAppended($schema) === false) {
             return $this->append;
         }
 
@@ -343,7 +343,10 @@ abstract class Column
                 $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }
 
-        $cleanedAppend = trim(preg_replace('/\s+/', ' ', $cleanedAppend));
+        $cleanedAppend = preg_replace('/\s+/', ' ', $cleanedAppend);
+        if ($cleanedAppend !== null) {
+            $cleanedAppend = trim($cleanedAppend);
+        }
 
         return !empty($cleanedAppend) ? $cleanedAppend : null;
     }
