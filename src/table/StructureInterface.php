@@ -16,16 +16,12 @@ interface StructureInterface
 
     public function removeColumn(string $name): void;
 
-    /**
-     * @return array<ColumnInterface>
-     */
+    /** @return array<string, ColumnInterface> */
     public function getColumns(): array;
 
     public function getColumn(string $name): ?ColumnInterface;
 
-    /**
-     * @return array<ForeignKeyInterface>
-     */
+    /** @return array<string, ForeignKeyInterface> */
     public function getForeignKeys(): array;
 
     public function getForeignKey(string $name): ?ForeignKeyInterface;
@@ -36,9 +32,7 @@ interface StructureInterface
 
     public function addIndex(IndexInterface $index): void;
 
-    /**
-     * @return array<IndexInterface>
-     */
+    /** @return array<string, IndexInterface> */
     public function getIndexes(): array;
 
     public function getIndex(string $name): ?IndexInterface;

@@ -13,6 +13,8 @@ use bizley\migration\table\StructureInterface;
 use yii\base\NotSupportedException;
 use yii\helpers\Json;
 
+use function is_string;
+
 final class Comparator implements ComparatorInterface
 {
     /** @var bool */
@@ -132,6 +134,7 @@ final class Comparator implements ComparatorInterface
                     if (
                         $propertyFetch === 'getAppend'
                         && $oldProperty === null
+                        && ($newProperty === null || is_string($newProperty))
                         && $this->isAppendSame($newProperty, $oldColumn)
                     ) {
                         continue;
@@ -504,10 +507,14 @@ final class Comparator implements ComparatorInterface
         }
     }
 
-    private function isAppendSame(string $append, ColumnInterface $column): bool
+    private function isAppendSame(?string $append, ColumnInterface $column): bool
     {
         $autoIncrement = false;
         $primaryKey = false;
+
+        if ($append === null) {
+            return $column->isAutoIncrement() === $autoIncrement && $column->isPrimaryKey() === $primaryKey;
+        }
 
         if (strpos($append, 'AUTO_INCREMENT') !== false) {
             $autoIncrement = true;
@@ -529,6 +536,7 @@ final class Comparator implements ComparatorInterface
             $append = trim(str_replace('PRIMARY KEY', '', $append));
         }
 
+        /** @var string $append */
         $append = str_replace(' ', '', $append);
 
         return $append === ''

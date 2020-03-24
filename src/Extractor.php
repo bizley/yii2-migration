@@ -41,6 +41,7 @@ final class Extractor implements ExtractorInterface
             $fileFound = false;
             $file = null;
             foreach ($migrationPaths as $path) {
+                /** @var string $file */
                 $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
                 if (file_exists($file)) {
                     $fileFound = true;

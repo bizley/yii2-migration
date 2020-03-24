@@ -124,6 +124,7 @@ final class Arranger implements ArrangerInterface
                     $this->referencesToPostpone
                 );
                 $filteredDependencies = [];
+                /** @var string $name */
                 foreach ($postLinkMerged as $name => $dependencies) {
                     $filteredDependencies[$name] = array_unique($dependencies);
                 }

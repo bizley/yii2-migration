@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use RuntimeException;
+
 use function is_array;
 use function preg_split;
 
@@ -27,7 +29,14 @@ final class MoneyColumn extends Column implements ColumnInterface
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        $length = is_array($value) ? $value : preg_split('/\s*,\s*/', (string)$value);
+        if (is_array($value)) {
+            $length = $value;
+        } else {
+            $length = preg_split('/\s*,\s*/', (string)$value);
+            if ($length === false) {
+                throw new RuntimeException('Error while splitting length value!');
+            }
+        }
 
         if (isset($length[0]) && !empty($length[0])) {
             $this->setPrecision((int)$length[0]);

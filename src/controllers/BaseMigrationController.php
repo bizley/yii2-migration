@@ -42,7 +42,7 @@ class BaseMigrationController extends Controller
     public $defaultAction = 'list';
 
     /**
-     * @var Connection|array<string, mixed>|string DB connection object, configuration array, or the application
+     * @var Connection|object|array<string, mixed>|string DB connection object, configuration array, or the application
      * component ID of the DB connection.
      */
     public $db = 'db';
@@ -111,7 +111,13 @@ class BaseMigrationController extends Controller
     public function getHistoryManager(): HistoryManagerInterface
     {
         if ($this->historyManager === null) {
-            $this->historyManager = Yii::createObject($this->historyManagerClass, [$this->db, $this->migrationTable]);
+            $configuredObject = Yii::createObject($this->historyManagerClass, [$this->db, $this->migrationTable]);
+            if (!$configuredObject instanceof HistoryManagerInterface) {
+                throw new InvalidConfigException(
+                    'HistoryManager must implement bizley\migration\HistoryManagerInterface'
+                );
+            }
+            $this->historyManager = $configuredObject;
         }
 
         return $this->historyManager;
@@ -127,7 +133,13 @@ class BaseMigrationController extends Controller
     public function getTableMapper(): TableMapperInterface
     {
         if ($this->tableMapper === null) {
-            $this->tableMapper = Yii::createObject($this->tableMapperClass, [$this->db]);
+            $configuredObject = Yii::createObject($this->tableMapperClass, [$this->db]);
+            if (!$configuredObject instanceof TableMapperInterface) {
+                throw new InvalidConfigException(
+                    'TableMapper must implement bizley\migration\TableMapperInterface.'
+                );
+            }
+            $this->tableMapper = $configuredObject;
         }
 
         return $this->tableMapper;
@@ -143,7 +155,11 @@ class BaseMigrationController extends Controller
     public function getArranger(): ArrangerInterface
     {
         if ($this->arranger === null) {
-            $this->arranger = Yii::createObject($this->arrangerClass, [$this->getTableMapper()]);
+            $configuredObject = Yii::createObject($this->arrangerClass, [$this->getTableMapper()]);
+            if (!$configuredObject instanceof ArrangerInterface) {
+                throw new InvalidConfigException('Arranger must implement bizley\migration\ArrangerInterface.');
+            }
+            $this->arranger = $configuredObject;
         }
 
         return $this->arranger;
@@ -159,7 +175,7 @@ class BaseMigrationController extends Controller
     public function getStructureRenderer(): StructureRendererInterface
     {
         if ($this->structureRenderer === null) {
-            $this->structureRenderer = Yii::createObject(
+            $configuredObject = Yii::createObject(
                 $this->structureRendererClass,
                 [
                     Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
@@ -168,6 +184,12 @@ class BaseMigrationController extends Controller
                     Yii::createObject($this->foreignKeyRendererClass)
                 ]
             );
+            if (!$configuredObject instanceof StructureRendererInterface) {
+                throw new InvalidConfigException(
+                    'StructureRenderer must implement bizley\migration\renderers\StructureRendererInterface.'
+                );
+            }
+            $this->structureRenderer = $configuredObject;
         }
 
         return $this->structureRenderer;
@@ -183,7 +205,7 @@ class BaseMigrationController extends Controller
     public function getGenerator(): GeneratorInterface
     {
         if ($this->generator === null) {
-            $this->generator = Yii::createObject(
+            $configuredObject = Yii::createObject(
                 $this->generatorClass,
                 [
                     $this->getTableMapper(),
@@ -191,6 +213,10 @@ class BaseMigrationController extends Controller
                     $this->view
                 ]
             );
+            if (!$configuredObject instanceof GeneratorInterface) {
+                throw new InvalidConfigException('Generator must implement bizley\migration\GeneratorInterface.');
+            }
+            $this->generator = $configuredObject;
         }
 
         return $this->generator;
@@ -206,7 +232,11 @@ class BaseMigrationController extends Controller
     public function getExtractor(): ExtractorInterface
     {
         if ($this->extractor === null) {
-            $this->extractor = Yii::createObject($this->extractorClass, [$this->db]);
+            $configuredObject = Yii::createObject($this->extractorClass, [$this->db]);
+            if (!$configuredObject instanceof ExtractorInterface) {
+                throw new InvalidConfigException('Extractor must implement bizley\migration\ExtractorInterface.');
+            }
+            $this->extractor = $configuredObject;
         }
 
         return $this->extractor;
@@ -222,7 +252,13 @@ class BaseMigrationController extends Controller
     public function getStructureBuilder(): StructureBuilderInterface
     {
         if ($this->structureBuilder === null) {
-            $this->structureBuilder = Yii::createObject($this->structureBuilderClass);
+            $configuredObject = Yii::createObject($this->structureBuilderClass);
+            if (!$configuredObject instanceof StructureBuilderInterface) {
+                throw new InvalidConfigException(
+                    'StructureBuilder must implement bizley\migration\table\StructureBuilderInterface.'
+                );
+            }
+            $this->structureBuilder = $configuredObject;
         }
 
         return $this->structureBuilder;
@@ -238,7 +274,13 @@ class BaseMigrationController extends Controller
     public function getComparator(): ComparatorInterface
     {
         if ($this->comparator === null) {
-            $this->comparator = Yii::createObject($this->comparatorClass, [$this->generalSchema]);
+            $configuredObject = Yii::createObject($this->comparatorClass, [$this->generalSchema]);
+            if (!$configuredObject instanceof ComparatorInterface) {
+                throw new InvalidConfigException(
+                    'Comparator must implement bizley\migration\ComparatorInterface.'
+                );
+            }
+            $this->comparator = $configuredObject;
         }
 
         return $this->comparator;
@@ -254,7 +296,7 @@ class BaseMigrationController extends Controller
     public function getInspector(): InspectorInterface
     {
         if ($this->inspector === null) {
-            $this->inspector = Yii::createObject(
+            $configuredObject = Yii::createObject(
                 $this->inspectorClass,
                 [
                     $this->getHistoryManager(),
@@ -263,6 +305,10 @@ class BaseMigrationController extends Controller
                     $this->getComparator()
                 ]
             );
+            if (!$configuredObject instanceof InspectorInterface) {
+                throw new InvalidConfigException('Inspector must implement bizley\migration\InspectorInterface.');
+            }
+            $this->inspector = $configuredObject;
         }
 
         return $this->inspector;
@@ -278,12 +324,21 @@ class BaseMigrationController extends Controller
     public function getBlueprintRenderer(): BlueprintRendererInterface
     {
         if ($this->blueprintRenderer === null) {
-            $this->blueprintRenderer = Yii::createObject(
+            $configuredObject = Yii::createObject(
                 $this->blueprintRendererClass,
                 [
-
+                    Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
+                    Yii::createObject($this->primaryKeyRendererClass),
+                    Yii::createObject($this->indexRendererClass),
+                    Yii::createObject($this->foreignKeyRendererClass)
                 ]
             );
+            if (!$configuredObject instanceof BlueprintRendererInterface) {
+                throw new InvalidConfigException(
+                    'BlueprintRenderer must implement bizley\migration\renderers\BlueprintRendererInterface.'
+                );
+            }
+            $this->blueprintRenderer = $configuredObject;
         }
 
         return $this->blueprintRenderer;
@@ -299,7 +354,7 @@ class BaseMigrationController extends Controller
     public function getUpdater(): UpdaterInterface
     {
         if ($this->updater === null) {
-            $this->updater = Yii::createObject(
+            $configuredObject = Yii::createObject(
                 $this->updaterClass,
                 [
                     $this->getTableMapper(),
@@ -308,6 +363,10 @@ class BaseMigrationController extends Controller
                     $this->view
                 ]
             );
+            if (!$configuredObject instanceof UpdaterInterface) {
+                throw new InvalidConfigException('Updater must implement bizley\migration\UpdaterInterface.');
+            }
+            $this->updater = $configuredObject;
         }
 
         return $this->updater;

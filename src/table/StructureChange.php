@@ -47,7 +47,7 @@ final class StructureChange implements StructureChangeInterface
         $this->data = $data;
     }
 
-    /** @return array<ColumnInterface>|array<string, string>|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
+    /** @return mixed Change value */
     public function getValue()
     {
         switch ($this->getMethod()) {

@@ -35,12 +35,16 @@ final class Generator implements GeneratorInterface
 
     public function getCreateTableMigrationTemplate(): string
     {
-        return Yii::getAlias('@bizley/migration/views/create_migration.php');
+        /** @var string $translatedAlias */
+        $translatedAlias = Yii::getAlias('@bizley/migration/views/create_migration.php');
+        return $translatedAlias;
     }
 
     public function getCreateForeignKeysMigrationTemplate(): string
     {
-        return Yii::getAlias('@bizley/migration/views/create_fk_migration.php');
+        /** @var string $translatedAlias */
+        $translatedAlias = Yii::getAlias('@bizley/migration/views/create_fk_migration.php');
+        return $translatedAlias;
     }
 
     private function getNormalizedNamespace(?string $namespace): ?string

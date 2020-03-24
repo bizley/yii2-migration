@@ -119,7 +119,7 @@ class MigrationController extends BaseMigrationController
         }
     }
 
-    /** @return array<string, string> */
+    /** @return array<int|string, mixed> */
     public function optionAliases(): array
     {
         return array_merge(
@@ -203,8 +203,10 @@ class MigrationController extends BaseMigrationController
      */
     public function actionList(): int
     {
-        $tables = $this->db->schema->getTableNames();
-        $migrationTable = $this->db->schema->getRawTableName($this->migrationTable);
+        /** @var Connection $db */
+        $db = $this->db;
+        $tables = $db->schema->getTableNames();
+        $migrationTable = $db->schema->getRawTableName($this->migrationTable);
 
         $tablesCount = count($tables);
         if ($tablesCount === 0) {
@@ -283,7 +285,9 @@ class MigrationController extends BaseMigrationController
             $tables = $this->getArranger()->getTablesInOrder();
             $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 
-            if (count($referencesToPostpone) && Schema::isSQLite($this->db->schema)) {
+            /** @var Connection $db */
+            $db = $this->db;
+            if (count($referencesToPostpone) && Schema::isSQLite($db->schema)) {
                 $this->stdout(
                     "ERROR!\n > Generating migrations for provided tables in batch is not possible "
                     . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
@@ -390,6 +394,8 @@ class MigrationController extends BaseMigrationController
 
         $blueprints = [];
         $newTables = [];
+        /** @var array<string> $migrationPaths */
+        $migrationPaths = $this->migrationPath;
         foreach ($inputTables as $tableName) {
             $this->stdout(" > Comparing current table '{$tableName}' with its migrations ...", Console::FG_YELLOW);
 
@@ -398,7 +404,7 @@ class MigrationController extends BaseMigrationController
                     $tableName,
                     $this->onlyShow,
                     $this->skipMigrations,
-                    $this->migrationPath
+                    $migrationPaths
                 );
                 if ($blueprint->isPending() === false) {
                     $this->stdout("TABLE IS UP-TO-DATE.\n\n", Console::FG_GREEN);
@@ -454,7 +460,9 @@ class MigrationController extends BaseMigrationController
             $newTables = $this->getArranger()->getTablesInOrder();
             $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 
-            if (count($referencesToPostpone) && Schema::isSQLite($this->db->schema)) {
+            /** @var Connection $db */
+            $db = $this->db;
+            if (count($referencesToPostpone) && Schema::isSQLite($db->schema)) {
                 $this->stdout(
                     "ERROR!\n > Generating migrations for provided tables in batch is not possible "
                     . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
@@ -561,6 +569,7 @@ class MigrationController extends BaseMigrationController
      */
     private function preparePathDirectory(string $path): string
     {
+        /** @var string $translatedPath */
         $translatedPath = Yii::getAlias($path);
 
         if (is_dir($translatedPath) === false) {
@@ -676,23 +685,23 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * @param string|array<string> $inputTables
+     * @param string $inputTables
      * @return array<string>
      */
     private function prepareTableNames($inputTables): array
     {
         if (strpos($inputTables, ',') !== false) {
-            $inputTables = explode(',', $inputTables);
+            $tablesList = explode(',', $inputTables);
         } else {
-            $inputTables = [$inputTables];
+            $tablesList = [$inputTables];
         }
 
         $tables = [];
 
-        if (in_array('*', $inputTables, true)) {
+        if (in_array('*', $tablesList, true)) {
             $tables = $this->findMatchingTables();
         } else {
-            foreach ($inputTables as $inputTable) {
+            foreach ($tablesList as $inputTable) {
                 if (strpos($inputTable, '*') === false) {
                     $tables[] = $inputTable;
                 } else {
@@ -707,17 +716,22 @@ class MigrationController extends BaseMigrationController
         return $tables;
     }
 
-    /** @return array<string> */
+    /**
+     * @param string|null $pattern
+     * @return array<string>
+     */
     private function findMatchingTables(string $pattern = null): array
     {
-        $allTables = $this->db->schema->getTableNames();
+        /** @var Connection $db */
+        $db = $this->db;
+        $allTables = $db->schema->getTableNames();
         if (count($allTables) === 0) {
             return [];
         }
 
         $filteredTables = [];
         $excludedTables = array_merge(
-            [$this->db->schema->getRawTableName($this->migrationTable)],
+            [$db->schema->getRawTableName($this->migrationTable)],
             $this->excludeTables
         );
 
