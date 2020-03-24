@@ -52,7 +52,7 @@ abstract class Column
     /** @var bool */
     private $autoIncrement = false;
 
-    /** @var string */
+    /** @var string|null */
     private $append;
 
     /** @var string */
@@ -201,7 +201,7 @@ abstract class Column
         $this->autoIncrement = $autoIncrement;
     }
 
-    public function getAppend(): string
+    public function getAppend(): ?string
     {
         return $this->append;
     }

@@ -15,6 +15,7 @@
   },
   "require": {
     "php": "^7.2",
+    "ext-mbstring": "*",
     "ext-pdo": "*",
     "yiisoft/yii2": ">=2.0.16 <2.1.0"
   },

@@ -21,12 +21,12 @@ final class StructureBuilder implements StructureBuilderInterface
     {
         $structure = new Structure();
 
-        /** @var StructureChangeInterface $change */
         foreach ($changes as $change) {
-            if ($change instanceof StructureChangeInterface === false) {
+            if (!$change instanceof StructureChangeInterface) {
                 throw new InvalidArgumentException('You must provide array of StructureChangeInterface objects.');
             }
 
+            /** @var StructureChangeInterface $change */
             switch ($change->getMethod()) {
                 case 'createTable':
                     $this->applyCreateTableValue($structure, $change->getValue(), $schema);

@@ -137,7 +137,7 @@ final class TableMapper implements TableMapperInterface
 
         /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
         $schema = $this->db->getSchema();
-        /** @var Constraint $tablePrimaryKey */
+        /** @var Constraint|null $tablePrimaryKey */
         $tablePrimaryKey = $schema->getTablePrimaryKey($table, true);
         if ($tablePrimaryKey) {
             $primaryKey = new PrimaryKey();

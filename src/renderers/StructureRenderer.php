@@ -150,7 +150,7 @@ TEMPLATE;
      * @param int $indent
      * @param string $schema
      * @param string|null $engineVersion
-     * @return string|null
+     * @return string
      */
     private function renderStructureTableUp(
         StructureInterface $structure,
@@ -158,7 +158,7 @@ TEMPLATE;
         int $indent = 0,
         string $schema = null,
         string $engineVersion = null
-    ): ?string {
+    ): string {
         $template = $this->applyIndent($indent, $this->createTableTemplate);
 
         $columns = $structure->getColumns();
@@ -189,7 +189,7 @@ TEMPLATE;
     private function renderStructureTableDown(
         string $tableName,
         int $indent = 0
-    ): ?string {
+    ): string {
         $template = $this->applyIndent($indent, $this->dropTableTemplate);
 
         return str_replace('{tableName}', $tableName, $template);

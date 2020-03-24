@@ -18,7 +18,7 @@ interface ColumnInterface
 
     public function isPrimaryKeyInfoAppended(string $schema): bool;
 
-    public function getAppend(): string;
+    public function getAppend(): ?string;
 
     public function setAppend(?string $append): void;
 
