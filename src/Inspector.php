@@ -104,13 +104,13 @@ final class Inspector implements InspectorInterface
     private $appliedChanges = [];
 
     /**
-     * @param array<StructureChangeInterface> $changes
+     * @param array<string, array<StructureChangeInterface>>|null $changes
      * @return bool true if more data can be analysed or false if this must be last one
      * @throws InvalidConfigException
      */
-    private function gatherChanges(array $changes): bool
+    private function gatherChanges(?array $changes): bool
     {
-        if (array_key_exists($this->currentTable, $changes) === false) {
+        if ($changes === null || array_key_exists($this->currentTable, $changes) === false) {
             return true;
         }
 

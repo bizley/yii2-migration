@@ -154,7 +154,7 @@ final class StructureBuilder implements StructureBuilderInterface
                 /** @var ColumnInterface $column */
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
-                if (array_key_exists($column, $columns) && !empty($columnAppend)) {
+                if (array_key_exists($columnName, $columns) && !empty($columnAppend)) {
                     $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                 }
             }

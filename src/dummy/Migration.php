@@ -227,7 +227,7 @@ class Migration extends Component implements MigrationInterface
         $this->changes[$table][] = $change;
     }
 
-    /** @return array<StructureChangeInterface> */
+    /** @return array<string, array<StructureChangeInterface>> */
     public function getChanges(): array
     {
         return $this->changes;

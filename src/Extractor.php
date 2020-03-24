@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\dummy\MigrationChangesInterface;
+use bizley\migration\table\StructureChangeInterface;
 use ErrorException;
 use Yii;
 use yii\base\InvalidArgumentException;
@@ -64,17 +65,13 @@ final class Extractor implements ExtractorInterface
         $this->subject->up();
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
+    /** @throws InvalidArgumentException */
     private function setDummyMigrationClass(): void
     {
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
     }
 
-    /**
-     * @return array|null
-     */
+    /** @return array<string, array<StructureChangeInterface>>|null */
     public function getChanges(): ?array
     {
         return $this->subject !== null ? $this->subject->getChanges() : null;
