@@ -29,6 +29,7 @@ use function in_array;
 use function is_array;
 use function is_dir;
 use function preg_match;
+use function sort;
 use function sprintf;
 use function strlen;
 use function strpos;
@@ -111,26 +112,17 @@ class MigrationController extends BaseMigrationController
             'migrationNamespace',
             'migrationPath',
             'migrationTable',
-            'tableOptions',
-            'tableOptionsInit',
-            'templateFileCreate',
-            'templateFileForeignKey',
             'useTablePrefix',
+            'excludeTables'
         ];
-        $updateOptions = ['showOnly', 'skipMigrations', 'templateFileUpdate'];
+        $updateOptions = ['showOnly', 'skipMigrations'];
 
         switch ($actionID) {
             case 'create':
                 return array_merge($defaultOptions, $createOptions);
 
-            case 'create-all':
-                return array_merge($defaultOptions, $createOptions, ['excludeTables']);
-
             case 'update':
                 return array_merge($defaultOptions, $createOptions, $updateOptions);
-
-            case 'update-all':
-                return array_merge($defaultOptions, $createOptions, $updateOptions, ['excludeTables']);
 
             default:
                 return $defaultOptions;
@@ -143,16 +135,13 @@ class MigrationController extends BaseMigrationController
         return array_merge(
             parent::optionAliases(),
             [
-                'F' => 'templateFile',
                 'g' => 'generalSchema',
                 'h' => 'fixHistory',
-                'K' => 'templateFileForeignKey',
                 'n' => 'migrationNamespace',
                 'P' => 'useTablePrefix',
                 'p' => 'migrationPath',
                 's' => 'showOnly',
                 't' => 'migrationTable',
-                'U' => 'templateFileUpdate',
             ]
         );
     }
@@ -225,15 +214,21 @@ class MigrationController extends BaseMigrationController
     public function actionList(): int
     {
         $tables = $this->db->schema->getTableNames();
+        $migrationTable = $this->db->schema->getRawTableName($this->migrationTable);
 
         $tablesCount = count($tables);
         if ($tablesCount === 0) {
             $this->stdout(" > Your database does not contain any tables yet.\n");
         } else {
+            sort($tables);
             $this->stdout(" > Your database contains {$tablesCount} table" . ($tablesCount > 1 ? 's' : '') . ":\n");
 
             foreach ($tables as $table) {
-                $this->stdout("   - $table\n");
+                if ($table === $migrationTable) {
+                    $this->stdout("   - $table (excluded by default unless explicitly requested)\n");
+                } else {
+                    $this->stdout("   - $table\n");
+                }
             }
         }
 
@@ -242,31 +237,30 @@ class MigrationController extends BaseMigrationController
         $tab = $this->ansiFormat('<table>', Console::FG_YELLOW);
         $cmd = $this->ansiFormat('migration/create', Console::FG_CYAN);
         $this->stdout("   $cmd $tab\n");
-
         $this->stdout("      to generate creating migration for the specific table.\n", Console::FG_GREEN);
-
-        $cmd = $this->ansiFormat('migration/create-all', Console::FG_CYAN);
-        $this->stdout("   $cmd\n");
-
-        $this->stdout("      to generate creating migrations for all the tables.\n", Console::FG_GREEN);
 
         $cmd = $this->ansiFormat('migration/update', Console::FG_CYAN);
         $this->stdout("   $cmd $tab\n");
-
         $this->stdout("      to generate updating migration for the specific table.\n", Console::FG_GREEN);
 
-        $cmd = $this->ansiFormat('migration/update-all', Console::FG_CYAN);
-        $this->stdout("   $cmd\n");
-
-        $this->stdout("      to generate updating migrations for all the tables.\n", Console::FG_GREEN);
+        $this->stdout("\n > $tab can be:\n");
+        $variant = $this->ansiFormat('* (asterisk)', Console::FG_CYAN);
+        $this->stdout("   - $variant - for all the tables in database (except excluded ones)\n");
+        $variant = $this->ansiFormat('string with * (one or more)', Console::FG_CYAN);
+        $this->stdout("   - $variant - for all the tables in database matching the pattern (except excluded ones)\n");
+        $variant = $this->ansiFormat('string without *', Console::FG_CYAN);
+        $this->stdout("   - $variant - for the tables of specified name\n");
+        $variant = $this->ansiFormat('strings separated with comma', Console::FG_CYAN);
+        $this->stdout("   - $variant - for multiple tables of specified names (with optional *)\n");
 
         return ExitCode::OK;
     }
 
     /**
      * Generates creating migration for the given tables.
-     * For multiple tables separate the names with comma.
-     * You can use * as a wildcard for tables with common name part (i.e. prefix_*).
+     * For multiple tables separate the names with comma. You can provide the name as '*' to generate migrations for all
+     * tables in database (except excluded ones) or you can use it as a wildcard for tables with common name part
+     * (i.e. 'prefix_*' or 'p1*p2*p3').
      * @param string $inputTable Table name or names separated by commas.
      * @return int
      * @throws InvalidConfigException
@@ -274,8 +268,24 @@ class MigrationController extends BaseMigrationController
     public function actionCreate(string $inputTable): int
     {
         $inputTables = $this->prepareTableNames($inputTable);
-
         $countTables = count($inputTables);
+        if ($countTables === 0) {
+            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
+
+            return ExitCode::OK;
+        }
+        if (
+            $countTables > 1
+            && $this->confirm(
+                " > Are you sure you want to generate migrations for the following tables?\n   - "
+                . implode("\n   - ", $inputTables)
+            ) === false
+        ) {
+            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+
+            return ExitCode::OK;
+        }
+
         $referencesToPostpone = [];
         $tables = $inputTables;
         if ($countTables > 1) {
@@ -359,50 +369,33 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Creates new migrations for every table in database.
-     * @return int
-     * @throws InvalidConfigException
-     */
-    public function actionCreateAll(): int
-    {
-        $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
-
-        $tablesCount = count($tables);
-        if ($tablesCount === 0) {
-            $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
-
-            return ExitCode::OK;
-        }
-
-        if (
-            $this->confirm(
-                " > Are you sure you want to generate $tablesCount migration"
-                . ($tablesCount > 1 ? 's' : '')
-                . '?'
-            )
-        ) {
-            return $this->actionCreate(implode(',', $tables));
-        }
-
-        $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
-
-        return ExitCode::OK;
-    }
-
-    /**
      * Generates updating migration for the given tables.
-     * For multiple tables separate the names with comma.
-     * You can use * as a wildcard for tables with common name part (i.e. prefix_*).
+     * For multiple tables separate the names with comma. You can provide the name as '*' to generate migrations for all
+     * tables in database (except excluded ones) or you can use it as a wildcard for tables with common name part
+     * (i.e. 'prefix_*' or 'p1*p2*p3').
      * @param string $inputTable
      * @return int
      * @throws InvalidConfigException
      */
     public function actionUpdate(string $inputTable): int
     {
-        if (strpos($inputTable, ',') !== false) {
-            $inputTables = explode(',', $inputTable);
-        } else {
-            $inputTables = [$inputTable];
+        $inputTables = $this->prepareTableNames($inputTable);
+        $countTables = count($inputTables);
+        if ($countTables === 0) {
+            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
+
+            return ExitCode::OK;
+        }
+        if (
+            $countTables > 1
+            && $this->confirm(
+                " > Are you sure you want to generate migrations for the following tables?\n   - "
+                . implode("\n   - ", $inputTables)
+            ) === false
+        ) {
+            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+
+            return ExitCode::OK;
         }
 
         $blueprints = [];
@@ -571,37 +564,6 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * Creates new update migrations for every table in database.
-     * @return int
-     * @throws InvalidConfigException
-     */
-    public function actionUpdateAll(): int
-    {
-        $tables = $this->removeExcludedTables($this->db->schema->getTableNames());
-
-        $tablesCount = count($tables);
-        if ($tablesCount === 0) {
-            $this->stdout(' > Your database does not contain any tables yet.', Console::FG_YELLOW);
-
-            return ExitCode::OK;
-        }
-
-        if (
-            $this->confirm(
-                " > Are you sure you want to potentially generate $tablesCount migration"
-                . ($tablesCount > 1 ? 's' : '')
-                . '?'
-            )
-        ) {
-            return $this->actionUpdate(implode(',', $tables));
-        }
-
-        $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
-
-        return ExitCode::OK;
-    }
-
-    /**
      * Prepares path directory.
      * @param string $path
      * @return string
@@ -751,10 +713,6 @@ class MigrationController extends BaseMigrationController
                 }
             }
         }
-
-
-
-
 
         return $tables;
     }
