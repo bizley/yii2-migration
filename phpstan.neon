@@ -1,0 +1,4 @@
+parameters:
+    excludes_analyse:
+        - src/dummy/Migration.php
+        - src/views/*

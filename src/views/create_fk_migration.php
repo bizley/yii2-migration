@@ -1,10 +1,12 @@
 <?php
 
+/**
+ * This is the template for generating the migration of postponed foreign keys.
+ */
+
 declare(strict_types=1);
 
 /**
- * This is the template for generating the migration of postponed foreign keys.
- *
  * @var string $bodyUp Migration content for up()
  * @var string $bodyDown Migration content for down()
  * @var string $className Migration class name

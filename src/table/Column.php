@@ -16,161 +16,100 @@ use function trim;
 
 abstract class Column
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultMapping;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     private $notNull;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $size;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $precision;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $scale;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $unique = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $unsigned = false;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     private $default;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $primaryKey = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $autoIncrement = false;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $append;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $comment;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $after;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $first = false;
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @param string $type
-     */
     public function setType(string $type): void
     {
         $this->type = $type;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDefaultMapping(): ?string
     {
         return $this->defaultMapping;
     }
 
-    /**
-     * @param string $defaultMapping
-     */
     public function setDefaultMapping(string $defaultMapping): void
     {
         $this->defaultMapping = $defaultMapping;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isNotNull(): ?bool
     {
         return $this->notNull;
     }
 
-    /**
-     * @param bool|null $notNull
-     */
     public function setNotNull(?bool $notNull): void
     {
         $this->notNull = $notNull;
     }
 
-    /**
-     * @return int|null
-     */
     public function getSize(): ?int
     {
         return $this->size;
     }
 
-    /**
-     * @param int|string|null $size
-     */
+    /** @param int|string|null $size */
     public function setSize($size): void
     {
         if ($size !== null) {
@@ -180,17 +119,12 @@ abstract class Column
         }
     }
 
-    /**
-     * @return int|null
-     */
     public function getPrecision(): ?int
     {
         return $this->precision;
     }
 
-    /**
-     * @param int|string|null $precision
-     */
+    /** @param int|string|null $precision */
     public function setPrecision($precision): void
     {
         if ($precision !== null) {
@@ -200,17 +134,12 @@ abstract class Column
         }
     }
 
-    /**
-     * @return int|null
-     */
     public function getScale(): ?int
     {
         return $this->scale;
     }
 
-    /**
-     * @param int|string|null $scale
-     */
+    /** @param int|string|null $scale */
     public function setScale($scale): void
     {
         if ($scale !== null) {
@@ -220,145 +149,93 @@ abstract class Column
         }
     }
 
-    /**
-     * @return bool
-     */
     public function isUnique(): bool
     {
         return $this->unique;
     }
 
-    /**
-     * @param bool $unique
-     */
     public function setUnique(bool $unique): void
     {
         $this->unique = $unique;
     }
 
-    /**
-     * @return bool
-     */
     public function isUnsigned(): bool
     {
         return $this->unsigned;
     }
 
-    /**
-     * @param bool $unsigned
-     */
     public function setUnsigned(bool $unsigned): void
     {
         $this->unsigned = $unsigned;
     }
 
-    /**
-     * @return mixed
-     */
+    /** @return mixed */
     public function getDefault()
     {
         return $this->default;
     }
 
-    /**
-     * @param mixed $default
-     */
+    /** @param mixed $default */
     public function setDefault($default): void
     {
         $this->default = $default;
     }
 
-    /**
-     * @return bool
-     */
     public function isPrimaryKey(): bool
     {
         return $this->primaryKey;
     }
 
-    /**
-     * @param bool $primaryKey
-     */
     public function setPrimaryKey(bool $primaryKey): void
     {
         $this->primaryKey = $primaryKey;
     }
 
-    /**
-     * @return bool
-     */
     public function isAutoIncrement(): bool
     {
         return $this->autoIncrement;
     }
 
-    /**
-     * @param bool $autoIncrement
-     */
     public function setAutoIncrement(bool $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
     }
 
-    /**
-     * @return string
-     */
     public function getAppend(): string
     {
         return $this->append;
     }
 
-    /**
-     * @param string|null $append
-     */
     public function setAppend(?string $append): void
     {
         $this->append = $append;
     }
 
-    /**
-     * @return string|null
-     */
     public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    /**
-     * @param string|null $comment
-     */
     public function setComment(?string $comment): void
     {
         $this->comment = $comment;
     }
 
-    /**
-     * @return string|null
-     */
     public function getAfter(): ?string
     {
         return $this->after;
     }
 
-    /**
-     * @param string|null $after
-     */
     public function setAfter(?string $after): void
     {
         $this->after = $after;
     }
 
-    /**
-     * @return bool
-     */
     public function isFirst(): bool
     {
         return $this->first;
     }
 
-    /**
-     * @param bool $first
-     */
     public function setFirst(bool $first): void
     {
         $this->first = $first;
@@ -471,10 +348,8 @@ abstract class Column
         return !empty($cleanedAppend) ? $cleanedAppend : null;
     }
 
-    /**
-     * @param bool $generalSchema
-     * @return string|null
-     */
+    abstract public function getLength(string $schema = null, string $engineVersion = null);
+
     public function getRenderLength(bool $generalSchema): ?string
     {
         $length = $this->getLength();

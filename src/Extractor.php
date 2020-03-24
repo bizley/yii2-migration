@@ -38,6 +38,7 @@ final class Extractor implements ExtractorInterface
 
         if (strpos($migration, '\\') === false) { // not namespaced
             $fileFound = false;
+            $file = null;
             foreach ($migrationPaths as $path) {
                 $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
                 if (file_exists($file)) {

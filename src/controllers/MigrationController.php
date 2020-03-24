@@ -69,18 +69,6 @@ class MigrationController extends BaseMigrationController
     public $migrationNamespace;
 
     /**
-     * @var string Template file for generating updating migrations.
-     * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
-     */
-    public $templateFileUpdate = '@bizley/migration/views/update_migration.php';
-
-    /**
-     * @var string Template file for generating new foreign keys migrations.
-     * This can be either a path alias (e.g. "@app/migrations/template.php") or a file path.
-     */
-    public $templateFileForeignKey = '@bizley/migration/views/create_fk_migration.php';
-
-    /**
      * @var bool Whether the table names generated should consider the $tablePrefix setting of the DB connection.
      * For example, if the table name is 'post' the generator will return '{{%post}}'.
      */

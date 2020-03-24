@@ -1,10 +1,12 @@
 <?php
 
+/**
+ * This is the template for generating the migration of a specified table.
+ */
+
 declare(strict_types=1);
 
 /**
- * This is the template for generating the migration of a specified table.
- *
  * @var string $bodyUp Migration content for up()
  * @var string $bodyDown Migration content for down()
  * @var string $className Migration class name
@@ -14,7 +16,7 @@ declare(strict_types=1);
 echo "<?php\n";
 ?>
 
-<?php if ($namespace): ?>
+<?php if ($namespace) : ?>
 namespace <?= $namespace ?>;
 <?php echo "\n"; endif; ?>
 use yii\db\Migration;
