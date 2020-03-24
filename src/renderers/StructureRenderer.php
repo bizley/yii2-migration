@@ -282,7 +282,7 @@ TEMPLATE;
 
     /**
      * @param string $structureName
-     * @param array $foreignKeys
+     * @param array<ForeignKeyInterface> $foreignKeys
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix

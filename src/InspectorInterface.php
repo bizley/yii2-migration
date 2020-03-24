@@ -9,6 +9,15 @@ use bizley\migration\table\StructureInterface;
 
 interface InspectorInterface
 {
+    /**
+     * @param StructureInterface $newStructure
+     * @param bool $onlyShow
+     * @param array<string> $migrationsToSkip
+     * @param array<string> $migrationPaths
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return BlueprintInterface
+     */
     public function prepareBlueprint(
         StructureInterface $newStructure,
         bool $onlyShow,

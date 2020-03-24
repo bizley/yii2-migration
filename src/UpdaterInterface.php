@@ -8,6 +8,13 @@ use bizley\migration\table\BlueprintInterface;
 
 interface UpdaterInterface
 {
+    /**
+     * @param string $tableName
+     * @param bool $onlyShow
+     * @param array<string> $migrationsToSkip
+     * @param array<string> $migrationPaths
+     * @return BlueprintInterface
+     */
     public function prepareBlueprint(
         string $tableName,
         bool $onlyShow,

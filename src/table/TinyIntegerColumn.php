@@ -10,19 +10,27 @@ use function in_array;
 
 final class TinyIntegerColumn extends Column implements ColumnInterface
 {
-    /**
-     * @var array Schemas using length for this column
-     */
+    /** @var array<string> Schemas using length for this column */
     private $lengthSchemas = [
         Schema::MYSQL,
         Schema::OCI,
     ];
 
-    public function getLength(string $schema = null, string $engineVersion = null)
+    /**
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }
 
+    /**
+     * @param string|int $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
         if (in_array($schema, $this->lengthSchemas, true)) {

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use bizley\migration\table\ForeignKeyInterface;
+
 interface GeneratorInterface
 {
     /**
      * @param string $tableName
      * @param string $migrationName
-     * @param array $referencesToPostpone
+     * @param array<string> $referencesToPostpone
      * @param bool $usePrefix
      * @param string $dbPrefix
      * @param string|null $namespace
@@ -25,7 +27,7 @@ interface GeneratorInterface
     ): string;
 
     /**
-     * @param array $foreignKeys
+     * @param array<ForeignKeyInterface> $foreignKeys
      * @param string $tableName
      * @param string $migrationName
      * @param bool $usePrefix
@@ -42,5 +44,8 @@ interface GeneratorInterface
         string $namespace = null
     ): string;
 
+    /**
+     * @return array<ForeignKeyInterface>
+     */
     public function getSuppressedForeignKeys(): array;
 }

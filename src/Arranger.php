@@ -10,6 +10,7 @@ use function array_diff;
 use function array_key_exists;
 use function array_merge_recursive;
 use function array_unique;
+use function array_values;
 use function count;
 
 final class Arranger implements ArrangerInterface
@@ -22,7 +23,7 @@ final class Arranger implements ArrangerInterface
         $this->mapper = $mapper;
     }
 
-    /** @var array */
+    /** @var array<string, array<string>> */
     private $dependency = [];
 
     /** @param array<string> $inputTables */
@@ -51,7 +52,7 @@ final class Arranger implements ArrangerInterface
         }
     }
 
-    /** @var array */
+    /** @var array<string> */
     private $tablesInOrder = [];
 
     public function getTablesInOrder(): array
@@ -59,14 +60,25 @@ final class Arranger implements ArrangerInterface
         return $this->tablesInOrder;
     }
 
-    /** @var array */
+    /** @var array<string, array<string>> */
     private $referencesToPostpone = [];
 
+    /** @return array<string> */
     public function getReferencesToPostpone(): array
     {
-        return $this->referencesToPostpone;
+        $flattenedReferencesToPostpone = [];
+        $referencesToPostponeValues = array_values($this->referencesToPostpone);
+        /** @var array<string> $referencesToPostponeValue */
+        foreach ($referencesToPostponeValues as $referencesToPostponeValue) {
+            foreach ($referencesToPostponeValue as $reference) {
+                $flattenedReferencesToPostpone[] = $reference;
+            }
+        }
+
+        return array_unique($flattenedReferencesToPostpone);
     }
 
+    /** @param array<string, array<string>> $input */
     private function arrangeTables(array $input): void
     {
         $order = [];
@@ -109,7 +121,7 @@ final class Arranger implements ArrangerInterface
                 $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
                     [$lastCheckedName => [$lastCheckedDependency]],
-                    $this->getReferencesToPostpone()
+                    $this->referencesToPostpone
                 );
                 $filteredDependencies = [];
                 foreach ($postLinkMerged as $name => $dependencies) {

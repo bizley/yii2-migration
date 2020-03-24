@@ -39,12 +39,12 @@ final class TableMapper implements TableMapperInterface
         $this->db = $db;
     }
 
-    /** @var array */
+    /** @var array<ForeignKeyInterface> */
     private $suppressedForeignKeys = [];
 
     /**
      * @param string $table
-     * @param array $referencesToPostpone
+     * @param array<string> $referencesToPostpone
      * @return StructureInterface
      * @throws NotSupportedException
      */
@@ -192,6 +192,7 @@ final class TableMapper implements TableMapperInterface
         return $mappedColumns;
     }
 
+    /** @return array<ForeignKeyInterface> */
     public function getSuppressedForeignKeys(): array
     {
         return $this->suppressedForeignKeys;

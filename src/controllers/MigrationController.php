@@ -6,6 +6,7 @@ namespace bizley\migration\controllers;
 
 use bizley\migration\Schema;
 use bizley\migration\table\BlueprintInterface;
+use bizley\migration\table\ForeignKeyInterface;
 use RuntimeException;
 use Throwable;
 use Yii;
@@ -51,14 +52,14 @@ class MigrationController extends BaseMigrationController
     private $version = '4.0.0';
 
     /**
-     * @var string|array Directory storing the migration classes.
+     * @var string|array<string> Directory storing the migration classes.
      * This can be either a path alias or a directory or array of these in which case the first element will be used
      * for generator and only first one will be created if it doesn't exist yet.
      */
     public $migrationPath = '@app/migrations';
 
     /**
-     * @var string|array Full migration namespace.
+     * @var string|array<string> Full migration namespace.
      * If given it's used instead of $migrationPath. Note that backslash (\) symbol is usually considered a special
      * character in the shell, so you need to escape it properly to avoid shell errors or incorrect behavior.
      * Migration namespace should be resolvable as a path alias if prefixed with @, e.g. if you specify the namespace
@@ -82,12 +83,12 @@ class MigrationController extends BaseMigrationController
     public $fixHistory = false;
 
     /**
-     * @var array List of migrations from the history table that should be skipped during the update process.
+     * @var array<string> List of migrations from the history table that should be skipped during the update process.
      * Here you can place migrations containing actions that can not be covered by extractor.
      */
     public $skipMigrations = [];
 
-    /** @var array List of database tables that should be skipped for *-all actions. */
+    /** @var array<string> List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
 
     /** {@inheritdoc} */
@@ -118,7 +119,7 @@ class MigrationController extends BaseMigrationController
         }
     }
 
-    /** {@inheritdoc} */
+    /** @return array<string, string> */
     public function optionAliases(): array
     {
         return array_merge(
@@ -594,7 +595,7 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * @param array $postponedForeignKeys
+     * @param array<ForeignKeyInterface> $postponedForeignKeys
      * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
@@ -647,7 +648,7 @@ class MigrationController extends BaseMigrationController
     /**
      * @param string $tableName
      * @param string $migrationClassName
-     * @param array $referencesToPostpone
+     * @param array<string> $referencesToPostpone
      * @throws DbException
      * @throws InvalidConfigException
      */
@@ -675,8 +676,8 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * @param string|array $inputTables
-     * @return array
+     * @param string|array<string> $inputTables
+     * @return array<string>
      */
     private function prepareTableNames($inputTables): array
     {
@@ -706,6 +707,7 @@ class MigrationController extends BaseMigrationController
         return $tables;
     }
 
+    /** @return array<string> */
     private function findMatchingTables(string $pattern = null): array
     {
         $allTables = $this->db->schema->getTableNames();

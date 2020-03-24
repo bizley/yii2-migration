@@ -10,20 +10,13 @@ use function in_array;
 
 final class BooleanColumn extends Column implements ColumnInterface
 {
-    /**
-     * @var array Schemas using length for this column
-     */
+    /** @var array<string> Schemas using length for this column */
     private $lengthSchemas = [
         Schema::MYSQL,
         Schema::OCI,
     ];
 
-    /**
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return int|string
-     */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }

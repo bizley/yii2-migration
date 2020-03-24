@@ -21,7 +21,7 @@ use function trim;
 
 final class ColumnRenderer implements ColumnRendererInterface
 {
-    /** @var array */
+    /** @var array<string> */
     private $definition = [];
 
     /** @var bool */

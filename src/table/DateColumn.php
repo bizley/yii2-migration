@@ -20,7 +20,7 @@ final class DateColumn extends Column implements ColumnInterface
      * @param string|null $engineVersion
      * @return null
      */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return null;
     }

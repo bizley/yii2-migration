@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\renderers\StructureRendererInterface;
+use bizley\migration\table\ForeignKeyInterface;
 use Yii;
 use yii\base\View;
 use yii\helpers\FileHelper;
@@ -50,7 +51,7 @@ final class Generator implements GeneratorInterface
     /**
      * @param string $tableName
      * @param string $migrationName
-     * @param array $referencesToPostpone
+     * @param array<string> $referencesToPostpone
      * @param bool $usePrefix
      * @param string $dbPrefix
      * @param string|null $namespace
@@ -96,7 +97,7 @@ final class Generator implements GeneratorInterface
     }
 
     /**
-     * @param array $foreignKeys
+     * @param array<ForeignKeyInterface> $foreignKeys
      * @param string $tableName
      * @param string $migrationName
      * @param bool $usePrefix

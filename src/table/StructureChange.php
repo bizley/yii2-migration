@@ -12,7 +12,7 @@ final class StructureChange implements StructureChangeInterface
     /** @var string */
     private $method;
 
-    /** @var array|string */
+    /** @var mixed */
     private $data;
 
     public function getTable(): string
@@ -35,19 +35,19 @@ final class StructureChange implements StructureChangeInterface
         $this->method = $method;
     }
 
-    /** @return array|string */
+    /** @return mixed */
     public function getData()
     {
         return $this->data;
     }
 
-    /** @param array|string $data */
+    /** @param mixed $data */
     public function setData($data): void
     {
         $this->data = $data;
     }
 
-    /** @return array|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
+    /** @return array<ColumnInterface>|array<string, string>|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
     public function getValue()
     {
         switch ($this->getMethod()) {

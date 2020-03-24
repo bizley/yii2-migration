@@ -8,10 +8,12 @@ interface ForeignKeyInterface
 {
     public function getName(): ?string;
 
+    /** @return array<string> */
     public function getColumns(): array;
 
     public function getReferencedTable(): string;
 
+    /** @return array<string> */
     public function getReferencedColumns(): array;
 
     public function getOnDelete(): ?string;

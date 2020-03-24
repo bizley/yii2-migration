@@ -9,12 +9,22 @@ use function preg_split;
 
 final class MoneyColumn extends Column implements ColumnInterface
 {
+    /**
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|string|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null)
     {
         $scale = $this->getScale();
         return $this->getPrecision() . ($scale !== null ? ', ' . $scale : null);
     }
 
+    /**
+     * @param string|int|array<string|int> $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
         $length = is_array($value) ? $value : preg_split('/\s*,\s*/', (string)$value);

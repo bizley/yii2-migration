@@ -6,6 +6,7 @@ use bizley\migration\table\StructureChangeInterface;
 
 interface MigrationChangesInterface
 {
+    /** @return mixed */
     public function up();
 
     /** @return array<string, array<StructureChangeInterface>> */

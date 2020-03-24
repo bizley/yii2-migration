@@ -8,6 +8,6 @@ interface StructureChangeInterface
 {
     public function getMethod(): string;
 
-    /** @return array|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
+    /** @return array<ColumnInterface>|array<string, string>|string|ColumnInterface|PrimaryKeyInterface|ForeignKeyInterface|IndexInterface Change value */
     public function getValue();
 }

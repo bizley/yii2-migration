@@ -30,7 +30,7 @@ final class Extractor implements ExtractorInterface
     /**
      * Extracts migration data structures.
      * @param string $migration
-     * @param array $migrationPaths
+     * @param array<string> $migrationPaths
      * @throws ErrorException
      */
     public function extract(string $migration, array $migrationPaths): void

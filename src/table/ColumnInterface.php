@@ -49,6 +49,7 @@ interface ColumnInterface
 
     public function setNotNull(?bool $notNull): void;
 
+    /** @return mixed */
     public function getDefault();
 
     /** @param mixed $default */
@@ -62,8 +63,18 @@ interface ColumnInterface
 
     public function setUnique(bool $unique): void;
 
+    /**
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|string|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null);
 
+    /**
+     * @param string|int|array<string|int> $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     public function setLength($value, string $schema = null, string $engineVersion = null): void;
 
     public function getDefinition(): string;

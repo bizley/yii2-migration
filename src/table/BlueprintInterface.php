@@ -14,6 +14,7 @@ interface BlueprintInterface
 
     public function addDescription(string $description): void;
 
+    /** @return array<string> */
     public function getDescriptions(): array;
 
     public function isPending(): bool;

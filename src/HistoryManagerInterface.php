@@ -15,5 +15,6 @@ interface HistoryManagerInterface
      */
     public function addHistory(string $migrationName, string $namespace = null): void;
 
+    /** @return array<string, string> */
     public function fetchHistory(): array;
 }

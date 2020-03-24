@@ -366,7 +366,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * @param BlueprintInterface $blueprint
-     * @param array $differentColumns
+     * @param array<string> $differentColumns
      * @param int $newPrimaryKeyColumnsCount
      * @param string|null $schema
      */
@@ -400,7 +400,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * @param BlueprintInterface $blueprint
-     * @param array $differentColumns
+     * @param array<string> $differentColumns
      * @param int $columnsCount
      * @param string|null $schema
      * @return bool

@@ -14,7 +14,7 @@ final class PrimaryKey implements PrimaryKeyInterface
     /** @var string */
     private $name;
 
-    /** @var array */
+    /** @var array<string> */
     private $columns = [];
 
     /**

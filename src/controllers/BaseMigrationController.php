@@ -42,8 +42,8 @@ class BaseMigrationController extends Controller
     public $defaultAction = 'list';
 
     /**
-     * @var Connection|array|string DB connection object, configuration array, or the application component ID of
-     * the DB connection.
+     * @var Connection|array<string, mixed>|string DB connection object, configuration array, or the application
+     * component ID of the DB connection.
      */
     public $db = 'db';
 
@@ -56,49 +56,49 @@ class BaseMigrationController extends Controller
     /** @var bool Whether to use general column schema instead of database specific. */
     public $generalSchema = true;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $historyManagerClass = HistoryManager::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $tableMapperClass = TableMapper::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $arrangerClass = Arranger::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $generatorClass = Generator::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $structureRendererClass = StructureRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $columnRendererClass = ColumnRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $primaryKeyRendererClass = PrimaryKeyRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $indexRendererClass = IndexRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $foreignKeyRendererClass = ForeignKeyRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $updaterClass = Updater::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     public $inspectorClass = Inspector::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     private $blueprintRendererClass = BlueprintRenderer::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     private $extractorClass = Extractor::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     private $structureBuilderClass = StructureBuilder::class;
 
-    /** @var string|array|Closure */
+    /** @var string|array<string, mixed>|Closure */
     private $comparatorClass = Comparator::class;
 
     /** @var HistoryManagerInterface */

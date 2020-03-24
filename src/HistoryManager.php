@@ -86,7 +86,7 @@ final class HistoryManager implements HistoryManagerInterface
      * Returns the migration history.
      * This is slightly modified Yii's MigrateController::getMigrationHistory() method.
      * Migrations are fetched from newest to oldest.
-     * @return array the migration history
+     * @return array<string, string> the migration history
      */
     public function fetchHistory(): array
     {

@@ -14,9 +14,7 @@ use function version_compare;
 
 final class DateTimeColumn extends Column implements ColumnInterface
 {
-    /**
-     * @var array Schemas using length for this column
-     */
+    /** @var array<string> Schemas using length for this column */
     private $lengthSchemas = [Schema::PGSQL];
 
     public function setDefault($default): void
@@ -33,13 +31,13 @@ final class DateTimeColumn extends Column implements ColumnInterface
      * @param string|null $engineVersion
      * @return int|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getPrecision() : null;
     }
 
     /**
-     * @param mixed $value
+     * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion
      */

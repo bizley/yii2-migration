@@ -49,8 +49,8 @@ final class Inspector implements InspectorInterface
     /**
      * @param StructureInterface $newStructure
      * @param bool $onlyShow
-     * @param array $migrationsToSkip
-     * @param array $migrationPaths
+     * @param array<string> $migrationsToSkip
+     * @param array<string> $migrationPaths
      * @param string|null $schema
      * @param string|null $engineVersion
      * @return BlueprintInterface

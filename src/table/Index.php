@@ -6,64 +6,42 @@ namespace bizley\migration\table;
 
 final class Index implements IndexInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $unique = false;
 
-    /**
-     * @var array
-     */
+    /** @var array<string> */
     private $columns = [];
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return bool
-     */
     public function isUnique(): bool
     {
         return $this->unique;
     }
 
-    /**
-     * @param bool $unique
-     */
     public function setUnique(bool $unique): void
     {
         $this->unique = $unique;
     }
 
-    /**
-     * @return array
-     */
+    /** @return array<string> */
     public function getColumns(): array
     {
         return $this->columns;
     }
 
-    /**
-     * @param array $columns
-     */
+    /** @param array<string> $columns */
     public function setColumns(array $columns): void
     {
         $this->columns = $columns;

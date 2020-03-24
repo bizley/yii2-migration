@@ -14,9 +14,7 @@ use function version_compare;
 
 final class TimestampColumn extends Column implements ColumnInterface
 {
-    /**
-     * @var array Schemas using length for this column
-     */
+    /** @var array<string> Schemas using length for this column */
     private $lengthSchemas = [Schema::PGSQL];
 
     public function setDefault($default): void
@@ -37,11 +35,16 @@ final class TimestampColumn extends Column implements ColumnInterface
         return in_array($schema, $this->lengthSchemas, true);
     }
 
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getPrecision() : null;
     }
 
+    /**
+     * @param string|int $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
         if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {

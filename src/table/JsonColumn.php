@@ -26,11 +26,16 @@ final class JsonColumn extends Column implements ColumnInterface
         parent::setDefault($default);
     }
 
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return null;
     }
 
+    /**
+     * @param string|int $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
     }

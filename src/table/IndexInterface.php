@@ -8,6 +8,7 @@ interface IndexInterface
 {
     public function getName(): string;
 
+    /** @return array<string> */
     public function getColumns(): array;
 
     public function isUnique(): bool;

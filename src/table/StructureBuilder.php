@@ -82,6 +82,11 @@ final class StructureBuilder implements StructureBuilderInterface
         return $structure;
     }
 
+    /**
+     * @param StructureInterface $structure
+     * @param array<ColumnInterface> $columns
+     * @param string|null $schema
+     */
     private function applyCreateTableValue(StructureInterface $structure, array $columns, ?string $schema): void
     {
         foreach ($columns as $column) {
@@ -110,6 +115,10 @@ final class StructureBuilder implements StructureBuilderInterface
         $structure->removeColumn($columnName);
     }
 
+    /**
+     * @param StructureInterface $structure
+     * @param array<string, string> $data
+     */
     private function applyRenameColumnValue(StructureInterface $structure, array $data): void
     {
         $oldColumn = $structure->getColumn($data['old']);
@@ -205,6 +214,10 @@ final class StructureBuilder implements StructureBuilderInterface
         }
     }
 
+    /**
+     * @param StructureInterface $structure
+     * @param array<string, string> $data
+     */
     private function applyAddCommentOnColumnValue(StructureInterface $structure, array $data): void
     {
         $column = $structure->getColumn($data['name']);

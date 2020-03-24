@@ -348,8 +348,18 @@ abstract class Column
         return !empty($cleanedAppend) ? $cleanedAppend : null;
     }
 
+    /**
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return string|int|null
+     */
     abstract public function getLength(string $schema = null, string $engineVersion = null);
 
+    /**
+     * @param string|int|array<string|int> $value
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     abstract public function setLength($value, string $schema = null, string $engineVersion = null): void;
 
     public function getRenderLength(bool $generalSchema): ?string

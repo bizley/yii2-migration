@@ -72,8 +72,8 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * @param array $columns
-     * @return array
+     * @param array<string, mixed> $columns
+     * @return array<string, array<string, string|int|null>>
      * @throws ReflectionException
      */
     private function extractColumns(array $columns): array
@@ -90,8 +90,8 @@ class Migration extends Component implements MigrationInterface
     /**
      * Updates column properties based on schema type map.
      * @param string $type
-     * @param array $keyToDb
-     * @param array $dbToKey
+     * @param array<string, string> $keyToDb
+     * @param array<string, string> $dbToKey
      * @return array
      */
     private function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
@@ -150,12 +150,12 @@ class Migration extends Component implements MigrationInterface
 
     /**
      * Returns extracted column data.
-     * @param ColumnSchemaBuilder $columnData
-     * @return array
+     * @param mixed $columnData
+     * @return array<string, string|int|null>
      * @throws ReflectionException
      * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
      */
-    private function extractColumn(ColumnSchemaBuilder $columnData): array
+    private function extractColumn($columnData): array
     {
         if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(

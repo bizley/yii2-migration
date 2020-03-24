@@ -44,8 +44,8 @@ final class Updater implements UpdaterInterface
     /**
      * @param string $tableName
      * @param bool $onlyShow
-     * @param array $migrationsToSkip
-     * @param array $migrationPaths
+     * @param array<string> $migrationsToSkip
+     * @param array<string> $migrationPaths
      * @return BlueprintInterface
      * @throws TableMissingException
      */

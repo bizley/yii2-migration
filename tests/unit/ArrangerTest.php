@@ -32,13 +32,13 @@ class ArrangerTest extends TestCase
                 ['A', 'D', 'E', 'B', 'C'],
                 []
             ],
-            'case 5' => [['A' => ['B'], 'B' => ['A']], ['B', 'A'], ['B' => ['A']]],
-            'case 6' => [['A' => ['B'], 'B' => ['C'], 'C' => ['A']], ['C', 'B', 'A'], ['C' => ['A']]],
-            'case 7' => [['A' => ['B'], 'B' => ['A'], 'C' => ['A']], ['B', 'C', 'A'], ['C' => ['A'], 'B' => ['A']]],
+            'case 5' => [['A' => ['B'], 'B' => ['A']], ['B', 'A'], ['A']],
+            'case 6' => [['A' => ['B'], 'B' => ['C'], 'C' => ['A']], ['C', 'B', 'A'], ['A']],
+            'case 7' => [['A' => ['B'], 'B' => ['A'], 'C' => ['A']], ['B', 'C', 'A'], ['A']],
             'case 8' => [
                 ['A' => ['B', 'C'], 'B' => ['A', 'C'], 'C' => ['A', 'B']],
                 ['C', 'B', 'A'],
-                ['C' => ['A', 'B'], 'B' => ['A']]
+                ['A', 'B'],
             ],
         ];
     }
@@ -48,12 +48,12 @@ class ArrangerTest extends TestCase
      * @dataProvider providerForArrange
      * @param array $inputData
      * @param array $tablesInOrder
-     * @param array $suppressedForeignKeys
+     * @param array $referencesToPostpone
      */
     public function shouldArrangeTables(
         array $inputData,
         array $tablesInOrder,
-        array $suppressedForeignKeys
+        array $referencesToPostpone
     ): void {
         $structure = $this->createMock(StructureInterface::class);
 
@@ -77,6 +77,6 @@ class ArrangerTest extends TestCase
         $arranger->arrangeMigrations(array_keys($inputData));
 
         $this->assertSame($tablesInOrder, $arranger->getTablesInOrder());
-        $this->assertSame($suppressedForeignKeys, $arranger->getReferencesToPostpone());
+        $this->assertSame($referencesToPostpone, $arranger->getReferencesToPostpone());
     }
 }
