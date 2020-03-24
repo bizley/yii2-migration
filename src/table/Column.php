@@ -350,6 +350,8 @@ abstract class Column
 
     abstract public function getLength(string $schema = null, string $engineVersion = null);
 
+    abstract public function setLength($value, string $schema = null, string $engineVersion = null): void;
+
     public function getRenderLength(bool $generalSchema): ?string
     {
         $length = $this->getLength();

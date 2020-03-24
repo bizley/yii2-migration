@@ -11,4 +11,6 @@ interface PrimaryKeyInterface
     public function getColumns(): array;
 
     public function isComposite(): bool;
+
+    public function addColumn(string $name): void;
 }

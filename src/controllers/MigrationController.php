@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration\controllers;
 
 use bizley\migration\Schema;
+use bizley\migration\table\BlueprintInterface;
 use RuntimeException;
 use Throwable;
 use Yii;
@@ -619,12 +620,12 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * @param $blueprint
+     * @param BlueprintInterface $blueprint
      * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
      */
-    private function generateMigrationWithBlueprint($blueprint, string $migrationClassName): void
+    private function generateMigrationWithBlueprint(BlueprintInterface $blueprint, string $migrationClassName): void
     {
         $file = $this->workingPath . DIRECTORY_SEPARATOR . $migrationClassName . '.php';
 

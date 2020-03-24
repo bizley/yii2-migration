@@ -39,7 +39,7 @@ final class DateTimeColumn extends Column implements ColumnInterface
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      * @param string|null $schema
      * @param string|null $engineVersion
      */

@@ -21,7 +21,7 @@ final class StructureBuilder implements StructureBuilderInterface
     {
         $structure = new Structure();
 
-        /** @var $change StructureChangeInterface */
+        /** @var StructureChangeInterface $change */
         foreach ($changes as $change) {
             if ($change instanceof StructureChangeInterface === false) {
                 throw new InvalidArgumentException('You must provide array of StructureChangeInterface objects.');

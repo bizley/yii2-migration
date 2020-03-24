@@ -7,7 +7,7 @@ namespace bizley\migration\table;
 final class DateColumn extends Column implements ColumnInterface
 {
     /**
-     * @param $value
+     * @param mixed $value
      * @param string|null $schema
      * @param string|null $engineVersion
      */

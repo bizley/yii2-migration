@@ -19,8 +19,14 @@ use Throwable;
 use yii\base\NotSupportedException;
 use yii\db\Connection;
 use yii\db\Constraint;
+use yii\db\cubrid\Schema as CubridSchema;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
+use yii\db\mssql\Schema as MssqlSchema;
+use yii\db\mysql\Schema as MysqlSchema;
+use yii\db\oci\Schema as OciSchema;
+use yii\db\pgsql\Schema as PgsqlSchema;
+use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 
 final class TableMapper implements TableMapperInterface
@@ -73,9 +79,11 @@ final class TableMapper implements TableMapperInterface
     private function getForeignKeys(string $table): array
     {
         $mappedForeignKeys = [];
-        $tableForeignKeys = $this->db->getSchema()->getTableForeignKeys($table, true);
+        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+        $schema = $this->db->getSchema();
+        $tableForeignKeys = $schema->getTableForeignKeys($table, true);
 
-        /** @var $foreignKey ForeignKeyConstraint */
+        /** @var ForeignKeyConstraint $foreignKey */
         foreach ($tableForeignKeys as $foreignKey) {
             $mappedForeignKey = new ForeignKey();
             $mappedForeignKey->setName($foreignKey->name);
@@ -99,9 +107,11 @@ final class TableMapper implements TableMapperInterface
     private function getIndexes(string $table): array
     {
         $mappedIndexes = [];
-        $tableIndexes = $this->db->getSchema()->getTableIndexes($table, true);
+        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+        $schema = $this->db->getSchema();
+        $tableIndexes = $schema->getTableIndexes($table, true);
 
-        /** @var $index IndexConstraint */
+        /** @var IndexConstraint $index */
         foreach ($tableIndexes as $index) {
             if ($index->isPrimary === false) {
                 $mappedIndex = new Index();
@@ -125,8 +135,10 @@ final class TableMapper implements TableMapperInterface
     {
         $primaryKey = null;
 
-        /** @var $tablePrimaryKey Constraint */
-        $tablePrimaryKey = $this->db->getSchema()->getTablePrimaryKey($table, true);
+        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+        $schema = $this->db->getSchema();
+        /** @var Constraint $tablePrimaryKey */
+        $tablePrimaryKey = $schema->getTablePrimaryKey($table, true);
         if ($tablePrimaryKey) {
             $primaryKey = new PrimaryKey();
             $primaryKey->setName($tablePrimaryKey->name);
