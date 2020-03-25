@@ -17,22 +17,22 @@ final class Blueprint implements BlueprintInterface
     /** @var PrimaryKeyInterface|null */
     private $tableNewPrimaryKey;
 
-    /** @var array<ColumnInterface> */
+    /** @var array<string, ColumnInterface> */
     private $columnsToDrop = [];
 
-    /** @var array<ColumnInterface> */
+    /** @var array<string, ColumnInterface> */
     private $columnsToAdd = [];
 
-    /** @var array<ColumnInterface> */
+    /** @var array<string, ColumnInterface> */
     private $columnsToAlter = [];
 
-    /** @var array<ColumnInterface> */
+    /** @var array<string, ColumnInterface> */
     private $columnsToUnalter = [];
 
-    /** @var array<ForeignKeyInterface> */
+    /** @var array<string, ForeignKeyInterface> */
     private $foreignKeysToDrop = [];
 
-    /** @var array<ForeignKeyInterface> */
+    /** @var array<string, ForeignKeyInterface> */
     private $foreignKeysToAdd = [];
 
     /** @var PrimaryKeyInterface|null */
@@ -41,10 +41,10 @@ final class Blueprint implements BlueprintInterface
     /** @var PrimaryKeyInterface|null */
     private $primaryKeyToAdd;
 
-    /** @var array<IndexInterface> */
+    /** @var array<string, IndexInterface> */
     private $indexesToDrop = [];
 
-    /** @var array<IndexInterface> */
+    /** @var array<string, IndexInterface> */
     private $indexesToAdd = [];
 
     /** @var array<string> */
@@ -133,37 +133,37 @@ final class Blueprint implements BlueprintInterface
         $this->indexesToDrop[$index->getName()] = $index;
     }
 
-    /** @return array<ColumnInterface> */
+    /** @return array<string, ColumnInterface> */
     public function getDroppedColumns(): array
     {
         return $this->columnsToDrop;
     }
 
-    /** @return array<ColumnInterface> */
+    /** @return array<string, ColumnInterface> */
     public function getAddedColumns(): array
     {
         return $this->columnsToAdd;
     }
 
-    /** @return array<ColumnInterface> */
+    /** @return array<string, ColumnInterface> */
     public function getAlteredColumns(): array
     {
         return $this->columnsToAlter;
     }
 
-    /** @return array<ColumnInterface> */
+    /** @return array<string, ColumnInterface> */
     public function getUnalteredColumns(): array
     {
         return $this->columnsToUnalter;
     }
 
-    /** @return array<ForeignKeyInterface> */
+    /** @return array<string, ForeignKeyInterface> */
     public function getDroppedForeignKeys(): array
     {
         return $this->foreignKeysToDrop;
     }
 
-    /** @return array<ForeignKeyInterface> */
+    /** @return array<string, ForeignKeyInterface> */
     public function getAddedForeignKeys(): array
     {
         return $this->foreignKeysToAdd;
@@ -179,13 +179,13 @@ final class Blueprint implements BlueprintInterface
         return $this->primaryKeyToAdd;
     }
 
-    /** @return array<IndexInterface> */
+    /** @return array<string, IndexInterface> */
     public function getDroppedIndexes(): array
     {
         return $this->indexesToDrop;
     }
 
-    /** @return array<IndexInterface> */
+    /** @return array<string, IndexInterface> */
     public function getAddedIndexes(): array
     {
         return $this->indexesToAdd;

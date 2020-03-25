@@ -59,10 +59,10 @@ final class StructureRendererTest extends TestCase
      * @dataProvider providerForName
      * @param bool $usePrefix
      * @param string|null $dbPrefix
-     * @param string|null $name
+     * @param string $name
      * @param string|null $expected
      */
-    public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, ?string $name, ?string $expected): void
+    public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, string $name, ?string $expected): void
     {
         $this->assertSame($expected, $this->structureRenderer->renderName($name, $usePrefix, $dbPrefix));
     }
