@@ -204,9 +204,15 @@ final class TableMapper implements TableMapperInterface
         return $this->db->getTableSchema($table);
     }
 
+    /**
+     * @return string
+     * @throws NotSupportedException
+     */
     public function getSchemaType(): string
     {
-        return Schema::identifySchema($this->db->schema);
+        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+        $schema = $this->db->getSchema();
+        return Schema::identifySchema($schema);
     }
 
     public function getEngineVersion(): ?string

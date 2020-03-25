@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit;
 
+use bizley\migration\Schema;
 use bizley\migration\table\CharacterColumn;
 use bizley\migration\TableMapper;
+use PDO;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -14,7 +16,7 @@ use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
-use yii\db\mysql\Schema;
+use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\TableSchema;
 
 class TableMapperTest extends TestCase
@@ -31,7 +33,7 @@ class TableMapperTest extends TestCase
     protected function setUp(): void
     {
         $this->db = $this->createMock(Connection::class);
-        $this->schema = $this->createMock(Schema::class);
+        $this->schema = $this->createMock(MysqlSchema::class);
         $this->db->method('getSchema')->willReturn($this->schema);
         $this->mapper = new TableMapper($this->db);
     }
@@ -71,6 +73,7 @@ class TableMapperTest extends TestCase
         $this->assertSame([], $structure->getForeignKeys());
         $this->assertSame([], $structure->getIndexes());
         $this->assertSame([], $structure->getColumns());
+        $this->assertSame([], $this->mapper->getSuppressedForeignKeys());
     }
 
     public function providerForPrimaryKey(): array
@@ -196,6 +199,9 @@ class TableMapperTest extends TestCase
         $this->prepareSchemaMock(true, [$foreignKey]);
 
         $this->assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey($foreignKey->name));
+        $suppressedKeys = $this->mapper->getSuppressedForeignKeys();
+        $this->assertNotEmpty($suppressedKeys);
+        $this->assertSame($suppressedKeys[0]->getName(), $foreignKey->name);
     }
 
     public function providerForIndexes(): array
@@ -320,6 +326,18 @@ class TableMapperTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
+    public function shouldSetNoColumns(): void
+    {
+        $this->prepareSchemaMock(false);
+        $this->db->method('getTableSchema')->willReturn(null);
+
+        $this->assertSame([], $this->mapper->getStructureOf('abcdef')->getColumns());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldSetUniqueColumnWithUniqueIndex(): void
     {
         $this->prepareSchemaMock(
@@ -390,5 +408,24 @@ class TableMapperTest extends TestCase
         $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
         $this->assertNotNull($structureColumn);
         $this->assertFalse($structureColumn->isUnique());
+        $this->assertSame('unsupported', $this->mapper->getSchemaType());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReturnProperEngineVersion(): void
+    {
+        $this->prepareSchemaMock();
+        $this->mapper->getStructureOf('abcdef');
+
+        $this->assertNull($this->mapper->getEngineVersion());
+
+        $pdo = $this->createMock(PDO::class);
+        $pdo->method('getAttribute')->willReturn('5.7.1');
+        $this->db->method('getSlavePdo')->willReturn($pdo);
+
+        $this->assertSame('5.7.1', $this->mapper->getEngineVersion());
     }
 }
