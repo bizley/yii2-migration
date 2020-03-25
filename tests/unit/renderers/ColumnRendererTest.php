@@ -25,16 +25,17 @@ class ColumnRendererTest extends TestCase
             ['aaa', 'aaa'],
             ['\\\'aaa', '\'aaa'],
             ['\\\'aaa\\\'', '\'aaa\''],
+            [null, null],
         ];
     }
 
     /**
      * @test
      * @dataProvider providerForEscaping
-     * @param string $expected
-     * @param string $input
+     * @param string|null $expected
+     * @param string|null $input
      */
-    public function shouldProperlyEscapeQuotes(string $expected, string $input): void
+    public function shouldProperlyEscapeQuotes(?string $expected, ?string $input): void
     {
         $this->assertSame($expected, $this->getRenderer()->escapeQuotes($input));
     }
@@ -165,13 +166,25 @@ class ColumnRendererTest extends TestCase
      */
     public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndDefaultLength(
         string $length,
-        string $mapping
+        ?string $mapping
     ): void {
         $column = $this->createMock(ColumnInterface::class);
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn($length);
         $column->method('getDefaultMapping')->willReturn($mapping);
+
+        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndDefaultLengthAsNull(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getLength')->willReturn(null);
+        $column->method('getDefaultMapping')->willReturn(null);
 
         $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
@@ -363,5 +376,119 @@ class ColumnRendererTest extends TestCase
             '\'col\' => $this->def()->append(\'schema-append aaa\'),',
             $this->getRenderer()->render($column, $primaryKey)
         );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnToAdd(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+
+        $this->assertSame(
+            '$this->addColumn(\'table\', \'col\', $this->def());',
+            $this->getRenderer()->renderAdd($column, 'table')
+        );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnToAlter(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+
+        $this->assertSame(
+            '$this->alterColumn(\'table\', \'col\', $this->def());',
+            $this->getRenderer()->renderAlter($column, 'table')
+        );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnToDrop(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+
+        $this->assertSame(
+            '$this->dropColumn(\'table\', \'col\');',
+            $this->getRenderer()->renderDrop($column, 'table')
+        );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithLengthAsMax(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getLength')->willReturn('max');
+
+        $this->assertSame(
+            '\'col\' => $this->def(\'max\'),',
+            $this->getRenderer()->render($column)
+        );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithCustomDefinitionTemplate(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $renderer = $this->getRenderer();
+        $renderer->setDefinitionTemplate('custom-template');
+
+        $this->assertSame('custom-template', $renderer->render($column));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithCustomAddTemplate(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $renderer = $this->getRenderer();
+        $renderer->setAddColumnTemplate('custom-template');
+
+        $this->assertSame('custom-template', $renderer->renderAdd($column, 'table'));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithCustomAlterTemplate(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $renderer = $this->getRenderer();
+        $renderer->setAlterColumnTemplate('custom-template');
+
+        $this->assertSame('custom-template', $renderer->renderAlter($column, 'table'));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithCustomDropTemplate(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $renderer = $this->getRenderer();
+        $renderer->setDropColumnTemplate('custom-template');
+
+        $this->assertSame('custom-template', $renderer->renderDrop($column, 'table'));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithNotNull(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('isNotNull')->willReturn(true);
+
+        $this->assertSame('\'col\' => $this->def()->notNull(),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyColumnWithUnsigned(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('isUnsigned')->willReturn(true);
+
+        $this->assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
     }
 }

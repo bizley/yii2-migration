@@ -320,25 +320,21 @@ final class ColumnRenderer implements ColumnRendererInterface
         return str_replace('\'', '\\\'', $value);
     }
 
-    /** @param string $definitionTemplate */
     public function setDefinitionTemplate(string $definitionTemplate): void
     {
         $this->definitionTemplate = $definitionTemplate;
     }
 
-    /** @param string $dropColumnTemplate */
     public function setDropColumnTemplate(string $dropColumnTemplate): void
     {
         $this->dropColumnTemplate = $dropColumnTemplate;
     }
 
-    /** @param string $addColumnTemplate */
     public function setAddColumnTemplate(string $addColumnTemplate): void
     {
         $this->addColumnTemplate = $addColumnTemplate;
     }
 
-    /** @param string $alterColumnTemplate */
     public function setAlterColumnTemplate(string $alterColumnTemplate): void
     {
         $this->alterColumnTemplate = $alterColumnTemplate;
