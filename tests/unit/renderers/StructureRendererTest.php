@@ -136,13 +136,21 @@ RENDERED
     }
 
     /** @test */
-    public function shouldRenderProperlyWithTableAndCustomTemplate(): void
+    public function shouldRenderProperlyWithTableAndCustomCreateTemplate(): void
     {
         $structure = $this->createMock(StructureInterface::class);
-        $structure->method('getColumns')->willReturn([]);
         $this->structureRenderer->setCreateTableTemplate('custom-template');
 
         $this->assertSame('custom-template', $this->structureRenderer->renderStructureUp($structure));
+    }
+
+    /** @test */
+    public function shouldRenderProperlyWithTableAndCustomDropTemplate(): void
+    {
+        $structure = $this->createMock(StructureInterface::class);
+        $this->structureRenderer->setDropTableTemplate('custom-template');
+
+        $this->assertSame('custom-template', $this->structureRenderer->renderStructureDown($structure));
     }
 
     /** @test */
@@ -271,5 +279,14 @@ RENDERED
             ,
             $this->structureRenderer->renderStructureUp($structure)
         );
+    }
+
+    /** @test */
+    public function shouldRenderProperlyForeignKeysDown(): void
+    {
+        $foreignKey = $this->createMock(ForeignKeyInterface::class);
+        $this->foreignKeyRenderer->method('renderDown')->willReturn('foreign-key-render');
+
+        $this->assertSame('foreign-key-render', $this->structureRenderer->renderForeignKeysDown([$foreignKey]));
     }
 }
