@@ -29,6 +29,7 @@ final class StructureBuilder implements StructureBuilderInterface
             /** @var StructureChangeInterface $change */
             switch ($change->getMethod()) {
                 case 'createTable':
+                    $structure->setName($change->getTable());
                     $this->applyCreateTableValue($structure, $change->getValue(), $schema);
                     break;
 
