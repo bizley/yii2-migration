@@ -203,4 +203,63 @@ class GenericColumnTest extends TestCase
         $this->column->setAppend($append);
         $this->assertSame($expected, $this->column->removeAppendedPrimaryKeyInfo($schema));
     }
+
+    /** @test */
+    public function shouldProperlySetType(): void
+    {
+        $this->column->setType('test');
+        $this->assertSame('test', $this->column->getType());
+    }
+
+    /** @test */
+    public function shouldProperlySetDefaultMapping(): void
+    {
+        $this->column->setDefaultMapping('test');
+        $this->assertSame('test', $this->column->getDefaultMapping());
+    }
+
+    public function providerForSizePrecisionScale(): array
+    {
+        return [
+            ['1', 1],
+            [2, 2],
+            [null, null],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSizePrecisionScale
+     * @param int|string|null $size
+     * @param int|null $expected
+     */
+    public function shouldProperlySetSize($size, ?int $expected): void
+    {
+        $this->column->setSize($size);
+        $this->assertSame($expected, $this->column->getSize());
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSizePrecisionScale
+     * @param int|string|null $precision
+     * @param int|null $expected
+     */
+    public function shouldProperlySetPrecision($precision, ?int $expected): void
+    {
+        $this->column->setPrecision($precision);
+        $this->assertSame($expected, $this->column->getPrecision());
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSizePrecisionScale
+     * @param int|string|null $scale
+     * @param int|null $expected
+     */
+    public function shouldProperlySetScale($scale, ?int $expected): void
+    {
+        $this->column->setScale($scale);
+        $this->assertSame($expected, $this->column->getScale());
+    }
 }

@@ -7,7 +7,6 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 
 use function in_array;
-use function preg_match;
 use function preg_replace;
 use function str_ireplace;
 use function str_replace;
@@ -364,44 +363,4 @@ abstract class Column
      * @param string|null $engineVersion
      */
     abstract public function setLength($value, string $schema = null, string $engineVersion = null): void;
-
-    public function getRenderLength(bool $generalSchema): ?string
-    {
-        $length = $this->getLength();
-
-        if ($length === null) {
-            return null;
-        }
-
-        if ($generalSchema === false) {
-            if ($length === 'max') {
-                return '\'max\'';
-            }
-            return (string)$length;
-        }
-
-        if (str_replace(' ', '', (string)$length) !== $this->getDefaultLength()) {
-            if ($length === 'max') {
-                return '\'max\'';
-            }
-            return (string)$length;
-        }
-
-        return null;
-    }
-
-    private function getDefaultLength(): ?string
-    {
-        if ($this->defaultMapping !== null) {
-            if (preg_match('/\(([\d,]+)\)/', $this->defaultMapping, $matches)) {
-                return $matches[1];
-            }
-            if (preg_match('/\(max\)/', $this->defaultMapping)) {
-                // MSSQL
-                return 'max';
-            }
-        }
-
-        return null;
-    }
 }
