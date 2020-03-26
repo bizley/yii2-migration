@@ -18,9 +18,7 @@ class MoneyColumnTest extends TestCase
         $this->column = new MoneyColumn();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldReturnProperDefinition(): void
     {
         $this->assertSame('money({renderLength})', $this->column->getDefinition());
@@ -100,6 +98,35 @@ class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength([1], $schema);
+        $this->assertSame($expectedScale, $this->column->getScale());
+        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+    }
+
+    public function providerForSettingLengthWithoutScaleAndPrecision(): array
+    {
+        return [
+            'cubrid' => [Schema::CUBRID, null, null],
+            'mssql' => [Schema::MSSQL, null, null],
+            'mysql' => [Schema::MYSQL, null, null],
+            'oci' => [Schema::OCI, null, null],
+            'pgsql' => [Schema::PGSQL, null, null],
+            'sqlite' => [Schema::SQLITE, null, null],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSettingLengthWithoutScaleAndPrecision
+     * @param string $schema
+     * @param int|null $expectedPrecision
+     * @param int|null $expectedScale
+     */
+    public function shouldSetProperLengthWith0ElementArray(
+        string $schema,
+        ?int $expectedPrecision,
+        ?int $expectedScale
+    ): void {
+        $this->column->setLength([], $schema);
         $this->assertSame($expectedScale, $this->column->getScale());
         $this->assertSame($expectedPrecision, $this->column->getPrecision());
     }
