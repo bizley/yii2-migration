@@ -173,6 +173,7 @@ class TableMapperTest extends TestCase
         foreach ($foreignKeys as $foreignKey) {
             $structureForeignKey = $this->mapper->getStructureOf('abcdef')->getForeignKey($foreignKey->name);
 
+            $this->assertSame('abcdef', $structureForeignKey->getTableName());
             $this->assertSame($foreignKey->name, $structureForeignKey->getName());
             $this->assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
             $this->assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferencedTable());
