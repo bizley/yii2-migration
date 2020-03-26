@@ -18,9 +18,7 @@ class JsonColumnTest extends TestCase
         $this->column = new JsonColumn();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function shouldReturnProperDefinition(): void
     {
         $this->assertSame('json()', $this->column->getDefinition());
@@ -96,5 +94,12 @@ class JsonColumnTest extends TestCase
     {
         $this->column->setLength(1, $schema);
         $this->assertSame($expectedPrecision, $this->column->getPrecision());
+    }
+
+    /** @test */
+    public function shouldNotDecodeJsonWhenThereIsException(): void
+    {
+        $this->column->setDefault('{"bad":"json');
+        $this->assertSame('{"bad":"json', $this->column->getDefault());
     }
 }
