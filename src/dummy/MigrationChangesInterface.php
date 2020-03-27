@@ -3,12 +3,10 @@
 namespace bizley\migration\dummy;
 
 use bizley\migration\table\StructureChangeInterface;
+use yii\db\MigrationInterface;
 
-interface MigrationChangesInterface
+interface MigrationChangesInterface extends MigrationInterface
 {
-    /** @return mixed */
-    public function up();
-
     /** @return array<string, array<StructureChangeInterface>> */
     public function getChanges(): ?array;
 }

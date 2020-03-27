@@ -2,6 +2,7 @@
 
 namespace yii\db;
 
+use bizley\migration\dummy\MigrationChangesInterface;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
 use ReflectionClass;
@@ -22,7 +23,7 @@ use function trim;
  * Dummy Migration class.
  * This class is used to gather migration details instead of applying them.
  */
-class Migration extends Component implements MigrationInterface
+class Migration extends Component implements MigrationChangesInterface
 {
     use SchemaBuilderTrait;
 
