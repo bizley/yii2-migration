@@ -93,8 +93,10 @@ final class Inspector implements InspectorInterface
                     $engineVersion
                 );
             } else {
-                $blueprint->setStartFromScratch(true);
+                $blueprint->startFromScratch();
             }
+        } else {
+            $blueprint->startFromScratch();
         }
 
         return $blueprint;

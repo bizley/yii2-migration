@@ -8,9 +8,9 @@ interface BlueprintInterface
 {
     public function getTableName(): string;
 
-    public function setStartFromScratch(bool $startFromScratch): void;
+    public function startFromScratch(): void;
 
-    public function isStartFromScratch(): bool;
+    public function needsStartFromScratch(): bool;
 
     public function addDescription(string $description): void;
 

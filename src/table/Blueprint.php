@@ -58,12 +58,12 @@ final class Blueprint implements BlueprintInterface
         return $this->tableName;
     }
 
-    public function setStartFromScratch(bool $startFromScratch): void
+    public function startFromScratch(): void
     {
-        $this->startFromScratch = $startFromScratch;
+        $this->startFromScratch = true;
     }
 
-    public function isStartFromScratch(): bool
+    public function needsStartFromScratch(): bool
     {
         return $this->startFromScratch;
     }

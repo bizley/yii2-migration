@@ -411,7 +411,7 @@ class MigrationController extends BaseMigrationController
 
                     continue;
                 }
-                if ($blueprint->isStartFromScratch()) {
+                if ($blueprint->needsStartFromScratch()) {
                     $newTables[] = $tableName;
                 } else {
                     $blueprints[$tableName] = $blueprint;
@@ -419,7 +419,7 @@ class MigrationController extends BaseMigrationController
 
                 if ($this->onlyShow) {
                     $this->stdout("Showing differences:\n");
-                    if ($blueprint->isStartFromScratch()) {
+                    if ($blueprint->needsStartFromScratch()) {
                         $this->stdout("   - table needs creating migration\n", Console::FG_YELLOW);
                     } else {
                         $differences = $blueprint->getDescriptions();
