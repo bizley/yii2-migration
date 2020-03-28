@@ -35,6 +35,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\db\Connection;
+use yii\db\Query;
 
 class BaseMigrationController extends Controller
 {
@@ -111,7 +112,14 @@ class BaseMigrationController extends Controller
     public function getHistoryManager(): HistoryManagerInterface
     {
         if ($this->historyManager === null) {
-            $configuredObject = Yii::createObject($this->historyManagerClass, [$this->db, $this->migrationTable]);
+            $configuredObject = Yii::createObject(
+                $this->historyManagerClass,
+                [
+                    $this->db,
+                    new Query(),
+                    $this->migrationTable
+                ]
+            );
             if (!$configuredObject instanceof HistoryManagerInterface) {
                 throw new InvalidConfigException(
                     'HistoryManager must implement bizley\migration\HistoryManagerInterface'

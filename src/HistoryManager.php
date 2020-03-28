@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\Connection;
 use yii\db\Exception;
@@ -24,9 +25,13 @@ final class HistoryManager implements HistoryManagerInterface
     /** @var string */
     private $historyTable;
 
-    public function __construct(Connection $db, string $historyTable)
+    /** @var Query */
+    private $query;
+
+    public function __construct(Connection $db, Query $query, string $historyTable)
     {
         $this->db = $db;
+        $this->query = $query;
         $this->historyTable = $historyTable;
     }
 
@@ -63,10 +68,11 @@ final class HistoryManager implements HistoryManagerInterface
      * @param string $migrationName
      * @param string|null $namespace
      * @throws Exception
+     * @throws NotSupportedException
      */
     public function addHistory(string $migrationName, string $namespace = null): void
     {
-        if ($this->db->schema->getTableSchema($this->historyTable, true) === null) {
+        if ($this->db->getSchema()->getTableSchema($this->historyTable, true) === null) {
             $this->createTable();
         }
 
@@ -87,14 +93,15 @@ final class HistoryManager implements HistoryManagerInterface
      * This is slightly modified Yii's MigrateController::getMigrationHistory() method.
      * Migrations are fetched from newest to oldest.
      * @return array<string, string> the migration history
+     * @throws NotSupportedException
      */
     public function fetchHistory(): array
     {
-        if ($this->db->schema->getTableSchema($this->historyTable, true) === null) {
+        if ($this->db->getSchema()->getTableSchema($this->historyTable, true) === null) {
             return [];
         }
 
-        $rows = (new Query())
+        $rows = $this->query
             ->select(['version', 'apply_time'])
             ->from($this->historyTable)
             ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
