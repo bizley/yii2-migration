@@ -91,16 +91,16 @@ class BaseMigrationController extends Controller
     public $inspectorClass = Inspector::class;
 
     /** @var string|array<string, mixed>|Closure */
-    private $blueprintRendererClass = BlueprintRenderer::class;
+    public $blueprintRendererClass = BlueprintRenderer::class;
 
     /** @var string|array<string, mixed>|Closure */
-    private $extractorClass = Extractor::class;
+    public $extractorClass = Extractor::class;
 
     /** @var string|array<string, mixed>|Closure */
-    private $structureBuilderClass = StructureBuilder::class;
+    public $structureBuilderClass = StructureBuilder::class;
 
     /** @var string|array<string, mixed>|Closure */
-    private $comparatorClass = Comparator::class;
+    public $comparatorClass = Comparator::class;
 
     /** @var HistoryManagerInterface */
     private $historyManager;
