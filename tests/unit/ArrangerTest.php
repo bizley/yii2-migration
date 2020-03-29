@@ -62,7 +62,7 @@ class ArrangerTest extends TestCase
             $mockedReferencedTables = [];
             foreach ($referencedTables as $referencedTable) {
                 $foreignKey = $this->createMock(ForeignKeyInterface::class);
-                $foreignKey->method('getReferencedTable')->willReturn($referencedTable);
+                $foreignKey->method('getReferredTable')->willReturn($referencedTable);
                 $mockedReferencedTables[] = $foreignKey;
             }
             $callbacks[] = $mockedReferencedTables;

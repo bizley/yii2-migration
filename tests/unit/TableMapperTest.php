@@ -176,8 +176,8 @@ class TableMapperTest extends TestCase
             $this->assertSame('abcdef', $structureForeignKey->getTableName());
             $this->assertSame($foreignKey->name, $structureForeignKey->getName());
             $this->assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
-            $this->assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferencedTable());
-            $this->assertSame($foreignKey->foreignColumnNames, $structureForeignKey->getReferencedColumns());
+            $this->assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferredTable());
+            $this->assertSame($foreignKey->foreignColumnNames, $structureForeignKey->getReferredColumns());
             $this->assertSame($foreignKey->onDelete, $structureForeignKey->getOnDelete());
             $this->assertSame($foreignKey->onUpdate, $structureForeignKey->getOnUpdate());
         }

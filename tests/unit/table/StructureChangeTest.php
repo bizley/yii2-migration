@@ -409,8 +409,8 @@ class StructureChangeTest extends TestCase
         $this->assertInstanceOf(ForeignKeyInterface::class, $foreignKey);
         $this->assertSame('fk', $foreignKey->getName());
         $this->assertSame(['column'], $foreignKey->getColumns());
-        $this->assertSame('tab', $foreignKey->getReferencedTable());
-        $this->assertSame(['column'], $foreignKey->getReferencedColumns());
+        $this->assertSame('tab', $foreignKey->getReferredTable());
+        $this->assertSame(['column'], $foreignKey->getReferredColumns());
     }
 
     public function providerForWrongCreateIndex(): array

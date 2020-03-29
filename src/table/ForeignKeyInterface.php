@@ -13,10 +13,10 @@ interface ForeignKeyInterface
     /** @return array<string> */
     public function getColumns(): array;
 
-    public function getReferencedTable(): string;
+    public function getReferredTable(): string;
 
     /** @return array<string> */
-    public function getReferencedColumns(): array;
+    public function getReferredColumns(): array;
 
     public function getOnDelete(): ?string;
 

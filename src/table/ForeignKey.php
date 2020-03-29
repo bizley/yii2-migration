@@ -10,13 +10,13 @@ final class ForeignKey implements ForeignKeyInterface
     private $name;
 
     /** @var array<string> */
-    private $columns;
+    private $columns = [];
 
     /** @var string */
-    private $referencedTable;
+    private $referredTable;
 
     /** @var array<string> */
-    private $referencedColumns;
+    private $referredColumns = [];
 
     /** @var string|null */
     private $onDelete;
@@ -51,26 +51,26 @@ final class ForeignKey implements ForeignKeyInterface
         }
     }
 
-    public function getReferencedTable(): string
+    public function getReferredTable(): string
     {
-        return $this->referencedTable;
+        return $this->referredTable;
     }
 
-    public function setReferencedTable(string $referencedTable): void
+    public function setReferredTable(string $referredTable): void
     {
-        $this->referencedTable = $referencedTable;
+        $this->referredTable = $referredTable;
     }
 
     /** @return array<string> */
-    public function getReferencedColumns(): array
+    public function getReferredColumns(): array
     {
-        return $this->referencedColumns;
+        return $this->referredColumns;
     }
 
-    /** @param array<string> $referencedColumns */
-    public function setReferencedColumns(array $referencedColumns): void
+    /** @param array<string> $referredColumns */
+    public function setReferredColumns(array $referredColumns): void
     {
-        $this->referencedColumns = $referencedColumns;
+        $this->referredColumns = $referredColumns;
     }
 
     public function getOnDelete(): ?string

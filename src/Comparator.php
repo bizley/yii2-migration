@@ -52,7 +52,7 @@ final class Comparator implements ComparatorInterface
             $onlyShow,
             $schema
         );
-        $this->compareIndexes($newStructure, $oldStructure, $blueprint, $onlyShow);
+        $this->compareIndexes($newStructure, $oldStructure, $blueprint);
     }
 
     /**
@@ -105,15 +105,15 @@ final class Comparator implements ComparatorInterface
             $previousColumn = $name;
             foreach (
                 [
-                    'getType',
-                    'isNotNull',
-                    'getLength',
-                    'isUnique',
-                    'isUnsigned',
-                    'getDefault',
-                    'getAppend',
-                    'getComment',
-                ] as $propertyFetch
+                    'getType' => 'type',
+                    'isNotNull' => 'not null',
+                    'getLength' => 'length',
+                    'isUnique' => 'unique',
+                    'isUnsigned' => 'unsigned',
+                    'getDefault' => 'default',
+                    'getAppend' => 'append',
+                    'getComment' => 'comment',
+                ] as $propertyFetch => $propertyName
             ) {
                 /** @var ColumnInterface $oldColumn */
                 $oldColumn = $oldStructure->getColumn($name);
@@ -134,14 +134,14 @@ final class Comparator implements ComparatorInterface
                     if (
                         $propertyFetch === 'getAppend'
                         && $oldProperty === null
-                        && ($newProperty === null || is_string($newProperty))
+                        && is_string($newProperty)
                         && $this->isAppendSame($newProperty, $oldColumn)
                     ) {
                         continue;
                     }
 
                     $blueprint->addDescription(
-                        "different '$name' column property: $propertyFetch ("
+                        "different '$name' column property: $propertyName ("
                         . 'DB: ' . $this->stringifyValue($newProperty) . ' != '
                         . 'MIG: ' . $this->stringifyValue($oldProperty) . ')'
                     );
@@ -209,7 +209,6 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
-
                 $blueprint->addForeignKey($foreignKey);
 
                 continue;
@@ -250,22 +249,44 @@ final class Comparator implements ComparatorInterface
                 continue;
             }
 
-            $newForeignKeyReferencedColumns = $foreignKey->getReferencedColumns();
-            $oldForeignKeyReferencedColumns = $oldForeignKey->getReferencedColumns();
-            $intersection = array_intersect($newForeignKeyReferencedColumns, $oldForeignKeyReferencedColumns);
+            $newForeignKeyReferredColumns = $foreignKey->getReferredColumns();
+            $oldForeignKeyReferredColumns = $oldForeignKey->getReferredColumns();
+            $intersection = array_intersect($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns);
 
             if (
                 count(
                     array_merge(
-                        array_diff($newForeignKeyReferencedColumns, $intersection),
-                        array_diff($oldForeignKeyReferencedColumns, $intersection)
+                        array_diff($newForeignKeyReferredColumns, $intersection),
+                        array_diff($oldForeignKeyReferredColumns, $intersection)
                     )
                 )
             ) {
                 $blueprint->addDescription(
-                    "different foreign key '$name' referral columns ("
-                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferencedColumns) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferencedColumns) . ')'
+                    "different foreign key '$name' referred columns ("
+                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferredColumns) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferredColumns) . ')'
+                );
+
+                if ($schema === Schema::SQLITE) {
+                    $blueprint->addDescription(
+                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
+                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+                }
+
+                $blueprint->dropForeignKey($oldForeignKey);
+                $blueprint->addForeignKey($foreignKey);
+            }
+
+            $newForeignKeyReferredTable = $foreignKey->getReferredTable();
+            $oldForeignKeyReferredTable = $oldForeignKey->getReferredTable();
+            if ($newForeignKeyReferredTable !== $oldForeignKeyReferredTable) {
+                $blueprint->addDescription(
+                    "different foreign key '$name' referred table ("
+                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferredTable) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferredTable) . ')'
                 );
 
                 if ($schema === Schema::SQLITE) {
@@ -331,11 +352,13 @@ final class Comparator implements ComparatorInterface
         if (count($differentColumns)) {
             $blueprint->addDescription('different primary key definition');
 
+            $alreadyDropped = false;
             if (count($oldPrimaryKeyColumns)) {
                 if ($schema === Schema::SQLITE) {
                     $blueprint->addDescription(
                         '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
                     );
+                    $alreadyDropped = true;
                     if ($onlyShow === false) {
                         throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
                     }
@@ -355,9 +378,11 @@ final class Comparator implements ComparatorInterface
                 );
 
                 if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually'
-                    );
+                    if ($alreadyDropped === false) {
+                        $blueprint->addDescription(
+                            '(!) ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually'
+                        );
+                    }
                     if ($onlyShow === false) {
                         throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
                     }
@@ -406,17 +431,20 @@ final class Comparator implements ComparatorInterface
     /**
      * @param BlueprintInterface $blueprint
      * @param array<string> $differentColumns
-     * @param int $columnsCount
+     * @param int $newColumnsCount
      * @param string|null $schema
      * @return bool
      */
     private function shouldPrimaryKeyBeAdded(
         BlueprintInterface $blueprint,
         array $differentColumns,
-        int $columnsCount,
+        int $newColumnsCount,
         ?string $schema
     ): bool {
-        if ($columnsCount === 1 && count($differentColumns) === 1) {
+        if ($newColumnsCount === 0) {
+            return false;
+        }
+        if ($newColumnsCount === 1 && count($differentColumns) === 1) {
             $addedColumns = $blueprint->getAddedColumns();
             /** @var ColumnInterface $column */
             foreach ($addedColumns as $name => $column) {
@@ -442,13 +470,11 @@ final class Comparator implements ComparatorInterface
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
      */
     private function compareIndexes(
         StructureInterface $newStructure,
         StructureInterface $oldStructure,
-        BlueprintInterface $blueprint,
-        bool $onlyShow
+        BlueprintInterface $blueprint
     ): void {
         $newIndexes = $newStructure->getIndexes();
         $oldIndexes = $oldStructure->getIndexes();
@@ -456,11 +482,8 @@ final class Comparator implements ComparatorInterface
         /** @var IndexInterface $index */
         foreach ($newIndexes as $name => $index) {
             if (array_key_exists($name, $oldIndexes) === false) {
-                if ($onlyShow) {
-                    $blueprint->addDescription("missing index '$name'");
-                } else {
-                    $blueprint->createIndex($index);
-                }
+                $blueprint->addDescription("missing index '$name'");
+                $blueprint->createIndex($index);
 
                 continue;
             }
@@ -509,14 +532,10 @@ final class Comparator implements ComparatorInterface
         }
     }
 
-    private function isAppendSame(?string $append, ColumnInterface $column): bool
+    private function isAppendSame(string $append, ColumnInterface $column): bool
     {
         $autoIncrement = false;
         $primaryKey = false;
-
-        if ($append === null) {
-            return $column->isAutoIncrement() === $autoIncrement && $column->isPrimaryKey() === $primaryKey;
-        }
 
         if (strpos($append, 'AUTO_INCREMENT') !== false) {
             $autoIncrement = true;

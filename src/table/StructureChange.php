@@ -216,8 +216,8 @@ final class StructureChange implements StructureChangeInterface
         $foreignKey = new ForeignKey();
         $foreignKey->setName($data[0]);
         $foreignKey->setColumns($data[1]);
-        $foreignKey->setReferencedTable($data[2]);
-        $foreignKey->setReferencedColumns($data[3]);
+        $foreignKey->setReferredTable($data[2]);
+        $foreignKey->setReferredColumns($data[3]);
 
         return $foreignKey;
     }

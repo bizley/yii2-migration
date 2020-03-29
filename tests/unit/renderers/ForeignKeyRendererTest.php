@@ -23,7 +23,7 @@ class ForeignKeyRendererTest extends TestCase
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn([]);
-        $foreignKey->method('getReferencedColumns')->willReturn([]);
+        $foreignKey->method('getReferredColumns')->willReturn([]);
         $foreignKey->method('getOnDelete')->willReturn(null);
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn('fk');
@@ -146,7 +146,7 @@ RENDERED,
     ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
-        $foreignKey->method('getReferencedColumns')->willReturn($refColumns);
+        $foreignKey->method('getReferredColumns')->willReturn($refColumns);
         $foreignKey->method('getOnDelete')->willReturn($onDelete);
         $foreignKey->method('getOnUpdate')->willReturn($onUpdate);
         $foreignKey->method('getName')->willReturn('fk');
@@ -241,7 +241,7 @@ RENDERED,
     ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
-        $foreignKey->method('getReferencedColumns')->willReturn([]);
+        $foreignKey->method('getReferredColumns')->willReturn([]);
         $foreignKey->method('getOnDelete')->willReturn(null);
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn($name);
@@ -336,7 +336,7 @@ RENDERED,
     ): void {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getColumns')->willReturn($columns);
-        $foreignKey->method('getReferencedColumns')->willReturn([]);
+        $foreignKey->method('getReferredColumns')->willReturn([]);
         $foreignKey->method('getOnDelete')->willReturn(null);
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn($name);

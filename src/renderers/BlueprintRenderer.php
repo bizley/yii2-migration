@@ -248,7 +248,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
                 $foreignKey,
                 $tableName,
-                $this->renderName($foreignKey->getReferencedTable(), $usePrefix, $dbPrefix),
+                $this->renderName($foreignKey->getReferredTable(), $usePrefix, $dbPrefix),
                 $indent
             );
         }

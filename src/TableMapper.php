@@ -53,7 +53,7 @@ final class TableMapper implements TableMapperInterface
         $foreignKeys = $this->getForeignKeys($table);
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
-            if (in_array($foreignKey->getReferencedTable(), $referencesToPostpone, true)) {
+            if (in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
                 $this->suppressedForeignKeys[] = $foreignKey;
                 unset($foreignKeys[$foreignKeyName]);
             }
@@ -89,8 +89,8 @@ final class TableMapper implements TableMapperInterface
             $mappedForeignKey->setTableName($table);
             $mappedForeignKey->setName($foreignKey->name);
             $mappedForeignKey->setColumns($foreignKey->columnNames);
-            $mappedForeignKey->setReferencedTable($foreignKey->foreignTableName);
-            $mappedForeignKey->setReferencedColumns($foreignKey->foreignColumnNames);
+            $mappedForeignKey->setReferredTable($foreignKey->foreignTableName);
+            $mappedForeignKey->setReferredColumns($foreignKey->foreignColumnNames);
             $mappedForeignKey->setOnDelete($foreignKey->onDelete);
             $mappedForeignKey->setOnUpdate($foreignKey->onUpdate);
 

@@ -47,7 +47,7 @@ TEMPLATE;
             $renderedKeyColumns[] = "'$keyColumn'";
         }
 
-        $referencedColumns = $foreignKey->getReferencedColumns();
+        $referencedColumns = $foreignKey->getReferredColumns();
         $renderedReferencedColumns = [];
         foreach ($referencedColumns as $referencedColumn) {
             $renderedReferencedColumns[] = "'$referencedColumn'";
