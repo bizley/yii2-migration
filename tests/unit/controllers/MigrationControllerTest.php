@@ -18,6 +18,8 @@ use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\db\Schema;
 
+use function ucfirst;
+
 class MigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */
@@ -273,5 +275,60 @@ class MigrationControllerTest extends TestCase
 ',
             MigrationControllerStub::$stdout
         );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenThereAreNoTables(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}(''));
+        $this->assertSame(' > No matching tables in database.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenThereIsNoProvidedTable(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('not-test'));
+        $this->assertSame(' > No matching tables in database.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenProvidedTableIsExcluded(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test'));
+        $this->assertSame(' > No matching tables in database.
+ > 1 table excluded by the config.
+', MigrationControllerStub::$stdout);
     }
 }

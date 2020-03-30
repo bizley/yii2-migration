@@ -257,6 +257,7 @@ class MigrationController extends BaseMigrationController
      * @param string $inputTable Table name or names separated by commas.
      * @return int
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function actionCreate(string $inputTable): int
     {
@@ -275,7 +276,7 @@ class MigrationController extends BaseMigrationController
 
             /** @var Connection $db */
             $db = $this->db;
-            if (count($referencesToPostpone) && Schema::isSQLite($db->schema)) {
+            if (count($referencesToPostpone) && Schema::isSQLite($db->getSchema())) {
                 $this->stdout(
                     "ERROR!\n > Generating migrations for provided tables in batch is not possible "
                     . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
@@ -358,6 +359,7 @@ class MigrationController extends BaseMigrationController
      * @param string $inputTable
      * @return int
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function actionUpdate(string $inputTable): int
     {
@@ -436,7 +438,7 @@ class MigrationController extends BaseMigrationController
 
             /** @var Connection $db */
             $db = $this->db;
-            if (count($referencesToPostpone) && Schema::isSQLite($db->schema)) {
+            if (count($referencesToPostpone) && Schema::isSQLite($db->getSchema())) {
                 $this->stdout(
                     "ERROR!\n > Generating migrations for provided tables in batch is not possible "
                     . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
@@ -671,6 +673,7 @@ class MigrationController extends BaseMigrationController
     /**
      * @param string $inputTables
      * @return array<string>
+     * @throws NotSupportedException
      */
     private function prepareTableNames($inputTables): array
     {
@@ -686,13 +689,9 @@ class MigrationController extends BaseMigrationController
             $tables = $this->findMatchingTables();
         } else {
             foreach ($tablesList as $inputTable) {
-                if (strpos($inputTable, '*') === false) {
-                    $tables[] = $inputTable;
-                } else {
-                    $matchedTables = $this->findMatchingTables($inputTable);
-                    foreach ($matchedTables as $matchedTable) {
-                        $tables[] = $matchedTable;
-                    }
+                $matchedTables = $this->findMatchingTables($inputTable);
+                foreach ($matchedTables as $matchedTable) {
+                    $tables[] = $matchedTable;
                 }
             }
         }
@@ -700,22 +699,26 @@ class MigrationController extends BaseMigrationController
         return $tables;
     }
 
+    /** @var array<string> */
+    private $foundExcluded = [];
+
     /**
      * @param string|null $pattern
      * @return array<string>
+     * @throws NotSupportedException
      */
     private function findMatchingTables(string $pattern = null): array
     {
         /** @var Connection $db */
         $db = $this->db;
-        $allTables = $db->schema->getTableNames();
+        $allTables = $db->getSchema()->getTableNames();
         if (count($allTables) === 0) {
             return [];
         }
 
         $filteredTables = [];
         $excludedTables = array_merge(
-            [$db->schema->getRawTableName($this->migrationTable)],
+            [$db->getSchema()->getRawTableName($this->migrationTable)],
             $this->excludeTables
         );
 
@@ -725,6 +728,8 @@ class MigrationController extends BaseMigrationController
                     continue;
                 }
                 $filteredTables[] = $table;
+            } else {
+                $this->foundExcluded[] = $table;
             }
         }
 
@@ -734,14 +739,28 @@ class MigrationController extends BaseMigrationController
     /**
      * @param string $inputTable
      * @return array<string>|null
+     * @throws NotSupportedException
      */
     private function proceedWithOperation(string $inputTable): ?array
     {
         $inputTables = $this->prepareTableNames($inputTable);
+        $foundExcludedCount = count($this->foundExcluded);
+        $excludedInfo = null;
+        if ($foundExcludedCount) {
+            $excludedInfo = " > $foundExcludedCount table"
+                . ($foundExcludedCount > 1 ? 's' : '')
+                . " excluded by the config.\n";
+        }
         $countTables = count($inputTables);
         if ($countTables === 0) {
-            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
+            $this->stdout(" > No matching tables in database.\n", Console::FG_YELLOW);
+            if ($excludedInfo) {
+                $this->stdout($excludedInfo, Console::FG_YELLOW);
+            }
             return null;
+        }
+        if ($excludedInfo) {
+            $this->stdout($excludedInfo, Console::FG_YELLOW);
         }
         if (
             $countTables > 1
@@ -750,7 +769,7 @@ class MigrationController extends BaseMigrationController
                 . implode("\n   - ", $inputTables)
             ) === false
         ) {
-            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+            $this->stdout(" Operation cancelled by user.\n", Console::FG_YELLOW);
             return null;
         }
 
