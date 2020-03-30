@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests\unit;
+namespace bizley\tests\unit\controllers;
 
 use bizley\migration\controllers\BaseMigrationController;
 use bizley\tests\unit\stubs\GenericConstructorClass;

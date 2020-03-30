@@ -105,7 +105,7 @@ class MigrationController extends BaseMigrationController
             'useTablePrefix',
             'excludeTables'
         ];
-        $updateOptions = ['showOnly', 'skipMigrations'];
+        $updateOptions = ['onlyShow', 'skipMigrations'];
 
         switch ($actionID) {
             case 'create':
@@ -125,13 +125,13 @@ class MigrationController extends BaseMigrationController
         return array_merge(
             parent::optionAliases(),
             [
-                'g' => 'generalSchema',
-                'h' => 'fixHistory',
-                'n' => 'migrationNamespace',
-                'P' => 'useTablePrefix',
-                'p' => 'migrationPath',
-                's' => 'showOnly',
-                't' => 'migrationTable',
+                'fh' => 'fixHistory',
+                'gs' => 'generalSchema',
+                'mn' => 'migrationNamespace',
+                'mp' => 'migrationPath',
+                'mt' => 'migrationTable',
+                'os' => 'onlyShow',
+                'tp' => 'useTablePrefix',
             ]
         );
     }
@@ -155,7 +155,7 @@ class MigrationController extends BaseMigrationController
             return false;
         }
 
-        if (in_array($action->id, ['create', 'create-all', 'update', 'update-all'], true)) {
+        if (in_array($action->id, ['create', 'update'], true)) {
             if ($this->migrationNamespace !== null) {
                 if (is_array($this->migrationNamespace) === false) {
                     $this->migrationNamespace = [$this->migrationNamespace];
@@ -185,10 +185,10 @@ class MigrationController extends BaseMigrationController
                     'You must provide either "migrationPath" or "migrationNamespace" for this action.'
                 );
             }
-        }
 
-        foreach ($this->skipMigrations as $index => $migration) {
-            $this->skipMigrations[$index] = trim($migration, '\\');
+            foreach ($this->skipMigrations as $index => $migration) {
+                $this->skipMigrations[$index] = trim($migration, '\\');
+            }
         }
 
         $this->db = Instance::ensure($this->db, Connection::class);
@@ -259,25 +259,12 @@ class MigrationController extends BaseMigrationController
      */
     public function actionCreate(string $inputTable): int
     {
-        $inputTables = $this->prepareTableNames($inputTable);
+        $inputTables = $this->proceedWithOperation($inputTable);
+        if ($inputTables === null) {
+            return ExitCode::OK;
+        }
+
         $countTables = count($inputTables);
-        if ($countTables === 0) {
-            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
-
-            return ExitCode::OK;
-        }
-        if (
-            $countTables > 1
-            && $this->confirm(
-                " > Are you sure you want to generate migrations for the following tables?\n   - "
-                . implode("\n   - ", $inputTables)
-            ) === false
-        ) {
-            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
-
-            return ExitCode::OK;
-        }
-
         $referencesToPostpone = [];
         $tables = $inputTables;
         if ($countTables > 1) {
@@ -373,22 +360,8 @@ class MigrationController extends BaseMigrationController
      */
     public function actionUpdate(string $inputTable): int
     {
-        $inputTables = $this->prepareTableNames($inputTable);
-        $countTables = count($inputTables);
-        if ($countTables === 0) {
-            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
-
-            return ExitCode::OK;
-        }
-        if (
-            $countTables > 1
-            && $this->confirm(
-                " > Are you sure you want to generate migrations for the following tables?\n   - "
-                . implode("\n   - ", $inputTables)
-            ) === false
-        ) {
-            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
-
+        $inputTables = $this->proceedWithOperation($inputTable);
+        if ($inputTables === null) {
             return ExitCode::OK;
         }
 
@@ -584,7 +557,7 @@ class MigrationController extends BaseMigrationController
      * @param mixed $content
      * @throws RuntimeException
      */
-    private function generateFile(string $path, $content): void
+    public function storeFile(string $path, $content): void
     {
         if (file_put_contents($path, $content) === false) {
             throw new RuntimeException('Migration file can not be saved!');
@@ -625,7 +598,7 @@ class MigrationController extends BaseMigrationController
             $this->workingNamespace
         );
 
-        $this->generateFile($file, $migration);
+        $this->storeFile($file, $migration);
 
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
@@ -653,7 +626,7 @@ class MigrationController extends BaseMigrationController
             $this->workingNamespace
         );
 
-        $this->generateFile($file, $migration);
+        $this->storeFile($file, $migration);
 
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
@@ -686,7 +659,7 @@ class MigrationController extends BaseMigrationController
             $this->workingNamespace
         );
 
-        $this->generateFile($file, $migration);
+        $this->storeFile($file, $migration);
 
         $this->stdout("DONE!\n", Console::FG_GREEN);
         $this->stdout(" > Saved as '{$file}'\n");
@@ -755,5 +728,31 @@ class MigrationController extends BaseMigrationController
         }
 
         return $filteredTables;
+    }
+
+    /**
+     * @param string $inputTable
+     * @return array<string>|null
+     */
+    private function proceedWithOperation(string $inputTable): ?array
+    {
+        $inputTables = $this->prepareTableNames($inputTable);
+        $countTables = count($inputTables);
+        if ($countTables === 0) {
+            $this->stdout(' > No matching tables in database.', Console::FG_YELLOW);
+            return null;
+        }
+        if (
+            $countTables > 1
+            && $this->confirm(
+                " > Are you sure you want to generate migrations for the following tables?\n   - "
+                . implode("\n   - ", $inputTables)
+            ) === false
+        ) {
+            $this->stdout(" Operation cancelled by user.\n\n", Console::FG_YELLOW);
+            return null;
+        }
+
+        return $inputTables;
     }
 }
