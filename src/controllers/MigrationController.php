@@ -200,13 +200,14 @@ class MigrationController extends BaseMigrationController
     /**
      * Lists all tables in the database.
      * @return int
+     * @throws NotSupportedException
      */
     public function actionList(): int
     {
         /** @var Connection $db */
         $db = $this->db;
-        $tables = $db->schema->getTableNames();
-        $migrationTable = $db->schema->getRawTableName($this->migrationTable);
+        $tables = $db->getSchema()->getTableNames();
+        $migrationTable = $db->getSchema()->getRawTableName($this->migrationTable);
 
         $tablesCount = count($tables);
         if ($tablesCount === 0) {
@@ -241,7 +242,7 @@ class MigrationController extends BaseMigrationController
         $variant = $this->ansiFormat('string with * (one or more)', Console::FG_CYAN);
         $this->stdout("   - $variant - for all the tables in database matching the pattern (except excluded ones)\n");
         $variant = $this->ansiFormat('string without *', Console::FG_CYAN);
-        $this->stdout("   - $variant - for the tables of specified name\n");
+        $this->stdout("   - $variant - for the table of specified name\n");
         $variant = $this->ansiFormat('strings separated with comma', Console::FG_CYAN);
         $this->stdout("   - $variant - for multiple tables of specified names (with optional *)\n");
 

@@ -17,6 +17,11 @@ class MigrationControllerStub extends MigrationController
         static::$stdout .= $string;
     }
 
+    public function ansiFormat($string): string // BC declaration
+    {
+        return $string;
+    }
+
     /**
      * @param string $path
      * @param mixed $content
