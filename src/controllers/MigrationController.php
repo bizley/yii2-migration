@@ -683,13 +683,24 @@ class MigrationController extends BaseMigrationController
             $tablesList = [$inputTables];
         }
 
+        /** @var Connection $db */
+        $db = $this->db;
+        $allTables = $db->getSchema()->getTableNames();
+        if (count($allTables) === 0) {
+            return [];
+        }
+        $excludedTables = array_merge(
+            [$db->getSchema()->getRawTableName($this->migrationTable)],
+            $this->excludeTables
+        );
+
         $tables = [];
 
         if (in_array('*', $tablesList, true)) {
-            $tables = $this->findMatchingTables();
+            $tables = $this->findMatchingTables(null, $allTables, $excludedTables);
         } else {
             foreach ($tablesList as $inputTable) {
-                $matchedTables = $this->findMatchingTables($inputTable);
+                $matchedTables = $this->findMatchingTables($inputTable, $allTables, $excludedTables);
                 foreach ($matchedTables as $matchedTable) {
                     $tables[] = $matchedTable;
                 }
@@ -704,27 +715,20 @@ class MigrationController extends BaseMigrationController
 
     /**
      * @param string|null $pattern
+     * @param array<string> $allTables
+     * @param array<string> $excludedTables
      * @return array<string>
-     * @throws NotSupportedException
      */
-    private function findMatchingTables(string $pattern = null): array
-    {
-        /** @var Connection $db */
-        $db = $this->db;
-        $allTables = $db->getSchema()->getTableNames();
-        if (count($allTables) === 0) {
-            return [];
-        }
-
+    private function findMatchingTables(
+        string $pattern = null,
+        array $allTables = [],
+        array $excludedTables = []
+    ): array {
         $filteredTables = [];
-        $excludedTables = array_merge(
-            [$db->getSchema()->getRawTableName($this->migrationTable)],
-            $this->excludeTables
-        );
 
         foreach ($allTables as $table) {
             if (in_array($table, $excludedTables, true) === false) {
-                if ($pattern && preg_match('/' . str_replace('*', '(.+)', $pattern) . '/', $table) === 0) {
+                if ($pattern && preg_match('/^' . str_replace('*', '(.+)', $pattern) . '$/', $table) === 0) {
                     continue;
                 }
                 $filteredTables[] = $table;
@@ -744,6 +748,7 @@ class MigrationController extends BaseMigrationController
     private function proceedWithOperation(string $inputTable): ?array
     {
         $inputTables = $this->prepareTableNames($inputTable);
+        $this->foundExcluded = array_unique($this->foundExcluded);
         $foundExcludedCount = count($this->foundExcluded);
         $excludedInfo = null;
         if ($foundExcludedCount) {
@@ -769,7 +774,7 @@ class MigrationController extends BaseMigrationController
                 . implode("\n   - ", $inputTables)
             ) === false
         ) {
-            $this->stdout(" Operation cancelled by user.\n", Console::FG_YELLOW);
+            $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
             return null;
         }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use bizley\migration\dummy\MigrationChangesInterface;
 use bizley\migration\table\StructureChange;
 
-class good_migration implements MigrationChangesInterface
+final class good_migration implements MigrationChangesInterface
 {
     public function up()
     {

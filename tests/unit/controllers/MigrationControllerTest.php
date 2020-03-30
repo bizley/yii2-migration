@@ -16,6 +16,7 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\console\ExitCode;
 use yii\db\Connection;
+use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\Schema;
 
 use function ucfirst;
@@ -329,6 +330,119 @@ class MigrationControllerTest extends TestCase
         $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test'));
         $this->assertSame(' > No matching tables in database.
  > 1 table excluded by the config.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenUserCancels(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2'));
+        $this->assertSame(' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ Operation cancelled by user.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenUserCancelsAndOneIsExcluded(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2', 'test3']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
+        $this->assertSame(' > 1 table excluded by the config.
+ > Are you sure you want to generate migrations for the following tables?
+   - test2
+   - test3
+ Operation cancelled by user.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenUserCancelsAndOneIsHistory(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2', 'test3']);
+        $schema->method('getRawTableName')->willReturn('test');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
+        $this->assertSame(' > 1 table excluded by the config.
+ > Are you sure you want to generate migrations for the following tables?
+   - test2
+   - test3
+ Operation cancelled by user.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldNotProceedWhenUserCancelsAndAsteriskProvided(string $actionId): void
+    {
+        MigrationControllerStub::$stdout = '';
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*'));
+        $this->assertSame(' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ Operation cancelled by user.
+', MigrationControllerStub::$stdout);
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopCreateWhenTableIsMissing(): void
+    {
+        MigrationControllerStub::$stdout = '';
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
+        $this->assertSame(' > Generating migration for creating table \'test\' ...ERROR!
+ > Table \'test\' does not exists!
+
 ', MigrationControllerStub::$stdout);
     }
 }

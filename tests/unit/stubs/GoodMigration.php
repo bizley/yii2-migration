@@ -7,7 +7,7 @@ namespace bizley\tests\unit\stubs;
 use bizley\migration\dummy\MigrationChangesInterface;
 use bizley\migration\table\StructureChange;
 
-class GoodMigration implements MigrationChangesInterface
+final class GoodMigration implements MigrationChangesInterface
 {
     public function up()
     {
