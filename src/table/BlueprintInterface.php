@@ -8,6 +8,8 @@ interface BlueprintInterface
 {
     public function getTableName(): string;
 
+    public function setTableName(string $tableName): void;
+
     public function startFromScratch(): void;
 
     public function needsStartFromScratch(): bool;

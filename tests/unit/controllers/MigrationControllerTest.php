@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\controllers;
 
+use bizley\migration\table\Blueprint;
 use bizley\tests\unit\stubs\ArrangerStub;
 use bizley\tests\unit\stubs\GeneratorStub;
 use bizley\tests\unit\stubs\MigrationControllerStub;
+use bizley\tests\unit\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -50,6 +52,7 @@ class MigrationControllerTest extends TestCase
         Yii::setAlias('@bizley/tests', 'tests');
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$confirmControl = true;
+        UpdaterStub::$throw = false;
     }
 
     public function providerForOptions(): array
@@ -948,6 +951,119 @@ ERROR!
 
  Generated 3 files
  (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldReturnUpToDate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->controller->updaterClass = UpdaterStub::class;
+        UpdaterStub::$blueprint = new Blueprint();
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...TABLE IS UP-TO-DATE.
+
+ No files generated.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldReturnDifferencesForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->controller->onlyShow = true;
+        $this->controller->migrationPath = ['test'];
+        $this->controller->updaterClass = UpdaterStub::class;
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$blueprint->addDescription('Stub description');
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...Showing differences:
+   - Stub description
+
+ No files generated.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldReturnStartFromScratchForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->controller->onlyShow = true;
+        $this->controller->migrationPath = ['test'];
+        $this->controller->updaterClass = UpdaterStub::class;
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$blueprint->startFromScratch();
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...Showing differences:
+   - table needs creating migration
+
+ No files generated.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldThrowNotSupportedWarning(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->controller->updaterClass = UpdaterStub::class;
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$throw = true;
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...WARNING!
+ > Updating table \'test\' requires manual migration!
+ > Stub Exception
+
+ No files generated.
 ',
             MigrationControllerStub::$stdout
         );

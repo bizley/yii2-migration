@@ -68,6 +68,7 @@ final class Inspector implements InspectorInterface
         $history = $this->historyManager->fetchHistory();
 
         $blueprint = new Blueprint();
+        $blueprint->setTableName($this->currentTable);
 
         if (count($history)) {
             foreach ($history as $migration => $time) {

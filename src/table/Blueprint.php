@@ -58,6 +58,11 @@ final class Blueprint implements BlueprintInterface
         return $this->tableName;
     }
 
+    public function setTableName(string $tableName): void
+    {
+        $this->tableName = $tableName;
+    }
+
     public function startFromScratch(): void
     {
         $this->startFromScratch = true;
