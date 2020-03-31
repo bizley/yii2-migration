@@ -194,7 +194,7 @@ class MigrationControllerTest extends TestCase
     {
         $action = $this->createMock(Action::class);
         $action->id = $actionId;
-        $this->controller->migrationPath = 'migrations';
+        $this->controller->migrationPath = 'tests';
         $this->controller->skipMigrations = ['a\\b\\'];
         $this->assertTrue($this->controller->beforeAction($action));
         $this->assertSame(['a\\b'], $this->controller->skipMigrations);
