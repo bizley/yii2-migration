@@ -731,4 +731,225 @@ ERROR!
             MigrationControllerStub::$stdout
         );
     }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopUpdateWhenTableIsMissing(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...ERROR!
+ > Table \'test\' does not exists!
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldCreateOneMigrationWhenNoPreviousDataForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            '
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_01_create_table_test.php\'
+
+ Generated 1 file
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldCreateOneMigrationAndFixHistoryWhenNoPreviousDataForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+        $command = $this->createMock(Command::class);
+        $command->method('createTable')->willReturn($command);
+        $command->method('insert')->willReturn($command);
+        $this->db->method('createCommand')->willReturn($command);
+
+        $this->controller->fixHistory = true;
+        $this->controller->migrationPath = ['test'];
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            '
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_test.php\'
+ > Fixing migration history ...DONE!
+
+ Generated 1 file
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldCreateManyMigrationsWhenNoPreviousDataForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_01_create_table_test.php\'
+
+ > Generating migration for creating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_02_create_table_test2.php\'
+
+ Generated 2 files
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldCreateManyMigrationsWithPostponedForeignKeysWhenNoPreviousDataForUpdate(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturnOnConsecutiveCalls(
+            [],
+            [],
+            [],
+            [
+                new ForeignKeyConstraint(
+                    [
+                        'name' => 'fk',
+                        'columnNames' => ['col1'],
+                        'foreignTableName' => 'test',
+                        'foreignColumnNames' => ['col2'],
+                        'onDelete' => null,
+                        'onUpdate' => null,
+                    ]
+                )
+            ]
+        );
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        $this->controller->arrangerClass = ArrangerStub::class;
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_01_create_table_test.php\'
+
+ > Generating migration for creating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_02_create_table_test2.php\'
+
+ > Generating migration for creating foreign keys ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_03_create_foreign_keys.php\'
+
+ Generated 3 files
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
 }

@@ -404,6 +404,8 @@ class MigrationController extends BaseMigrationController
                     }
 
                     $this->stdout("\n");
+                } else {
+                    $this->stdout("DONE!\n");
                 }
             } catch (NotSupportedException $exception) {
                 $this->stdout(
@@ -522,12 +524,12 @@ class MigrationController extends BaseMigrationController
 
         if ($migrationsGenerated) {
             $this->stdout(
-                " Generated $migrationsGenerated file" . ($migrationsGenerated > 1 ? 's' : '') . "\n",
+                "\n Generated $migrationsGenerated file" . ($migrationsGenerated > 1 ? 's' : '') . "\n",
                 Console::FG_YELLOW
             );
             $this->stdout(" (!) Remember to verify files before applying migration.\n", Console::FG_YELLOW);
         } else {
-            $this->stdout(" No files generated.\n", Console::FG_YELLOW);
+            $this->stdout("\n No files generated.\n", Console::FG_YELLOW);
         }
 
         return ExitCode::OK;
