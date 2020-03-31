@@ -39,7 +39,7 @@ final class Updater implements UpdaterInterface
     public function getUpdateTableMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
-        $translatedAlias = Yii::getAlias('@bizley/migration/views/update_migration.php');
+        $translatedAlias = Yii::getAlias('@bizley/migration/views/migration.php');
         return $translatedAlias;
     }
 

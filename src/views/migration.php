@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This is the template for generating the migration of postponed foreign keys.
+ * This is the template for generating the migration.
  */
 
 declare(strict_types=1);

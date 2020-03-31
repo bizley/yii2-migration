@@ -48,7 +48,7 @@ class GeneratorTest extends TestCase
     public function shouldProperlyReturnCreateTableMigrationTemplate(): void
     {
         $this->assertSame(
-            Yii::getAlias('@bizley/migration/views/create_migration.php'),
+            Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->generator->getCreateTableMigrationTemplate()
         );
     }
@@ -57,7 +57,7 @@ class GeneratorTest extends TestCase
     public function shouldProperlyReturnCreateForeignKeysMigrationTemplate(): void
     {
         $this->assertSame(
-            Yii::getAlias('@bizley/migration/views/create_fk_migration.php'),
+            Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->generator->getCreateForeignKeysMigrationTemplate()
         );
     }

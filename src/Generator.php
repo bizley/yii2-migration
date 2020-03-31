@@ -36,14 +36,14 @@ final class Generator implements GeneratorInterface
     public function getCreateTableMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
-        $translatedAlias = Yii::getAlias('@bizley/migration/views/create_migration.php');
+        $translatedAlias = Yii::getAlias('@bizley/migration/views/migration.php');
         return $translatedAlias;
     }
 
     public function getCreateForeignKeysMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
-        $translatedAlias = Yii::getAlias('@bizley/migration/views/create_fk_migration.php');
+        $translatedAlias = Yii::getAlias('@bizley/migration/views/migration.php');
         return $translatedAlias;
     }
 

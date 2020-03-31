@@ -54,7 +54,7 @@ class UpdaterTest extends TestCase
     public function shouldProperlyReturnUpdateTableMigrationTemplate(): void
     {
         $this->assertSame(
-            Yii::getAlias('@bizley/migration/views/update_migration.php'),
+            Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->updater->getUpdateTableMigrationTemplate()
         );
     }

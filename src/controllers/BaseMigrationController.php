@@ -37,6 +37,15 @@ use yii\console\Controller;
 use yii\db\Connection;
 use yii\db\Query;
 
+/**
+ * This is the foundation of MigrationController. All services are registered here.
+ * To replace a service with your own provide the proper configuration name for it. The configuration can be a class
+ * name, array with configuration, or closure, but the resulting service must implement the chosen service
+ * interface. For more information refer to Yii::createObject() method.
+ * @see https://www.yiiframework.com/doc/api/2.0/yii-baseyii#createObject()-detail
+ * Default implementations require some constructor arguments so you must still add __construct() method in your version
+ * even when you are not using constructor.
+ */
 class BaseMigrationController extends Controller
 {
     /** @var string Default command action. */
@@ -54,7 +63,21 @@ class BaseMigrationController extends Controller
      */
     public $migrationTable = '{{%migration}}';
 
-    /** @var bool Whether to use general column schema instead of database specific. */
+    /**
+     * @var bool Whether to use general column schema instead of database specific.
+     * Remember that with different database types general column schemas may be generated with different length.
+     * MySQL examples:
+     * > Column `varchar(255)`:
+     * generalSchema=false: `$this->string(255)`
+     * generalSchema=true: `$this->string()`
+     * > Column `int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY`:
+     * generalSchema=false: `$this->integer(11)->notNull()->append('AUTO_INCREMENT PRIMARY KEY')`
+     * generalSchema=true: `$this->primaryKey()`
+     * When column size is different from DBMS' default it's kept:
+     * > Column `varchar(45)`:
+     * generalSchema=false: `$this->string(45)`
+     * generalSchema=true: `$this->string(45)`
+     */
     public $generalSchema = true;
 
     /** @var string|array<string, mixed>|Closure */

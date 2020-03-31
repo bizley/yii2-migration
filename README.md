@@ -49,32 +49,45 @@ The following console command are available (assuming you named the controller `
 
 - List all the tables in the database:
 
-      php yii migration
+  ```
+  php yii migration
+  ```
     
   or
 
-      php yii migration/list
+  ```
+  php yii migration/list
+  ```
 
 - Generate migration to create DB table `table_name`:
 
-      php yii migration/create table_name
-
-- Generate migrations to create all DB tables:
-
-      php yii migration/create-all
+  ```
+  php yii migration/create table_name
+  ```
 
 - Generate migration to update DB table `table_name`:
 
-      php yii migration/update table_name
+  ```
+  php yii migration/update table_name
+  ```
 
-- Generate migrations to update all DB tables:
+To generate migrations for all the tables in database at once (except the excluded ones) use asterisk (*):
 
-      php yii migration/update-all
+```
+php yii migration/create *
+php yii migration/update *
+```
 
 You can generate multiple migrations for many tables at once by separating the names with comma:
 
 ```
 php yii migration/create table_name1,table_name2,table_name3
+```
+
+You can provide asterisk as a part of table name to use all tables matching the pattern:
+
+```
+php yii migration/update prefix_*
 ```
 
 Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
@@ -91,22 +104,17 @@ You can easily generate updating migration for database table by comparing its c
 
 ## Command line parameters
 
-| command                  | alias | description                                                             
-|--------------------------|:-----:|------------------------------------------------------------------------------------
-| `migrationPath`          | `p`   | Directory (one or more) storing the migration classes.
-| `migrationNamespace`     | `n`   | Namespace (one or more) in case of generating namespaced migration.
-| `templateFileCreate`     | `F`   | Template file for generating create migrations.
-| `templateFileUpdate`     | `U`   | Template file for generating update migrations.
-| `templateFileForeignKey` | `K`   | Template file for generating create foreign keys migrations.
-| `useTablePrefix`         | `P`   | Whether the table names generated should consider the `tablePrefix` setting of the DB connection.
-| `migrationTable`         | `t`   | Name of the table for keeping applied migration information.
-| `showOnly`               | `s`   | Whether to only display changes instead of generating update migration.
-| `generalSchema`          | `g`   | Whether to use general column schema instead of database specific (see [1] below).
-| `fixHistory`             | `h`   | Whether to add migration history entry when migration is generated.
-| `skipMigrations`         |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
-| `tableOptionsInit`       | `O`   | String rendered in the create migration template to initialize table options.
-| `tableOptions`           | `o`   | String rendered in the create migration template for table options.
-| `excludeTables`          |       | List of tables that should be skipped for *-all actions.
+| command              | alias | description                                                             
+|----------------------|:-----:|------------------------------------------------------------------------------------
+| `migrationPath`      | `mp`  | Directory (one or more) storing the migration classes.
+| `migrationNamespace` | `mn`  | Namespace (one or more) in case of generating namespaced migration.
+| `useTablePrefix`     | `tp`  | Whether the table names generated should consider the `tablePrefix` setting of the DB connection.
+| `migrationTable`     | `mt`  | Name of the table for keeping applied migration information.
+| `onlyShow`           | `os`  | Whether to only display changes instead of generating update migration.
+| `generalSchema`      | `gs`  | Whether to use general column schema instead of database specific (see [1] below).
+| `fixHistory`         | `fh`  | Whether to add migration history entry when migration is generated.
+| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
+| `excludeTables`      |       | List of tables that should be skipped.
 
 
 [1] Remember that with different database types general column schemas may be generated with different length.
@@ -139,6 +147,10 @@ the column and the one dropping it and adding another is the same in terms of st
 
 Once you add renaming migration to the history it's being tracked by the extension.
 
+## Migrating from v2 or v3 to v4
+
+See [Migrating to version 4.0](migrating_to_v4.md) section.
+
 ## Notes
 
 This extension should work with all database types supported in Yii 2 core:
@@ -165,7 +177,10 @@ creating `config.local.php` file there).
 
 ## Previous versions
 
-PHP < 7.2 & Yii >= 2.0.15.1: ^3.6  
-PHP < 7.1: ^2.9
-
 These versions are not developed anymore but still available for all poor souls that are stuck with EOL PHP.
+Some of the newest features may not be available there.
+
+| version constraint | PHP requirements | Yii requirements                                                             
+|:------------------:|:----------------:|:----------------:
+| ^3.6               | < 7.2            | >= 2.0.15.1
+| ^2.9               | < 7.1            | 2.0.13 to track non-unique indexes, 2.0.14 to handle `TINYINT` and `JSON` type columns.
