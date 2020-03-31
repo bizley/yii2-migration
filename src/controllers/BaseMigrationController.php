@@ -129,6 +129,7 @@ class BaseMigrationController extends Controller
     private $historyManager;
 
     /**
+     * Returns the service responsible for managing migration history.
      * @return HistoryManagerInterface
      * @throws InvalidConfigException
      */
@@ -158,6 +159,7 @@ class BaseMigrationController extends Controller
     private $tableMapper;
 
     /**
+     * Returns the service responsible for mapping the table structure.
      * @return TableMapperInterface
      * @throws InvalidConfigException
      */
@@ -180,6 +182,7 @@ class BaseMigrationController extends Controller
     private $arranger;
 
     /**
+     * Returns the service responsible for arranging the tables in proper order.
      * @return ArrangerInterface
      * @throws InvalidConfigException
      */
@@ -200,6 +203,7 @@ class BaseMigrationController extends Controller
     private $structureRenderer;
 
     /**
+     * Returns the service responsible for rendering the structure data.
      * @return StructureRendererInterface
      * @throws InvalidConfigException
      */
@@ -230,6 +234,7 @@ class BaseMigrationController extends Controller
     private $generator;
 
     /**
+     * Returns the service responsible for generating the creating migrations.
      * @return GeneratorInterface
      * @throws InvalidConfigException
      */
@@ -257,6 +262,7 @@ class BaseMigrationController extends Controller
     private $extractor;
 
     /**
+     * Returns the service responsible for extracting the structure from old migrations.
      * @return ExtractorInterface
      * @throws InvalidConfigException
      */
@@ -277,6 +283,7 @@ class BaseMigrationController extends Controller
     private $structureBuilder;
 
     /**
+     * Returns the service responsible for building the structure based on extracted changes.
      * @return StructureBuilderInterface
      * @throws InvalidConfigException
      */
@@ -299,6 +306,7 @@ class BaseMigrationController extends Controller
     private $comparator;
 
     /**
+     * Returns the service responsible for comparing the new and old structures.
      * @return ComparatorInterface
      * @throws InvalidConfigException
      */
@@ -321,6 +329,7 @@ class BaseMigrationController extends Controller
     private $inspector;
 
     /**
+     * Returns the service responsible for preparing the update blueprint.
      * @return InspectorInterface
      * @throws InvalidConfigException
      */
@@ -349,6 +358,7 @@ class BaseMigrationController extends Controller
     private $blueprintRenderer;
 
     /**
+     * Returns the service responsible for rendering the blueprint data.
      * @return BlueprintRendererInterface
      * @throws InvalidConfigException
      */
@@ -379,6 +389,7 @@ class BaseMigrationController extends Controller
     private $updater;
 
     /**
+     * Returns the service responsible for generating the updating migrations.
      * @return UpdaterInterface
      * @throws InvalidConfigException
      */

@@ -73,6 +73,7 @@ class Migration extends Component implements MigrationChangesInterface
     }
 
     /**
+     * Extracts columns data.
      * @param array<string, mixed> $columns
      * @return array<string, array<string, string|int|null>>
      * @throws ReflectionException
@@ -207,7 +208,7 @@ class Migration extends Component implements MigrationChangesInterface
     }
 
     /**
-     * Adds method of structure change and its data
+     * Adds method of structure change and its data.
      * @param string $table
      * @param string $method
      * @param mixed $data
