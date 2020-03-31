@@ -52,7 +52,10 @@ class MigrationControllerTest extends TestCase
         Yii::setAlias('@bizley/tests', 'tests');
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$confirmControl = true;
-        UpdaterStub::$throw = false;
+        UpdaterStub::$throwForPrepare = false;
+        UpdaterStub::$throwForGenerate = false;
+        GeneratorStub::$throwForTable = false;
+        GeneratorStub::$throwForKeys = false;
     }
 
     public function providerForOptions(): array
@@ -683,6 +686,7 @@ class MigrationControllerTest extends TestCase
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
+        GeneratorStub::$throwForKeys = true;
         $this->controller->generatorClass = GeneratorStub::class;
         $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
         $this->assertStringContainsString(
@@ -1055,7 +1059,7 @@ ERROR!
         $this->controller->migrationPath = ['test'];
         $this->controller->updaterClass = UpdaterStub::class;
         UpdaterStub::$blueprint = new Blueprint();
-        UpdaterStub::$throw = true;
+        UpdaterStub::$throwForPrepare = true;
         $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
         $this->assertSame(
             '
@@ -1064,6 +1068,277 @@ ERROR!
  > Stub Exception
 
  No files generated.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopUpdateWhenThereArePostponedForeignKeysAndSchemaIsSqlite(): void
+    {
+        $schema = $this->createMock(SqliteSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturnOnConsecutiveCalls(
+            [],
+            [],
+            [],
+            [
+                new ForeignKeyConstraint(
+                    [
+                        'name' => 'fk',
+                        'columnNames' => ['col1'],
+                        'foreignTableName' => 'test',
+                        'foreignColumnNames' => ['col2'],
+                        'onDelete' => null,
+                        'onUpdate' => null,
+                    ]
+                )
+            ]
+        );
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->arrangerClass = ArrangerStub::class;
+        $this->controller->migrationPath = ['test'];
+        $this->assertSame(ExitCode::DATAERR, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+ERROR!
+ > Generating migrations for provided tables in batch is not possible because \'ADD FOREIGN KEY\' is not supported by SQLite!
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopUpdateManyMigrationsWithPostponedForeignKeysWhenThereIsException(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturnOnConsecutiveCalls(
+            [],
+            [],
+            [],
+            [
+                new ForeignKeyConstraint(
+                    [
+                        'name' => 'fk',
+                        'columnNames' => ['col1'],
+                        'foreignTableName' => 'test',
+                        'foreignColumnNames' => ['col2'],
+                        'onDelete' => null,
+                        'onUpdate' => null,
+                    ]
+                )
+            ]
+        );
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        GeneratorStub::$throwForKeys = true;
+        $this->controller->generatorClass = GeneratorStub::class;
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_01_create_table_test.php\'
+
+ > Generating migration for creating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_02_create_table_test2.php\'
+
+ > Generating migration for creating foreign keys ...ERROR!
+ > Stub exception
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopUpdateManyMigrationsWhenThereIsException(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        GeneratorStub::$throwForTable = true;
+        $this->controller->generatorClass = GeneratorStub::class;
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+
+ > Generating migration for creating table \'test\' ...ERROR!
+ > Stub exception
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldUpdateMigrationWhenUpdateDataIsAvailable(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$blueprint->addDescription('change');
+        $this->controller->updaterClass = UpdaterStub::class;
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            '
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Generating migration for updating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_update_table_test.php\'
+
+ Generated 1 file
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldUpdateManyMigrationWhenUpdateDataIsAvailable(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$blueprint->addDescription('change');
+        $this->controller->updaterClass = UpdaterStub::class;
+        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        $this->assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Comparing current table \'test2\' with its migrations ...DONE!
+
+ > Generating migration for updating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_update_table_test.php\'
+
+ > Generating migration for updating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_update_table_test2.php\'
+
+ Generated 2 files
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldStopUpdateWhenUpdateDataIsAvailableButThereIsException(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->migrationPath = ['test'];
+        UpdaterStub::$throwForGenerate = true;
+        UpdaterStub::$blueprint = new Blueprint();
+        UpdaterStub::$blueprint->addDescription('change');
+        $this->controller->updaterClass = UpdaterStub::class;
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        $this->assertSame(
+            '
+ > Comparing current table \'test\' with its migrations ...DONE!
+
+ > Generating migration for updating table \'test\' ...ERROR!
+ > Stub Exception
 ',
             MigrationControllerStub::$stdout
         );

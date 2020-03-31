@@ -9,6 +9,12 @@ use Exception;
 
 final class GeneratorStub implements GeneratorInterface
 {
+    /** @var bool */
+    public static $throwForTable = false;
+
+    /** @var bool */
+    public static $throwForKeys = false;
+
     public function __construct()
     {
     }
@@ -21,6 +27,9 @@ final class GeneratorStub implements GeneratorInterface
         string $dbPrefix = '',
         string $namespace = null
     ): string {
+        if (static::$throwForTable) {
+            throw new Exception('Stub exception');
+        }
         return '';
     }
 
@@ -31,7 +40,10 @@ final class GeneratorStub implements GeneratorInterface
         string $dbPrefix = '',
         string $namespace = null
     ): string {
-        throw new Exception('Stub exception');
+        if (static::$throwForKeys) {
+            throw new Exception('Stub exception');
+        }
+        return '';
     }
 
     public function getSuppressedForeignKeys(): array

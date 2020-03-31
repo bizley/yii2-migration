@@ -632,7 +632,7 @@ class MigrationController extends BaseMigrationController
         $this->storeFile($file, $migration);
 
         $this->stdout("DONE!\n", Console::FG_GREEN);
-        $this->stdout(" > Saved as '{$file}'\n");
+        $this->stdout(" > Saved as '{$file}'");
 
         $this->fixHistory($migrationClassName);
     }

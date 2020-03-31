@@ -15,7 +15,10 @@ final class UpdaterStub implements UpdaterInterface
     public static $blueprint;
 
     /** @var bool */
-    public static $throw = false;
+    public static $throwForPrepare = false;
+
+    /** @var bool */
+    public static $throwForGenerate = false;
 
     public function __construct()
     {
@@ -27,7 +30,7 @@ final class UpdaterStub implements UpdaterInterface
         array $migrationsToSkip,
         array $migrationPaths
     ): BlueprintInterface {
-        if (static::$throw) {
+        if (static::$throwForPrepare) {
             throw new NotSupportedException('Stub Exception');
         }
         return static::$blueprint;
@@ -40,6 +43,9 @@ final class UpdaterStub implements UpdaterInterface
         string $dbPrefix = '',
         string $namespace = null
     ): string {
+        if (static::$throwForGenerate) {
+            throw new NotSupportedException('Stub Exception');
+        }
         return '';
     }
 }
