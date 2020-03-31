@@ -20,24 +20,24 @@ final class Schema
      */
     public static function identifySchema($schema): string
     {
-        switch (get_class($schema)) {
-            case 'yii\db\mssql\Schema':
-                return self::MSSQL;
+        switch (true) {
+            case $schema instanceof \yii\db\mysql\Schema:
+                return self::MYSQL;
 
-            case 'yii\db\oci\Schema':
-                return self::OCI;
-
-            case 'yii\db\pgsql\Schema':
+            case $schema instanceof \yii\db\pgsql\Schema:
                 return self::PGSQL;
 
-            case 'yii\db\sqlite\Schema':
+            case $schema instanceof \yii\db\sqlite\Schema:
                 return self::SQLITE;
 
-            case 'yii\db\cubrid\Schema':
-                return self::CUBRID;
+            case $schema instanceof \yii\db\mssql\Schema:
+                return self::MSSQL;
 
-            case 'yii\db\mysql\Schema':
-                return self::MYSQL;
+            case $schema instanceof \yii\db\oci\Schema:
+                return self::OCI;
+
+            case $schema instanceof \yii\db\cubrid\Schema:
+                return self::CUBRID;
 
             default:
                 return 'unsupported';

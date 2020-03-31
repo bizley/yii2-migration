@@ -409,7 +409,7 @@ class TableMapperTest extends TestCase
         $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
         $this->assertNotNull($structureColumn);
         $this->assertFalse($structureColumn->isUnique());
-        $this->assertSame('unsupported', $this->mapper->getSchemaType());
+        $this->assertSame('mysql', $this->mapper->getSchemaType());
     }
 
     /**

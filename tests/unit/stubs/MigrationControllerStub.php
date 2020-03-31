@@ -15,9 +15,6 @@ final class MigrationControllerStub extends MigrationController
     /** @var bool */
     public static $confirmControl = true;
 
-    /** @var string */
-    //public $arrangerClass = ArrangerStub::class;
-
     public function stdout($string) // BC declaration
     {
         static::$stdout .= $string;

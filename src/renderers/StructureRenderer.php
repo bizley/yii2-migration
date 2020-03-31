@@ -76,7 +76,7 @@ TEMPLATE;
             return $tableName;
         }
 
-        if ($dbPrefix !== null && strpos($tableName, $dbPrefix) === 0) {
+        if (!empty($dbPrefix) && strpos($tableName, $dbPrefix) === 0) {
             $tableName = mb_substr($tableName, mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
 

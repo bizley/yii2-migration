@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace bizley\tests\unit\stubs;
 
 use bizley\migration\ArrangerInterface;
-use bizley\migration\TableMapperInterface;
 
 final class ArrangerStub implements ArrangerInterface
 {
-    public function __construct(TableMapperInterface $mapper)
+    public function __construct()
     {
     }
 
@@ -19,11 +18,11 @@ final class ArrangerStub implements ArrangerInterface
 
     public function getTablesInOrder(): array
     {
-        return [];
+        return ['test', 'test2'];
     }
 
     public function getReferencesToPostpone(): array
     {
-        return ['a', 'b'];
+        return ['test'];
     }
 }
