@@ -219,6 +219,7 @@ final class ColumnRenderer implements ColumnRendererInterface
             if ($length === 'max') {
                 return '\'max\'';
             }
+
             return (string)$length;
         }
 
@@ -317,26 +318,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         if ($value === null) {
             return null;
         }
+
         return str_replace('\'', '\\\'', $value);
-    }
-
-    public function setDefinitionTemplate(string $definitionTemplate): void
-    {
-        $this->definitionTemplate = $definitionTemplate;
-    }
-
-    public function setDropColumnTemplate(string $dropColumnTemplate): void
-    {
-        $this->dropColumnTemplate = $dropColumnTemplate;
-    }
-
-    public function setAddColumnTemplate(string $addColumnTemplate): void
-    {
-        $this->addColumnTemplate = $addColumnTemplate;
-    }
-
-    public function setAlterColumnTemplate(string $alterColumnTemplate): void
-    {
-        $this->alterColumnTemplate = $alterColumnTemplate;
     }
 }

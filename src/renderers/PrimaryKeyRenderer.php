@@ -67,16 +67,4 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             $template
         );
     }
-
-    /** @param string $addKeyTemplate */
-    public function setAddKeyTemplate(string $addKeyTemplate): void
-    {
-        $this->addKeyTemplate = $addKeyTemplate;
-    }
-
-    /** @param string $dropKeyTemplate */
-    public function setDropKeyTemplate(string $dropKeyTemplate): void
-    {
-        $this->dropKeyTemplate = $dropKeyTemplate;
-    }
 }

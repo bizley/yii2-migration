@@ -61,16 +61,4 @@ final class IndexRenderer implements IndexRendererInterface
             $template
         );
     }
-
-    /** @param string $createIndexTemplate */
-    public function setCreateIndexTemplate(string $createIndexTemplate): void
-    {
-        $this->createIndexTemplate = $createIndexTemplate;
-    }
-
-    /** @param string $dropIndexTemplate */
-    public function setDropIndexTemplate(string $dropIndexTemplate): void
-    {
-        $this->dropIndexTemplate = $dropIndexTemplate;
-    }
 }

@@ -26,8 +26,7 @@ class IndexRendererTest extends TestCase
         $index->method('getName')->willReturn('pk');
         $index->method('isUnique')->willReturn(false);
 
-        $this->renderer->setCreateIndexTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderUp($index, 'test'));
+        $this->assertSame('$this->createIndex(\'pk\', \'test\', []);', $this->renderer->renderUp($index, 'test'));
     }
 
     /** @test */
@@ -36,8 +35,7 @@ class IndexRendererTest extends TestCase
         $index = $this->createMock(IndexInterface::class);
         $index->method('getName')->willReturn('pk');
 
-        $this->renderer->setDropIndexTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderDown($index, 'test'));
+        $this->assertSame('$this->dropIndex(\'pk\', \'test\');', $this->renderer->renderDown($index, 'test'));
     }
 
     public function providerForRender(): array

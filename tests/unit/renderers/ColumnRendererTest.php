@@ -431,46 +431,6 @@ class ColumnRendererTest extends TestCase
     }
 
     /** @test */
-    public function shouldRenderProperlyColumnWithCustomDefinitionTemplate(): void
-    {
-        $column = $this->createMock(ColumnInterface::class);
-        $renderer = $this->getRenderer();
-        $renderer->setDefinitionTemplate('custom-template');
-
-        $this->assertSame('custom-template', $renderer->render($column));
-    }
-
-    /** @test */
-    public function shouldRenderProperlyColumnWithCustomAddTemplate(): void
-    {
-        $column = $this->createMock(ColumnInterface::class);
-        $renderer = $this->getRenderer();
-        $renderer->setAddColumnTemplate('custom-template');
-
-        $this->assertSame('custom-template', $renderer->renderAdd($column, 'table'));
-    }
-
-    /** @test */
-    public function shouldRenderProperlyColumnWithCustomAlterTemplate(): void
-    {
-        $column = $this->createMock(ColumnInterface::class);
-        $renderer = $this->getRenderer();
-        $renderer->setAlterColumnTemplate('custom-template');
-
-        $this->assertSame('custom-template', $renderer->renderAlter($column, 'table'));
-    }
-
-    /** @test */
-    public function shouldRenderProperlyColumnWithCustomDropTemplate(): void
-    {
-        $column = $this->createMock(ColumnInterface::class);
-        $renderer = $this->getRenderer();
-        $renderer->setDropColumnTemplate('custom-template');
-
-        $this->assertSame('custom-template', $renderer->renderDrop($column, 'table'));
-    }
-
-    /** @test */
     public function shouldRenderProperlyColumnWithNotNull(): void
     {
         $column = $this->createMock(ColumnInterface::class);

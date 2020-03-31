@@ -28,8 +28,18 @@ class ForeignKeyRendererTest extends TestCase
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->renderer->setAddKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderUp($foreignKey, 'table', 'refTable'));
+        $this->assertSame(
+            '$this->addForeignKey(
+    \'fk\',
+    \'table\',
+    [],
+    \'refTable\',
+    [],
+    null,
+    null
+);',
+            $this->renderer->renderUp($foreignKey, 'table', 'refTable')
+        );
     }
 
     /** @test */
@@ -38,8 +48,10 @@ class ForeignKeyRendererTest extends TestCase
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->renderer->setDropKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderDown($foreignKey, 'table'));
+        $this->assertSame(
+            '$this->dropForeignKey(\'fk\', \'table\');',
+            $this->renderer->renderDown($foreignKey, 'table')
+        );
     }
 
     public function providerForRender(): array
@@ -274,7 +286,7 @@ RENDERED,
                 [],
                 <<<'RENDERED'
 $this->addForeignKey(
-    'key-template',
+    'fk-test-',
     'test',
     [],
     'refTable',
@@ -283,14 +295,14 @@ $this->addForeignKey(
     null
 );
 RENDERED,
-                '$this->dropForeignKey(\'key-template\', \'test\');'
+                '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null no columns' => [
                 null,
                 [],
                 <<<'RENDERED'
 $this->addForeignKey(
-    'key-template',
+    'fk-test-',
     'test',
     [],
     'refTable',
@@ -299,14 +311,14 @@ $this->addForeignKey(
     null
 );
 RENDERED,
-                '$this->dropForeignKey(\'key-template\', \'test\');'
+                '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null columns' => [
                 null,
                 ['a', 'b'],
                 <<<'RENDERED'
 $this->addForeignKey(
-    'key-template',
+    'fk-test-a-b',
     'test',
     ['a', 'b'],
     'refTable',
@@ -315,7 +327,7 @@ $this->addForeignKey(
     null
 );
 RENDERED,
-                '$this->dropForeignKey(\'key-template\', \'test\');'
+                '$this->dropForeignKey(\'fk-test-a-b\', \'test\');'
             ],
         ];
     }
@@ -341,7 +353,6 @@ RENDERED,
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn($name);
 
-        $this->renderer->setKeyNameTemplate('key-template');
         $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
         $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
     }

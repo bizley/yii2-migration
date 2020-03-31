@@ -136,24 +136,6 @@ RENDERED
     }
 
     /** @test */
-    public function shouldRenderProperlyWithTableAndCustomCreateTemplate(): void
-    {
-        $structure = $this->createMock(StructureInterface::class);
-        $this->structureRenderer->setCreateTableTemplate('custom-template');
-
-        $this->assertSame('custom-template', $this->structureRenderer->renderStructureUp($structure));
-    }
-
-    /** @test */
-    public function shouldRenderProperlyWithTableAndCustomDropTemplate(): void
-    {
-        $structure = $this->createMock(StructureInterface::class);
-        $this->structureRenderer->setDropTableTemplate('custom-template');
-
-        $this->assertSame('custom-template', $this->structureRenderer->renderStructureDown($structure));
-    }
-
-    /** @test */
     public function shouldRenderProperlyWithPrimaryKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);

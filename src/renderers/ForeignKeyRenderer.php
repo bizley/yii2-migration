@@ -141,22 +141,4 @@ TEMPLATE;
             $this->keyNameTemplate
         );
     }
-
-    /** @param string $addKeyTemplate */
-    public function setAddKeyTemplate(string $addKeyTemplate): void
-    {
-        $this->addKeyTemplate = $addKeyTemplate;
-    }
-
-    /** @param string $keyNameTemplate */
-    public function setKeyNameTemplate(string $keyNameTemplate): void
-    {
-        $this->keyNameTemplate = $keyNameTemplate;
-    }
-
-    /** @param string $dropKeyTemplate */
-    public function setDropKeyTemplate(string $dropKeyTemplate): void
-    {
-        $this->dropKeyTemplate = $dropKeyTemplate;
-    }
 }

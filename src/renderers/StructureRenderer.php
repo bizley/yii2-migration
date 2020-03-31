@@ -301,14 +301,4 @@ TEMPLATE;
 
         return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
     }
-
-    public function setCreateTableTemplate(string $createTableTemplate): void
-    {
-        $this->createTableTemplate = $createTableTemplate;
-    }
-
-    public function setDropTableTemplate(string $dropTableTemplate): void
-    {
-        $this->dropTableTemplate = $dropTableTemplate;
-    }
 }

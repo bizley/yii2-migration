@@ -43,8 +43,10 @@ class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('getColumns')->willReturn([]);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->renderer->setAddKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderUp($primaryKey, 'test'));
+        $this->assertSame(
+            '$this->addPrimaryKey(\'pk\', \'test\', []);',
+            $this->renderer->renderUp($primaryKey, 'test')
+        );
     }
 
     /** @test */
@@ -54,8 +56,7 @@ class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('isComposite')->willReturn(true);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->renderer->setDropKeyTemplate('new-template');
-        $this->assertSame('new-template', $this->renderer->renderDown($primaryKey, 'test'));
+        $this->assertSame('$this->dropPrimaryKey(\'pk\', \'test\');', $this->renderer->renderDown($primaryKey, 'test'));
     }
 
     public function providerForRender(): array
