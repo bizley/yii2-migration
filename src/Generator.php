@@ -7,6 +7,7 @@ namespace bizley\migration;
 use bizley\migration\renderers\StructureRendererInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use Yii;
+use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
@@ -33,6 +34,10 @@ final class Generator implements GeneratorInterface
         $this->view = $view;
     }
 
+    /**
+     * Returns the translated alias of create table migration template.
+     * @return string
+     */
     public function getCreateTableMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
@@ -40,6 +45,10 @@ final class Generator implements GeneratorInterface
         return $translatedAlias;
     }
 
+    /**
+     * Returns the translated alias of create foreign keys migration template.
+     * @return string
+     */
     public function getCreateForeignKeysMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
@@ -47,12 +56,18 @@ final class Generator implements GeneratorInterface
         return $translatedAlias;
     }
 
+    /**
+     * Returns the normalized namespace (in case it uses incorrect slashes).
+     * @param string|null $namespace
+     * @return string|null
+     */
     private function getNormalizedNamespace(?string $namespace): ?string
     {
         return !empty($namespace) ? FileHelper::normalizePath($namespace, '\\') : null;
     }
 
     /**
+     * Generates migration for the table.
      * @param string $tableName
      * @param string $migrationName
      * @param array<string> $referencesToPostpone
@@ -61,6 +76,7 @@ final class Generator implements GeneratorInterface
      * @param string|null $namespace
      * @return string
      * @throws TableMissingException
+     * @throws NotSupportedException
      */
     public function generateForTable(
         string $tableName,
@@ -94,12 +110,17 @@ final class Generator implements GeneratorInterface
         );
     }
 
+    /**
+     * Returns the suppressed foreign keys that needs to be added later when generating migrations.
+     * @return array<ForeignKeyInterface>
+     */
     public function getSuppressedForeignKeys(): array
     {
         return $this->tableMapper->getSuppressedForeignKeys();
     }
 
     /**
+     * Generates the migration for the foreign keys.
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param string $migrationName
      * @param bool $usePrefix

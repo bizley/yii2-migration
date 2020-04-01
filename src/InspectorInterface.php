@@ -6,10 +6,14 @@ namespace bizley\migration;
 
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\StructureInterface;
+use ErrorException;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 
 interface InspectorInterface
 {
     /**
+     * Prepares a blueprint for the upcoming update.
      * @param StructureInterface $newStructure
      * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
@@ -17,6 +21,9 @@ interface InspectorInterface
      * @param string|null $schema
      * @param string|null $engineVersion
      * @return BlueprintInterface
+     * @throws InvalidConfigException
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function prepareBlueprint(
         StructureInterface $newStructure,

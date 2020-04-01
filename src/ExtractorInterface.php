@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\table\StructureChangeInterface;
+use ErrorException;
 
 interface ExtractorInterface
 {
     /**
+     * Extracts migration data structures.
      * @param string $migration
      * @param array<string> $migrationPaths
+     * @throws ErrorException
      */
     public function extract(string $migration, array $migrationPaths): void;
 
-    /** @return array<string, array<StructureChangeInterface>>|null */
+    /**
+     * Returns the changes extracted from migrations.
+     * @return array<string, array<StructureChangeInterface>>|null
+     */
     public function getChanges(): ?array;
 }

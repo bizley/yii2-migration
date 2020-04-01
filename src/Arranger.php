@@ -6,6 +6,8 @@ namespace bizley\migration;
 
 use bizley\migration\table\ForeignKeyInterface;
 
+use yii\base\NotSupportedException;
+
 use function array_diff;
 use function array_key_exists;
 use function array_merge_recursive;
@@ -29,6 +31,7 @@ final class Arranger implements ArrangerInterface
     /**
      * Arranges the tables in proper order based on the presence of the foreign keys.
      * @param array<string> $inputTables
+     * @throws NotSupportedException
      */
     public function arrangeTables(array $inputTables): void
     {

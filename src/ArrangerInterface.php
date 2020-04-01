@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
+use yii\base\NotSupportedException;
+
 interface ArrangerInterface
 {
     /**
      * Arranges the tables in proper order based on the presence of the foreign keys.
      * @param array<string> $inputTables
+     * @throws NotSupportedException
      */
     public function arrangeTables(array $inputTables): void;
 

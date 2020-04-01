@@ -6,7 +6,10 @@ namespace bizley\migration;
 
 use bizley\migration\renderers\BlueprintRendererInterface;
 use bizley\migration\table\BlueprintInterface;
+use ErrorException;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
@@ -36,6 +39,10 @@ final class Updater implements UpdaterInterface
         $this->view = $view;
     }
 
+    /**
+     * Returns the translated alias of update table migration template.
+     * @return string
+     */
     public function getUpdateTableMigrationTemplate(): string
     {
         /** @var string $translatedAlias */
@@ -44,12 +51,16 @@ final class Updater implements UpdaterInterface
     }
 
     /**
+     * Prepares a blueprint for update.
      * @param string $tableName
      * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
      * @param array<string> $migrationPaths
      * @return BlueprintInterface
      * @throws TableMissingException
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function prepareBlueprint(
         string $tableName,
@@ -77,12 +88,14 @@ final class Updater implements UpdaterInterface
     }
 
     /**
+     * Generates migration based on the blueprint.
      * @param BlueprintInterface $blueprint
      * @param string $migrationName
      * @param bool $usePrefix
      * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
+     * @throws NotSupportedException
      */
     public function generateFromBlueprint(
         BlueprintInterface $blueprint,

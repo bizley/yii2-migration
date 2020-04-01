@@ -43,6 +43,7 @@ final class TableMapper implements TableMapperInterface
     private $suppressedForeignKeys = [];
 
     /**
+     * Returns a structure of the table.
      * @param string $table
      * @param array<string> $referencesToPostpone
      * @return StructureInterface
@@ -72,6 +73,7 @@ final class TableMapper implements TableMapperInterface
     }
 
     /**
+     * Returns the foreign keys of the table.
      * @param string $table
      * @return array<ForeignKeyInterface>
      * @throws NotSupportedException
@@ -101,6 +103,7 @@ final class TableMapper implements TableMapperInterface
     }
 
     /**
+     * Returns the indexes of the table.
      * @param string $table
      * @return array<IndexInterface>
      * @throws NotSupportedException
@@ -128,6 +131,7 @@ final class TableMapper implements TableMapperInterface
     }
 
     /**
+     * Returns a primary key of the table.
      * @param string $table
      * @return PrimaryKeyInterface|null
      * @throws NotSupportedException
@@ -150,6 +154,7 @@ final class TableMapper implements TableMapperInterface
     }
 
     /**
+     * Returns the columns of the table.
      * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<string, ColumnInterface>
@@ -193,18 +198,27 @@ final class TableMapper implements TableMapperInterface
         return $mappedColumns;
     }
 
-    /** @return array<ForeignKeyInterface> */
+    /**
+     * Returns the suppressed foreign keys that must be added in migration at the end.
+     * @return array<ForeignKeyInterface>
+     */
     public function getSuppressedForeignKeys(): array
     {
         return $this->suppressedForeignKeys;
     }
 
+    /**
+     * Returns a table schema of the table.
+     * @param string $table
+     * @return TableSchema|null
+     */
     public function getTableSchema(string $table): ?TableSchema
     {
         return $this->db->getTableSchema($table);
     }
 
     /**
+     * Returns a schema type.
      * @return string
      * @throws NotSupportedException
      */
@@ -215,6 +229,10 @@ final class TableMapper implements TableMapperInterface
         return Schema::identifySchema($schema);
     }
 
+    /**
+     * Returns a DB engine version.
+     * @return string|null
+     */
     public function getEngineVersion(): ?string
     {
         try {

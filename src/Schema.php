@@ -45,6 +45,7 @@ final class Schema
     }
 
     /**
+     * Checks whether the schema is SQLite.
      * @param mixed $schema
      * @return bool
      */

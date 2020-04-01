@@ -66,13 +66,20 @@ final class Extractor implements ExtractorInterface
         $this->subject->up();
     }
 
-    /** @throws InvalidArgumentException */
+    /**
+     * Sets the dummy migration file instead the real one to extract the migration structure instead of applying them.
+     * It uses Yii's class map autoloaders hack.
+     * @throws InvalidArgumentException
+     */
     private function setDummyMigrationClass(): void
     {
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
     }
 
-    /** @return array<string, array<StructureChangeInterface>>|null */
+    /**
+     * Returns the changes extracted from migrations.
+     * @return array<string, array<StructureChangeInterface>>|null
+     */
     public function getChanges(): ?array
     {
         return $this->subject !== null ? $this->subject->getChanges() : null;

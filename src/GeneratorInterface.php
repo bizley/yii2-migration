@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use bizley\migration\table\ForeignKeyInterface;
+use yii\base\NotSupportedException;
 
 interface GeneratorInterface
 {
     /**
+     * Generates migration for the table.
      * @param string $tableName
      * @param string $migrationName
      * @param array<string> $referencesToPostpone
@@ -16,6 +18,8 @@ interface GeneratorInterface
      * @param string $dbPrefix
      * @param string|null $namespace
      * @return string
+     * @throws TableMissingException
+     * @throws NotSupportedException
      */
     public function generateForTable(
         string $tableName,
@@ -27,6 +31,7 @@ interface GeneratorInterface
     ): string;
 
     /**
+     * Generates the migration for the foreign keys.
      * @param array<ForeignKeyInterface> $foreignKeys
      * @param string $migrationName
      * @param bool $usePrefix
@@ -43,6 +48,7 @@ interface GeneratorInterface
     ): string;
 
     /**
+     * Returns the suppressed foreign keys that needs to be added later when generating migrations.
      * @return array<ForeignKeyInterface>
      */
     public function getSuppressedForeignKeys(): array;

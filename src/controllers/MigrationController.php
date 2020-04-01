@@ -7,6 +7,7 @@ namespace bizley\migration\controllers;
 use bizley\migration\Schema;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ForeignKeyInterface;
+use bizley\migration\TableMissingException;
 use RuntimeException;
 use Throwable;
 use Yii;
@@ -571,6 +572,7 @@ class MigrationController extends BaseMigrationController
      * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     private function fixHistory(string $migrationClassName): void
     {
@@ -587,6 +589,7 @@ class MigrationController extends BaseMigrationController
      * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     private function generateMigrationForForeignKeys(array $postponedForeignKeys, string $migrationClassName): void
     {
@@ -618,6 +621,7 @@ class MigrationController extends BaseMigrationController
      * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     private function generateMigrationWithBlueprint(BlueprintInterface $blueprint, string $migrationClassName): void
     {
@@ -648,6 +652,8 @@ class MigrationController extends BaseMigrationController
      * @param array<string> $referencesToPostpone
      * @throws DbException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws TableMissingException
      */
     private function generateMigrationForTableCreation(
         string $tableName,

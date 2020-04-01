@@ -9,7 +9,9 @@ use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\table\StructureChangeInterface;
 use bizley\migration\table\StructureInterface;
+use ErrorException;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 
 use function array_key_exists;
 use function array_reverse;
@@ -47,6 +49,7 @@ final class Inspector implements InspectorInterface
     private $currentTable;
 
     /**
+     * Prepares a blueprint for the upcoming update.
      * @param StructureInterface $newStructure
      * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
@@ -55,6 +58,8 @@ final class Inspector implements InspectorInterface
      * @param string|null $engineVersion
      * @return BlueprintInterface
      * @throws InvalidConfigException
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function prepareBlueprint(
         StructureInterface $newStructure,
@@ -107,6 +112,7 @@ final class Inspector implements InspectorInterface
     private $appliedChanges = [];
 
     /**
+     * Gathers the changes from migrations recursively.
      * @param array<string, array<StructureChangeInterface>>|null $changes
      * @return bool true if more data can be analysed or false if this must be last one
      * @throws InvalidConfigException
