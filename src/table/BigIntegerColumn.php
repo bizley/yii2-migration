@@ -16,12 +16,19 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
         Schema::OCI,
     ];
 
+    /**
+     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }
 
     /**
+     * Sets length of the column.
      * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion
@@ -34,11 +41,19 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'bigInteger({renderLength})';
     }
 
+    /**
+     * Returns primary key variant column definition.
+     * @return string
+     */
     public function getPrimaryKeyDefinition(): string
     {
         return 'bigPrimaryKey({renderLength})';

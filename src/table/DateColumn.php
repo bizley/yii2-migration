@@ -16,9 +16,10 @@ final class DateColumn extends Column implements ColumnInterface
     }
 
     /**
+     * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
-     * @return null
+     * @return int|null
      */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {

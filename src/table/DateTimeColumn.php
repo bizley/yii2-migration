@@ -27,6 +27,7 @@ final class DateTimeColumn extends Column implements ColumnInterface
     }
 
     /**
+     * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
      * @return int|null

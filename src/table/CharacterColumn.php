@@ -6,6 +6,12 @@ namespace bizley\migration\table;
 
 final class CharacterColumn extends Column implements ColumnInterface
 {
+    /**
+     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return $this->getSize();

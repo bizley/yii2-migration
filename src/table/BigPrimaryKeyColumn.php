@@ -16,6 +16,12 @@ class BigPrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
         Schema::OCI,
     ];
 
+    /**
+     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;

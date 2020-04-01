@@ -22,9 +22,10 @@ final class DecimalColumn extends Column implements ColumnInterface
     ];
 
     /**
+     * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
-     * @return string|null
+     * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
     {

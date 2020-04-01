@@ -351,6 +351,7 @@ abstract class Column
     }
 
     /**
+     * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
      * @return string|int|null

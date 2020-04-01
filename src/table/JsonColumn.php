@@ -26,6 +26,12 @@ final class JsonColumn extends Column implements ColumnInterface
         parent::setDefault($default);
     }
 
+    /**
+     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return null;
