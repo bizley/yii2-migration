@@ -411,6 +411,106 @@ class MigrationControllerTest extends TestCase
      * @dataProvider providerForActionIds
      * @param string $actionId
      */
+    public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant1(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['pref_a', 'pref_b', 'ccc']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - pref_a
+   - pref_b
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant2(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['a_suf', 'b_suf', 'ccc']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_suf'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - a_suf
+   - b_suf
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant3(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['pref_a_suf', 'pref_b_suf', 'ccc']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*_suf'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - pref_a_suf
+   - pref_b_suf
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
+    public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant4(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['a_tab_a', 'b_tab_b', 'ccc']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_tab_*'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - a_tab_a
+   - b_tab_b
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
     public function shouldNotProceedWhenUserCancelsAndOneIsHistory(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;

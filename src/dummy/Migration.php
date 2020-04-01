@@ -260,6 +260,11 @@ class Migration extends Component implements MigrationChangesInterface
         // not supported
     }
 
+    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
+    {
+        // not supported
+    }
+
     /** @throws ReflectionException */
     public function createTable($table, $columns, $options = null)
     {
@@ -363,6 +368,7 @@ class Migration extends Component implements MigrationChangesInterface
     public function addCommentOnTable($table, $comment)
     {
         // not supported
+        // Yii is not fetching table's comment when gathering table's info so we can not compare new with old one
     }
 
     public function dropCommentFromColumn($table, $column)
@@ -373,10 +379,6 @@ class Migration extends Component implements MigrationChangesInterface
     public function dropCommentFromTable($table)
     {
         // not supported
-    }
-
-    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
-    {
-        // not supported
+        // Yii is not fetching table's comment when gathering table's info so we can not compare new with old one
     }
 }
