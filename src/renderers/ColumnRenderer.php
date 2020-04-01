@@ -53,6 +53,15 @@ final class ColumnRenderer implements ColumnRendererInterface
         $this->generalSchema = $generalSchema;
     }
 
+    /**
+     * Renders the array part with column definition (name => definition).
+     * @param ColumnInterface $column
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param int $indent
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return string|null
+     */
     public function render(
         ColumnInterface $column,
         PrimaryKeyInterface $primaryKey = null,
@@ -75,6 +84,16 @@ final class ColumnRenderer implements ColumnRendererInterface
         );
     }
 
+    /**
+     * Renders the add column statement.
+     * @param ColumnInterface $column
+     * @param string $tableName
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param int $indent
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return string|null
+     */
     public function renderAdd(
         ColumnInterface $column,
         string $tableName,
@@ -100,6 +119,16 @@ final class ColumnRenderer implements ColumnRendererInterface
         );
     }
 
+    /**
+     * Renders the alter column statement.
+     * @param ColumnInterface $column
+     * @param string $tableName
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param int $indent
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return string|null
+     */
     public function renderAlter(
         ColumnInterface $column,
         string $tableName,
@@ -125,6 +154,13 @@ final class ColumnRenderer implements ColumnRendererInterface
         );
     }
 
+    /**
+     * Renders the drop column statement.
+     * @param ColumnInterface $column
+     * @param string $tableName
+     * @param int $indent
+     * @return string|null
+     */
     public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string
     {
         $template = str_repeat(' ', $indent) . $this->dropColumnTemplate;
@@ -143,7 +179,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     }
 
     /**
-     * Renders column definition.
+     * Renders the column definition.
      * @param ColumnInterface $column
      * @param PrimaryKeyInterface|null $primaryKey
      * @param string|null $schema
@@ -164,6 +200,13 @@ final class ColumnRenderer implements ColumnRendererInterface
         return implode('->', $this->definition);
     }
 
+    /**
+     * Builds the column definition.
+     * @param ColumnInterface $column
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     */
     private function buildColumnDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
@@ -196,6 +239,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     }
 
     /**
+     * Renders the column length.
      * @param ColumnInterface $column
      * @param string $schema
      * @param string|null $engineVersion
@@ -227,6 +271,11 @@ final class ColumnRenderer implements ColumnRendererInterface
         return null;
     }
 
+    /**
+     * Returns default length of the column.
+     * @param ColumnInterface $column
+     * @return string|null
+     */
     private function getDefaultLength(ColumnInterface $column): ?string
     {
         $defaultMapping = $column->getDefaultMapping();

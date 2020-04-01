@@ -8,6 +8,14 @@ use bizley\migration\table\ForeignKeyInterface;
 
 interface ForeignKeyRendererInterface
 {
+    /**
+     * Renders the add foreign key statement.
+     * @param ForeignKeyInterface $foreignKey
+     * @param string $tableName
+     * @param string $referencedTableName
+     * @param int $indent
+     * @return string
+     */
     public function renderUp(
         ForeignKeyInterface $foreignKey,
         string $tableName,
@@ -15,6 +23,13 @@ interface ForeignKeyRendererInterface
         int $indent = 0
     ): string;
 
+    /**
+     * Renders the drop foreign key statement.
+     * @param ForeignKeyInterface $foreignKey
+     * @param string $tableName
+     * @param int $indent
+     * @return string
+     */
     public function renderDown(
         ForeignKeyInterface $foreignKey,
         string $tableName,

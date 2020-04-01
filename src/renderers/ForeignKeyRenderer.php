@@ -33,6 +33,14 @@ TEMPLATE;
     /** @var string */
     private $keyNameTemplate = 'fk-{tableName}-{keyColumns}';
 
+    /**
+     * Renders the add foreign key statement.
+     * @param ForeignKeyInterface $foreignKey
+     * @param string $tableName
+     * @param string $referencedTableName
+     * @param int $indent
+     * @return string
+     */
     public function renderUp(
         ForeignKeyInterface $foreignKey,
         string $tableName,
@@ -79,6 +87,13 @@ TEMPLATE;
         );
     }
 
+    /**
+     * Renders the drop foreign key statement.
+     * @param ForeignKeyInterface $foreignKey
+     * @param string $tableName
+     * @param int $indent
+     * @return string
+     */
     public function renderDown(
         ForeignKeyInterface $foreignKey,
         string $tableName,
@@ -99,6 +114,12 @@ TEMPLATE;
         );
     }
 
+    /**
+     * Applies the indent to every row in the template.
+     * @param int $indent
+     * @param string $template
+     * @return string
+     */
     private function applyIndent(int $indent, string $template): string
     {
         if ($indent < 1) {

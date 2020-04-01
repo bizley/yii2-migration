@@ -18,6 +18,13 @@ final class IndexRenderer implements IndexRendererInterface
     /** @var string */
     private $dropIndexTemplate = '$this->dropIndex(\'{indexName}\', \'{tableName}\');';
 
+    /**
+     * Renders the add index statement.
+     * @param IndexInterface $index
+     * @param string $tableName
+     * @param int $indent
+     * @return string|null
+     */
     public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
         $template = str_repeat(' ', $indent) . $this->createIndexTemplate;
@@ -45,6 +52,13 @@ final class IndexRenderer implements IndexRendererInterface
         );
     }
 
+    /**
+     * Renders the drop index statement.
+     * @param IndexInterface $index
+     * @param string $tableName
+     * @param int $indent
+     * @return string|null
+     */
     public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
         $template = str_repeat(' ', $indent) . $this->dropIndexTemplate;

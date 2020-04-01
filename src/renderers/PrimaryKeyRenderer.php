@@ -18,6 +18,13 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
     /** @var string */
     private $dropKeyTemplate = '$this->dropPrimaryKey(\'{keyName}\', \'{tableName}\');';
 
+    /**
+     * Renders the add primary key statement.
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param string $tableName
+     * @param int $indent
+     * @return string|null
+     */
     public function renderUp(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
         if ($primaryKey === null || $primaryKey->isComposite() === false) {
@@ -47,6 +54,13 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
         );
     }
 
+    /**
+     * Renders the drop primary key statement.
+     * @param PrimaryKeyInterface|null $primaryKey
+     * @param string $tableName
+     * @param int $indent
+     * @return string|null
+     */
     public function renderDown(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
     {
         if ($primaryKey === null || $primaryKey->isComposite() === false) {
