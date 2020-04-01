@@ -21,103 +21,175 @@ final class Structure implements StructureInterface
     /** @var array<ForeignKeyInterface> */
     private $foreignKeys = [];
 
-    /** @return string */
+    /**
+     * Returns name of the structure.
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /** @param string $name */
+    /**
+     * Sets name of the structure.
+     * @param string $name
+     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
+    /**
+     * Returns primary key of the structure.
+     * @return PrimaryKeyInterface|null
+     */
     public function getPrimaryKey(): ?PrimaryKeyInterface
     {
         return $this->primaryKey;
     }
 
+    /**
+     * Sets primary key of the structure.
+     * @param PrimaryKeyInterface|null $primaryKey
+     */
     public function setPrimaryKey(?PrimaryKeyInterface $primaryKey): void
     {
         $this->primaryKey = $primaryKey;
     }
 
-    /** @return array<ColumnInterface> */
+    /**
+     * Returns columns of the structure.
+     * @return array<ColumnInterface>
+     */
     public function getColumns(): array
     {
         return $this->columns;
     }
 
-    /** @param array<ColumnInterface> $columns */
+    /**
+     * Sets columns of the structure.
+     * @param array<ColumnInterface> $columns
+     */
     public function setColumns(array $columns): void
     {
         $this->columns = $columns;
     }
 
+    /**
+     * Adds column to the structure.
+     * @param ColumnInterface $column
+     */
     public function addColumn(ColumnInterface $column): void
     {
         $this->columns[$column->getName()] = $column;
     }
 
+    /**
+     * Removes column from the structure.
+     * @param string $name
+     */
     public function removeColumn(string $name): void
     {
         unset($this->columns[$name]);
     }
 
+    /**
+     * Returns column of given name of the structure.
+     * @param string $name
+     * @return ColumnInterface|null
+     */
     public function getColumn(string $name): ?ColumnInterface
     {
         return $this->columns[$name] ?? null;
     }
 
-    /** @return array<IndexInterface> */
+    /**
+     * Returns indexes of the structure.
+     * @return array<IndexInterface>
+     */
     public function getIndexes(): array
     {
         return $this->indexes;
     }
 
+    /**
+     * Returns index of given name of the structure.
+     * @param string $name
+     * @return IndexInterface|null
+     */
     public function getIndex(string $name): ?IndexInterface
     {
         return $this->indexes[$name] ?? null;
     }
 
-    /** @param array<IndexInterface> $indexes */
+    /**
+     * Sets indexes for the structure.
+     * @param array<IndexInterface> $indexes
+     */
     public function setIndexes(array $indexes): void
     {
         $this->indexes = $indexes;
     }
 
+    /**
+     * Adds index to the structure.
+     * @param IndexInterface $index
+     */
     public function addIndex(IndexInterface $index): void
     {
         $this->indexes[$index->getName()] = $index;
     }
 
+    /**
+     * Removes index from the structure.
+     * @param string $name
+     */
     public function removeIndex(string $name): void
     {
         unset($this->indexes[$name]);
     }
 
+    /**
+     * Returns foreign keys of the structure.
+     * @return array
+     */
     public function getForeignKeys(): array
     {
         return $this->foreignKeys;
     }
 
+    /**
+     * Returns foreign key of given name of the structure.
+     * @param string $name
+     * @return ForeignKeyInterface|null
+     */
     public function getForeignKey(string $name): ?ForeignKeyInterface
     {
         return $this->foreignKeys[$name] ?? null;
     }
 
-    /** @param array<ForeignKeyInterface> $foreignKeys */
+    /**
+     * Sets foreign keys for the structure.
+     * @param array<ForeignKeyInterface> $foreignKeys
+     */
     public function setForeignKeys(array $foreignKeys): void
     {
         $this->foreignKeys = $foreignKeys;
     }
 
+    /**
+     * Adds foreign key to the structure.
+     * @param ForeignKeyInterface $foreignKey
+     */
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
         $this->foreignKeys[$foreignKey->getName()] = $foreignKey;
     }
 
+    /**
+     * Removes foreign key from the structure.
+     * @param string $name
+     */
     public function removeForeignKey(string $name): void
     {
         unset($this->foreignKeys[$name]);

@@ -63,52 +63,91 @@ abstract class Column
     /** @var bool */
     private $first = false;
 
+    /**
+     * Returns name of the column.
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * Sets name for the column.
+     * @param string $name
+     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
+    /**
+     * Returns type of the column.
+     * @return string
+     */
     public function getType(): string
     {
         return $this->type;
     }
 
+    /**
+     * Sets type for the column.
+     * @param string $type
+     */
     public function setType(string $type): void
     {
         $this->type = $type;
     }
 
+    /**
+     * Returns default mapping of the column.
+     * @return string|null
+     */
     public function getDefaultMapping(): ?string
     {
         return $this->defaultMapping;
     }
 
+    /**
+     * Sets default mapping for the column.
+     * @param string $defaultMapping
+     */
     public function setDefaultMapping(string $defaultMapping): void
     {
         $this->defaultMapping = $defaultMapping;
     }
 
+    /**
+     * Checks whether the column can not be null.
+     * @return bool|null
+     */
     public function isNotNull(): ?bool
     {
         return $this->notNull;
     }
 
+    /**
+     * Sets the column to not be null.
+     * @param bool|null $notNull
+     */
     public function setNotNull(?bool $notNull): void
     {
         $this->notNull = $notNull;
     }
 
+    /**
+     * Returns size of the column.
+     * @return int|null
+     */
     public function getSize(): ?int
     {
         return $this->size;
     }
 
-    /** @param int|string|null $size */
+    /**
+     * Sets size for the column.
+     * @param int|string|null $size
+     */
     public function setSize($size): void
     {
         if ($size !== null) {
@@ -118,12 +157,19 @@ abstract class Column
         }
     }
 
+    /**
+     * Returns precision of the column.
+     * @return int|null
+     */
     public function getPrecision(): ?int
     {
         return $this->precision;
     }
 
-    /** @param int|string|null $precision */
+    /**
+     * Sets precision for the column.
+     * @param int|string|null $precision
+     */
     public function setPrecision($precision): void
     {
         if ($precision !== null) {
@@ -133,12 +179,19 @@ abstract class Column
         }
     }
 
+    /**
+     * Returns scale of the column.
+     * @return int|null
+     */
     public function getScale(): ?int
     {
         return $this->scale;
     }
 
-    /** @param int|string|null $scale */
+    /**
+     * Sets scale for the column.
+     * @param int|string|null $scale
+     */
     public function setScale($scale): void
     {
         if ($scale !== null) {
@@ -148,100 +201,170 @@ abstract class Column
         }
     }
 
+    /**
+     * Checks whether the column is unique.
+     * @return bool
+     */
     public function isUnique(): bool
     {
         return $this->unique;
     }
 
+    /**
+     * Sets the uniqueness of the column.
+     * @param bool $unique
+     */
     public function setUnique(bool $unique): void
     {
         $this->unique = $unique;
     }
 
+    /**
+     * Checks whether the column is unsigned.
+     * @return bool
+     */
     public function isUnsigned(): bool
     {
         return $this->unsigned;
     }
 
+    /**
+     * Sets the unsigned flag for the column.
+     * @param bool $unsigned
+     */
     public function setUnsigned(bool $unsigned): void
     {
         $this->unsigned = $unsigned;
     }
 
-    /** @return mixed */
+    /**
+     * Returns default value of the column.
+     * @return mixed
+     */
     public function getDefault()
     {
         return $this->default;
     }
 
-    /** @param mixed $default */
+    /**
+     * Sets default value for the column.
+     * @param mixed $default
+     */
     public function setDefault($default): void
     {
         $this->default = $default;
     }
 
+    /**
+     * Checks whether the column is a primary key.
+     * @return bool
+     */
     public function isPrimaryKey(): bool
     {
         return $this->primaryKey;
     }
 
+    /**
+     * Sets the primary key flag for the column.
+     * @param bool $primaryKey
+     */
     public function setPrimaryKey(bool $primaryKey): void
     {
         $this->primaryKey = $primaryKey;
     }
 
+    /**
+     * Checks whether the column has autoincrement flag.
+     * @return bool
+     */
     public function isAutoIncrement(): bool
     {
         return $this->autoIncrement;
     }
 
+    /**
+     * Sets the autoincrement flag for the column.
+     * @param bool $autoIncrement
+     */
     public function setAutoIncrement(bool $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
     }
 
+    /**
+     * Returns the value of append statement of the column.
+     * @return string|null
+     */
     public function getAppend(): ?string
     {
         return $this->append;
     }
 
+    /**
+     * Sets the value for append statement for the column.
+     * @param string|null $append
+     */
     public function setAppend(?string $append): void
     {
         $this->append = $append;
     }
 
+    /**
+     * Returns the value for comment statement for the column.
+     * @return string|null
+     */
     public function getComment(): ?string
     {
         return $this->comment;
     }
 
+    /**
+     * Sets the value for comment statement for the column.
+     * @param string|null $comment
+     */
     public function setComment(?string $comment): void
     {
         $this->comment = $comment;
     }
 
+    /**
+     * Returns the value for after statement for the column.
+     * @return string|null
+     */
     public function getAfter(): ?string
     {
         return $this->after;
     }
 
+    /**
+     * Sets the value for after statement for the column.
+     * @param string|null $after
+     */
     public function setAfter(?string $after): void
     {
         $this->after = $after;
     }
 
+    /**
+     * Checks whether the column has first statement.
+     * @return bool
+     */
     public function isFirst(): bool
     {
         return $this->first;
     }
 
+    /**
+     * Sets the column for the first statement.
+     * @param bool $first
+     */
     public function setFirst(bool $first): void
     {
         $this->first = $first;
     }
 
     /**
-     * Checks if column is a part of primary key.
+     * Checks if column is a part of the primary key.
      * @param PrimaryKeyInterface $primaryKey
      * @return bool
      */
@@ -251,7 +374,7 @@ abstract class Column
     }
 
     /**
-     * Checks if information of primary key is set in append property.
+     * Checks if information of primary key is set in append statement.
      * @param string|null $schema
      * @return bool
      */
@@ -270,9 +393,9 @@ abstract class Column
     }
 
     /**
-     * Prepares append SQL based on schema.
-     * @param bool $primaryKey
-     * @param bool $autoIncrement
+     * Prepares append statement based on the schema.
+     * @param bool $primaryKey whether the column is primary key
+     * @param bool $autoIncrement whether the column has autoincrement flag
      * @param string|null $schema
      * @return string|null
      */
@@ -312,7 +435,7 @@ abstract class Column
     }
 
     /**
-     * Removes information of primary key in append property and returns what is left.
+     * Removes information of primary key in append statement and returns what is left.
      * @param string|null $schema
      * @return null|string
      */
@@ -359,6 +482,7 @@ abstract class Column
     abstract public function getLength(string $schema = null, string $engineVersion = null);
 
     /**
+     * Sets length for the column.
      * @param string|int|array<string|int> $value
      * @param string|null $schema
      * @param string|null $engineVersion

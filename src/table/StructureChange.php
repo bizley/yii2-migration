@@ -21,39 +21,64 @@ final class StructureChange implements StructureChangeInterface
     /** @var mixed */
     private $data;
 
+    /**
+     * Returns table name of the change.
+     * @return string
+     */
     public function getTable(): string
     {
         return $this->table;
     }
 
+    /**
+     * Sets table name for the change.
+     * @param string $table
+     */
     public function setTable(string $table): void
     {
         $this->table = $table;
     }
 
+    /**
+     * Returns method of the change.
+     * @return string
+     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
+    /**
+     * Sets method for the change.
+     * @param string $method
+     */
     public function setMethod(string $method): void
     {
         $this->method = $method;
     }
 
-    /** @return mixed */
+    /**
+     * Returns data of the change.
+     * @return mixed
+     */
     public function getData()
     {
         return $this->data;
     }
 
-    /** @param mixed $data */
+    /**
+     * Sets data for the change.
+     * @param mixed $data
+     */
     public function setData($data): void
     {
         $this->data = $data;
     }
 
-    /** @return mixed Change value */
+    /**
+     * Returns value of the change based on the method.
+     * @return mixed Change value
+     */
     public function getValue()
     {
         switch ($this->getMethod()) {
@@ -91,7 +116,10 @@ final class StructureChange implements StructureChangeInterface
         }
     }
 
-    /** @return array<ColumnInterface> */
+    /**
+     * Returns create table value of the change.
+     * @return array<ColumnInterface>
+     */
     private function getValueForCreateTable(): array
     {
         $columns = [];
@@ -124,7 +152,10 @@ final class StructureChange implements StructureChangeInterface
         return $columns;
     }
 
-    /** @return array<string, string> */
+    /**
+     * Returns rename column value of the change.
+     * @return array<string, string>
+     */
     private function getValueForRenameColumn(): array
     {
         $data = $this->getData();
@@ -145,6 +176,10 @@ final class StructureChange implements StructureChangeInterface
         ];
     }
 
+    /**
+     * Returns add column value of the change.
+     * @return ColumnInterface
+     */
     private function getValueForAddColumn(): ColumnInterface
     {
         $data = $this->getData();
@@ -176,6 +211,10 @@ final class StructureChange implements StructureChangeInterface
         return $column;
     }
 
+    /**
+     * Returns add primary key value of the change.
+     * @return PrimaryKeyInterface
+     */
     private function getValueForAddPrimaryKey(): PrimaryKeyInterface
     {
         $data = $this->getData();
@@ -197,6 +236,10 @@ final class StructureChange implements StructureChangeInterface
         return $primaryKey;
     }
 
+    /**
+     * Returns add foreign key value of the change.
+     * @return ForeignKeyInterface
+     */
     private function getValueForAddForeignKey(): ForeignKeyInterface
     {
         $data = $this->getData();
@@ -222,6 +265,10 @@ final class StructureChange implements StructureChangeInterface
         return $foreignKey;
     }
 
+    /**
+     * Returns create index value of the change.
+     * @return IndexInterface
+     */
     private function getValueForCreateIndex(): IndexInterface
     {
         $data = $this->getData();
@@ -245,7 +292,10 @@ final class StructureChange implements StructureChangeInterface
         return $index;
     }
 
-    /** @return array<string, string> */
+    /**
+     * Returns add comment on column value of the change.
+     * @return array<string, string>
+     */
     private function getValueForAddCommentOnColumn(): array
     {
         $data = $this->getData();

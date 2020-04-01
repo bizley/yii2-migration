@@ -18,7 +18,7 @@ final class PrimaryKey implements PrimaryKeyInterface
     private $columns = [];
 
     /**
-     * Checks if primary key is composite.
+     * Checks whether the primary key is composite.
      * @return bool
      */
     public function isComposite(): bool
@@ -26,23 +26,37 @@ final class PrimaryKey implements PrimaryKeyInterface
         return count($this->columns) > 1;
     }
 
+    /**
+     * Returns name of the primary key.
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name ?? self::GENERIC_PRIMARY_KEY;
     }
 
+    /**
+     * Sets name for the primary key.
+     * @param string|null $name
+     */
     public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    /** @return array<string> */
+    /**
+     * Returns columns of the primary key.
+     * @return array<string>
+     */
     public function getColumns(): array
     {
         return $this->columns;
     }
 
-    /** @param array<string>|null $columns */
+    /**
+     * Sets columns for the primary key.
+     * @param array<string>|null $columns
+     */
     public function setColumns(?array $columns): void
     {
         if ($columns !== null) {
@@ -51,7 +65,7 @@ final class PrimaryKey implements PrimaryKeyInterface
     }
 
     /**
-     * Adds column to the key.
+     * Adds column to the primary key.
      * @param string $name
      */
     public function addColumn(string $name): void

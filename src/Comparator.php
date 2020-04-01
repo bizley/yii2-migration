@@ -483,7 +483,7 @@ final class Comparator implements ComparatorInterface
         foreach ($newIndexes as $name => $index) {
             if (array_key_exists($name, $oldIndexes) === false) {
                 $blueprint->addDescription("missing index '$name'");
-                $blueprint->createIndex($index);
+                $blueprint->addIndex($index);
 
                 continue;
             }
@@ -497,7 +497,7 @@ final class Comparator implements ComparatorInterface
                     . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')'
                 );
                 $blueprint->dropIndex($oldIndex);
-                $blueprint->createIndex($index);
+                $blueprint->addIndex($index);
 
                 continue;
             }
@@ -520,7 +520,7 @@ final class Comparator implements ComparatorInterface
                     . $this->stringifyValue($oldIndexColumns) . '))'
                 );
                 $blueprint->dropIndex($oldIndex);
-                $blueprint->createIndex($index);
+                $blueprint->addIndex($index);
             }
         }
 

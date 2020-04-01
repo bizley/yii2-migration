@@ -7,6 +7,7 @@ namespace bizley\migration\table;
 interface StructureBuilderInterface
 {
     /**
+     * Builds table structure based on the list of changes from the Inspector.
      * @param array<StructureChangeInterface> $changes
      * @param string|null $schema
      * @return StructureInterface
