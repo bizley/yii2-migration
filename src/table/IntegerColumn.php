@@ -41,6 +41,10 @@ final class IntegerColumn extends Column implements PrimaryKeyVariantColumnInter
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'integer({renderLength})';

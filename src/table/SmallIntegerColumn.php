@@ -41,6 +41,10 @@ final class SmallIntegerColumn extends Column implements ColumnInterface
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'smallInteger({renderLength})';

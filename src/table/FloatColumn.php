@@ -37,6 +37,10 @@ final class FloatColumn extends Column implements ColumnInterface
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'float({renderLength})';

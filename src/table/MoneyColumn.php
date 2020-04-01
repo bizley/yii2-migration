@@ -49,6 +49,10 @@ final class MoneyColumn extends Column implements ColumnInterface
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'money({renderLength})';

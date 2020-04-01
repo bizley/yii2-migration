@@ -64,6 +64,10 @@ final class DateTimeColumn extends Column implements ColumnInterface
         return in_array($schema, $this->lengthSchemas, true);
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'dateTime({renderLength})';

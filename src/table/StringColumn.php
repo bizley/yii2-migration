@@ -29,6 +29,10 @@ final class StringColumn extends Column implements ColumnInterface
         $this->setPrecision($value);
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'string({renderLength})';

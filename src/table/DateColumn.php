@@ -27,6 +27,10 @@ final class DateColumn extends Column implements ColumnInterface
         return null;
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'date()';

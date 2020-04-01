@@ -41,6 +41,10 @@ class BigPrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
         }
     }
 
+    /**
+     * Returns default column definition.
+     * @return string
+     */
     public function getDefinition(): string
     {
         return 'bigPrimaryKey({renderLength})';
