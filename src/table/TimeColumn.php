@@ -14,6 +14,13 @@ final class TimeColumn extends Column implements ColumnInterface
     /** @var array<string> Schemas using length for this column */
     private $lengthSchemas = [Schema::PGSQL];
 
+    /**
+     * Checks if schema supports length for this column.
+     * In case of MySQL the engine version must be 5.6.4 or newer.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return bool
+     */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
         if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {

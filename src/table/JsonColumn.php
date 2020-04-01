@@ -11,6 +11,11 @@ use function is_array;
 
 final class JsonColumn extends Column implements ColumnInterface
 {
+    /**
+     * Sets default value.
+     * In case the value is set as a JSON-encoded array it's being decoded.
+     * @param mixed $default
+     */
     public function setDefault($default): void
     {
         if ($default !== '' && $default !== null && !is_array($default)) {

@@ -50,6 +50,10 @@ final class IntegerColumn extends Column implements PrimaryKeyVariantColumnInter
         return 'integer({renderLength})';
     }
 
+    /**
+     * Returns primary key variant column definition.
+     * @return string
+     */
     public function getPrimaryKeyDefinition(): string
     {
         return 'primaryKey({renderLength})';
