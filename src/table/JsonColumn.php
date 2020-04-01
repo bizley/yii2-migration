@@ -38,6 +38,7 @@ final class JsonColumn extends Column implements ColumnInterface
     }
 
     /**
+     * Sets length of the column.
      * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion

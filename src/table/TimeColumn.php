@@ -23,12 +23,19 @@ final class TimeColumn extends Column implements ColumnInterface
         return in_array($schema, $this->lengthSchemas, true);
     }
 
+    /**
+     * Returns length of the column.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return int|null
+     */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
         return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getPrecision() : null;
     }
 
     /**
+     * Sets length of the column.
      * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion

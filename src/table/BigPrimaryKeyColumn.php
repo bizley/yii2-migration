@@ -28,6 +28,7 @@ class BigPrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
     }
 
     /**
+     * Sets length of the column.
      * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion

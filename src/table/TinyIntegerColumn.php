@@ -17,6 +17,7 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
     ];
 
     /**
+     * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
      * @return int|null
@@ -27,6 +28,7 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
     }
 
     /**
+     * Sets length of the column.
      * @param string|int $value
      * @param string|null $schema
      * @param string|null $engineVersion
