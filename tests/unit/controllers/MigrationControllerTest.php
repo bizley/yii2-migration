@@ -511,6 +511,31 @@ class MigrationControllerTest extends TestCase
      * @dataProvider providerForActionIds
      * @param string $actionId
      */
+    public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant5(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['pref_tab', 'tab_suf', 'ccc']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['test'];
+
+        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*,*_suf'));
+        $this->assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - pref_tab
+   - tab_suf
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     * @param string $actionId
+     */
     public function shouldNotProceedWhenUserCancelsAndOneIsHistory(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
