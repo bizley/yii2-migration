@@ -24,10 +24,13 @@ final class Arranger implements ArrangerInterface
     }
 
     /** @var array<string, array<string>> */
-    private $dependency = [];
+    private $dependencies = [];
 
-    /** @param array<string> $inputTables */
-    public function arrangeMigrations(array $inputTables): void
+    /**
+     * Arranges the tables in proper order based on the presence of the foreign keys.
+     * @param array<string> $inputTables
+     */
+    public function arrangeTables(array $inputTables): void
     {
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
@@ -38,23 +41,32 @@ final class Arranger implements ArrangerInterface
             }
         }
 
-        $this->arrangeTables($this->dependency);
+        $this->arrangeDependencies($this->dependencies);
     }
 
+    /**
+     * Adds dependency of the table.
+     * @param string $table
+     * @param string|null $dependsOnTable
+     */
     private function addDependency(string $table, string $dependsOnTable = null): void
     {
-        if (!array_key_exists($table, $this->dependency)) {
-            $this->dependency[$table] = [];
+        if (!array_key_exists($table, $this->dependencies)) {
+            $this->dependencies[$table] = [];
         }
 
         if ($dependsOnTable) {
-            $this->dependency[$table][] = $dependsOnTable;
+            $this->dependencies[$table][] = $dependsOnTable;
         }
     }
 
     /** @var array<string> */
     private $tablesInOrder = [];
 
+    /**
+     * Returns the tables in proper order.
+     * @return array<string>
+     */
     public function getTablesInOrder(): array
     {
         return $this->tablesInOrder;
@@ -63,7 +75,11 @@ final class Arranger implements ArrangerInterface
     /** @var array<string, array<string>> */
     private $referencesToPostpone = [];
 
-    /** @return array<string> */
+    /**
+     * Returns the references that needs to be postponed. Foreign keys referring the tables in references must be
+     * added in migration after the migration creating all the tables.
+     * @return array<string>
+     */
     public function getReferencesToPostpone(): array
     {
         $flattenedReferencesToPostpone = [];
@@ -78,8 +94,11 @@ final class Arranger implements ArrangerInterface
         return array_unique($flattenedReferencesToPostpone);
     }
 
-    /** @param array<string, array<string>> $input */
-    private function arrangeTables(array $input): void
+    /**
+     * Arranges the dependencies recursively.
+     * @param array<string, array<string>> $input
+     */
+    private function arrangeDependencies(array $input): void
     {
         $order = [];
         $checkList = [];
@@ -117,7 +136,7 @@ final class Arranger implements ArrangerInterface
             if ($done === false) {
                 $input[$lastCheckedName] = array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
 
-                $this->arrangeTables($input);
+                $this->arrangeDependencies($input);
                 $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
                     [$lastCheckedName => [$lastCheckedDependency]],

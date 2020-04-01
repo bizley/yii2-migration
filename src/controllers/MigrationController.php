@@ -270,7 +270,7 @@ class MigrationController extends BaseMigrationController
         $referencesToPostpone = [];
         $tables = $inputTables;
         if ($countTables > 1) {
-            $this->getArranger()->arrangeMigrations($inputTables);
+            $this->getArranger()->arrangeTables($inputTables);
             $tables = $this->getArranger()->getTablesInOrder();
             $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 
@@ -430,7 +430,7 @@ class MigrationController extends BaseMigrationController
         $countTables = count($newTables);
         $referencesToPostpone = [];
         if ($countTables > 1) {
-            $this->getArranger()->arrangeMigrations($newTables);
+            $this->getArranger()->arrangeTables($newTables);
             $newTables = $this->getArranger()->getTablesInOrder();
             $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
 

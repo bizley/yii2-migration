@@ -74,7 +74,7 @@ class ArrangerTest extends TestCase
         $tableMapper->method('getStructureOf')->willReturn($structure);
         $arranger = new Arranger($tableMapper);
 
-        $arranger->arrangeMigrations(array_keys($inputData));
+        $arranger->arrangeTables(array_keys($inputData));
 
         $this->assertSame($tablesInOrder, $arranger->getTablesInOrder());
         $this->assertSame($referencesToPostpone, $arranger->getReferencesToPostpone());

@@ -38,7 +38,7 @@ interface StructureInterface
 
     /**
      * Returns columns of the structure.
-     * @return array<ColumnInterface>
+     * @return array<string, ColumnInterface>
      */
     public function getColumns(): array;
 
@@ -51,7 +51,7 @@ interface StructureInterface
 
     /**
      * Returns foreign keys of the structure.
-     * @return array
+     * @return array<string, ForeignKeyInterface>
      */
     public function getForeignKeys(): array;
 
@@ -82,7 +82,7 @@ interface StructureInterface
 
     /**
      * Returns indexes of the structure.
-     * @return array<IndexInterface>
+     * @return array<string, IndexInterface>
      */
     public function getIndexes(): array;
 

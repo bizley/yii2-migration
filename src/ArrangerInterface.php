@@ -6,12 +6,22 @@ namespace bizley\migration;
 
 interface ArrangerInterface
 {
-    /** @param array<string> $inputTables */
-    public function arrangeMigrations(array $inputTables): void;
+    /**
+     * Arranges the tables in proper order based on the presence of the foreign keys.
+     * @param array<string> $inputTables
+     */
+    public function arrangeTables(array $inputTables): void;
 
-    /** @return array<string> */
+    /**
+     * Returns the tables in proper order.
+     * @return array<string>
+     */
     public function getTablesInOrder(): array;
 
-    /** @return array<string> */
+    /**
+     * Returns the references that needs to be postponed. Foreign keys referring the tables in references must be
+     * added in migration after the migration creating all the tables.
+     * @return array<string>
+     */
     public function getReferencesToPostpone(): array;
 }

@@ -12,13 +12,13 @@ final class Structure implements StructureInterface
     /** @var PrimaryKeyInterface|null */
     private $primaryKey;
 
-    /** @var array<ColumnInterface> */
+    /** @var array<string, ColumnInterface> */
     private $columns = [];
 
-    /** @var array<IndexInterface> */
+    /** @var array<string, IndexInterface> */
     private $indexes = [];
 
-    /** @var array<ForeignKeyInterface> */
+    /** @var array<string, ForeignKeyInterface> */
     private $foreignKeys = [];
 
     /**
@@ -59,7 +59,7 @@ final class Structure implements StructureInterface
 
     /**
      * Returns columns of the structure.
-     * @return array<ColumnInterface>
+     * @return array<string, ColumnInterface>
      */
     public function getColumns(): array
     {
@@ -68,7 +68,7 @@ final class Structure implements StructureInterface
 
     /**
      * Sets columns of the structure.
-     * @param array<ColumnInterface> $columns
+     * @param array<string, ColumnInterface> $columns
      */
     public function setColumns(array $columns): void
     {
@@ -105,7 +105,7 @@ final class Structure implements StructureInterface
 
     /**
      * Returns indexes of the structure.
-     * @return array<IndexInterface>
+     * @return array<string, IndexInterface>
      */
     public function getIndexes(): array
     {
@@ -124,7 +124,7 @@ final class Structure implements StructureInterface
 
     /**
      * Sets indexes for the structure.
-     * @param array<IndexInterface> $indexes
+     * @param array<string, IndexInterface> $indexes
      */
     public function setIndexes(array $indexes): void
     {
@@ -151,7 +151,7 @@ final class Structure implements StructureInterface
 
     /**
      * Returns foreign keys of the structure.
-     * @return array
+     * @return array<string, ForeignKeyInterface>
      */
     public function getForeignKeys(): array
     {
@@ -170,7 +170,7 @@ final class Structure implements StructureInterface
 
     /**
      * Sets foreign keys for the structure.
-     * @param array<ForeignKeyInterface> $foreignKeys
+     * @param array<string, ForeignKeyInterface> $foreignKeys
      */
     public function setForeignKeys(array $foreignKeys): void
     {

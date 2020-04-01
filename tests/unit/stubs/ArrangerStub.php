@@ -12,7 +12,7 @@ final class ArrangerStub implements ArrangerInterface
     {
     }
 
-    public function arrangeMigrations(array $inputTables): void
+    public function arrangeTables(array $inputTables): void
     {
     }
 

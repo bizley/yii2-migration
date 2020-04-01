@@ -99,7 +99,7 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns changes descriptions.
-     * @return array
+     * @return array<string>
      */
     public function getDescriptions(): array
     {

@@ -56,6 +56,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Compares the columns between new and old structure.
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param BlueprintInterface $blueprint
@@ -78,6 +79,7 @@ final class Comparator implements ComparatorInterface
         $oldColumns = $oldStructure->getColumns();
 
         /** @var ColumnInterface $column */
+        /** @var string $name */
         foreach ($newColumns as $name => $column) {
             if (array_key_exists($name, $oldColumns) === false) {
                 $blueprint->addDescription("missing column '$name'");
@@ -179,6 +181,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Compares the foreign keys between new and old structure.
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param BlueprintInterface $blueprint
@@ -323,6 +326,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Compares the primary keys between new and old structure.
      * @param PrimaryKeyInterface|null $newPrimaryKey
      * @param PrimaryKeyInterface|null $oldPrimaryKey
      * @param BlueprintInterface $blueprint
@@ -395,6 +399,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Removes excessive primary key statements from the column in case the primary key will be added separately anyway.
      * @param BlueprintInterface $blueprint
      * @param array<string> $differentColumns
      * @param int $newPrimaryKeyColumnsCount
@@ -429,6 +434,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Checks whether the separate primary key needs to be added.
      * @param BlueprintInterface $blueprint
      * @param array<string> $differentColumns
      * @param int $newColumnsCount
@@ -467,6 +473,7 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
+     * Compares the indexes between new and old structure.
      * @param StructureInterface $newStructure
      * @param StructureInterface $oldStructure
      * @param BlueprintInterface $blueprint
@@ -532,6 +539,13 @@ final class Comparator implements ComparatorInterface
         }
     }
 
+    /**
+     * Checks if append statements are the same in new and old structure. Compares the actual statements and potential
+     * ones.
+     * @param string $append
+     * @param ColumnInterface $column
+     * @return bool
+     */
     private function isAppendSame(string $append, ColumnInterface $column): bool
     {
         $autoIncrement = false;
