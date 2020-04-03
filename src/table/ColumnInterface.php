@@ -233,6 +233,12 @@ interface ColumnInterface
     public function getDefaultMapping(): ?string;
 
     /**
+     * Sets default mapping for the column.
+     * @param string|null $defaultMapping
+     */
+    public function setDefaultMapping(?string $defaultMapping): void;
+
+    /**
      * Returns type of the column.
      * @return string
      */

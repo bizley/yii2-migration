@@ -17,6 +17,7 @@ use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\mysql\Schema as MysqlSchema;
+use yii\db\QueryBuilder;
 use yii\db\TableSchema;
 
 final class TableMapperTest extends TestCase
@@ -53,6 +54,7 @@ final class TableMapperTest extends TestCase
         $this->schema->method('getTableForeignKeys')->willReturn($foreignKeys);
         $this->schema->method('getTableIndexes')->willReturn($indexes);
         $this->schema->method('getTablePrimaryKey')->willReturn($primaryKey);
+        $this->schema->method('getQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
 
         if ($mockTableSchema) {
             $this->db->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));

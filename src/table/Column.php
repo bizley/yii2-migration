@@ -21,7 +21,7 @@ abstract class Column
     /** @var string */
     private $type;
 
-    /** @var string */
+    /** @var string|null */
     private $defaultMapping;
 
     /** @var bool|null */
@@ -110,9 +110,9 @@ abstract class Column
 
     /**
      * Sets default mapping for the column.
-     * @param string $defaultMapping
+     * @param string|null $defaultMapping
      */
-    public function setDefaultMapping(string $defaultMapping): void
+    public function setDefaultMapping(?string $defaultMapping): void
     {
         $this->defaultMapping = $defaultMapping;
     }

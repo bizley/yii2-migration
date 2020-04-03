@@ -158,6 +158,7 @@ final class TableMapper implements TableMapperInterface
      * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<string, ColumnInterface>
+     * @throws NotSupportedException
      */
     private function getColumns(string $table, array $indexes = []): array
     {
@@ -167,6 +168,8 @@ final class TableMapper implements TableMapperInterface
             return [];
         }
 
+        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+        $schema = $this->db->getSchema();
         foreach ($tableSchema->columns as $column) {
             $isUnique = false;
 
@@ -191,6 +194,7 @@ final class TableMapper implements TableMapperInterface
             $mappedColumn->setAutoIncrement($column->autoIncrement);
             $mappedColumn->setUnsigned($column->unsigned);
             $mappedColumn->setComment($column->comment ?: null);
+            $mappedColumn->setDefaultMapping($schema->getQueryBuilder()->typeMap[$column->type] ?? null);
 
             $mappedColumns[$column->name] = $mappedColumn;
         }

@@ -147,6 +147,8 @@ class Migration extends Component implements MigrationChangesInterface
             $schema['type'] = $dbToKey[$matches[1]];
         }
 
+        $schema['defaultMapping'] = $keyToDb[$type] ?? null;
+
         return $schema;
     }
 
@@ -171,7 +173,7 @@ class Migration extends Component implements MigrationChangesInterface
 
         $schema = $this->fillTypeMapProperties(
             $reflectionProperty->getValue($columnData),
-            $this->db->schema->createQueryBuilder()->typeMap,
+            $this->db->schema->getQueryBuilder()->typeMap,
             $this->db->schema->typeMap
         );
 
