@@ -19,7 +19,7 @@ use yii\db\IndexConstraint;
 use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\TableSchema;
 
-class TableMapperTest extends TestCase
+final class TableMapperTest extends TestCase
 {
     /** @var MockObject|Connection */
     private $db;

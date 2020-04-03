@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\MoneyColumn;
 use PHPUnit\Framework\TestCase;
 
-class MoneyColumnTest extends TestCase
+final class MoneyColumnTest extends TestCase
 {
     /** @var MoneyColumn */
     private $column;

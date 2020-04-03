@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\UnsignedPrimaryKeyColumn;
 use PHPUnit\Framework\TestCase;
 
-class UnsignedPrimaryKeyColumnTest extends TestCase
+final class UnsignedPrimaryKeyColumnTest extends TestCase
 {
     /** @var UnsignedPrimaryKeyColumn */
     private $column;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests\unit\stubs;
+namespace bizley\tests\stubs;
 
 final class WrongMigration
 {

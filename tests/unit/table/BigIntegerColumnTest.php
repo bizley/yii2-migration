@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\BigIntegerColumn;
 use PHPUnit\Framework\TestCase;
 
-class BigIntegerColumnTest extends TestCase
+final class BigIntegerColumnTest extends TestCase
 {
     /** @var BigIntegerColumn */
     private $column;

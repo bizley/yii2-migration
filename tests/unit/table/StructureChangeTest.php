@@ -15,7 +15,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use yii\db\Schema;
 
-class StructureChangeTest extends TestCase
+final class StructureChangeTest extends TestCase
 {
     /** @var StructureChange */
     private $change;

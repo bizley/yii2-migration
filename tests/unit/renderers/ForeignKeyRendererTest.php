@@ -8,7 +8,7 @@ use bizley\migration\renderers\ForeignKeyRenderer;
 use bizley\migration\table\ForeignKeyInterface;
 use PHPUnit\Framework\TestCase;
 
-class ForeignKeyRendererTest extends TestCase
+final class ForeignKeyRendererTest extends TestCase
 {
     /** @var ForeignKeyRenderer */
     private $renderer;

@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\SmallIntegerColumn;
 use PHPUnit\Framework\TestCase;
 
-class SmallIntegerColumnTest extends TestCase
+final class SmallIntegerColumnTest extends TestCase
 {
     /** @var SmallIntegerColumn */
     private $column;

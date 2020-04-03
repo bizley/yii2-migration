@@ -9,7 +9,7 @@ use bizley\migration\table\TimestampColumn;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
-class TimestampColumnTest extends TestCase
+final class TimestampColumnTest extends TestCase
 {
     /** @var TimestampColumn */
     private $column;

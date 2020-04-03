@@ -10,7 +10,7 @@ use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\PrimaryKey;
 use PHPUnit\Framework\TestCase;
 
-class GenericColumnTest extends TestCase
+final class GenericColumnTest extends TestCase
 {
     /** @var Column */
     private $column;

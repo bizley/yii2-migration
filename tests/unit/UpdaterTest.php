@@ -11,15 +11,18 @@ use bizley\migration\table\StructureInterface;
 use bizley\migration\TableMapperInterface;
 use bizley\migration\TableMissingException;
 use bizley\migration\Updater;
+use ErrorException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\TableSchema;
 
 use function is_string;
 
-class UpdaterTest extends TestCase
+final class UpdaterTest extends TestCase
 {
     /** @var TableMapperInterface|MockObject */
     private $mapper;
@@ -74,6 +77,7 @@ class UpdaterTest extends TestCase
      * @dataProvider providerForNamespaces
      * @param string|null $namespace
      * @param string|null $expected
+     * @throws NotSupportedException
      */
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
@@ -101,7 +105,10 @@ class UpdaterTest extends TestCase
 
     /**
      * @test
+     * @throws NotSupportedException
      * @throws TableMissingException
+     * @throws ErrorException
+     * @throws InvalidConfigException
      */
     public function shouldThrowExceptionWhenTableIsMissing(): void
     {
@@ -112,6 +119,9 @@ class UpdaterTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      * @throws TableMissingException
      */
     public function shouldProperlyPrepareBlueprint(): void
@@ -134,7 +144,10 @@ class UpdaterTest extends TestCase
         $this->updater->prepareBlueprint('table', false, ['a'], ['b']);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldProperlyGenerateFromBlueprint(): void
     {
         $blueprint = $this->createMock(BlueprintInterface::class);

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace bizley\tests\unit\controllers;
 
 use bizley\migration\table\Blueprint;
-use bizley\tests\unit\stubs\ArrangerStub;
-use bizley\tests\unit\stubs\GeneratorStub;
-use bizley\tests\unit\stubs\MigrationControllerStub;
-use bizley\tests\unit\stubs\UpdaterStub;
+use bizley\tests\stubs\ArrangerStub;
+use bizley\tests\stubs\GeneratorStub;
+use bizley\tests\stubs\MigrationControllerStub;
+use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -30,7 +30,7 @@ use yii\db\TableSchema;
 
 use function ucfirst;
 
-class MigrationControllerTest extends TestCase
+final class MigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */
     private $controller;

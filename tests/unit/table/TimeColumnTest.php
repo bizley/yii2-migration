@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\TimeColumn;
 use PHPUnit\Framework\TestCase;
 
-class TimeColumnTest extends TestCase
+final class TimeColumnTest extends TestCase
 {
     /** @var TimeColumn */
     private $column;

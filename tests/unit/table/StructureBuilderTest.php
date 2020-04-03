@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use yii\base\InvalidArgumentException;
 
-class StructureBuilderTest extends TestCase
+final class StructureBuilderTest extends TestCase
 {
     /** @var StructureBuilder */
     private $builder;

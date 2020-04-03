@@ -12,7 +12,7 @@ use bizley\migration\table\PrimaryKeyVariantColumnInterface;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
-class ColumnRendererTest extends TestCase
+final class ColumnRendererTest extends TestCase
 {
     protected function getRenderer(bool $generalSchema = true): ColumnRenderer
     {

@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\IntegerColumn;
 use PHPUnit\Framework\TestCase;
 
-class IntegerColumnTest extends TestCase
+final class IntegerColumnTest extends TestCase
 {
     /** @var IntegerColumn */
     private $column;

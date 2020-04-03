@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\FloatColumn;
 use PHPUnit\Framework\TestCase;
 
-class FloatColumnTest extends TestCase
+final class FloatColumnTest extends TestCase
 {
     /** @var FloatColumn */
     private $column;

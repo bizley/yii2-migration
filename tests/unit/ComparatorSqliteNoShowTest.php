@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKey;
 use yii\base\NotSupportedException;
 
-class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
+final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
 {
     /**
      * @param bool $generalSchema

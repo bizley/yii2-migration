@@ -6,15 +6,15 @@ namespace bizley\tests\unit;
 
 use bizley\migration\Extractor;
 use bizley\migration\table\StructureChangeInterface;
-use bizley\tests\unit\stubs\GoodMigration;
-use bizley\tests\unit\stubs\WrongMigration;
+use bizley\tests\stubs\GoodMigration;
+use bizley\tests\stubs\WrongMigration;
 use ErrorException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\db\Connection;
 
-class ExtractorTest extends TestCase
+final class ExtractorTest extends TestCase
 {
     /** @var MockObject|Connection */
     private $db;
@@ -76,7 +76,7 @@ class ExtractorTest extends TestCase
      */
     public function shouldReturnChangesWhenSubjectIsNotNamespaced(): void
     {
-        $this->extractor->extract('good_migration', ['tests/unit/stubs']);
+        $this->extractor->extract('good_migration', ['tests/stubs']);
         $changes = $this->extractor->getChanges();
         $this->assertSame(['table'], array_keys($changes));
         $this->assertInstanceOf(StructureChangeInterface::class, array_values($changes)[0][0]);

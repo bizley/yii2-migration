@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\DoubleColumn;
 use PHPUnit\Framework\TestCase;
 
-class DoubleColumnTest extends TestCase
+final class DoubleColumnTest extends TestCase
 {
     /** @var DoubleColumn */
     private $column;

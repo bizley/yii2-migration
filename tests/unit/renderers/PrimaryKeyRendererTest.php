@@ -8,7 +8,7 @@ use bizley\migration\renderers\PrimaryKeyRenderer;
 use bizley\migration\table\PrimaryKeyInterface;
 use PHPUnit\Framework\TestCase;
 
-class PrimaryKeyRendererTest extends TestCase
+final class PrimaryKeyRendererTest extends TestCase
 {
     /** @var PrimaryKeyRenderer */
     private $renderer;

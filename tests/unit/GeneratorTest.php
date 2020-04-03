@@ -13,12 +13,13 @@ use bizley\migration\TableMissingException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
+use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\TableSchema;
 
 use function is_string;
 
-class GeneratorTest extends TestCase
+final class GeneratorTest extends TestCase
 {
     /** @var TableMapperInterface|MockObject */
     private $mapper;
@@ -78,6 +79,7 @@ class GeneratorTest extends TestCase
      * @param string|null $namespace
      * @param string|null $expected
      * @throws TableMissingException
+     * @throws NotSupportedException
      */
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
@@ -101,6 +103,7 @@ class GeneratorTest extends TestCase
     /**
      * @test
      * @throws TableMissingException
+     * @throws NotSupportedException
      */
     public function shouldThrowExceptionWhenTableIsMissing(): void
     {
@@ -112,6 +115,7 @@ class GeneratorTest extends TestCase
     /**
      * @test
      * @throws TableMissingException
+     * @throws NotSupportedException
      */
     public function shouldProperlyGenerateForTable(): void
     {

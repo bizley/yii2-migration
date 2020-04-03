@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\DateColumn;
 use PHPUnit\Framework\TestCase;
 
-class DateColumnTest extends TestCase
+final class DateColumnTest extends TestCase
 {
     /** @var DateColumn */
     private $column;

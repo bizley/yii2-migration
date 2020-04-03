@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\CharacterColumn;
 use PHPUnit\Framework\TestCase;
 
-class CharacterColumnTest extends TestCase
+final class CharacterColumnTest extends TestCase
 {
     /** @var CharacterColumn */
     private $column;

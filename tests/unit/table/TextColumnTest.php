@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\TextColumn;
 use PHPUnit\Framework\TestCase;
 
-class TextColumnTest extends TestCase
+final class TextColumnTest extends TestCase
 {
     /** @var TextColumn */
     private $column;

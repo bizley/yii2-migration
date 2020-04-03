@@ -9,7 +9,7 @@ use bizley\migration\table\DateTimeColumn;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
-class DateTimeColumnTest extends TestCase
+final class DateTimeColumnTest extends TestCase
 {
     /** @var DateTimeColumn */
     private $column;

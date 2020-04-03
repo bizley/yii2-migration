@@ -10,10 +10,11 @@ use bizley\migration\table\StructureInterface;
 use bizley\migration\TableMapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use yii\base\NotSupportedException;
 
 use function array_keys;
 
-class ArrangerTest extends TestCase
+final class ArrangerTest extends TestCase
 {
     public function providerForArrange(): array
     {
@@ -49,6 +50,7 @@ class ArrangerTest extends TestCase
      * @param array $inputData
      * @param array $tablesInOrder
      * @param array $referencesToPostpone
+     * @throws NotSupportedException
      */
     public function shouldArrangeTables(
         array $inputData,

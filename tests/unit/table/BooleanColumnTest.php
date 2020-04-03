@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\BooleanColumn;
 use PHPUnit\Framework\TestCase;
 
-class BooleanColumnTest extends TestCase
+final class BooleanColumnTest extends TestCase
 {
     /** @var BooleanColumn */
     private $column;

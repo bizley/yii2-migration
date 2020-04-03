@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\BinaryColumn;
 use PHPUnit\Framework\TestCase;
 
-class BinaryColumnTest extends TestCase
+final class BinaryColumnTest extends TestCase
 {
     /** @var BinaryColumn */
     private $column;

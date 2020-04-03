@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests\unit\stubs;
+namespace bizley\tests\stubs;
 
 use bizley\migration\table\Blueprint;
 use bizley\migration\table\BlueprintInterface;

@@ -11,11 +11,13 @@ use bizley\migration\Inspector;
 use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\table\StructureChangeInterface;
 use bizley\migration\table\StructureInterface;
+use ErrorException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 
-class InspectorTest extends TestCase
+final class InspectorTest extends TestCase
 {
     /** @var HistoryManagerInterface|MockObject */
     private $historyManager;
@@ -49,6 +51,8 @@ class InspectorTest extends TestCase
     /**
      * @test
      * @throws InvalidConfigException
+     * @throws ErrorException
+     * @throws NotSupportedException
      */
     public function shouldReturnPendingBlueprintWhenNoHistory(): void
     {
@@ -70,7 +74,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldReturnPendingBlueprintWhenAllHistorySkipped(): void
     {
@@ -92,7 +98,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldReturnPendingBlueprintWhenAllHistorySkippedAndMigrationNotTrimmed(): void
     {
@@ -114,7 +122,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldReturnPendingBlueprintWhenNoChangesGathered(): void
     {
@@ -136,7 +146,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldStartFromScratchWhenNoTableInHistory(): void
     {
@@ -162,7 +174,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldStartFromScratchWhenMethodIsDropTable(): void
     {
@@ -193,7 +207,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldReturnNonPendingBlueprintWhenMethodIsCreateTableAndStructuresAreSame(): void
     {
@@ -224,7 +240,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldStartFromScratchWhenMethodIsRenameAndDropTable(): void
     {
@@ -263,7 +281,9 @@ class InspectorTest extends TestCase
 
     /**
      * @test
+     * @throws ErrorException
      * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function shouldGatherChangesAndPrepareBlueprint(): void
     {

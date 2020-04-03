@@ -11,7 +11,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
-class SchemaTest extends TestCase
+final class SchemaTest extends TestCase
 {
     /**
      * @test

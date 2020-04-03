@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace bizley\tests\unit\controllers;
 
 use bizley\migration\controllers\BaseMigrationController;
-use bizley\tests\unit\stubs\GenericConstructorClass;
+use bizley\tests\stubs\GenericConstructorClass;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\base\Module;
 use yii\base\View;
 use yii\db\Connection;
 
-class BaseMigrationControllerTest extends TestCase
+final class BaseMigrationControllerTest extends TestCase
 {
     /** @var BaseMigrationController */
     private $controller;

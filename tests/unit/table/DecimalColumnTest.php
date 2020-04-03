@@ -8,7 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\DecimalColumn;
 use PHPUnit\Framework\TestCase;
 
-class DecimalColumnTest extends TestCase
+final class DecimalColumnTest extends TestCase
 {
     /** @var DecimalColumn */
     private $column;
