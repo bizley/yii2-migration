@@ -193,7 +193,7 @@ class MigrationController extends BaseMigrationController
         }
 
         $this->db = Instance::ensure($this->db, Connection::class);
-        $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n\n", Console::FG_CYAN);
+        $this->stdout("Yii 2 Migration Generator Tool v{$this->version}\n", Console::FG_CYAN);
 
         return true;
     }
@@ -773,7 +773,7 @@ class MigrationController extends BaseMigrationController
         }
         $countTables = count($inputTables);
         if ($countTables === 0) {
-            $this->stdout(" > No matching tables in database.\n", Console::FG_YELLOW);
+            $this->stdout("\n > No matching tables in database.\n", Console::FG_YELLOW);
             if ($excludedInfo) {
                 $this->stdout($excludedInfo, Console::FG_YELLOW);
             }

@@ -308,7 +308,8 @@ final class MigrationControllerTest extends TestCase
 
         $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}(''));
         $this->assertSame(
-            ' > No matching tables in database.
+            '
+ > No matching tables in database.
 ',
             MigrationControllerStub::$stdout
         );
@@ -328,7 +329,8 @@ final class MigrationControllerTest extends TestCase
 
         $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('not-test'));
         $this->assertSame(
-            ' > No matching tables in database.
+            '
+ > No matching tables in database.
 ',
             MigrationControllerStub::$stdout
         );
@@ -349,7 +351,8 @@ final class MigrationControllerTest extends TestCase
 
         $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test'));
         $this->assertSame(
-            ' > No matching tables in database.
+            '
+ > No matching tables in database.
  > 1 table excluded by the config.
 ',
             MigrationControllerStub::$stdout

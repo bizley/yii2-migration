@@ -3,6 +3,8 @@ services:
   mysql5.7:
     restart: "no"
     image: mysql:5.7.29
+    ports:
+      - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=migration
@@ -14,6 +16,8 @@ services:
   pgsql9.6:
     restart: "no"
     image: postgres:9.6.17
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_DB=migration
       - POSTGRES_USER=migration

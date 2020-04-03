@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace bizley\tests\stubs;
 
 use bizley\migration\controllers\MigrationController;
-use RuntimeException;
 
 final class MigrationControllerStub extends MigrationController
 {
@@ -14,6 +13,9 @@ final class MigrationControllerStub extends MigrationController
 
     /** @var bool */
     public static $confirmControl = true;
+
+    /** @var string */
+    public static $content;
 
     public function stdout($string) // BC declaration
     {
@@ -28,13 +30,10 @@ final class MigrationControllerStub extends MigrationController
     /**
      * @param string $path
      * @param mixed $content
-     * @param bool $throw
      */
-    public function storeFile(string $path, $content, bool $throw = false): void
+    public function storeFile(string $path, $content): void
     {
-        if ($throw) {
-            throw new RuntimeException('Migration file can not be saved!');
-        }
+        static::$content = $content;
     }
 
     public function confirm($message, $default = false): bool // BC declaration

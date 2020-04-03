@@ -176,30 +176,31 @@ TEMPLATE;
         string $schema = null,
         string $engineVersion = null
     ): string {
-        $template = $this->applyIndent($indent, $this->createTableTemplate);
-
         $columns = $structure->getColumns();
         $renderedColumns = [];
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->render(
                 $column,
                 $structure->getPrimaryKey(),
-                $indent + 8,
+                8,
                 $schema,
                 $engineVersion
             );
         }
 
-        return str_replace(
-            [
-                '{tableName}',
-                '{columns}',
-            ],
-            [
-                $tableName,
-                implode("\n", $renderedColumns),
-            ],
-            $template
+        return $this->applyIndent(
+            $indent,
+            str_replace(
+                [
+                    '{tableName}',
+                    '{columns}',
+                ],
+                [
+                    $tableName,
+                    implode("\n", $renderedColumns),
+                ],
+                $this->createTableTemplate
+            )
         );
     }
 

@@ -125,7 +125,7 @@ RENDERED
     $this->createTable(
         '{{%table}}',
         [
-    
+
         ],
         $tableOptions
     );

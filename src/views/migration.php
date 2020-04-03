@@ -26,10 +26,12 @@ class <?= $className ?> extends Migration
     public function up()
     {
 <?= $bodyUp ?>
+
     }
 
     public function down()
     {
 <?= $bodyDown ?>
+
     }
 }

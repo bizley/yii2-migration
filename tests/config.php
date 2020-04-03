@@ -6,16 +6,15 @@
 
 $config = [
     'mysql' => [
-        'dsn' => 'mysql:host=127.0.0.1;dbname=migrationtest',
+        'dsn' => 'mysql:host=127.0.0.1;dbname=migration',
         'username' => 'migration',
-        'password' => 'migration',
-        'charset' => 'utf8',
+        'password' => 'password',
+        'charset' => 'utf8mb4',
     ],
     'pgsql' => [
-        'dsn' => 'pgsql:host=127.0.0.1;dbname=migrationtest;port=5432',
-        'username' => 'postgres',
-        'password' => 'postgres',
-        'charset' => 'utf8',
+        'dsn' => 'pgsql:host=127.0.0.1;dbname=migration',
+        'username' => 'migration',
+        'password' => 'password',
     ],
     'sqlite' => [
         'dsn' => 'sqlite::memory:',
