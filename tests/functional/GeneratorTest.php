@@ -71,7 +71,6 @@ abstract class GeneratorTest extends DbLoaderTestCase
                 'col_string' => $this->string(),
                 'col_text' => $this->text(),
                 'col_time' => $this->time(),
-                'col_json' => $this->json(),
             ]
         );
 
@@ -107,7 +106,6 @@ abstract class GeneratorTest extends DbLoaderTestCase
                 \'col_string\' => $this->string(),
                 \'col_text\' => $this->text(),
                 \'col_time\' => $this->time(),
-                \'col_json\' => $this->json(),
             ],
             $tableOptions
         );

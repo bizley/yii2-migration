@@ -36,6 +36,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 'col_date_time' => $this->dateTime(),
                 'col_float' => $this->float(),
                 'col_timestamp' => $this->timestamp(),
+                'col_json' => $this->json(),
             ]
         );
 
@@ -61,6 +62,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 \'col_date_time\' => $this->dateTime(),
                 \'col_float\' => $this->float(),
                 \'col_timestamp\' => $this->timestamp()->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+                \'col_json\' => $this->json(),
             ],
             $tableOptions
         );
