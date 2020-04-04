@@ -24,13 +24,13 @@ abstract class Column
     /** @var bool|null */
     private $notNull;
 
-    /** @var int|null */
+    /** @var int|string|null */
     private $size;
 
-    /** @var int|null */
+    /** @var int|string|null */
     private $precision;
 
-    /** @var int|null */
+    /** @var int|string|null */
     private $scale;
 
     /** @var bool */
@@ -116,9 +116,9 @@ abstract class Column
 
     /**
      * Returns size of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getSize(): ?int
+    public function getSize()
     {
         return $this->size;
     }
@@ -129,18 +129,14 @@ abstract class Column
      */
     public function setSize($size): void
     {
-        if ($size !== null) {
-            $this->size = (int)$size;
-        } else {
-            $this->size = null;
-        }
+        $this->size = $size;
     }
 
     /**
      * Returns precision of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getPrecision(): ?int
+    public function getPrecision()
     {
         return $this->precision;
     }
@@ -151,18 +147,14 @@ abstract class Column
      */
     public function setPrecision($precision): void
     {
-        if ($precision !== null) {
-            $this->precision = (int)$precision;
-        } else {
-            $this->precision = null;
-        }
+        $this->precision = $precision;
     }
 
     /**
      * Returns scale of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getScale(): ?int
+    public function getScale()
     {
         return $this->scale;
     }
@@ -173,11 +165,7 @@ abstract class Column
      */
     public function setScale($scale): void
     {
-        if ($scale !== null) {
-            $this->scale = (int)$scale;
-        } else {
-            $this->scale = null;
-        }
+        $this->scale = $scale;
     }
 
     /**

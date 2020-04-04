@@ -86,9 +86,9 @@ interface ColumnInterface
 
     /**
      * Returns size of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getSize(): ?int;
+    public function getSize();
 
     /**
      * Sets size for the column.
@@ -98,9 +98,9 @@ interface ColumnInterface
 
     /**
      * Returns precision of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getPrecision(): ?int;
+    public function getPrecision();
 
     /**
      * Sets precision for the column.
@@ -110,9 +110,9 @@ interface ColumnInterface
 
     /**
      * Returns scale of the column.
-     * @return int|null
+     * @return int|string|null
      */
-    public function getScale(): ?int;
+    public function getScale();
 
     /**
      * Sets scale for the column.

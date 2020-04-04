@@ -214,7 +214,7 @@ final class GenericColumnTest extends TestCase
     public function providerForSizePrecisionScale(): array
     {
         return [
-            ['1', 1],
+            ['1', '1'],
             [2, 2],
             [null, null],
         ];
@@ -224,9 +224,9 @@ final class GenericColumnTest extends TestCase
      * @test
      * @dataProvider providerForSizePrecisionScale
      * @param int|string|null $size
-     * @param int|null $expected
+     * @param int|string|null $expected
      */
-    public function shouldProperlySetSize($size, ?int $expected): void
+    public function shouldProperlySetSize($size, $expected): void
     {
         $this->column->setSize($size);
         $this->assertSame($expected, $this->column->getSize());
@@ -236,9 +236,9 @@ final class GenericColumnTest extends TestCase
      * @test
      * @dataProvider providerForSizePrecisionScale
      * @param int|string|null $precision
-     * @param int|null $expected
+     * @param int|string|null $expected
      */
-    public function shouldProperlySetPrecision($precision, ?int $expected): void
+    public function shouldProperlySetPrecision($precision, $expected): void
     {
         $this->column->setPrecision($precision);
         $this->assertSame($expected, $this->column->getPrecision());
@@ -248,9 +248,9 @@ final class GenericColumnTest extends TestCase
      * @test
      * @dataProvider providerForSizePrecisionScale
      * @param int|string|null $scale
-     * @param int|null $expected
+     * @param int|string|null $expected
      */
-    public function shouldProperlySetScale($scale, ?int $expected): void
+    public function shouldProperlySetScale($scale, $expected): void
     {
         $this->column->setScale($scale);
         $this->assertSame($expected, $this->column->getScale());

@@ -20,9 +20,9 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
      * Returns length of the column.
      * @param string|null $schema
      * @param string|null $engineVersion
-     * @return int|null
+     * @return int|string|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null): ?int
+    public function getLength(string $schema = null, string $engineVersion = null)
     {
         return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }

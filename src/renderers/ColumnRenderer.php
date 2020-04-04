@@ -232,6 +232,8 @@ final class ColumnRenderer implements ColumnRendererInterface
             }
         }
 
+        $length = $column->getLength($schema, $engineVersion);
+
         $this->definition[] = str_replace(
             '{renderLength}',
             $this->getRenderedLength($column, $schema, $engineVersion) ?? '',
