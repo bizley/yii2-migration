@@ -232,42 +232,42 @@ final class ColumnRenderer implements ColumnRendererInterface
             }
         }
 
+        $type = $column->getType();
         $length = $column->getLength($schema, $engineVersion);
+        if ($this->generalSchema) {
+            $alias = Schema::getAlias($schema, $type, (string)$length);
+            if ($alias !== null) {
+                $this->definition[] = str_replace('{renderLength}', '', $alias);
+                return;
+            }
+        }
 
         $this->definition[] = str_replace(
             '{renderLength}',
-            $this->getRenderedLength($column, $schema, $engineVersion) ?? '',
+            $this->getRenderedLength(
+                (string)$length,
+                (string)Schema::getDefaultLength($schema, $type, $engineVersion)
+            ) ?? '',
             $definition
         );
     }
 
     /**
      * Renders the column length.
-     * @param ColumnInterface $column
-     * @param string $schema
-     * @param string|null $engineVersion
+     * @param string $length
+     * @param string $defaultLength
      * @return string|null
      */
     private function getRenderedLength(
-        ColumnInterface $column,
-        string $schema = null,
-        string $engineVersion = null
+        string $length,
+        string $defaultLength
     ): ?string {
-        $length = $column->getLength($schema, $engineVersion);
-
-        if ($length === null) {
-            return null;
-        }
-
-        if (
-            $this->generalSchema === false
-            || (string)$length !== Schema::getDefaultLength($schema, $column->getType(), $engineVersion)
-        ) {
+        if ($this->generalSchema === false || $length !== $defaultLength) {
             if ($length === 'max') {
                 return '\'max\'';
             }
 
-            return (string)$length;
+            return $length;
         }
 
         // default value should be null to be automatically set to schema's default for column
