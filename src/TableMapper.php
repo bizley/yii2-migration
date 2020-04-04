@@ -194,7 +194,6 @@ final class TableMapper implements TableMapperInterface
             $mappedColumn->setAutoIncrement($column->autoIncrement);
             $mappedColumn->setUnsigned($column->unsigned);
             $mappedColumn->setComment($column->comment ?: null);
-            $mappedColumn->setDefaultMapping($schema->getQueryBuilder()->typeMap[$column->type] ?? null);
 
             $mappedColumns[$column->name] = $mappedColumn;
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\Schema;
 use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\PrimaryKeyColumnInterface;
 use bizley\migration\table\PrimaryKeyInterface;
@@ -258,7 +259,7 @@ final class ColumnRenderer implements ColumnRendererInterface
 
         if (
             $this->generalSchema === false
-            || str_replace(' ', '', (string)$length) !== $this->getDefaultLength($column)
+            || (string)$length !== Schema::getDefaultLength($schema, $column->getType(), $engineVersion)
         ) {
             if ($length === 'max') {
                 return '\'max\'';
@@ -268,27 +269,6 @@ final class ColumnRenderer implements ColumnRendererInterface
         }
 
         // default value should be null to be automatically set to schema's default for column
-        return null;
-    }
-
-    /**
-     * Returns default length of the column.
-     * @param ColumnInterface $column
-     * @return string|null
-     */
-    private function getDefaultLength(ColumnInterface $column): ?string
-    {
-        $defaultMapping = $column->getDefaultMapping();
-        if ($defaultMapping !== null) {
-            if (preg_match('/\(([\d,]+)\)/', $defaultMapping, $matches)) {
-                return $matches[1];
-            }
-            if (strpos('(max)', $defaultMapping) !== false) {
-                // MSSQL
-                return 'max';
-            }
-        }
-
         return null;
     }
 

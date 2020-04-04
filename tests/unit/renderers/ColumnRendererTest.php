@@ -145,38 +145,6 @@ final class ColumnRendererTest extends TestCase
         $this->assertSame('\'col\' => $this->def(12),', $this->getRenderer(false)->render($column));
     }
 
-    public function providerForDefaultLengths(): array
-    {
-        return [
-            ['9', '(9)'],
-            ['2 ', '(2)'],
-            [' 3 ', '(3)'],
-            ['4,1', '(4,1)'],
-            ['5, 2', '(5,2)'],
-            ['7 , 2', '(7,2)'],
-            ['max', '(max)'],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider providerForDefaultLengths
-     * @param string $length
-     * @param string $mapping
-     */
-    public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndDefaultLength(
-        string $length,
-        ?string $mapping
-    ): void {
-        $column = $this->createMock(ColumnInterface::class);
-        $column->method('getName')->willReturn('col');
-        $column->method('getDefinition')->willReturn('def({renderLength})');
-        $column->method('getLength')->willReturn($length);
-        $column->method('getDefaultMapping')->willReturn($mapping);
-
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
-    }
-
     /** @test */
     public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndDefaultLengthAsNull(): void
     {
@@ -184,7 +152,6 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn(null);
-        $column->method('getDefaultMapping')->willReturn(null);
 
         $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
@@ -196,7 +163,6 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn('11');
-        $column->method('getDefaultMapping')->willReturn('(9,3)');
 
         $this->assertSame('\'col\' => $this->def(11),', $this->getRenderer()->render($column));
     }

@@ -54,6 +54,12 @@ final class SchemaTest extends TestCase
         $this->assertFalse(Schema::isSQLite(new stdClass()));
     }
 
+    /** @test */
+    public function shouldReturnNoDefaultLengthForNoSchema(): void
+    {
+        $this->assertNull(Schema::getDefaultLength(null, YiiSchema::TYPE_PK));
+    }
+
     public function providerForSchemaDefaultLengthForCubrid(): array
     {
         return [
@@ -318,6 +324,12 @@ final class SchemaTest extends TestCase
     public function shouldReturnProperDefaultLengthForSQLite(string $type, string $expected = null): void
     {
         $this->assertSame($expected, Schema::getDefaultLength(Schema::SQLITE, $type));
+    }
+
+    /** @test */
+    public function shouldReturnNoAliasForNoSchema(): void
+    {
+        $this->assertNull(Schema::getAlias(null, YiiSchema::TYPE_PK, '11'));
     }
 
     public function providerForSchemaAliasesForCubrid(): array

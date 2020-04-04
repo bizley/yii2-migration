@@ -211,13 +211,6 @@ final class GenericColumnTest extends TestCase
         $this->assertSame('test', $this->column->getType());
     }
 
-    /** @test */
-    public function shouldProperlySetDefaultMapping(): void
-    {
-        $this->column->setDefaultMapping('test');
-        $this->assertSame('test', $this->column->getDefaultMapping());
-    }
-
     public function providerForSizePrecisionScale(): array
     {
         return [

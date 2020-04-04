@@ -15,7 +15,7 @@ final class Schema
     public const PGSQL = 'pgsql';
     public const SQLITE = 'sqlite';
 
-    /** @var array */
+    /** @var array<string, array<string, string>> */
     private static $defaultLength = [
         self::CUBRID => [
             YiiSchema::TYPE_CHAR => '1',
@@ -97,7 +97,7 @@ final class Schema
         ],
     ];
 
-    /** @var array */
+    /** @var array<string, array<string, array<int|string, string>>> */
     private static $aliases = [
         self::CUBRID => [
             YiiSchema::TYPE_STRING => ['' => 'text()'],
@@ -172,13 +172,17 @@ final class Schema
     /**
      * Returns default length based on the schema and column type.
      * For MySQL >= 5.6.4 additional default sizes are available.
-     * @param string $schema
+     * @param string|null $schema
      * @param string $type
      * @param string|null $engineVersion
      * @return string|null
      */
-    public static function getDefaultLength(string $schema, string $type, string $engineVersion = null): ?string
+    public static function getDefaultLength(?string $schema, string $type, string $engineVersion = null): ?string
     {
+        if ($schema === null) {
+            return null;
+        }
+
         if ($engineVersion && $schema === self::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
             $schema = self::MYSQL . '+';
         }
@@ -188,13 +192,17 @@ final class Schema
 
     /**
      * Returns alias definition based on the schema, column type, and length.
-     * @param string $schema
+     * @param string|null $schema
      * @param string $type
      * @param string $length
      * @return string|null
      */
-    public static function getAlias(string $schema, string $type, string $length): ?string
+    public static function getAlias(?string $schema, string $type, string $length): ?string
     {
+        if ($schema === null) {
+            return null;
+        }
+
         return static::$aliases[$schema][$type][$length] ?? null;
     }
 }

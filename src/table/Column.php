@@ -21,9 +21,6 @@ abstract class Column
     /** @var string */
     private $type;
 
-    /** @var string|null */
-    private $defaultMapping;
-
     /** @var bool|null */
     private $notNull;
 
@@ -97,24 +94,6 @@ abstract class Column
     public function setType(string $type): void
     {
         $this->type = $type;
-    }
-
-    /**
-     * Returns default mapping of the column.
-     * @return string|null
-     */
-    public function getDefaultMapping(): ?string
-    {
-        return $this->defaultMapping;
-    }
-
-    /**
-     * Sets default mapping for the column.
-     * @param string|null $defaultMapping
-     */
-    public function setDefaultMapping(?string $defaultMapping): void
-    {
-        $this->defaultMapping = $defaultMapping;
     }
 
     /**

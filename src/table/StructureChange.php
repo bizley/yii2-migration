@@ -145,7 +145,6 @@ final class StructureChange implements StructureChangeInterface
             );
             $column->setAfter($schema['after'] ?? null);
             $column->setFirst($schema['isFirst'] ?? false);
-            $column->setDefaultMapping($schema['defaultMapping'] ?? null);
 
             $columns[] = $column;
         }
@@ -208,7 +207,6 @@ final class StructureChange implements StructureChangeInterface
         $column->setComment(!empty($data[1]['comment']) ? $data[1]['comment'] : null);
         $column->setAfter($data[1]['after'] ?? null);
         $column->setFirst($data[1]['isFirst'] ?? false);
-        $column->setDefaultMapping($data[1]['defaultMapping'] ?? null);
 
         return $column;
     }

@@ -18,73 +18,99 @@ final class ColumnFactory
     {
         switch ($type) {
             case Schema::TYPE_PK:
-                return new PrimaryKeyColumn();
+                $column = new PrimaryKeyColumn();
+                break;
 
             case Schema::TYPE_UPK:
-                return new UnsignedPrimaryKeyColumn();
+                $column = new UnsignedPrimaryKeyColumn();
+                break;
 
             case Schema::TYPE_BIGPK:
-                return new BigPrimaryKeyColumn();
+                $column = new BigPrimaryKeyColumn();
+                break;
 
             case Schema::TYPE_UBIGPK:
-                return new BigUnsignedPrimaryKeyColumn();
+                $column = new BigUnsignedPrimaryKeyColumn();
+                break;
 
             case Schema::TYPE_CHAR:
-                return new CharacterColumn();
+                $column = new CharacterColumn();
+                break;
 
             case Schema::TYPE_STRING:
-                return new StringColumn();
+                $column = new StringColumn();
+                break;
 
             case Schema::TYPE_TEXT:
-                return new TextColumn();
+                $column = new TextColumn();
+                break;
 
             case Schema::TYPE_TINYINT:
-                return new TinyIntegerColumn();
+                $column = new TinyIntegerColumn();
+                break;
 
             case Schema::TYPE_SMALLINT:
-                return new SmallIntegerColumn();
+                $column = new SmallIntegerColumn();
+                break;
 
             case Schema::TYPE_INTEGER:
-                return new IntegerColumn();
+                $column = new IntegerColumn();
+                break;
 
             case Schema::TYPE_BIGINT:
-                return new BigIntegerColumn();
+                $column = new BigIntegerColumn();
+                break;
 
             case Schema::TYPE_BINARY:
-                return new BinaryColumn();
+                $column = new BinaryColumn();
+                break;
 
             case Schema::TYPE_FLOAT:
-                return new FloatColumn();
+                $column = new FloatColumn();
+                break;
 
             case Schema::TYPE_DOUBLE:
-                return new DoubleColumn();
+                $column = new DoubleColumn();
+                break;
 
             case Schema::TYPE_DATETIME:
-                return new DateTimeColumn();
+                $column = new DateTimeColumn();
+                break;
 
             case Schema::TYPE_TIMESTAMP:
-                return new TimestampColumn();
+                $column = new TimestampColumn();
+                break;
 
             case Schema::TYPE_TIME:
-                return new TimeColumn();
+                $column = new TimeColumn();
+                break;
 
             case Schema::TYPE_DATE:
-                return new DateColumn();
+                $column = new DateColumn();
+                break;
 
             case Schema::TYPE_DECIMAL:
-                return new DecimalColumn();
+                $column = new DecimalColumn();
+                break;
 
             case Schema::TYPE_BOOLEAN:
-                return new BooleanColumn();
+                $column = new BooleanColumn();
+                break;
 
             case Schema::TYPE_MONEY:
-                return new MoneyColumn();
+                $column = new MoneyColumn();
+                break;
 
             case Schema::TYPE_JSON:
-                return new JsonColumn();
+                $column = new JsonColumn();
+                break;
 
             default:
                 throw new InvalidArgumentException("Unsupported schema type '$type' for ColumnFactory.");
         }
+
+        $column->setType($type);
+
+        return $column;
     }
 }

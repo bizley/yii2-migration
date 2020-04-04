@@ -147,8 +147,6 @@ class Migration extends Component implements MigrationChangesInterface
             $schema['type'] = $dbToKey[$matches[1]];
         }
 
-        $schema['defaultMapping'] = $keyToDb[$type] ?? null;
-
         return $schema;
     }
 
