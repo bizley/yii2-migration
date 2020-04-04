@@ -173,7 +173,8 @@ in columns definition in form of an instance of `yii\db\ColumnSchemaBuilder` (li
 ## Tests
 
 Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can override it by 
-creating `config.local.php` file there).
+creating `config.local.php` file there).  
+Docker Compose file for setting up the databases is stored in `tests/docker`.
 
 ## Previous versions
 
@@ -182,5 +183,5 @@ Some of the newest features may not be available there.
 
 | version constraint | PHP requirements | Yii requirements                                                             
 |:------------------:|:----------------:|:----------------:
-| ^3.6               | < 7.2            | >= 2.0.15.1
+| ^3.6               | >= 7.1           | >= 2.0.15.1
 | ^2.9               | < 7.1            | 2.0.13 to track non-unique indexes, 2.0.14 to handle `TINYINT` and `JSON` type columns.
