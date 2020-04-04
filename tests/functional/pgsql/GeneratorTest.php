@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace bizley\tests\functional\mysql;
+namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\stubs\MigrationControllerStub;
 use yii\base\InvalidRouteException;
@@ -14,10 +14,7 @@ use yii\db\Exception;
 class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
     /** @var string */
-    public static $schema = 'mysql';
-
-    /** @var string */
-    public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+    public static $schema = 'pgsql';
 
     /**
      * @test
@@ -57,10 +54,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createTable(
             \'{{%non_standard_columns}}\',
             [
-                \'col_tiny_int\' => $this->tinyInteger(),
-                \'col_date_time\' => $this->dateTime(),
-                \'col_float\' => $this->float(),
-                \'col_timestamp\' => $this->timestamp()->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+                \'col_tiny_int\' => $this->smallInteger(),
+                \'col_date_time\' => $this->timestamp(),
+                \'col_float\' => $this->double(),
+                \'col_timestamp\' => $this->timestamp(),
             ],
             $tableOptions
         );
@@ -130,24 +127,24 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createTable(
             \'{{%non_gs_columns}}\',
             [
-                \'id\' => $this->integer(11)->notNull()->append(\'AUTO_INCREMENT PRIMARY KEY\'),
-                \'col_big_int\' => $this->bigInteger(20),
-                \'col_int\' => $this->integer(11),
-                \'col_small_int\' => $this->smallInteger(6),
-                \'col_tiny_int\' => $this->tinyInteger(3),
+                \'id\' => $this->integer()->notNull()->append(\'PRIMARY KEY\'),
+                \'col_big_int\' => $this->bigInteger(),
+                \'col_int\' => $this->integer(),
+                \'col_small_int\' => $this->smallInteger(),
+                \'col_tiny_int\' => $this->smallInteger(),
                 \'col_bin\' => $this->binary(),
-                \'col_bool\' => $this->tinyInteger(1),
+                \'col_bool\' => $this->boolean(),
                 \'col_char\' => $this->char(1),
                 \'col_date\' => $this->date(),
-                \'col_date_time\' => $this->dateTime(),
+                \'col_date_time\' => $this->timestamp(),
                 \'col_decimal\' => $this->decimal(10, 0),
                 \'col_double\' => $this->double(),
-                \'col_float\' => $this->float(),
+                \'col_float\' => $this->double(),
                 \'col_money\' => $this->decimal(19, 4),
                 \'col_string\' => $this->string(255),
                 \'col_text\' => $this->text(),
                 \'col_time\' => $this->time(),
-                \'col_timestamp\' => $this->timestamp()->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+                \'col_timestamp\' => $this->timestamp(),
                 \'col_json\' => $this->json(),
             ],
             $tableOptions

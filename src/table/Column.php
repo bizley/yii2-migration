@@ -233,11 +233,11 @@ abstract class Column
 
     /**
      * Sets the primary key flag for the column.
-     * @param bool $primaryKey
+     * @param bool|null $primaryKey
      */
-    public function setPrimaryKey(bool $primaryKey): void
+    public function setPrimaryKey(?bool $primaryKey): void
     {
-        $this->primaryKey = $primaryKey;
+        $this->primaryKey = (bool)$primaryKey;
     }
 
     /**

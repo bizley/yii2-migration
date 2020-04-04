@@ -26,9 +26,9 @@ interface ColumnInterface
 
     /**
      * Sets the primary key flag for the column.
-     * @param bool $primaryKey
+     * @param bool|null $primaryKey
      */
-    public function setPrimaryKey(bool $primaryKey): void;
+    public function setPrimaryKey(?bool $primaryKey): void;
 
     /**
      * Checks if column is a part of the primary key.
