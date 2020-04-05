@@ -235,4 +235,48 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithColumnsWithAppendixes(): void
+    {
+        $this->createTable(
+            'appendixes',
+            [
+                'col1' => $this->integer()->defaultValue(2),
+                'col2' => $this->integer()->unsigned(),
+                'col3' => $this->string()->defaultValue('abc'),
+                'col4' => $this->integer()->comment('comment'),
+                'col5' => $this->integer()->notNull(),
+                'col6' => $this->integer()->null(),
+                'col7' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%appendixes}}\',
+            [
+                \'col1\' => $this->integer()->defaultValue(\'2\'),
+                \'col2\' => $this->integer()->unsigned(),
+                \'col3\' => $this->string()->defaultValue(\'abc\'),
+                \'col4\' => $this->integer()->comment(\'comment\'),
+                \'col5\' => $this->integer()->notNull(),
+                \'col6\' => $this->integer(),
+                \'col7\' => $this->timestamp()->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+            ],
+            $tableOptions
+        );
+',
+            MigrationControllerStub::$content
+        );
+    }
 }

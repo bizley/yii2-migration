@@ -33,5 +33,10 @@ abstract class DbLoaderTestCase extends DbTestCase
             $this->getDb()->createCommand()->dropTable($table)->execute();
         }
         $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
+        foreach ($columns as $column => $type) {
+            if ($type->comment !== null) {
+                $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
+            }
+        }
     }
 }
