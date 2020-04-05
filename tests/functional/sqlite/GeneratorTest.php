@@ -26,14 +26,15 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithNonStandardColumns(): void
     {
-        $this->createTable(
-            'non_standard_columns',
+        $this->createTables(
             [
-                'col_tiny_int' => $this->tinyInteger(),
-                'col_date_time' => $this->dateTime(),
-                'col_float' => $this->float(),
-                'col_timestamp' => $this->timestamp(),
-                'col_json' => $this->json(),
+                'non_standard_columns' => [
+                    'col_tiny_int' => $this->tinyInteger(),
+                    'col_date_time' => $this->dateTime(),
+                    'col_float' => $this->float(),
+                    'col_timestamp' => $this->timestamp(),
+                    'col_json' => $this->json(),
+                ]
             ]
         );
 
@@ -66,28 +67,29 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateNonGeneralSchemaTable(): void
     {
-        $this->createTable(
-            'non_gs_columns',
+        $this->createTables(
             [
-                'id' => $this->primaryKey(),
-                'col_big_int' => $this->bigInteger(),
-                'col_int' => $this->integer(),
-                'col_small_int' => $this->smallInteger(),
-                'col_tiny_int' => $this->tinyInteger(),
-                'col_bin' => $this->binary(),
-                'col_bool' => $this->boolean(),
-                'col_char' => $this->char(),
-                'col_date' => $this->date(),
-                'col_date_time' => $this->dateTime(),
-                'col_decimal' => $this->decimal(),
-                'col_double' => $this->double(),
-                'col_float' => $this->float(),
-                'col_money' => $this->money(),
-                'col_string' => $this->string(),
-                'col_text' => $this->text(),
-                'col_time' => $this->time(),
-                'col_timestamp' => $this->timestamp(),
-                'col_json' => $this->json(),
+                'non_gs_columns' => [
+                    'id' => $this->primaryKey(),
+                    'col_big_int' => $this->bigInteger(),
+                    'col_int' => $this->integer(),
+                    'col_small_int' => $this->smallInteger(),
+                    'col_tiny_int' => $this->tinyInteger(),
+                    'col_bin' => $this->binary(),
+                    'col_bool' => $this->boolean(),
+                    'col_char' => $this->char(),
+                    'col_date' => $this->date(),
+                    'col_date_time' => $this->dateTime(),
+                    'col_decimal' => $this->decimal(),
+                    'col_double' => $this->double(),
+                    'col_float' => $this->float(),
+                    'col_money' => $this->money(),
+                    'col_string' => $this->string(),
+                    'col_text' => $this->text(),
+                    'col_time' => $this->time(),
+                    'col_timestamp' => $this->timestamp(),
+                    'col_json' => $this->json(),
+                ]
             ]
         );
 
@@ -135,12 +137,13 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableButKeepNonDefaultSize(): void
     {
-        $this->createTable(
-            'non_default_size',
+        $this->createTables(
             [
-                'col_char' => $this->char(3),
-                'col_decimal' => $this->decimal(5, 1),
-                'col_string' => $this->string(55),
+                'non_default_size' => [
+                    'col_char' => $this->char(3),
+                    'col_decimal' => $this->decimal(5, 1),
+                    'col_string' => $this->string(55),
+                ]
             ]
         );
 
@@ -171,7 +174,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
     {
-        $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
+        $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         $this->assertStringContainsString(
@@ -198,7 +201,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateNonGeneralSchemaTableWithBigPrimaryKey(): void
     {
-        $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
+        $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
         $this->controller->generalSchema = false;
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
@@ -226,14 +229,15 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithNonGeneralColumnsDefaultValues(): void
     {
-        $this->createTable(
-            'non_gs_columns',
+        $this->createTables(
             [
-                'id' => $this->integer()->notNull()->append('PRIMARY KEY AUTOINCREMENT'),
-                'col_money' => $this->decimal(19, 4),
-                'col_char' => $this->char(1),
-                'col_decimal' => $this->decimal(10, 0),
-                'col_string' => $this->string(255),
+                'non_gs_columns' => [
+                    'id' => $this->integer()->notNull()->append('PRIMARY KEY AUTOINCREMENT'),
+                    'col_money' => $this->decimal(19, 4),
+                    'col_char' => $this->char(1),
+                    'col_decimal' => $this->decimal(10, 0),
+                    'col_string' => $this->string(255),
+                ]
             ]
         );
 
@@ -266,15 +270,16 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithColumnsWithAppendixes(): void
     {
-        $this->createTable(
-            'appendixes',
+        $this->createTables(
             [
-                'col2' => $this->integer()->defaultValue(2),
-                'col3' => $this->integer()->unsigned(),
-                'col4' => $this->string()->defaultValue('abc'),
-                'col7' => $this->integer()->notNull(),
-                'col8' => $this->integer()->null(),
-                'col9' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
+                'appendixes' => [
+                    'col2' => $this->integer()->defaultValue(2),
+                    'col3' => $this->integer()->unsigned(),
+                    'col4' => $this->string()->defaultValue('abc'),
+                    'col7' => $this->integer()->notNull(),
+                    'col8' => $this->integer()->null(),
+                    'col9' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
+                ]
             ]
         );
 
@@ -308,12 +313,13 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithCompositePrimaryKey(): void
     {
-        $this->createTable(
-            'composite_primary_key',
+        $this->createTables(
             [
-                'col1' => $this->integer(),
-                'col2' => $this->integer(),
-                'PRIMARY KEY(col1, col2)'
+                'composite_primary_key' => [
+                    'col1' => $this->integer(),
+                    'col2' => $this->integer(),
+                    'PRIMARY KEY(col1, col2)'
+                ]
             ]
         );
 
@@ -345,12 +351,13 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldNotGenerateNonGeneralSchemaTableWithCompositePrimaryKey(): void
     {
-        $this->createTable(
-            'composite_primary_key',
+        $this->createTables(
             [
-                'col1' => $this->integer(),
-                'col2' => $this->integer(),
-                'PRIMARY KEY(col1, col2)'
+                'composite_primary_key' => [
+                    'col1' => $this->integer(),
+                    'col2' => $this->integer(),
+                    'PRIMARY KEY(col1, col2)'
+                ]
             ]
         );
 
@@ -377,7 +384,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
     {
-        $this->createTable('unique', ['col' => $this->integer()->unique()]);
+        $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
         $this->assertStringContainsString(
@@ -393,6 +400,84 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createIndex(\'sqlite_autoindex_unique_1\', \'{{%unique}}\', [\'col\'], true);
 ',
             MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithForeignKey(): void
+    {
+        $this->createTables(
+            [
+                'table1' => ['id' => $this->primaryKey(11)],
+                'table2' => [
+                    'col' => $this->integer(11),
+                    'FOREIGN KEY(col) REFERENCES table1(id)'
+                ]
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table2']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%table2}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->addForeignKey(
+            \'fk-{{%table2}}-col\',
+            \'{{%table2}}\',
+            [\'col\'],
+            \'{{%table1}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'NO ACTION\'
+        );
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldNotGenerateNonGeneralSchemaTableWithForeignKey(): void
+    {
+        $this->createTables(
+            [
+                'table1' => ['id' => $this->primaryKey(11)],
+                'table2' => [
+                    'col' => $this->integer(11),
+                    'FOREIGN KEY(col) REFERENCES table1(id)'
+                ]
+            ]
+        );
+
+        $this->controller->generalSchema = false;
+        $this->assertEquals(
+            ExitCode::UNSPECIFIED_ERROR,
+            $this->controller->runAction('create', ['table2'])
+        );
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'table2\' ...ERROR!
+ > ADD FOREIGN KEY is not supported by SQLite.
+',
+            MigrationControllerStub::$stdout
         );
     }
 }

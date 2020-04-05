@@ -61,13 +61,15 @@ interface StructureRendererInterface
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix
+     * @param string|null $schema
      * @return string|null
      */
     public function renderForeignKeysUp(
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        string $dbPrefix = null,
+        string $schema = null
     ): ?string;
 
     /**

@@ -49,23 +49,24 @@ abstract class GeneratorTest extends DbLoaderTestCase
      */
     public function shouldGenerateGeneralSchemaTableWithCommonColumns(): void
     {
-        $this->createTable(
-            'gs_columns',
+        $this->createTables(
             [
-                'id' => $this->primaryKey(),
-                'col_big_int' => $this->bigInteger(),
-                'col_int' => $this->integer(),
-                'col_small_int' => $this->smallInteger(),
-                'col_bin' => $this->binary(),
-                'col_bool' => $this->boolean(),
-                'col_char' => $this->char(),
-                'col_date' => $this->date(),
-                'col_decimal' => $this->decimal(),
-                'col_double' => $this->double(),
-                'col_money' => $this->money(),
-                'col_string' => $this->string(),
-                'col_text' => $this->text(),
-                'col_time' => $this->time(),
+                'gs_columns' => [
+                    'id' => $this->primaryKey(),
+                    'col_big_int' => $this->bigInteger(),
+                    'col_int' => $this->integer(),
+                    'col_small_int' => $this->smallInteger(),
+                    'col_bin' => $this->binary(),
+                    'col_bool' => $this->boolean(),
+                    'col_char' => $this->char(),
+                    'col_date' => $this->date(),
+                    'col_decimal' => $this->decimal(),
+                    'col_double' => $this->double(),
+                    'col_money' => $this->money(),
+                    'col_string' => $this->string(),
+                    'col_text' => $this->text(),
+                    'col_time' => $this->time(),
+                ]
             ]
         );
 
@@ -135,7 +136,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
      */
     public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
     {
-        $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
+        $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         $this->assertStringContainsString(
@@ -162,7 +163,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
      */
     public function shouldGenerateGeneralSchemaTableWithIndex(): void
     {
-        $this->createTable('index', ['col' => $this->integer()]);
+        $this->createTables(['index' => ['col' => $this->integer()]]);
         $this->getDb()->createCommand()->createIndex('idx', 'index', ['col'])->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index']));
@@ -192,11 +193,12 @@ abstract class GeneratorTest extends DbLoaderTestCase
      */
     public function shouldGenerateGeneralSchemaTableWithIndexMultiColumn(): void
     {
-        $this->createTable(
-            'index_multi',
+        $this->createTables(
             [
-                'col1' => $this->integer(),
-                'col2' => $this->integer(),
+                'index_multi' => [
+                    'col1' => $this->integer(),
+                    'col2' => $this->integer(),
+                ]
             ]
         );
         $this->getDb()->createCommand()->createIndex('idx_multi', 'index_multi', ['col1', 'col2'])->execute();

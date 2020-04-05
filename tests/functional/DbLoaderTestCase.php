@@ -23,20 +23,25 @@ abstract class DbLoaderTestCase extends DbTestCase
     }
 
     /**
-     * @param string $table
-     * @param array $columns
+     * @param array $tables
      * @throws Exception
      * @throws NotSupportedException
      */
-    protected function createTable(string $table, array $columns): void
+    protected function createTables(array $tables): void
     {
-        if ($this->getDb()->getSchema()->getTableSchema($table)) {
-            $this->getDb()->createCommand()->dropTable($table)->execute();
+        $reverseOrderTables = array_reverse($tables);
+        foreach ($reverseOrderTables as $table => $columns) {
+            if ($this->getDb()->getSchema()->getTableSchema($table)) {
+                $this->getDb()->createCommand()->dropTable($table)->execute();
+            }
         }
-        $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
-        foreach ($columns as $column => $type) {
-            if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
-                $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
+
+        foreach ($tables as $table => $columns) {
+            $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
+            foreach ($columns as $column => $type) {
+                if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
+                    $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
+                }
             }
         }
     }

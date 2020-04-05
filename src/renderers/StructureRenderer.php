@@ -110,7 +110,7 @@ TEMPLATE;
                 $this->renderStructureTableUp($structure, $tableName, $indent, $schema, $engineVersion),
                 $this->renderStructurePrimaryKeyUp($structure, $tableName, $indent, $schema),
                 $this->renderStructureIndexesUp($structure, $tableName, $indent),
-                $this->renderStructureForeignKeysUp($structure, $indent, $usePrefix, $dbPrefix)
+                $this->renderStructureForeignKeysUp($structure, $indent, $usePrefix, $dbPrefix, $schema)
             ]
         );
 
@@ -282,19 +282,22 @@ TEMPLATE;
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix
+     * @param string|null $schema
      * @return string|null
      */
     private function renderStructureForeignKeysUp(
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        string $dbPrefix = null,
+        string $schema = null
     ): ?string {
         return $this->renderForeignKeysUp(
             $structure->getForeignKeys(),
             $indent,
             $usePrefix,
-            $dbPrefix
+            $dbPrefix,
+            $schema
         );
     }
 
@@ -304,13 +307,15 @@ TEMPLATE;
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix
+     * @param string|null $schema
      * @return string|null
      */
     public function renderForeignKeysUp(
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        string $dbPrefix = null,
+        string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
         /** @var ForeignKeyInterface $foreignKey */
@@ -319,7 +324,8 @@ TEMPLATE;
                 $foreignKey,
                 $this->renderName($foreignKey->getTableName(), $usePrefix, $dbPrefix),
                 $this->renderName($foreignKey->getReferredTable(), $usePrefix, $dbPrefix),
-                $indent
+                $indent,
+                $schema
             );
         }
 
