@@ -51,6 +51,7 @@ final class TableMapper implements TableMapperInterface
      */
     public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface
     {
+        $this->suppressedForeignKeys = [];
         $foreignKeys = $this->getForeignKeys($table);
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {

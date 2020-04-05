@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use Throwable;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
@@ -440,6 +441,136 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             \'RESTRICT\'
         );
 ',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaCrossReferredTables(): void
+    {
+        try {
+            $this->getDb()->createCommand()->dropForeignKey('fk-table1', 'table1')->execute();
+            $this->getDb()->createCommand()->dropForeignKey('fk-table2', 'table2')->execute();
+        } catch (Throwable $exception) {
+        }
+
+        $this->createTables(
+            [
+                'table1' => [
+                    'id1' => $this->primaryKey(),
+                    'fk1' => $this->integer(),
+                ],
+                'table2' => [
+                    'id2' => $this->primaryKey(),
+                    'fk2' => $this->integer(),
+                ]
+            ]
+        );
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-table1',
+            'table1',
+            ['fk1'],
+            'table2',
+            ['id2'],
+            'CASCADE',
+            'CASCADE'
+        )->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-table2',
+            'table2',
+            ['fk2'],
+            'table1',
+            ['id1'],
+            'CASCADE',
+            'CASCADE'
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table1,table2']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%table2}}\',
+            [
+                \'id2\' => $this->primaryKey(),
+                \'fk2\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->createIndex(\'fk-table2\', \'{{%table2}}\', [\'fk2\']);
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%table2}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%table1}}\',
+            [
+                \'id1\' => $this->primaryKey(),
+                \'fk1\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->addForeignKey(
+            \'fk-table1\',
+            \'{{%table1}}\',
+            [\'fk1\'],
+            \'{{%table2}}\',
+            [\'id2\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%table1}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->addForeignKey(
+            \'fk-table2\',
+            \'{{%table2}}\',
+            [\'fk2\'],
+            \'{{%table1}}\',
+            [\'id1\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropForeignKey(\'fk-table2\', \'{{%table2}}\');
+    }',
             MigrationControllerStub::$content
         );
     }
