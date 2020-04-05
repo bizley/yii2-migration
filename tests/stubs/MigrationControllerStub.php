@@ -15,7 +15,7 @@ final class MigrationControllerStub extends MigrationController
     public static $confirmControl = true;
 
     /** @var string */
-    public static $content;
+    public static $content = '';
 
     public function stdout($string) // BC declaration
     {
@@ -33,7 +33,7 @@ final class MigrationControllerStub extends MigrationController
      */
     public function storeFile(string $path, $content): void
     {
-        static::$content = $content;
+        static::$content .= $content;
     }
 
     public function confirm($message, $default = false): bool // BC declaration

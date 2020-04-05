@@ -23,6 +23,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
         $this->controller->migrationPath = '@bizley/tests';
         MigrationControllerStub::$stdout = '';
+        MigrationControllerStub::$content = '';
         MigrationControllerStub::$confirmControl = true;
     }
 
@@ -35,13 +36,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
     {
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non-existing-table']));
 
-        $this->assertSame(
-            'Yii 2 Migration Generator Tool v4.0.0
-
- > No matching tables in database.
-',
-            MigrationControllerStub::$stdout
-        );
+        $this->assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
     }
 
     /**
@@ -76,9 +71,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['gs_columns']));
         $this->assertStringContainsString(
-            'Yii 2 Migration Generator Tool v4.0.0
-
- > Generating migration for creating table \'gs_columns\' ...DONE!
+            '> Generating migration for creating table \'gs_columns\' ...DONE!
  > Saved as \'',
             MigrationControllerStub::$stdout
         );
