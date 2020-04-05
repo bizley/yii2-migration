@@ -10,6 +10,7 @@ use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
+use yii\helpers\Json;
 
 class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
@@ -240,6 +241,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 'col5' => $this->integer()->notNull(),
                 'col6' => $this->integer()->null(),
                 'col7' => $this->timestamp()->defaultExpression('NOW()'),
+                'col8' => $this->json()->defaultValue(Json::encode(['a' => 'b'])),
             ]
         );
 
@@ -256,6 +258,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 \'col5\' => $this->integer()->notNull(),
                 \'col6\' => $this->integer(),
                 \'col7\' => $this->timestamp()->defaultExpression(\'now()\'),
+                \'col8\' => $this->json()->defaultValue(\'{"a":"b"}\'),
             ],
             $tableOptions
         );

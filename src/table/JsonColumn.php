@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use yii\base\InvalidArgumentException;
 use yii\helpers\Json;
 
 use function is_array;
@@ -13,20 +12,13 @@ final class JsonColumn extends Column implements ColumnInterface
 {
     /**
      * Sets default value.
-     * In case the value is set as a JSON-encoded array it's being decoded.
+     * In case the value is an array it's being JSON-encoded.
      * @param mixed $default
      */
     public function setDefault($default): void
     {
-        if ($default !== '' && $default !== null && !is_array($default)) {
-            try {
-                $defaultArray = Json::decode($default);
-                if (is_array($defaultArray)) {
-                    parent::setDefault($defaultArray);
-                    return;
-                }
-            } catch (InvalidArgumentException $exception) {
-            }
+        if (is_array($default)) {
+            $default = Json::encode($default);
         }
         parent::setDefault($default);
     }

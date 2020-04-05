@@ -29,11 +29,11 @@ final class JsonColumnTest extends TestCase
         return [
             'string1' => ['', ''],
             'string2' => [null, null],
-            'array' => [[1], [1]],
+            'array' => [[1], '[1]'],
             'json null' => ['null', 'null'],
-            'json proper1' => ['[1,2]', [1, 2]],
-            'json proper2' => ['["a","b"]', ['a', 'b']],
-            'json proper3' => ['{"a":1,"b":2}', ['a' => 1, 'b' => 2]],
+            'json proper1' => [[1, 2], '[1,2]'],
+            'json proper2' => [['a', 'b'], '["a","b"]'],
+            'json proper3' => [['a' => 1, 'b' => 2], '{"a":1,"b":2}'],
         ];
     }
 

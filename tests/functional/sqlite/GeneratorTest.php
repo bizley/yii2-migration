@@ -323,10 +323,8 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ExitCode::UNSPECIFIED_ERROR,
             $this->controller->runAction('create', ['composite_primary_key'])
         );
-        $this->assertSame(
-            'Yii 2 Migration Generator Tool v4.0.0
-
- > Generating migration for creating table \'composite_primary_key\' ...ERROR!
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'composite_primary_key\' ...ERROR!
  > ADD PRIMARY KEY is not supported by SQLite.
 ',
             MigrationControllerStub::$stdout
