@@ -151,4 +151,71 @@ abstract class GeneratorTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithIndex(): void
+    {
+        $this->createTable('index', ['col' => $this->integer()]);
+        $this->getDb()->createCommand()->createIndex('idx', 'index', ['col'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%index}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->createIndex(\'idx\', \'{{%index}}\', [\'col\']);
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithIndexMultiColumn(): void
+    {
+        $this->createTable(
+            'index_multi',
+            [
+                'col1' => $this->integer(),
+                'col2' => $this->integer(),
+            ]
+        );
+        $this->getDb()->createCommand()->createIndex('idx_multi', 'index_multi', ['col1', 'col2'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index_multi']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%index_multi}}\',
+            [
+                \'col1\' => $this->integer(),
+                \'col2\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->createIndex(\'idx_multi\', \'{{%index_multi}}\', [\'col1\', \'col2\']);
+',
+            MigrationControllerStub::$content
+        );
+    }
 }

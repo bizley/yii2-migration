@@ -133,6 +133,42 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    public function shouldGenerateGeneralSchemaTableButKeepNonDefaultSize(): void
+    {
+        $this->createTable(
+            'non_default_size',
+            [
+                'col_char' => $this->char(3),
+                'col_decimal' => $this->decimal(5, 1),
+                'col_string' => $this->string(55),
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%non_default_size}}\',
+            [
+                \'col_char\' => $this->char(3),
+                \'col_decimal\' => $this->decimal(5, 1),
+                \'col_string\' => $this->string(55),
+            ],
+            $tableOptions
+        );
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
     public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
     {
         $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
@@ -328,6 +364,35 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
  > ADD PRIMARY KEY is not supported by SQLite.
 ',
             MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
+    {
+        $this->createTable('unique', ['col' => $this->integer()->unique()]);
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%unique}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->createIndex(\'sqlite_autoindex_unique_1\', \'{{%unique}}\', [\'col\'], true);
+',
+            MigrationControllerStub::$content
         );
     }
 }

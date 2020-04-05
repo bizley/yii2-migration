@@ -134,6 +134,42 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    public function shouldGenerateGeneralSchemaTableButKeepNonDefaultSize(): void
+    {
+        $this->createTable(
+            'non_default_size',
+            [
+                'col_char' => $this->char(4),
+                'col_decimal' => $this->decimal(10, 2),
+                'col_string' => $this->string(10),
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%non_default_size}}\',
+            [
+                \'col_char\' => $this->char(4),
+                \'col_decimal\' => $this->decimal(10, 2),
+                \'col_string\' => $this->string(10),
+            ],
+            $tableOptions
+        );
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
     public function shouldGenerateNonGeneralSchemaTableWithBigPrimaryKey(): void
     {
         $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
@@ -299,6 +335,35 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->addPrimaryKey(\'PK\', \'{{%composite_primary_key}}\', [\'col1\', \'col2\']);
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
+    {
+        $this->createTable('unique', ['col' => $this->integer()->unique()]);
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%unique}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->createIndex(\'unique_col_key\', \'{{%unique}}\', [\'col\'], true);
 ',
             MigrationControllerStub::$content
         );
