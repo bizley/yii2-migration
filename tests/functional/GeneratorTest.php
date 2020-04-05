@@ -52,7 +52,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
-    public function shouldGenerateGeneralSchemaTable(): void
+    public function shouldGenerateGeneralSchemaTableWithCommonColumns(): void
     {
         $this->createTable(
             'gs_columns',
@@ -114,6 +114,52 @@ abstract class GeneratorTest extends DbLoaderTestCase
     public function down()
     {
         $this->dropTable(\'{{%gs_columns}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
+    {
+        $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_big_primary_key extends Migration
+{
+    public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%big_primary_key}}\',
+            [
+                \'id\' => $this->bigPrimaryKey(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%big_primary_key}}\');
     }
 }
 ',

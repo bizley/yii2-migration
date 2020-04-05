@@ -162,4 +162,156 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateNonGeneralSchemaTableWithBigPrimaryKey(): void
+    {
+        $this->createTable('big_primary_key', ['id' => $this->bigPrimaryKey()]);
+
+        $this->controller->generalSchema = false;
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_big_primary_key extends Migration
+{
+    public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%big_primary_key}}\',
+            [
+                \'id\' => $this->bigInteger()->notNull()->append(\'PRIMARY KEY\'),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%big_primary_key}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithNonGeneralBigPrimaryKey(): void
+    {
+        $this->createTable('big_primary_key', ['id' => $this->bigInteger()->notNull()->append('PRIMARY KEY')]);
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_big_primary_key extends Migration
+{
+    public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%big_primary_key}}\',
+            [
+                \'id\' => $this->bigPrimaryKey(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%big_primary_key}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithNonGeneralColumnsDefaultValues(): void
+    {
+        $this->createTable(
+            'non_gs_columns',
+            [
+                'id' => $this->integer()->notNull()->append('PRIMARY KEY'),
+                'col_char' => $this->char(1),
+                'col_decimal' => $this->decimal(10, 0),
+                'col_money' => $this->decimal(19, 4),
+                'col_string' => $this->string(255),
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'non_gs_columns\' ...DONE!',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_non_gs_columns extends Migration
+{
+    public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%non_gs_columns}}\',
+            [
+                \'id\' => $this->primaryKey(),
+                \'col_char\' => $this->char(),
+                \'col_decimal\' => $this->decimal(),
+                \'col_money\' => $this->money(),
+                \'col_string\' => $this->string(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%non_gs_columns}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
 }
