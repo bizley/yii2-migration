@@ -14,13 +14,15 @@ interface ForeignKeyRendererInterface
      * @param string $tableName
      * @param string $referencedTableName
      * @param int $indent
+     * @param string|null $schema
      * @return string
      */
     public function renderUp(
         ForeignKeyInterface $foreignKey,
         string $tableName,
         string $referencedTableName,
-        int $indent = 0
+        int $indent = 0,
+        string $schema = null
     ): string;
 
     /**

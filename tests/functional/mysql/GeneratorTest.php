@@ -279,4 +279,41 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithCompositePrimaryKey(): void
+    {
+        $this->createTable(
+            'composite_primary_key',
+            [
+                'col1' => $this->integer(),
+                'col2' => $this->integer(),
+            ]
+        );
+        $this->getDb()->createCommand()->addPrimaryKey('PK', 'composite_primary_key', ['col1', 'col2'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%composite_primary_key}}\',
+            [
+                \'col1\' => $this->integer()->notNull(),
+                \'col2\' => $this->integer()->notNull(),
+            ],
+            $tableOptions
+        );
+
+        $this->addPrimaryKey(\'PRIMARYKEY\', \'{{%composite_primary_key}}\', [\'col1\', \'col2\']);
+',
+            MigrationControllerStub::$content
+        );
+    }
 }

@@ -7,6 +7,7 @@ namespace bizley\tests\unit\renderers;
 use bizley\migration\renderers\ForeignKeyRenderer;
 use bizley\migration\table\ForeignKeyInterface;
 use PHPUnit\Framework\TestCase;
+use yii\base\NotSupportedException;
 
 final class ForeignKeyRendererTest extends TestCase
 {
@@ -15,10 +16,13 @@ final class ForeignKeyRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->renderer = new ForeignKeyRenderer();
+        $this->renderer = new ForeignKeyRenderer(true);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldRenderProperTemplateForUp(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);

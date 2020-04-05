@@ -108,7 +108,7 @@ TEMPLATE;
         $renderedStructure = array_filter(
             [
                 $this->renderStructureTableUp($structure, $tableName, $indent, $schema, $engineVersion),
-                $this->renderStructurePrimaryKeyUp($structure, $tableName, $indent),
+                $this->renderStructurePrimaryKeyUp($structure, $tableName, $indent, $schema),
                 $this->renderStructureIndexesUp($structure, $tableName, $indent),
                 $this->renderStructureForeignKeysUp($structure, $indent, $usePrefix, $dbPrefix)
             ]
@@ -224,17 +224,20 @@ TEMPLATE;
      * @param StructureInterface $structure
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string|null
      */
     private function renderStructurePrimaryKeyUp(
         StructureInterface $structure,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        string $schema = null
     ): ?string {
         return $this->primaryKeyRenderer->renderUp(
             $structure->getPrimaryKey(),
             $tableName,
-            $indent
+            $indent,
+            $schema
         );
     }
 

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\Schema;
 use bizley\migration\table\ForeignKeyInterface;
+
+use yii\base\NotSupportedException;
 
 use function explode;
 use function implode;
@@ -33,20 +36,35 @@ TEMPLATE;
     /** @var string */
     private $keyNameTemplate = 'fk-{tableName}-{keyColumns}';
 
+    /** @var bool */
+    private $generalSchema;
+
+    public function __construct(bool $generalSchema)
+    {
+        $this->generalSchema = $generalSchema;
+    }
+
     /**
      * Renders the add foreign key statement.
      * @param ForeignKeyInterface $foreignKey
      * @param string $tableName
      * @param string $referencedTableName
      * @param int $indent
+     * @param string|null $schema
      * @return string
+     * @throws NotSupportedException
      */
     public function renderUp(
         ForeignKeyInterface $foreignKey,
         string $tableName,
         string $referencedTableName,
-        int $indent = 0
+        int $indent = 0,
+        string $schema = null
     ): string {
+        if ($schema === Schema::SQLITE && $this->generalSchema === false) {
+            throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
+        }
+
         $template = $this->applyIndent($indent, $this->addKeyTemplate);
 
         $keyColumns = $foreignKey->getColumns();

@@ -7,6 +7,7 @@ namespace bizley\tests\unit\renderers;
 use bizley\migration\renderers\PrimaryKeyRenderer;
 use bizley\migration\table\PrimaryKeyInterface;
 use PHPUnit\Framework\TestCase;
+use yii\base\NotSupportedException;
 
 final class PrimaryKeyRendererTest extends TestCase
 {
@@ -15,17 +16,23 @@ final class PrimaryKeyRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->renderer = new PrimaryKeyRenderer();
+        $this->renderer = new PrimaryKeyRenderer(true);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldReturnNullWhenNoPrimaryKey(): void
     {
         $this->assertNull($this->renderer->renderUp(null, 'test'));
         $this->assertNull($this->renderer->renderDown(null, 'test'));
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldReturnNullWhenPrimaryKeyIsNotComposite(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -35,7 +42,10 @@ final class PrimaryKeyRendererTest extends TestCase
         $this->assertNull($this->renderer->renderDown($primaryKey, 'test'));
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldRenderProperTemplateForUp(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -96,6 +106,7 @@ final class PrimaryKeyRendererTest extends TestCase
      * @param array $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
+     * @throws NotSupportedException
      */
     public function shouldRenderProperlyPrimaryKey(
         int $indent,

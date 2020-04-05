@@ -261,4 +261,75 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithCompositePrimaryKey(): void
+    {
+        $this->createTable(
+            'composite_primary_key',
+            [
+                'col1' => $this->integer(),
+                'col2' => $this->integer(),
+                'PRIMARY KEY(col1, col2)'
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%composite_primary_key}}\',
+            [
+                \'col1\' => $this->integer(),
+                \'col2\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->addPrimaryKey(\'PRIMARYKEY\', \'{{%composite_primary_key}}\', [\'col1\', \'col2\']);
+',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldNotGenerateNonGeneralSchemaTableWithCompositePrimaryKey(): void
+    {
+        $this->createTable(
+            'composite_primary_key',
+            [
+                'col1' => $this->integer(),
+                'col2' => $this->integer(),
+                'PRIMARY KEY(col1, col2)'
+            ]
+        );
+
+        $this->controller->generalSchema = false;
+        $this->assertEquals(
+            ExitCode::UNSPECIFIED_ERROR,
+            $this->controller->runAction('create', ['composite_primary_key'])
+        );
+        $this->assertSame(
+            'Yii 2 Migration Generator Tool v4.0.0
+
+ > Generating migration for creating table \'composite_primary_key\' ...ERROR!
+ > ADD PRIMARY KEY is not supported by SQLite.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
 }

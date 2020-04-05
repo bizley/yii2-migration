@@ -214,9 +214,9 @@ class BaseMigrationController extends Controller
                 $this->structureRendererClass,
                 [
                     Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->primaryKeyRendererClass),
+                    Yii::createObject($this->primaryKeyRendererClass, [$this->generalSchema]),
                     Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass)
+                    Yii::createObject($this->foreignKeyRendererClass, [$this->generalSchema])
                 ]
             );
             if (!$configuredObject instanceof StructureRendererInterface) {
@@ -369,9 +369,9 @@ class BaseMigrationController extends Controller
                 $this->blueprintRendererClass,
                 [
                     Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->primaryKeyRendererClass),
+                    Yii::createObject($this->primaryKeyRendererClass, [$this->generalSchema]),
                     Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass)
+                    Yii::createObject($this->foreignKeyRendererClass, [$this->generalSchema])
                 ]
             );
             if (!$configuredObject instanceof BlueprintRendererInterface) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchemaBuilder;
 use yii\db\Connection;
 use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
@@ -34,7 +35,7 @@ abstract class DbLoaderTestCase extends DbTestCase
         }
         $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
         foreach ($columns as $column => $type) {
-            if ($type->comment !== null) {
+            if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
                 $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
             }
         }

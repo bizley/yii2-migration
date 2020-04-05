@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
+
+use yii\base\NotSupportedException;
 
 use function implode;
 use function str_repeat;
@@ -18,17 +21,35 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
     /** @var string */
     private $dropKeyTemplate = '$this->dropPrimaryKey(\'{keyName}\', \'{tableName}\');';
 
+    /** @var bool */
+    private $generalSchema;
+
+    public function __construct(bool $generalSchema)
+    {
+        $this->generalSchema = $generalSchema;
+    }
+
     /**
      * Renders the add primary key statement.
      * @param PrimaryKeyInterface|null $primaryKey
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string|null
+     * @throws NotSupportedException
      */
-    public function renderUp(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
-    {
+    public function renderUp(
+        ?PrimaryKeyInterface $primaryKey,
+        string $tableName,
+        int $indent = 0,
+        string $schema = null
+    ): ?string {
         if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;
+        }
+
+        if ($schema === Schema::SQLITE && $this->generalSchema === false) {
+            throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
         }
 
         $template = str_repeat(' ', $indent) . $this->addKeyTemplate;

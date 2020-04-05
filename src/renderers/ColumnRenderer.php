@@ -14,10 +14,8 @@ use yii\helpers\Json;
 
 use function array_unshift;
 use function is_array;
-use function preg_match;
 use function str_repeat;
 use function str_replace;
-use function strpos;
 use function trim;
 
 final class ColumnRenderer implements ColumnRendererInterface
