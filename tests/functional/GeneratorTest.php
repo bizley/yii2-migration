@@ -76,7 +76,18 @@ abstract class GeneratorTest extends DbLoaderTestCase
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['gs_columns']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'gs_columns\' ...DONE!',
+            'Yii 2 Migration Generator Tool v4.0.0
+
+ > Generating migration for creating table \'gs_columns\' ...DONE!
+ > Saved as \'',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_gs_columns.php\'
+
+ Generated 1 file
+ (!) Remember to verify files before applying migration.
+',
             MigrationControllerStub::$stdout
         );
         $this->assertStringContainsString(
@@ -135,19 +146,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_big_primary_key extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%big_primary_key}}\',
             [
@@ -155,13 +154,6 @@ abstract class GeneratorTest extends DbLoaderTestCase
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%big_primary_key}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );

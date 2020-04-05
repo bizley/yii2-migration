@@ -42,19 +42,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'non_standard_columns\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_non_standard_columns extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%non_standard_columns}}\',
             [
@@ -66,13 +54,6 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%non_standard_columns}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );
@@ -116,19 +97,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->controller->generalSchema = false;
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'non_gs_columns\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_non_gs_columns extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%non_gs_columns}}\',
             [
@@ -154,13 +123,6 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%non_gs_columns}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );
@@ -181,19 +143,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->controller->generalSchema = false;
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_big_primary_key extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%big_primary_key}}\',
             [
@@ -201,13 +151,6 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%big_primary_key}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );
@@ -230,19 +173,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'big_primary_key\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_big_primary_key extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%big_primary_key}}\',
             [
@@ -250,13 +181,6 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%big_primary_key}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );
@@ -290,19 +214,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'non_gs_columns\' ...DONE!',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertStringContainsString(
-            '_create_table_non_gs_columns extends Migration
-{
-    public function up()
-    {
-        $tableOptions = null;
-        if ($this->db->driverName === \'mysql\') {
-            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
-        }
-
+            '
         $this->createTable(
             \'{{%non_gs_columns}}\',
             [
@@ -319,13 +231,6 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-    }
-
-    public function down()
-    {
-        $this->dropTable(\'{{%non_gs_columns}}\');
-    }
-}
 ',
             MigrationControllerStub::$content
         );
