@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\unit\renderers;
 
 use bizley\migration\renderers\ForeignKeyRenderer;
+use bizley\migration\Schema;
 use bizley\migration\table\ForeignKeyInterface;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -17,6 +18,23 @@ final class ForeignKeyRendererTest extends TestCase
     protected function setUp(): void
     {
         $this->renderer = new ForeignKeyRenderer(true);
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchema(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        (new ForeignKeyRenderer(false))->renderUp(
+            $this->createMock(ForeignKeyInterface::class),
+            'table',
+            'refTable',
+            0,
+            Schema::SQLITE
+        );
     }
 
     /**

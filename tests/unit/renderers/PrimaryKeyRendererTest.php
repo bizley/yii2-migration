@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\unit\renderers;
 
 use bizley\migration\renderers\PrimaryKeyRenderer;
+use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -17,6 +18,24 @@ final class PrimaryKeyRendererTest extends TestCase
     protected function setUp(): void
     {
         $this->renderer = new PrimaryKeyRenderer(true);
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchema(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        (new PrimaryKeyRenderer(false))->renderUp(
+            $primaryKey,
+            'table',
+            0,
+            Schema::SQLITE
+        );
     }
 
     /**
