@@ -12,6 +12,8 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
+use function preg_match_all;
+
 class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
     /** @var string */
@@ -412,19 +414,23 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithForeignKey(): void
     {
+        try {
+            $this->getDb()->createCommand()->dropForeignKey('fk-table12', 'table12')->execute();
+        } catch (Throwable $exception) {
+        }
         $this->createTables(
             [
-                'table1' => ['id' => $this->primaryKey(11)],
-                'table2' => ['col' => $this->integer(11)]
+                'table11' => ['id' => $this->primaryKey(11)],
+                'table12' => ['col' => $this->integer(11)]
             ]
         );
-        $this->getDb()->createCommand()->addForeignKey('fk-table2', 'table2', ['col'], 'table1', ['id'])->execute();
+        $this->getDb()->createCommand()->addForeignKey('fk-table12', 'table12', ['col'], 'table11', ['id'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table2']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
         $this->assertStringContainsString(
             '
         $this->createTable(
-            \'{{%table2}}\',
+            \'{{%table12}}\',
             [
                 \'col\' => $this->integer(),
             ],
@@ -432,10 +438,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->addForeignKey(
-            \'fk-table2\',
-            \'{{%table2}}\',
+            \'fk-table12\',
+            \'{{%table12}}\',
             [\'col\'],
-            \'{{%table1}}\',
+            \'{{%table11}}\',
             [\'id\'],
             \'RESTRICT\',
             \'RESTRICT\'
@@ -456,43 +462,43 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     public function shouldGenerateGeneralSchemaCrossReferredTables(): void
     {
         try {
-            $this->getDb()->createCommand()->dropForeignKey('fk-table1', 'table1')->execute();
-            $this->getDb()->createCommand()->dropForeignKey('fk-table2', 'table2')->execute();
+            $this->getDb()->createCommand()->dropForeignKey('fk-table21', 'table21')->execute();
+            $this->getDb()->createCommand()->dropForeignKey('fk-table22', 'table22')->execute();
         } catch (Throwable $exception) {
         }
 
         $this->createTables(
             [
-                'table1' => [
+                'table21' => [
                     'id1' => $this->primaryKey(),
                     'fk1' => $this->integer(),
                 ],
-                'table2' => [
+                'table22' => [
                     'id2' => $this->primaryKey(),
                     'fk2' => $this->integer(),
                 ]
             ]
         );
         $this->getDb()->createCommand()->addForeignKey(
-            'fk-table1',
-            'table1',
+            'fk-table21',
+            'table21',
             ['fk1'],
-            'table2',
+            'table22',
             ['id2'],
             'CASCADE',
             'CASCADE'
         )->execute();
         $this->getDb()->createCommand()->addForeignKey(
-            'fk-table2',
-            'table2',
+            'fk-table22',
+            'table22',
             ['fk2'],
-            'table1',
+            'table21',
             ['id1'],
             'CASCADE',
             'CASCADE'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table1,table2']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table21,table22']));
         $this->assertStringContainsString(
             'public function up()
     {
@@ -502,7 +508,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         }
 
         $this->createTable(
-            \'{{%table2}}\',
+            \'{{%table22}}\',
             [
                 \'id2\' => $this->primaryKey(),
                 \'fk2\' => $this->integer(),
@@ -510,12 +516,12 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             $tableOptions
         );
 
-        $this->createIndex(\'fk-table2\', \'{{%table2}}\', [\'fk2\']);
+        $this->createIndex(\'fk-table22\', \'{{%table22}}\', [\'fk2\']);
     }
 
     public function down()
     {
-        $this->dropTable(\'{{%table2}}\');
+        $this->dropTable(\'{{%table22}}\');
     }',
             MigrationControllerStub::$content
         );
@@ -528,7 +534,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         }
 
         $this->createTable(
-            \'{{%table1}}\',
+            \'{{%table21}}\',
             [
                 \'id1\' => $this->primaryKey(),
                 \'fk1\' => $this->integer(),
@@ -537,10 +543,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->addForeignKey(
-            \'fk-table1\',
-            \'{{%table1}}\',
+            \'fk-table21\',
+            \'{{%table21}}\',
             [\'fk1\'],
-            \'{{%table2}}\',
+            \'{{%table22}}\',
             [\'id2\'],
             \'CASCADE\',
             \'CASCADE\'
@@ -549,7 +555,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
     public function down()
     {
-        $this->dropTable(\'{{%table1}}\');
+        $this->dropTable(\'{{%table21}}\');
     }',
             MigrationControllerStub::$content
         );
@@ -557,10 +563,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             'public function up()
     {
         $this->addForeignKey(
-            \'fk-table2\',
-            \'{{%table2}}\',
+            \'fk-table22\',
+            \'{{%table22}}\',
             [\'fk2\'],
-            \'{{%table1}}\',
+            \'{{%table21}}\',
             [\'id1\'],
             \'CASCADE\',
             \'CASCADE\'
@@ -569,9 +575,62 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
     public function down()
     {
-        $this->dropForeignKey(\'fk-table2\', \'{{%table2}}\');
+        $this->dropForeignKey(\'fk-table22\', \'{{%table22}}\');
     }',
             MigrationControllerStub::$content
         );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTablesInProperOrder(): void
+    {
+        try {
+            $this->getDb()->createCommand()->dropForeignKey('fk-table31', 'table31')->execute();
+            $this->getDb()->createCommand()->dropForeignKey('fk-table32', 'table32')->execute();
+        } catch (Throwable $exception) {
+        }
+
+        $this->createTables(
+            [
+                'table31' => [
+                    'id1' => $this->primaryKey(),
+                    'fk1' => $this->integer(),
+                ],
+                'table32' => [
+                    'id2' => $this->primaryKey(),
+                    'fk2' => $this->integer(),
+                ],
+                'table33' => ['id3' => $this->primaryKey()],
+            ]
+        );
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-table31',
+            'table31',
+            ['fk1'],
+            'table32',
+            ['id2'],
+            'CASCADE',
+            'CASCADE'
+        )->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-table32',
+            'table32',
+            ['fk2'],
+            'table33',
+            ['id3'],
+            'CASCADE',
+            'CASCADE'
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table31,table32,table33']));
+        preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
+        $this->assertSame(['33', '32', '31'], $matches[1]);
     }
 }

@@ -220,4 +220,46 @@ abstract class GeneratorTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTablesMatchingPattern(): void
+    {
+        $this->createTables(
+            [
+                'pattern_a' => ['col' => $this->integer()],
+                'pattern_b' => ['col' => $this->integer()],
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['pattern_*']));
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%pattern_a}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );',
+            MigrationControllerStub::$content
+        );
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%pattern_b}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );',
+            MigrationControllerStub::$content
+        );
+    }
 }

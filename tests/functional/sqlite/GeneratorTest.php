@@ -415,19 +415,19 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         $this->createTables(
             [
-                'table1' => ['id' => $this->primaryKey(11)],
-                'table2' => [
+                'table11' => ['id' => $this->primaryKey(11)],
+                'table12' => [
                     'col' => $this->integer(11),
-                    'FOREIGN KEY(col) REFERENCES table1(id)'
+                    'FOREIGN KEY(col) REFERENCES table11(id)'
                 ]
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table2']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
         $this->assertStringContainsString(
             '
         $this->createTable(
-            \'{{%table2}}\',
+            \'{{%table12}}\',
             [
                 \'col\' => $this->integer(),
             ],
@@ -435,10 +435,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->addForeignKey(
-            \'fk-{{%table2}}-col\',
-            \'{{%table2}}\',
+            \'fk-{{%table12}}-col\',
+            \'{{%table12}}\',
             [\'col\'],
-            \'{{%table1}}\',
+            \'{{%table11}}\',
             [\'id\'],
             \'NO ACTION\',
             \'NO ACTION\'
@@ -460,10 +460,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         $this->createTables(
             [
-                'table1' => ['id' => $this->primaryKey(11)],
-                'table2' => [
+                'table21' => ['id' => $this->primaryKey(11)],
+                'table22' => [
                     'col' => $this->integer(11),
-                    'FOREIGN KEY(col) REFERENCES table1(id)'
+                    'FOREIGN KEY(col) REFERENCES table21(id)'
                 ]
             ]
         );
@@ -471,10 +471,10 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->controller->generalSchema = false;
         $this->assertEquals(
             ExitCode::UNSPECIFIED_ERROR,
-            $this->controller->runAction('create', ['table2'])
+            $this->controller->runAction('create', ['table22'])
         );
         $this->assertStringContainsString(
-            ' > Generating migration for creating table \'table2\' ...ERROR!
+            ' > Generating migration for creating table \'table22\' ...ERROR!
  > ADD FOREIGN KEY is not supported by SQLite.
 ',
             MigrationControllerStub::$stdout
