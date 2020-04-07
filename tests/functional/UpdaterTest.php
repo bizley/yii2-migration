@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\functional;
 
-use bizley\tests\migrations\m20200406_124200_create_table_update_base;
+use bizley\tests\migrations\m20200406_124200_create_table_updater_base;
 use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
 use yii\base\InvalidRouteException;
@@ -46,7 +46,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
      */
     public function shouldUpdateTableByAddingColumn(): void
     {
-        $this->addUpdateBases([new m20200406_124200_create_table_update_base()]);
+        $this->addUpdateBases([new m20200406_124200_create_table_updater_base()]);
         $this->getDb()->createCommand()->addColumn('update_base', 'added', $this->integer())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['update_base']));

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\tests\functional;
 
-use Throwable;
 use yii\base\NotSupportedException;
 use yii\console\controllers\MigrateController;
 use yii\db\ColumnSchemaBuilder;
@@ -13,8 +12,6 @@ use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
 
 use function array_reverse;
-use function get_class;
-use function time;
 
 abstract class DbLoaderTestCase extends DbTestCase
 {
@@ -40,69 +37,92 @@ abstract class DbLoaderTestCase extends DbTestCase
     {
         $reverseOrderTables = array_reverse($tables);
         foreach ($reverseOrderTables as $table => $columns) {
-            if ($this->getDb()->getSchema()->getTableSchema($table)) {
-                $this->getDb()->createCommand()->dropTable($table)->execute();
-            }
+            $this->dropTable($table);
         }
 
         foreach ($tables as $table => $columns) {
-            $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
-            foreach ($columns as $column => $type) {
-                if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
-                    $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
-                }
+            $this->createTable($table, $columns);
+        }
+    }
+
+    /**
+     * @param string $table
+     * @return bool
+     * @throws Exception
+     * @throws NotSupportedException
+     */
+    private function dropTable(string $table): bool
+    {
+        if ($this->getDb()->getSchema()->getTableSchema($table)) {
+            $this->getDb()->createCommand()->dropTable($table)->execute();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $table
+     * @param array $columns
+     * @throws Exception
+     */
+    private function createTable(string $table, array $columns): void
+    {
+        $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
+        foreach ($columns as $column => $type) {
+            if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
+                $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
             }
         }
     }
 
     /**
-     * @param array $migrations
      * @throws NotSupportedException
      * @throws Exception
      */
-    protected function addUpdateBases(array $migrations): void
+    protected function addBase(): void
     {
-        if ($this->getDb()->getSchema()->getTableSchema($this->historyTable) === null) {
-            $this->createTable();
-        }
+        $this->createMigrationHistoryTable();
 
-        try {
-            $reverseOrderMigrations = array_reverse($migrations);
-            foreach ($reverseOrderMigrations as $migration) {
-                $migration->compact = true;
-                $migration->down();
-                $this->getDb()
-                    ->createCommand()
-                    ->delete(
-                        $this->historyTable,
-                        ['version' => get_class($migration)]
-                    )
-                    ->execute();
-            }
-        } catch (Throwable $exception) {
-        }
-
-        foreach ($migrations as $migration) {
-            $migration->compact = true;
-            $migration->up();
+        if ($this->dropTable('updater_base')) {
             $this->getDb()
                 ->createCommand()
-                ->insert(
+                ->delete(
                     $this->historyTable,
-                    [
-                        'version' => get_class($migration),
-                        'apply_time' => time(),
-                    ]
+                    ['version' => 'm20200406_124200_create_table_updater_base']
                 )
                 ->execute();
         }
+
+        // Updater_base must be the same as in m20200406_124200_create_table_updater_base.
+        // Table is added like this to skip class' autoloading.
+        $this->createTable(
+            'updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer()
+            ]
+        );
+        $this->getDb()
+            ->createCommand()
+            ->insert(
+                $this->historyTable,
+                [
+                    'version' => 'm20200406_124200_create_table_updater_base',
+                    'apply_time' => 1586131201,
+                ]
+            )
+            ->execute();
     }
 
     /**
      * @throws Exception
+     * @throws NotSupportedException
      */
-    private function createTable(): void
+    private function createMigrationHistoryTable(): void
     {
+        if ($this->getDb()->getSchema()->getTableSchema($this->historyTable) !== null) {
+            return;
+        }
         $this->getDb()
             ->createCommand()
             ->createTable(

@@ -6,7 +6,7 @@ namespace bizley\tests\migrations;
 
 use yii\db\Migration;
 
-class m20200406_124200_create_table_update_base extends Migration
+class m20200406_124200_create_table_updater_base extends Migration
 {
     public function up()
     {
@@ -16,7 +16,7 @@ class m20200406_124200_create_table_update_base extends Migration
         }
 
         $this->createTable(
-            'update_base',
+            'updater_base',
             [
                 'id' => $this->primaryKey(),
                 'col' => $this->integer()
@@ -27,6 +27,6 @@ class m20200406_124200_create_table_update_base extends Migration
 
     public function down()
     {
-        $this->dropTable('update_base');
+        $this->dropTable('updater_base');
     }
 }
