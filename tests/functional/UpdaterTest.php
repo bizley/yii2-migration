@@ -80,4 +80,5 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
 }
