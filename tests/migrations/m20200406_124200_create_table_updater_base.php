@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace bizley\tests\migrations;
-
 use yii\db\Migration;
 
 class m20200406_124200_create_table_updater_base extends Migration

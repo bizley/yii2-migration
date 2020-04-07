@@ -92,7 +92,7 @@ final class Inspector implements InspectorInterface
             if (count($this->appliedChanges)) {
                 $this->comparator->compare(
                     $newStructure,
-                    $this->structureBuilder->build(array_reverse($this->appliedChanges), $schema),
+                    $this->structureBuilder->build(array_reverse($this->appliedChanges), $schema, $engineVersion),
                     $blueprint,
                     $onlyShow,
                     $schema,

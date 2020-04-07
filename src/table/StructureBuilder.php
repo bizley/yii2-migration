@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use bizley\migration\Schema;
 use yii\base\InvalidArgumentException;
 
 use function array_key_exists;
@@ -15,9 +16,10 @@ final class StructureBuilder implements StructureBuilderInterface
      * Builds table structure based on the list of changes from the Inspector.
      * @param array<StructureChangeInterface> $changes
      * @param string|null $schema
+     * @param string|null $engineVersion
      * @return StructureInterface
      */
-    public function build(array $changes, ?string $schema): StructureInterface
+    public function build(array $changes, ?string $schema, ?string $engineVersion): StructureInterface
     {
         $structure = new Structure();
 
@@ -30,12 +32,12 @@ final class StructureBuilder implements StructureBuilderInterface
             switch ($change->getMethod()) {
                 case 'createTable':
                     $structure->setName($change->getTable());
-                    $this->applyCreateTableValue($structure, $change->getValue(), $schema);
+                    $this->applyCreateTableValue($structure, $change->getValue(), $schema, $engineVersion);
                     break;
 
                 case 'addColumn':
                 case 'alterColumn':
-                    $this->applyAddColumnValue($structure, $change->getValue(), $schema);
+                    $this->applyAddColumnValue($structure, $change->getValue(), $schema, $engineVersion);
                     break;
 
                 case 'dropColumn':
@@ -88,11 +90,16 @@ final class StructureBuilder implements StructureBuilderInterface
      * @param StructureInterface $structure
      * @param array<ColumnInterface> $columns
      * @param string|null $schema
+     * @param string|null $engineVersion
      */
-    private function applyCreateTableValue(StructureInterface $structure, array $columns, ?string $schema): void
-    {
+    private function applyCreateTableValue(
+        StructureInterface $structure,
+        array $columns,
+        ?string $schema,
+        ?string $engineVersion
+    ): void {
         foreach ($columns as $column) {
-            $this->applyAddColumnValue($structure, $column, $schema);
+            $this->applyAddColumnValue($structure, $column, $schema, $engineVersion);
         }
     }
 
@@ -101,9 +108,22 @@ final class StructureBuilder implements StructureBuilderInterface
      * @param StructureInterface $structure
      * @param ColumnInterface $column
      * @param string|null $schema
+     * @param string|null $engineVersion
      */
-    private function applyAddColumnValue(StructureInterface $structure, ColumnInterface $column, ?string $schema): void
-    {
+    private function applyAddColumnValue(
+        StructureInterface $structure,
+        ColumnInterface $column,
+        ?string $schema,
+        ?string $engineVersion
+    ): void {
+        if ($column->getLength($schema, $engineVersion) === null) {
+            $column->setLength(
+                Schema::getDefaultLength($schema, $column->getType(), $engineVersion),
+                $schema,
+                $engineVersion
+            );
+        }
+
         $structure->addColumn($column);
 
         if ($column->isPrimaryKey() || $column->isPrimaryKeyInfoAppended($schema)) {

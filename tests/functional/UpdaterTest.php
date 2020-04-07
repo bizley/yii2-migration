@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace bizley\tests\functional;
 
-use bizley\tests\migrations\m20200406_124200_create_table_updater_base;
 use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
+use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
@@ -42,19 +42,25 @@ abstract class UpdaterTest extends DbLoaderTestCase
      * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function shouldUpdateTableByAddingColumn(): void
     {
-        $this->addUpdateBases([new m20200406_124200_create_table_updater_base()]);
-        $this->getDb()->createCommand()->addColumn('update_base', 'added', $this->integer())->execute();
+        $this->addBase();
+        $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['update_base']));
-        $this->assertSame(
-            ' > Comparing current table \'update_base\' with its migrations ...DONE!
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > 1 table excluded by the config.
 
- > Generating migration for creating table \'update_base\' ...DONE!
- > Saved as \'/home/bizley/git/yii2-migration/tests/migrations/m200406_105627_01_create_table_update_base.php\'
+ > Comparing current table \'updater_base\' with its migrations ...DONE!
+
+ > Generating migration for updating table \'updater_base\' ...DONE!
+ > Saved as \'',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_update_table_updater_base.php\'
 
  Generated 1 file
  (!) Remember to verify files before applying migration.
@@ -62,17 +68,16 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$stdout
         );
         $this->assertStringContainsString(
-            'Yii 2 Migration Generator Tool v4.0.0
+            'public function up()
+    {
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col\'));
+    }
 
- > Comparing current table \'update_base\' with its migrations ...DONE!
-
- > Generating migration for creating table \'update_base\' ...DONE!
- > Saved as \'/home/bizley/git/yii2-migration/tests/migrations/m200406_105627_01_create_table_update_base.php\'
-
- Generated 1 file
- (!) Remember to verify files before applying migration.
-',
-            MigrationControllerStub::$stdout
+    public function down()
+    {
+        $this->dropColumn(\'{{%updater_base}}\', \'added\');
+    }',
+            MigrationControllerStub::$content
         );
     }
 }

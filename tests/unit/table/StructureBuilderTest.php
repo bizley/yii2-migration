@@ -34,20 +34,21 @@ final class StructureBuilderTest extends TestCase
     public function shouldThrowExceptionWhenNoStructureChange(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->builder->build([new stdClass()], null);
+        $this->builder->build([new stdClass()], null, null);
     }
 
     /** @test */
     public function shouldProperlyBuildWithCreateTableAndNonPKColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
 
         $this->change->method('getMethod')->willReturn('createTable');
         $this->change->method('getTable')->willReturn('table');
         $this->change->method('getValue')->willReturn([$column]);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertSame('table', $structure->getName());
         $this->assertCount(1, $structure->getColumns());
@@ -59,6 +60,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithCreateTableAndPKColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
         $column->method('isPrimaryKey')->willReturn(true);
 
@@ -66,7 +68,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getTable')->willReturn('table');
         $this->change->method('getValue')->willReturn([$column]);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
         $structurePrimaryKey = $structure->getPrimaryKey();
 
         $this->assertSame('table', $structure->getName());
@@ -80,6 +82,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithCreateTableAndColumnWithPKAppended(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
         $column->method('isPrimaryKeyInfoAppended')->willReturn(true);
 
@@ -87,7 +90,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getTable')->willReturn('table');
         $this->change->method('getValue')->willReturn([$column]);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
         $structurePrimaryKey = $structure->getPrimaryKey();
 
         $this->assertSame('table', $structure->getName());
@@ -108,6 +111,7 @@ final class StructureBuilderTest extends TestCase
         $primaryKeyChange->method('getValue')->willReturn($primaryKey);
 
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
         $column->method('isPrimaryKey')->willReturn(true);
 
@@ -115,7 +119,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getTable')->willReturn('table');
         $this->change->method('getValue')->willReturn([$column]);
 
-        $structure = $this->builder->build([$primaryKeyChange, $this->change], null);
+        $structure = $this->builder->build([$primaryKeyChange, $this->change], null, null);
         $structurePrimaryKey = $structure->getPrimaryKey();
 
         $this->assertSame('table', $structure->getName());
@@ -129,12 +133,13 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithAddColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
 
         $this->change->method('getMethod')->willReturn('addColumn');
         $this->change->method('getValue')->willReturn($column);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertCount(1, $structure->getColumns());
         $this->assertNotNull($structure->getColumn('column'));
@@ -144,12 +149,13 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithAlterColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
 
         $this->change->method('getMethod')->willReturn('alterColumn');
         $this->change->method('getValue')->willReturn($column);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertCount(1, $structure->getColumns());
         $this->assertNotNull($structure->getColumn('column'));
@@ -159,6 +165,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithDropColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
+        $column->method('getType')->willReturn('type');
         $column->method('getName')->willReturn('column');
 
         $changeAdd = $this->createMock(StructureChangeInterface::class);
@@ -168,7 +175,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('dropColumn');
         $this->change->method('getValue')->willReturn('column');
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(0, $structure->getColumns());
         $this->assertNull($structure->getColumn('column'));
@@ -178,6 +185,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithRenameColumn(): void
     {
         $column = new IntegerColumn(); // no mock because of cloning
+        $column->setType('integer');
         $column->setName('column');
 
         $changeAdd = $this->createMock(StructureChangeInterface::class);
@@ -187,7 +195,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('renameColumn');
         $this->change->method('getValue')->willReturn(['old' => 'column', 'new' => 'new-column']);
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(1, $structure->getColumns());
         $this->assertNull($structure->getColumn('column'));
@@ -203,7 +211,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('addPrimaryKey');
         $this->change->method('getValue')->willReturn($primaryKey);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertCount(0, $structure->getColumns());
         $this->assertNotNull($structure->getPrimaryKey());
@@ -213,6 +221,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithAddPrimaryKeyAndMatchingColumnNothingAppended(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('column');
 
         $changeAdd = $this->createMock(StructureChangeInterface::class);
@@ -225,7 +234,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('addPrimaryKey');
         $this->change->method('getValue')->willReturn($primaryKey);
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(1, $structure->getColumns());
         $this->assertSame('PRIMARY KEY', $structure->getColumn('column')->getAppend());
@@ -235,6 +244,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithAddPrimaryKeyAndMatchingColumnWithAppend(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('column');
         $column->setAppend('appended');
 
@@ -248,7 +258,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('addPrimaryKey');
         $this->change->method('getValue')->willReturn($primaryKey);
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(1, $structure->getColumns());
         $this->assertSame('appended PRIMARY KEY', $structure->getColumn('column')->getAppend());
@@ -263,7 +273,7 @@ final class StructureBuilderTest extends TestCase
 
         $this->change->method('getMethod')->willReturn('dropPrimaryKey');
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertNull($structure->getPrimaryKey());
     }
@@ -272,6 +282,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithDropPrimaryKeyWithMatchingColumn(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('column');
         $column->setAppend('appended');
 
@@ -288,7 +299,7 @@ final class StructureBuilderTest extends TestCase
 
         $this->change->method('getMethod')->willReturn('dropPrimaryKey');
 
-        $structure = $this->builder->build([$changeAdd, $changeAddPK, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $changeAddPK, $this->change], null, null);
 
         $this->assertNull($structure->getPrimaryKey());
         $this->assertSame('appended', $structure->getColumn('column')->getAppend());
@@ -303,7 +314,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('addForeignKey');
         $this->change->method('getValue')->willReturn($foreignKey);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertCount(1, $structure->getForeignKeys());
         $this->assertNotNull($structure->getForeignKey('fk'));
@@ -322,7 +333,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('dropForeignKey');
         $this->change->method('getValue')->willReturn('fk');
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(0, $structure->getForeignKeys());
         $this->assertNull($structure->getForeignKey('fk'));
@@ -337,7 +348,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('createIndex');
         $this->change->method('getValue')->willReturn($index);
 
-        $structure = $this->builder->build([$this->change], null);
+        $structure = $this->builder->build([$this->change], null, null);
 
         $this->assertCount(1, $structure->getIndexes());
         $this->assertNotNull($structure->getIndex('idx'));
@@ -347,6 +358,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithCreateIndexUniqueAndMatchingColumn(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('idx-column');
         $column->setUnique(false);
 
@@ -362,7 +374,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('createIndex');
         $this->change->method('getValue')->willReturn($index);
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(1, $structure->getIndexes());
         $this->assertNotNull($structure->getIndex('idx'));
@@ -382,7 +394,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('dropIndex');
         $this->change->method('getValue')->willReturn('idx');
 
-        $structure = $this->builder->build([$changeAdd, $this->change], null);
+        $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         $this->assertCount(0, $structure->getIndexes());
         $this->assertNull($structure->getIndex('idx'));
@@ -392,6 +404,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithDropIndexUniqueAndMatchingColumn(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('idx-column');
         $column->setUnique(false);
 
@@ -411,7 +424,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('dropIndex');
         $this->change->method('getValue')->willReturn('idx');
 
-        $structure = $this->builder->build([$changeAddColumn, $changeAddIndex, $this->change], null);
+        $structure = $this->builder->build([$changeAddColumn, $changeAddIndex, $this->change], null, null);
 
         $this->assertCount(0, $structure->getIndexes());
         $this->assertNull($structure->getIndex('idx'));
@@ -422,6 +435,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithAddCommentOnColumn(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('column');
 
         $changeAddColumn = $this->createMock(StructureChangeInterface::class);
@@ -431,7 +445,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('addCommentOnColumn');
         $this->change->method('getValue')->willReturn(['name' => 'column', 'comment' => 'comment-to-add']);
 
-        $structure = $this->builder->build([$changeAddColumn, $this->change], null);
+        $structure = $this->builder->build([$changeAddColumn, $this->change], null, null);
 
         $this->assertSame('comment-to-add', $structure->getColumn('column')->getComment());
     }
@@ -440,6 +454,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldProperlyBuildWithDropCommentFromColumn(): void
     {
         $column = new IntegerColumn();
+        $column->setType('integer');
         $column->setName('column');
         $column->setComment('comment-to-drop');
 
@@ -450,7 +465,7 @@ final class StructureBuilderTest extends TestCase
         $this->change->method('getMethod')->willReturn('dropCommentFromColumn');
         $this->change->method('getValue')->willReturn('column');
 
-        $structure = $this->builder->build([$changeAddColumn, $this->change], null);
+        $structure = $this->builder->build([$changeAddColumn, $this->change], null, null);
 
         $this->assertNull($structure->getColumn('column')->getComment());
     }
