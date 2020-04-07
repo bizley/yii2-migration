@@ -139,4 +139,66 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAlteringColumnWithUnsigned(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropTable('updater_base')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer()->unsigned(),
+                'col2' => $this->string(),
+            ]
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - different \'col\' column property: unsigned (DB: TRUE != MIG: FALSE)
+   - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAlteringColumnWithNotNull(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropTable('updater_base')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer()->notNull(),
+                'col2' => $this->string(),
+            ]
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }

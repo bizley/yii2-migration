@@ -148,4 +148,30 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAlteringColumnWithNotNull(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer()->notNull());
+    }
+
+    public function down()
+    {
+        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer());
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
