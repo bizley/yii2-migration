@@ -103,4 +103,30 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByDroppingColumn(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropColumn(\'{{%updater_base}}\', \'col\');
+    }
+
+    public function down()
+    {
+        $this->addColumn(\'{{%updater_base}}\', \'col\', $this->integer());
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
