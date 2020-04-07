@@ -80,4 +80,27 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAddingColumn(): void
+    {
+        $this->addBase();
+        $this->controller->onlyShow = true;
+        $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - missing column \'added\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
