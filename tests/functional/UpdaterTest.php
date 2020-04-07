@@ -129,4 +129,27 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByDroppingColumn(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
+
+        $this->controller->onlyShow = true;
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - excessive column \'col\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
