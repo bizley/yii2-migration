@@ -229,4 +229,34 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingColumnWithComment(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->addColumn(
+            'updater_base',
+            'added',
+            $this->integer()->comment('test')
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->comment(\'test\')->after(\'col2\'));
+    }
+
+    public function down()
+    {
+        $this->dropColumn(\'{{%updater_base}}\', \'added\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
