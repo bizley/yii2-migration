@@ -10,7 +10,7 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-class UpdaterTest extends \bizley\tests\functional\UpdaterTest
+class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
 {
     /** @var string */
     public static $schema = 'mysql';
@@ -24,24 +24,20 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldUpdateTableByDroppingColumn(): void
+    public function shouldShowUpdateTableByDroppingColumn(): void
     {
         $this->addBase();
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->dropColumn(\'{{%updater_base}}\', \'col\');
-    }
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - excessive column \'col\'
 
-    public function down()
-    {
-        $this->addColumn(\'{{%updater_base}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
+ No files generated.',
+            MigrationControllerStub::$stdout
         );
+        $this->assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -50,24 +46,21 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldUpdateTableByAlteringColumn(): void
+    public function shouldShowUpdateTableByAlteringColumn(): void
     {
         $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->string());
-    }
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - different \'col\' column property: type (DB: "string" != MIG: "integer")
+   - different \'col\' column property: length (DB: "255" != MIG: "11")
 
-    public function down()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
+ No files generated.',
+            MigrationControllerStub::$stdout
         );
+        $this->assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -76,23 +69,19 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldUpdateTableByAlteringColumnSize(): void
+    public function shouldShowUpdateTableByAlteringColumnSize(): void
     {
         $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer(8))->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer(8));
-    }
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - different \'col\' column property: length (DB: "8" != MIG: "11")
 
-    public function down()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
+ No files generated.',
+            MigrationControllerStub::$stdout
         );
+        $this->assertSame('', MigrationControllerStub::$content);
     }
 }

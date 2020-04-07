@@ -7,6 +7,5 @@ namespace bizley\tests\functional\sqlite;
 class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 {
     /** @var string */
-    public static $schema = 'mysql';
-
+    public static $schema = 'sqlite';
 }

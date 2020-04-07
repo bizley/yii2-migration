@@ -70,7 +70,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col2\'));
     }
 
     public function down()
@@ -79,127 +79,5 @@ abstract class UpdaterTest extends DbLoaderTestCase
     }',
             MigrationControllerStub::$content
         );
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldShowUpdateTableByAddingColumn(): void
-    {
-        $this->addBase();
-        $this->controller->onlyShow = true;
-        $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
-
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - missing column \'added\'
-
- No files generated.',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertSame('', MigrationControllerStub::$content);
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldUpdateTableByDroppingColumn(): void
-    {
-        $this->addBase();
-        $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
-
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->dropColumn(\'{{%updater_base}}\', \'col\');
-    }
-
-    public function down()
-    {
-        $this->addColumn(\'{{%updater_base}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
-        );
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldShowUpdateTableByDroppingColumn(): void
-    {
-        $this->addBase();
-        $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
-
-        $this->controller->onlyShow = true;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - excessive column \'col\'
-
- No files generated.',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertSame('', MigrationControllerStub::$content);
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldUpdateTableByAlteringColumn(): void
-    {
-        $this->addBase();
-        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
-
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->string());
-    }
-
-    public function down()
-    {
-        $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
-        );
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldShowUpdateTableByAlteringColumn(): void
-    {
-        $this->addBase();
-        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
-
-        $this->controller->onlyShow = true;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - different \'col\' column property: type (DB: "string" != MIG: "integer")
-   - different \'col\' column property: length (DB: "255" != MIG: "11")
-
- No files generated.',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertSame('', MigrationControllerStub::$content);
     }
 }

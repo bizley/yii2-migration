@@ -15,7 +15,8 @@ class m20200406_124200_create_table_updater_base extends Migration
             'updater_base',
             [
                 'id' => $this->primaryKey(),
-                'col' => $this->integer()
+                'col' => $this->integer(),
+                'col2' => $this->string(),
             ],
             $tableOptions
         );

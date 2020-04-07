@@ -99,7 +99,8 @@ abstract class DbLoaderTestCase extends DbTestCase
             'updater_base',
             [
                 'id' => $this->primaryKey(),
-                'col' => $this->integer()
+                'col' => $this->integer(),
+                'col2' => $this->string(),
             ]
         );
         $this->getDb()
