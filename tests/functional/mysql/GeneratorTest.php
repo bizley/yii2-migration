@@ -633,4 +633,50 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
         $this->assertSame(['33', '32', '31'], $matches[1]);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithUnsignedPrimaryKey(): void
+    {
+        $this->createTables(
+            [
+                'unsigned_pk' => [
+                    'id' => $this->primaryKey()->unsigned(),
+                ]
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_pk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%unsigned_pk}}\',
+            [
+                \'id\' => $this->primaryKey(10)->unsigned(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%unsigned_pk}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
 }
