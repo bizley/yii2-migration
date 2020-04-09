@@ -679,4 +679,50 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateGeneralSchemaTableWithUnsignedBigPrimaryKey(): void
+    {
+        $this->createTables(
+            [
+                'unsigned_big_pk' => [
+                    'id' => $this->bigPrimaryKey()->unsigned(),
+                ]
+            ]
+        );
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_big_pk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%unsigned_big_pk}}\',
+            [
+                \'id\' => $this->bigPrimaryKey()->unsigned(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%unsigned_big_pk}}\');
+    }
+}
+',
+            MigrationControllerStub::$content
+        );
+    }
 }
