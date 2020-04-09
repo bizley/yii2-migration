@@ -132,4 +132,61 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingMultiIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'idx-add-multi\', \'{{%updater_base}}\', [\'col\', \'col2\']);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'idx-add-multi\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingMultiUniqueIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex(
+            'idx-add-multi-unique',
+            'updater_base',
+            ['col', 'col2'],
+            true
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'idx-add-multi-unique\', \'{{%updater_base}}\', [\'col\', \'col2\'], true);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'idx-add-multi-unique\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
