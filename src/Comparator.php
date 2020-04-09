@@ -13,6 +13,8 @@ use bizley\migration\table\StructureInterface;
 use yii\base\NotSupportedException;
 use yii\helpers\Json;
 
+use function count;
+use function in_array;
 use function is_string;
 
 final class Comparator implements ComparatorInterface
@@ -138,6 +140,19 @@ final class Comparator implements ComparatorInterface
                         && $oldProperty === null
                         && is_string($newProperty)
                         && $this->isAppendSame($newProperty, $oldColumn)
+                    ) {
+                        continue;
+                    }
+
+                    if (
+                        $propertyFetch === 'isUnique'
+                        && $this->isUniqueSameWithIndexes(
+                            $newStructure,
+                            $oldStructure,
+                            $name,
+                            (bool)$newProperty,
+                            (bool)$oldProperty
+                        )
                     ) {
                         continue;
                     }
@@ -577,6 +592,49 @@ final class Comparator implements ComparatorInterface
         return $append === ''
             && $autoIncrement === $column->isAutoIncrement()
             && $primaryKey === $column->isPrimaryKey();
+    }
+
+    /**
+     * Checks if columns' uniqueness is the same because of the unique index.
+     * @param StructureInterface $newStructure
+     * @param StructureInterface $oldStructure
+     * @param string $columnName
+     * @param bool $newUnique
+     * @param bool $oldUnique
+     * @return bool
+     */
+    private function isUniqueSameWithIndexes(
+        StructureInterface $newStructure,
+        StructureInterface $oldStructure,
+        string $columnName,
+        bool $newUnique,
+        bool $oldUnique
+    ): bool {
+        if ($newUnique) {
+            $newIndexes = $newStructure->getIndexes();
+            /** @var IndexInterface $newIndex */
+            foreach ($newIndexes as $newIndex) {
+                $indexColumns = $newIndex->getColumns();
+                if ($newIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
+                    $newUnique = false;
+                    break;
+                }
+            }
+        }
+
+        if ($oldUnique) {
+            $oldIndexes = $oldStructure->getIndexes();
+            /** @var IndexInterface $oldIndex */
+            foreach ($oldIndexes as $oldIndex) {
+                $indexColumns = $oldIndex->getColumns();
+                if ($oldIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
+                    $oldUnique = false;
+                    break;
+                }
+            }
+        }
+
+        return $newUnique === $oldUnique;
     }
 
     /**

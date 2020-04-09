@@ -48,4 +48,48 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAddingIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex('idx', 'updater_base', 'col')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - missing index \'idx\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAddingUniqueIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex('idx', 'updater_base', 'col', true)->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - missing index \'idx\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }

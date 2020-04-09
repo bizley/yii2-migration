@@ -164,7 +164,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
     public function shouldGenerateGeneralSchemaTableWithIndex(): void
     {
         $this->createTables(['index' => ['col' => $this->integer()]]);
-        $this->getDb()->createCommand()->createIndex('idx', 'index', ['col'])->execute();
+        $this->getDb()->createCommand()->createIndex('idx-create', 'index', ['col'])->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index']));
         $this->assertStringContainsString(
@@ -177,7 +177,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
             $tableOptions
         );
 
-        $this->createIndex(\'idx\', \'{{%index}}\', [\'col\']);
+        $this->createIndex(\'idx-create\', \'{{%index}}\', [\'col\']);
 ',
             MigrationControllerStub::$content
         );

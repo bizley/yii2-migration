@@ -80,4 +80,56 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'idx-add\', \'{{%updater_base}}\', [\'col\']);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'idx-add\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingUniqueIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'idx-add-unique\', \'{{%updater_base}}\', [\'col\'], true);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'idx-add-unique\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }

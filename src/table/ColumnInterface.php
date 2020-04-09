@@ -178,7 +178,7 @@ interface ColumnInterface
 
     /**
      * Sets length for the column.
-     * @param string|int|array<string|int> $value
+     * @param string|int|array<string|int>|null $value
      * @param string|null $schema
      * @param string|null $engineVersion
      */
