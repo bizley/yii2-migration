@@ -341,4 +341,30 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByDroppingIndex(): void
+    {
+        $this->addBasePlus();
+        $this->getDb()->createCommand()->dropIndex('idx-updater_base_plus', 'updater_base_plus')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_plus']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropIndex(\'idx-col\', \'{{%updater_base_plus}}\');
+    }
+
+    public function down()
+    {
+        $this->createIndex(\'idx-col\', \'{{%updater_base}}\', [\'col\']);
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }

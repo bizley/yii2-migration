@@ -175,8 +175,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base(id)';
         }
         $this->createTable('updater_base_plus', $columns);
-
-        $this->getDb()->createCommand()->createIndex('idx-col', 'updater_base_plus', 'col');
+        $this->getDb()->createCommand()->createIndex('idx-updater_base_plus', 'updater_base_plus', 'col')->execute();
         if (static::$schema !== 'sqlite') {
             $this->getDb()->createCommand()->addForeignKey(
                 'fk-plus',
@@ -186,7 +185,7 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'id',
                 'CASCADE',
                 'CASCADE'
-            );
+            )->execute();
         }
         $this->getDb()
             ->createCommand()

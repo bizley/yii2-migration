@@ -245,14 +245,14 @@ final class StructureChange implements StructureChangeInterface
         $data = $this->getData();
         if (
             is_array($data) === false
-            || count($data) !== 4
+            || count($data) !== 6
             || is_string($data[0]) === false
             || is_array($data[1]) === false
             || is_string($data[2]) === false
             || is_array($data[3]) === false
         ) {
             throw new InvalidArgumentException(
-                'Data for addForeignKey method must be 4-elements array, first and third being strings, second and fourth being arrays.'
+                'Data for addForeignKey method must be 6-elements array, first and third being strings, second and fourth being arrays, and fifth and sixth being strings or nulls.'
             );
         }
 
