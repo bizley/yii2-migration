@@ -327,14 +327,19 @@ class Migration extends Component implements MigrationChangesInterface
 
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
+        $columns = is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns);
         $this->addChange($table, 'addForeignKey', [
             $name,
-            is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+            $columns,
             $refTable,
             is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
             $delete,
             $update
         ]);
+        if ($this->db->driverName === 'mysql') {
+            // MySQL automatically adds index for foreign key
+            $this->addChange($table, 'createIndex', [$name, $columns, false]);
+        }
     }
 
     public function dropForeignKey($name, $table)

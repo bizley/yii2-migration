@@ -358,14 +358,10 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
-
-        $this->createIndex(\'fk-plus\', \'{{%updater_base_fk}}\', [\'updater_base_id\']);
     }
 
     public function down()
     {
-        $this->dropIndex(\'fk-plus\', \'{{%updater_base_fk}}\');
-
         $this->addForeignKey(
             \'fk-plus\',
             \'{{%updater_base_fk}}\',
