@@ -184,7 +184,7 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     public function shouldUpdateTableByDroppingIndex(): void
     {
         $this->addBase();
-        $this->getDb()->createCommand()->dropIndex('idx-updater_base_plus', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->dropIndex('idx-updater_base_fk', 'updater_base_fk')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         $this->assertStringContainsString(
