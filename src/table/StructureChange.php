@@ -252,7 +252,8 @@ final class StructureChange implements StructureChangeInterface
             || is_array($data[3]) === false
         ) {
             throw new InvalidArgumentException(
-                'Data for addForeignKey method must be 6-elements array, first and third being strings, second and fourth being arrays, and fifth and sixth being strings or nulls.'
+                'Data for addForeignKey method must be 6-elements array, first and third being strings, '
+                . 'second and fourth being arrays, and fifth and sixth being strings or nulls.'
             );
         }
 
@@ -261,6 +262,8 @@ final class StructureChange implements StructureChangeInterface
         $foreignKey->setColumns($data[1]);
         $foreignKey->setReferredTable($data[2]);
         $foreignKey->setReferredColumns($data[3]);
+        $foreignKey->setOnDelete($data[4]);
+        $foreignKey->setOnUpdate($data[5]);
 
         return $foreignKey;
     }
@@ -280,7 +283,8 @@ final class StructureChange implements StructureChangeInterface
             || is_bool($data[2]) === false
         ) {
             throw new InvalidArgumentException(
-                'Data for createIndex method must be 3-elements array, first being string, second being array, and third being boolean.'
+                'Data for createIndex method must be 3-elements array, first being string, second being array, '
+                . 'and third being boolean.'
             );
         }
 

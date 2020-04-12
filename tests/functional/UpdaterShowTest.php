@@ -151,7 +151,7 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     public function shouldShowUpdateTableByDroppingIndex(): void
     {
         $this->addBase();
-        $this->getDb()->createCommand()->dropIndex('idx-updater_base_fk', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         $this->assertStringContainsString(

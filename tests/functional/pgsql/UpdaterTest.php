@@ -175,5 +175,37 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         );
     }
 
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByDroppingForeignKey(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
 
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+    }
+
+    public function down()
+    {
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'updater_base_id\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
