@@ -350,19 +350,19 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByDroppingIndex(): void
     {
-        $this->addBasePlus();
-        $this->getDb()->createCommand()->dropIndex('idx-updater_base_plus', 'updater_base_plus')->execute();
+        $this->addBase();
+        $this->getDb()->createCommand()->dropIndex('idx-updater_base_plus', 'updater_base_fk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_plus']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->dropIndex(\'idx-col\', \'{{%updater_base_plus}}\');
+        $this->dropIndex(\'idx-col\', \'{{%updater_base_fk}}\');
     }
 
     public function down()
     {
-        $this->createIndex(\'idx-col\', \'{{%updater_base}}\', [\'col\']);
+        $this->createIndex(\'idx-col\', \'{{%updater_base_fk}}\', [\'col\']);
     }',
             MigrationControllerStub::$content
         );

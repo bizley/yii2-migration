@@ -83,18 +83,16 @@ abstract class DbLoaderTestCase extends DbTestCase
     {
         $this->createMigrationHistoryTable();
 
-        if ($this->dropTable('updater_base')) {
-            $this->getDb()
-                ->createCommand()
-                ->delete(
-                    $this->historyTable,
-                    ['version' => 'm20200406_124200_create_table_updater_base']
-                )
-                ->execute();
-        }
+        $this->dropTable('updater_base_fk');
+        $this->dropTable('updater_base_fk_target');
+        $this->dropTable('updater_base');
 
-        // updater_base must be the same as in m20200406_124200_create_table_updater_base.
-        // Table is added like this and not through its migration to skip class' autoloading.
+        $this->getDb()
+            ->createCommand()
+            ->delete($this->historyTable, ['version' => 'm20200406_124200_create_table_updater_base'])
+            ->execute();
+
+        // Tables are added like this and not through the migration to skip class' autoloading.
         $this->createTable(
             'updater_base',
             [
@@ -103,68 +101,9 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'col2' => $this->string(),
             ]
         );
-        $this->getDb()
-            ->createCommand()
-            ->insert(
-                $this->historyTable,
-                [
-                    'version' => 'm20200406_124200_create_table_updater_base',
-                    'apply_time' => 1586131201,
-                ]
-            )
-            ->execute();
-    }
 
-    /**
-     * @throws NotSupportedException
-     * @throws Exception
-     */
-    protected function addBasePlus(): void
-    {
-        $this->createMigrationHistoryTable();
+        $this->createTable('updater_base_fk_target', ['id' => $this->primaryKey()]);
 
-        if ($this->dropTable('updater_base_plus')) {
-            $this->getDb()
-                ->createCommand()
-                ->delete(
-                    $this->historyTable,
-                    ['version' => 'm20200406_124201_create_table_updater_base_plus']
-                )
-                ->execute();
-        }
-        if ($this->dropTable('updater_base')) {
-            $this->getDb()
-                ->createCommand()
-                ->delete(
-                    $this->historyTable,
-                    ['version' => 'm20200406_124200_create_table_updater_base']
-                )
-                ->execute();
-        }
-
-        // updater_base must be the same as in m20200406_124200_create_table_updater_base.
-        // Table is added like this and not through its migration to skip class' autoloading.
-        $this->createTable(
-            'updater_base',
-            [
-                'id' => $this->primaryKey(),
-                'col' => $this->integer(),
-                'col2' => $this->string(),
-            ]
-        );
-        $this->getDb()
-            ->createCommand()
-            ->insert(
-                $this->historyTable,
-                [
-                    'version' => 'm20200406_124200_create_table_updater_base',
-                    'apply_time' => 1586131201,
-                ]
-            )
-            ->execute();
-
-        // updater_base_plus must be the same as in m20200406_124201_create_table_updater_base_plus.
-        // Table is added like this and not through its migration to skip class' autoloading.
         $columns = [
             'id' => $this->primaryKey(),
             'col' => $this->integer(),
@@ -172,28 +111,29 @@ abstract class DbLoaderTestCase extends DbTestCase
             'updater_base_id' => $this->integer(),
         ];
         if (static::$schema === 'sqlite') {
-            $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base(id)';
+            $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base_fk_target(id)';
         }
-        $this->createTable('updater_base_plus', $columns);
-        $this->getDb()->createCommand()->createIndex('idx-updater_base_plus', 'updater_base_plus', 'col')->execute();
+        $this->createTable('updater_base_fk', $columns);
+        $this->getDb()->createCommand()->createIndex('idx-updater_base_plus', 'updater_base_fk', 'col')->execute();
         if (static::$schema !== 'sqlite') {
             $this->getDb()->createCommand()->addForeignKey(
                 'fk-plus',
-                'updater_base_plus',
+                'updater_base_fk',
                 'updater_base_id',
-                'updater_base',
+                'updater_base_fk_target',
                 'id',
                 'CASCADE',
                 'CASCADE'
             )->execute();
         }
+
         $this->getDb()
             ->createCommand()
             ->insert(
                 $this->historyTable,
                 [
-                    'version' => 'm20200406_124201_create_table_updater_base_plus',
-                    'apply_time' => 1586131202,
+                    'version' => 'm20200406_124200_create_table_updater_base',
+                    'apply_time' => 1586131201,
                 ]
             )
             ->execute();

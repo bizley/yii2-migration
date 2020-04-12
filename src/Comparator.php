@@ -7,6 +7,7 @@ namespace bizley\migration;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
+use bizley\migration\table\Index;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\StructureInterface;
@@ -164,6 +165,18 @@ final class Comparator implements ComparatorInterface
                     );
 
                     if ($schema === Schema::SQLITE) {
+                        if ($propertyFetch === 'isUnique' && $newProperty === true) {
+                            $blueprint->addDescription(
+                                '(!) Since ALTER COLUMN is not supported by SQLite unique index will be created instead'
+                            );
+                            $index = new Index();
+                            $index->setUnique(true);
+                            $index->setName($newStructure->getName() . '-' . $column->getName() . '-unique');
+                            $index->setColumns([$column->getName()]);
+                            $blueprint->addIndex($index);
+                            continue;
+                        }
+
                         $blueprint->addDescription(
                             '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
                         );
@@ -504,6 +517,28 @@ final class Comparator implements ComparatorInterface
         /** @var IndexInterface $index */
         foreach ($newIndexes as $name => $index) {
             if (array_key_exists($name, $oldIndexes) === false) {
+                $indexColumns = $index->getColumns();
+                if (
+                    $index->isUnique()
+                    && count($indexColumns) === 1
+                    && ($newIndexColumn = $newStructure->getColumn($indexColumns[0]))
+                    && $newIndexColumn->isUnique()
+                    && ($oldIndexColumn = $oldStructure->getColumn($indexColumns[0]))
+                    && $oldIndexColumn->isUnique()
+                ) {
+                    // index is created for one unique column and this uniqueness has not changed
+                    continue;
+                }
+
+                $foreignKeys = $newStructure->getForeignKeys();
+                /** @var ForeignKeyInterface $foreignKey */
+                foreach ($foreignKeys as $foreignKey) {
+                    if ($foreignKey->getColumns() === $indexColumns) {
+                        // index is created for foreign key with the same columns
+                        continue 2;
+                    }
+                }
+
                 $blueprint->addDescription("missing index '$name'");
                 $blueprint->addIndex($index);
 

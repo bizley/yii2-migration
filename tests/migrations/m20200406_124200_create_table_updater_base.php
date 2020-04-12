@@ -20,10 +20,38 @@ class m20200406_124200_create_table_updater_base extends Migration
             ],
             $tableOptions
         );
+
+        $this->createTable('updater_base_fk_target', ['id' => $this->primaryKey()], $tableOptions);
+
+        $columns = [
+            'id' => $this->primaryKey(),
+            'col' => $this->integer(),
+            'col2' => $this->integer()->unique(),
+            'updater_base_id' => $this->integer(),
+        ];
+        if ($this->db->driverName === 'sqlite') {
+            $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base_fk_target(id)';
+        }
+        $this->createTable('updater_base_fk', $columns, $tableOptions);
+
+        $this->createIndex('idx-col', 'updater_base_fk', 'col');
+        if ($this->db->driverName !== 'sqlite') {
+            $this->addForeignKey(
+                'fk-plus',
+                'updater_base_fk',
+                'updater_base_id',
+                'updater_base_fk_target',
+                'id',
+                'CASCADE',
+                'CASCADE'
+            );
+        }
     }
 
     public function down()
     {
+        $this->dropTable('updater_base_fk');
+        $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
     }
 }
