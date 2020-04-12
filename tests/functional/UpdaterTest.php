@@ -189,4 +189,30 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByDroppingIndex(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropIndex('idx-updater_base_fk', 'updater_base_fk')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropIndex(\'idx-col\', \'{{%updater_base_fk}}\');
+    }
+
+    public function down()
+    {
+        $this->createIndex(\'idx-col\', \'{{%updater_base_fk}}\', [\'col\']);
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
