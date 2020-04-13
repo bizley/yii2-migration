@@ -289,7 +289,7 @@ final class StructureBuilder implements StructureBuilderInterface
      */
     private function applyAddCommentOnColumnValue(StructureInterface $structure, array $data): void
     {
-        $column = $structure->getColumn($data['name']);
+        $column = $structure->getColumn($data['column']);
         if ($column) {
             $column->setComment($data['comment']);
         }

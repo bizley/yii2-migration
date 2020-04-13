@@ -93,7 +93,7 @@ TEMPLATE;
                 '{onUpdate}',
             ],
             [
-                $this->renderName($foreignKey, $tableName),
+                $foreignKey->getName(),
                 $tableName,
                 implode(', ', $renderedKeyColumns),
                 $referencedTableName,
@@ -125,7 +125,7 @@ TEMPLATE;
                 '{tableName}'
             ],
             [
-                $this->renderName($foreignKey, $tableName),
+                $foreignKey->getName(),
                 $tableName
             ],
             $template
@@ -152,32 +152,5 @@ TEMPLATE;
         }
 
         return implode("\n", $rows);
-    }
-
-    /**
-     * Renders key name.
-     * @param ForeignKeyInterface $foreignKey
-     * @param string $table
-     * @return string
-     */
-    private function renderName(ForeignKeyInterface $foreignKey, string $table): string
-    {
-        $name = $foreignKey->getName();
-
-        if ($name !== null && is_numeric($name) === false) {
-            return $name;
-        }
-
-        return str_replace(
-            [
-                '{tableName}',
-                '{keyColumns}',
-            ],
-            [
-                $table,
-                implode('-', $foreignKey->getColumns()),
-            ],
-            $this->keyNameTemplate
-        );
     }
 }

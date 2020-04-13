@@ -7,7 +7,6 @@ namespace bizley\migration\table;
 use InvalidArgumentException;
 
 use function array_key_exists;
-use function count;
 use function is_array;
 
 final class StructureChange implements StructureChangeInterface
@@ -125,8 +124,8 @@ final class StructureChange implements StructureChangeInterface
         $columns = [];
 
         $data = $this->getData();
-        if (is_array($data) === false) {
-            throw new InvalidArgumentException('Data for createTable method must be an array.');
+        if (!is_array($data)) {
+            throw new InvalidArgumentException('Wrong data for createTable method.');
         }
 
         foreach ($data as $columnName => $schema) {
@@ -158,22 +157,19 @@ final class StructureChange implements StructureChangeInterface
      */
     private function getValueForRenameColumn(): array
     {
+        /** @var array<string, string> $data */
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 2
-            || is_string($data[0]) === false
-            || is_string($data[1]) === false
+            !is_array($data)
+            || !array_key_exists('new', $data)
+            || !array_key_exists('old', $data)
+            || !is_string($data['new'])
+            || !is_string($data['old'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for renameColumn method must be 2-elements array, both being strings.'
-            );
+            throw new InvalidArgumentException('Wrong data for renameColumn method.');
         }
 
-        return [
-            'old' => $data[0],
-            'new' => $data[1],
-        ];
+        return $data;
     }
 
     /**
@@ -184,29 +180,28 @@ final class StructureChange implements StructureChangeInterface
     {
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 2
-            || is_string($data[0]) === false
-            || is_array($data[1]) === false
+            !is_array($data)
+            || !array_key_exists('name', $data)
+            || !array_key_exists('schema', $data)
+            || !is_string($data['name'])
+            || !is_array($data['schema'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for addColumn method must be 2-elements array, first being string, second being array.'
-            );
+            throw new InvalidArgumentException('Wrong data for addColumn method.');
         }
 
-        $column = ColumnFactory::build($data[1]['type'] ?? 'unknown');
-        $column->setName($data[0]);
-        $column->setLength($data[1]['length'] ?? null);
-        $column->setNotNull($data[1]['isNotNull'] ?? null);
-        $column->setUnique($data[1]['isUnique'] ?? false);
-        $column->setAutoIncrement($data[1]['autoIncrement'] ?? false);
-        $column->setPrimaryKey($data[1]['isPrimaryKey'] ?? false);
-        $column->setDefault($data[1]['default'] ?? null);
-        $column->setAppend($data[1]['append'] ?? null);
-        $column->setUnsigned($data[1]['isUnsigned'] ?? false);
-        $column->setComment(!empty($data[1]['comment']) ? $data[1]['comment'] : null);
-        $column->setAfter($data[1]['after'] ?? null);
-        $column->setFirst($data[1]['isFirst'] ?? false);
+        $column = ColumnFactory::build($data['schema']['type'] ?? 'unknown');
+        $column->setName($data['name']);
+        $column->setLength($data['schema']['length'] ?? null);
+        $column->setNotNull($data['schema']['isNotNull'] ?? null);
+        $column->setUnique($data['schema']['isUnique'] ?? false);
+        $column->setAutoIncrement($data['schema']['autoIncrement'] ?? false);
+        $column->setPrimaryKey($data['schema']['isPrimaryKey'] ?? false);
+        $column->setDefault($data['schema']['default'] ?? null);
+        $column->setAppend($data['schema']['append'] ?? null);
+        $column->setUnsigned($data['schema']['isUnsigned'] ?? false);
+        $column->setComment(!empty($data['schema']['comment']) ? $data['schema']['comment'] : null);
+        $column->setAfter($data['schema']['after'] ?? null);
+        $column->setFirst($data['schema']['isFirst'] ?? false);
 
         return $column;
     }
@@ -219,19 +214,18 @@ final class StructureChange implements StructureChangeInterface
     {
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 2
-            || is_string($data[0]) === false
-            || is_array($data[1]) === false
+            !is_array($data)
+            || !array_key_exists('name', $data)
+            || !array_key_exists('columns', $data)
+            || !is_string($data['name'])
+            || !is_array($data['columns'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for addPrimaryKey method must be 2-elements array, first being string, second being array.'
-            );
+            throw new InvalidArgumentException('Wrong data for addPrimaryKey method.');
         }
 
         $primaryKey = new PrimaryKey();
-        $primaryKey->setName($data[0]);
-        $primaryKey->setColumns($data[1]);
+        $primaryKey->setName($data['name']);
+        $primaryKey->setColumns($data['columns']);
 
         return $primaryKey;
     }
@@ -244,26 +238,33 @@ final class StructureChange implements StructureChangeInterface
     {
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 6
-            || is_string($data[0]) === false
-            || is_array($data[1]) === false
-            || is_string($data[2]) === false
-            || is_array($data[3]) === false
+            !is_array($data)
+            || !array_key_exists('name', $data)
+            || !array_key_exists('columns', $data)
+            || !array_key_exists('referredTable', $data)
+            || !array_key_exists('referredColumns', $data)
+            || !array_key_exists('onDelete', $data)
+            || !array_key_exists('onUpdate', $data)
+            || !array_key_exists('tableName', $data)
+            || !is_string($data['name'])
+            || !is_array($data['columns'])
+            || !is_string($data['referredTable'])
+            || !is_array($data['referredColumns'])
+            || ($data['onDelete'] !== null && !is_string($data['onDelete']))
+            || ($data['onUpdate'] !== null && !is_string($data['onUpdate']))
+            || !is_string($data['tableName'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for addForeignKey method must be 6-elements array, first and third being strings, '
-                . 'second and fourth being arrays, and fifth and sixth being strings or nulls.'
-            );
+            throw new InvalidArgumentException('Wrong data for addForeignKey method.');
         }
 
         $foreignKey = new ForeignKey();
-        $foreignKey->setName($data[0]);
-        $foreignKey->setColumns($data[1]);
-        $foreignKey->setReferredTable($data[2]);
-        $foreignKey->setReferredColumns($data[3]);
-        $foreignKey->setOnDelete($data[4]);
-        $foreignKey->setOnUpdate($data[5]);
+        $foreignKey->setName($data['name']);
+        $foreignKey->setColumns($data['columns']);
+        $foreignKey->setReferredTable($data['referredTable']);
+        $foreignKey->setReferredColumns($data['referredColumns']);
+        $foreignKey->setOnDelete($data['onDelete']);
+        $foreignKey->setOnUpdate($data['onUpdate']);
+        $foreignKey->setTableName($data['tableName']);
 
         return $foreignKey;
     }
@@ -276,22 +277,21 @@ final class StructureChange implements StructureChangeInterface
     {
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 3
-            || is_string($data[0]) === false
-            || is_array($data[1]) === false
-            || is_bool($data[2]) === false
+            !is_array($data)
+            || !array_key_exists('name', $data)
+            || !array_key_exists('columns', $data)
+            || !array_key_exists('unique', $data)
+            || !is_string($data['name'])
+            || !is_array($data['columns'])
+            || !is_bool($data['unique'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for createIndex method must be 3-elements array, first being string, second being array, '
-                . 'and third being boolean.'
-            );
+            throw new InvalidArgumentException('Wrong data for createIndex method.');
         }
 
         $index = new Index();
-        $index->setName($data[0]);
-        $index->setColumns($data[1]);
-        $index->setUnique($data[2]);
+        $index->setName($data['name']);
+        $index->setColumns($data['columns']);
+        $index->setUnique($data['unique']);
 
         return $index;
     }
@@ -302,21 +302,18 @@ final class StructureChange implements StructureChangeInterface
      */
     private function getValueForAddCommentOnColumn(): array
     {
+        /** @var array<string, string> $data */
         $data = $this->getData();
         if (
-            is_array($data) === false
-            || count($data) !== 2
-            || is_string($data[0]) === false
-            || is_string($data[1]) === false
+            !is_array($data)
+            || !array_key_exists('column', $data)
+            || !array_key_exists('comment', $data)
+            || !is_string($data['column'])
+            || !is_string($data['comment'])
         ) {
-            throw new InvalidArgumentException(
-                'Data for addCommentOnColumn method must be 2-elements array, both being strings.'
-            );
+            throw new InvalidArgumentException('Wrong data for addCommentOnColumn.');
         }
 
-        return [
-            'name' => $data[0],
-            'comment' => $data[1],
-        ];
+        return $data;
     }
 }

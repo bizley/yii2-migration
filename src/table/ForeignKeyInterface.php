@@ -8,9 +8,9 @@ interface ForeignKeyInterface
 {
     /**
      * Returns name of the foreign key.
-     * @return string|null
+     * @return string
      */
-    public function getName(): ?string;
+    public function getName(): string;
 
     /**
      * Returns table name of the foreign key.

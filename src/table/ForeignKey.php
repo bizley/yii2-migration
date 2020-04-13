@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
+use function implode;
+
 final class ForeignKey implements ForeignKeyInterface
 {
     /** @var string|null */
@@ -29,10 +31,13 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns name of the foreign key.
-     * @return string|null
+     * @return string
      */
-    public function getName(): ?string
+    public function getName(): string
     {
+        if (empty($this->name)) {
+            return "fk-{$this->tableName}-" . implode('-', $this->columns);
+        }
         return $this->name;
     }
 

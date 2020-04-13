@@ -40,4 +40,35 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldNotUpdateTableByAddingForeignKey(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropTable('updater_base_fk')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'updater_base_fk',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer(),
+                'col2' => $this->integer()->unique(),
+                'updater_base_id' => $this->integer(),
+                'FOREIGN KEY(col) REFERENCES updater_base(id)'
+            ]
+        )->execute();
+        $this->getDb()->createCommand()->createIndex('idx-col', 'updater_base_fk', 'col')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            ' > Updating table \'updater_base_fk\' requires manual migration!
+ > ADD FOREIGN KEY is not supported by SQLite.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }

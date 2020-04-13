@@ -435,7 +435,7 @@ class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->addForeignKey(
-            \'fk-{{%table12}}-col\',
+            \'fk-table12-col\',
             \'{{%table12}}\',
             [\'col\'],
             \'{{%table11}}\',

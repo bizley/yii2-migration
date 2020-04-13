@@ -289,7 +289,14 @@ class Migration extends Component implements MigrationChangesInterface
     /** @throws ReflectionException */
     public function addColumn($table, $column, $type)
     {
-        $this->addChange($table, 'addColumn', [$column, $this->extractColumn($type)]);
+        $this->addChange(
+            $table,
+            'addColumn',
+            [
+                'name' => $column,
+                'schema' => $this->extractColumn($type)
+            ]
+        );
     }
 
     public function dropColumn($table, $column)
@@ -299,13 +306,27 @@ class Migration extends Component implements MigrationChangesInterface
 
     public function renameColumn($table, $name, $newName)
     {
-        $this->addChange($table, 'renameColumn', [$name, $newName]);
+        $this->addChange(
+            $table,
+            'renameColumn',
+            [
+                'old' => $name,
+                'new' => $newName
+            ]
+        );
     }
 
     /** @throws ReflectionException */
     public function alterColumn($table, $column, $type)
     {
-        $this->addChange($table, 'alterColumn', [$column, $this->extractColumn($type)]);
+        $this->addChange(
+            $table,
+            'alterColumn',
+            [
+                'column' => $column,
+                'type' => $this->extractColumn($type)
+            ]
+        );
     }
 
     public function addPrimaryKey($name, $table, $columns)
@@ -314,8 +335,8 @@ class Migration extends Component implements MigrationChangesInterface
             $table,
             'addPrimaryKey',
             [
-                $name,
-                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
+                'name' => $name,
+                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
             ]
         );
     }
@@ -328,17 +349,30 @@ class Migration extends Component implements MigrationChangesInterface
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
         $columns = is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns);
-        $this->addChange($table, 'addForeignKey', [
-            $name,
-            $columns,
-            $refTable,
-            is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
-            $delete,
-            $update
-        ]);
+        $this->addChange(
+            $table,
+            'addForeignKey',
+            [
+                'name' => $name,
+                'columns' => $columns,
+                'referredTable' => $refTable,
+                'referredColumns' => is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
+                'onDelete' => $delete,
+                'onUpdate' => $update,
+                'tableName' => $this->getRawTableName($table)
+            ]
+        );
         if ($this->db->driverName === 'mysql') {
             // MySQL automatically adds index for foreign key
-            $this->addChange($table, 'createIndex', [$name, $columns, false]);
+            $this->addChange(
+                $table,
+                'createIndex',
+                [
+                    'name' => $name,
+                    'columns' => $columns,
+                    'unique' => false
+                ]
+            );
         }
     }
 
@@ -353,9 +387,9 @@ class Migration extends Component implements MigrationChangesInterface
             $table,
             'createIndex',
             [
-                $name,
-                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
-                $unique
+                'name' => $name,
+                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+                'unique' => $unique
             ]
         );
     }
@@ -367,7 +401,14 @@ class Migration extends Component implements MigrationChangesInterface
 
     public function addCommentOnColumn($table, $column, $comment)
     {
-        $this->addChange($table, 'addCommentOnColumn', [$column, $comment]);
+        $this->addChange(
+            $table,
+            'addCommentOnColumn',
+            [
+                'column' => $column,
+                'comment' => $comment
+            ]
+        );
     }
 
     public function addCommentOnTable($table, $comment)

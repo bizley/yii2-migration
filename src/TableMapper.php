@@ -97,7 +97,7 @@ final class TableMapper implements TableMapperInterface
             $mappedForeignKey->setOnDelete($foreignKey->onDelete);
             $mappedForeignKey->setOnUpdate($foreignKey->onUpdate);
 
-            $mappedForeignKeys[$foreignKey->name] = $mappedForeignKey;
+            $mappedForeignKeys[$mappedForeignKey->getName()] = $mappedForeignKey;
         }
 
         return $mappedForeignKeys;
