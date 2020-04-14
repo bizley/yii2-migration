@@ -42,4 +42,30 @@ class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     * TODO: check type and use addPrimaryKey() and dropPrimaryKey() if not integer
+     */
+    public function shouldUpdateTableByDroppingPrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->dropPrimaryKey('string_pk-primary-key', 'string_pk')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->notNull());
+    }
+
+    public function down()
+    {
+        $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->append(\'PRIMARY KEY\'));
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
