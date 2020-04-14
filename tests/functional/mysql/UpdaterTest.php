@@ -433,49 +433,20 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldUpdateTableByAlteringForeignKey(): void
+    public function shouldUpdateTableByAddingPrimaryKey(): void
     {
-        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
-        $this->getDb()->createCommand()->addForeignKey(
-            'fk-plus',
-            'updater_base_fk',
-            'col',
-            'updater_base_fk_target',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        )->execute();
+        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'updater_base_no_pk', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_no_pk']));
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
-
-        $this->addForeignKey(
-            \'fk-plus\',
-            \'{{%updater_base_fk}}\',
-            [\'col\'],
-            \'{{%updater_base_fk_target}}\',
-            [\'id\'],
-            \'CASCADE\',
-            \'CASCADE\'
-        );
+        $this->alterColumn(\'{{%updater_base_no_pk}}\', \'col\', $this->primaryKey());
     }
 
     public function down()
     {
-        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
-
-        $this->addForeignKey(
-            \'fk-plus\',
-            \'{{%updater_base_fk}}\',
-            [\'updater_base_id\'],
-            \'{{%updater_base_fk_target}}\',
-            [\'id\'],
-            \'CASCADE\',
-            \'CASCADE\'
-        );
+        $this->alterColumn(\'{{%updater_base_no_pk}}\', \'col\', $this->integer());
     }',
             MigrationControllerStub::$content
         );
