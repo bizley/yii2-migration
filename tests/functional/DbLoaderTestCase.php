@@ -47,17 +47,14 @@ abstract class DbLoaderTestCase extends DbTestCase
 
     /**
      * @param string $table
-     * @return bool
      * @throws Exception
      * @throws NotSupportedException
      */
-    private function dropTable(string $table): bool
+    private function dropTable(string $table): void
     {
         if ($this->getDb()->getSchema()->getTableSchema($table)) {
             $this->getDb()->createCommand()->dropTable($table)->execute();
-            return true;
         }
-        return false;
     }
 
     /**

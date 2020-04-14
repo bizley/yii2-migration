@@ -26,7 +26,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByDroppingColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -52,7 +51,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -78,7 +76,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnSize(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer(8))->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -104,7 +101,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnDefault(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn(
             'updater_base',
             'col',
@@ -134,7 +130,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnAsFirst(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->first())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -160,7 +155,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnWithAfter(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->after('col'))->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -186,7 +180,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnWithUnsigned(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->unsigned())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -212,7 +205,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnWithNotNull(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->notNull())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -238,7 +230,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnWithComment(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn(
             'updater_base',
             'added',
@@ -268,7 +259,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnWithUnsigned(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unsigned())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -294,7 +284,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnWithNotNull(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -320,7 +309,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnWithComment(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn(
             'updater_base',
             'col',
@@ -350,7 +338,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByDroppingForeignKey(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
@@ -384,7 +371,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingForeignKey(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addForeignKey(
             'fk-added',
             'updater_base_fk',
@@ -424,7 +410,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnWithUnique(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));

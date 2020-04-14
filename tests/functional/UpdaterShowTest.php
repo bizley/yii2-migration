@@ -8,23 +8,30 @@ use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
+use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
+use yii\db\Exception as DbException;
 
 abstract class UpdaterShowTest extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
 
+    /**
+     * @throws NotSupportedException
+     * @throws DbException
+     */
     protected function setUp(): void
     {
-        parent::setUp();
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
         $this->controller->migrationPath = '@bizley/tests/migrations';
         $this->controller->onlyShow = true;
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$content = '';
         MigrationControllerStub::$confirmControl = true;
+
+        $this->addBase();
     }
 
     /**
@@ -35,7 +42,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByAddingColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -57,7 +63,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByAddingIndex(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -79,7 +84,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByAddingUniqueIndex(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -101,7 +105,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByAddingMultiIndex(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -123,7 +126,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByAddingMultiUniqueIndex(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->createIndex(
             'idx-add-multi-unique',
             'updater_base',
@@ -150,7 +152,6 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
      */
     public function shouldShowUpdateTableByDroppingIndex(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));

@@ -23,7 +23,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByDroppingColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -45,7 +44,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -68,7 +66,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnSize(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col2', $this->string(45))->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -90,7 +87,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnDefault(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn(
             'updater_base',
             'col',
@@ -116,7 +112,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnWithNotNull(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -138,7 +133,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByDroppingForeignKey(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
@@ -160,7 +154,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));

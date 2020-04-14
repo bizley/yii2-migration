@@ -23,7 +23,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByDroppingColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -53,7 +52,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumn(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -86,7 +84,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnSize(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -117,7 +114,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnDefault(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -148,7 +144,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnWithUnsigned(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -179,7 +174,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnWithNotNull(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
@@ -210,7 +204,6 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      */
     public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',

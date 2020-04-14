@@ -23,7 +23,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAddingColumnWithUnsigned(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->unsigned())->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
@@ -49,7 +48,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldNotUpdateTableByAddingForeignKey(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base_fk')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base_fk',
@@ -80,7 +78,6 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      */
     public function shouldUpdateTableByAlteringColumnWithUnique(): void
     {
-        $this->addBase();
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
         $this->getDb()->createCommand()->createTable(
             'updater_base',
