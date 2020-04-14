@@ -60,6 +60,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
  > Are you sure you want to generate migrations for the following tables?
    - updater_base_fk
    - updater_base_fk_target
+   - updater_base_no_pk
  Operation cancelled by user.
 ',
             MigrationControllerStub::$stdout

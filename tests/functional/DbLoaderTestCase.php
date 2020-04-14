@@ -80,6 +80,7 @@ abstract class DbLoaderTestCase extends DbTestCase
     {
         $this->createMigrationHistoryTable();
 
+        $this->dropTable('updater_base_no_pk');
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
@@ -120,6 +121,8 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'CASCADE'
             )->execute();
         }
+
+        $this->createTable('updater_base_no_pk', ['col' => $this->integer()]);
 
         $this->getDb()
             ->createCommand()
