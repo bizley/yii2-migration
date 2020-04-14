@@ -51,6 +51,27 @@ abstract class UpdaterTest extends DbLoaderTestCase
      * @throws InvalidRouteException
      * @throws Exception
      */
+    public function shouldFindMatchingTables(): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_*']));
+        $this->assertStringContainsString(
+            ' > 1 table excluded by the config.
+ > Are you sure you want to generate migrations for the following tables?
+   - updater_base_fk
+   - updater_base_fk_target
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
     public function shouldUpdateTableByAddingColumn(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
@@ -214,27 +235,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
         $this->createIndex(\'idx-col\', \'{{%updater_base_fk}}\', [\'col\']);
     }',
             MigrationControllerStub::$content
-        );
-    }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldFindMatchingTables(): void
-    {
-        MigrationControllerStub::$confirmControl = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_*']));
-        $this->assertStringContainsString(
-            ' > 1 table excluded by the config.
- > Are you sure you want to generate migrations for the following tables?
-   - updater_base_fk
-   - updater_base_fk_target
- Operation cancelled by user.
-',
-            MigrationControllerStub::$stdout
         );
     }
 }
