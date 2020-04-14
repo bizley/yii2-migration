@@ -84,10 +84,7 @@ abstract class DbLoaderTestCase extends DbTestCase
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
 
-        $this->getDb()
-            ->createCommand()
-            ->delete($this->historyTable, ['version' => 'm20200406_124200_create_table_updater_base'])
-            ->execute();
+        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
 
         // Tables are added like this and not through the migration to skip class' autoloading.
         $this->createTable(
