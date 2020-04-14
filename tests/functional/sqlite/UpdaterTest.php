@@ -71,4 +71,38 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAlteringColumnWithUnique(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->dropTable('updater_base')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer()->unique(),
+                'col2' => $this->string(),
+            ]
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'sqlite_autoindex_updater_base_1\', \'{{%updater_base}}\', [\'col\'], true);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'sqlite_autoindex_updater_base_1\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }

@@ -415,4 +415,30 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAlteringColumnWithUnique(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->createIndex(\'col\', \'{{%updater_base}}\', [\'col\'], true);
+    }
+
+    public function down()
+    {
+        $this->dropIndex(\'col\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }

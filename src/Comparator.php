@@ -7,7 +7,6 @@ namespace bizley\migration;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
-use bizley\migration\table\Index;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\StructureInterface;
@@ -165,18 +164,6 @@ final class Comparator implements ComparatorInterface
                     );
 
                     if ($schema === Schema::SQLITE) {
-                        if ($propertyFetch === 'isUnique' && $newProperty === true) {
-                            $blueprint->addDescription(
-                                '(!) Since ALTER COLUMN is not supported by SQLite unique index will be created instead'
-                            );
-                            $index = new Index();
-                            $index->setUnique(true);
-                            $index->setName($newStructure->getName() . '-' . $column->getName() . '-unique');
-                            $index->setColumns([$column->getName()]);
-                            $blueprint->addIndex($index);
-                            continue;
-                        }
-
                         $blueprint->addDescription(
                             '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
                         );
