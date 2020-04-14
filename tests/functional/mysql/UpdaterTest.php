@@ -426,29 +426,4 @@ class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldUpdateTableByAddingPrimaryKey(): void
-    {
-        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'updater_base_no_pk', 'col')->execute();
-
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_no_pk']));
-        $this->assertStringContainsString(
-            'public function up()
-    {
-        $this->alterColumn(\'{{%updater_base_no_pk}}\', \'col\', $this->primaryKey());
-    }
-
-    public function down()
-    {
-        $this->alterColumn(\'{{%updater_base_no_pk}}\', \'col\', $this->integer());
-    }',
-            MigrationControllerStub::$content
-        );
-    }
 }

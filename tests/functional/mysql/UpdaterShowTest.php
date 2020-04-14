@@ -254,26 +254,4 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
-
-    /**
-     * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
-     */
-    public function shouldShowUpdateTableByAddingPrimaryKey(): void
-    {
-        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'updater_base_no_pk', 'col')->execute();
-
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_no_pk']));
-        $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base_no_pk\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
-   - different primary key definition
-
- No files generated.',
-            MigrationControllerStub::$stdout
-        );
-        $this->assertSame('', MigrationControllerStub::$content);
-    }
 }

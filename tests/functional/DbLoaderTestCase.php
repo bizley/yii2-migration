@@ -80,7 +80,6 @@ abstract class DbLoaderTestCase extends DbTestCase
     {
         $this->createMigrationHistoryTable();
 
-        $this->dropTable('updater_base_no_pk');
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
@@ -122,14 +121,49 @@ abstract class DbLoaderTestCase extends DbTestCase
             )->execute();
         }
 
-        $this->createTable('updater_base_no_pk', ['col' => $this->integer()]);
-
         $this->getDb()
             ->createCommand()
             ->insert(
                 $this->historyTable,
                 [
                     'version' => 'm20200406_124200_create_table_updater_base',
+                    'apply_time' => 1586131201,
+                ]
+            )
+            ->execute();
+    }
+
+    /**
+     * @throws NotSupportedException
+     * @throws Exception
+     */
+    protected function addPkBase(): void
+    {
+        $this->createMigrationHistoryTable();
+
+        $this->dropTable('string_pk');
+        $this->dropTable('no_pk');
+
+        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
+
+        // Tables are added like this and not through the migration to skip class' autoloading.
+        $this->createTable('no_pk', ['col' => $this->integer()]);
+
+        $columns = ['col' => $this->string()];
+        if (static::$schema === 'sqlite') {
+            $columns[] = 'PRIMARY KEY(col)';
+        }
+        $this->createTable('string_pk', $columns);
+        if (static::$schema !== 'sqlite') {
+            $this->getDb()->createCommand()->addPrimaryKey('string_pk-primary-key', 'string_pk', 'col')->execute();
+        }
+
+        $this->getDb()
+            ->createCommand()
+            ->insert(
+                $this->historyTable,
+                [
+                    'version' => 'm20200414_130200_create_table_pk_base',
                     'apply_time' => 1586131201,
                 ]
             )

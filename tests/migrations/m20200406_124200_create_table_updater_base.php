@@ -43,13 +43,10 @@ class m20200406_124200_create_table_updater_base extends Migration
             'CASCADE',
             'CASCADE'
         );
-
-        $this->createTable('updater_base_no_pk', ['col' => $this->integer()], $tableOptions);
     }
 
     public function down()
     {
-        $this->dropTable('updater_base_no_pk');
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
