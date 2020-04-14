@@ -172,6 +172,35 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
+    public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
+    {
+        $this->getDb()->createCommand()->dropTable('updater_base')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer()->unique(),
+                'col2' => $this->string(),
+            ]
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - missing index \'sqlite_autoindex_updater_base_1\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
     public function shouldShowUpdateTableByAlteringColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
@@ -202,22 +231,28 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
+    public function shouldUpdateTableByAlteringForeignKey(): void
     {
-        $this->getDb()->createCommand()->dropTable('updater_base')->execute();
+        $this->getDb()->createCommand()->dropTable('updater_base_fk')->execute();
         $this->getDb()->createCommand()->createTable(
-            'updater_base',
+            'updater_base_fk',
             [
                 'id' => $this->primaryKey(),
-                'col' => $this->integer()->unique(),
-                'col2' => $this->string(),
+                'col' => $this->integer(),
+                'col2' => $this->integer()->unique(),
+                'updater_base_id' => $this->integer(),
+                'FOREIGN KEY(col) REFERENCES updater_base_fk_target(id)'
             ]
         )->execute();
+        $this->getDb()->createCommand()->createIndex('idx-col', 'updater_base_fk', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - missing index \'sqlite_autoindex_updater_base_1\'
+            ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
+   - missing foreign key \'fk-updater_base_fk-col\'
+   - (!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually
+   - excessive foreign key \'fk-updater_base_fk-updater_base_id\'
+   - (!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually
 
  No files generated.',
             MigrationControllerStub::$stdout

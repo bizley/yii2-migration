@@ -187,6 +187,28 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
+    public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
+    {
+        $this->addBase();
+        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - missing index \'col\'
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
     public function shouldShowUpdateTableByDroppingForeignKey(): void
     {
         $this->addBase();
@@ -209,15 +231,23 @@ class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
+    public function shouldUpdateTableByAlteringForeignKey(): void
     {
-        $this->addBase();
-        $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
+        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-plus',
+            'updater_base_fk',
+            'col',
+            'updater_base_fk_target',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         $this->assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - missing index \'col\'
+            ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
+   - different foreign key \'fk-plus\' columns (DB: ["col"] != MIG: ["updater_base_id"])
 
  No files generated.',
             MigrationControllerStub::$stdout
