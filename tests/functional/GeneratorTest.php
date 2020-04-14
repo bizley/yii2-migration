@@ -19,7 +19,6 @@ abstract class GeneratorTest extends DbLoaderTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
         $this->controller->migrationPath = '@bizley/tests/migrations';
         MigrationControllerStub::$stdout = '';
