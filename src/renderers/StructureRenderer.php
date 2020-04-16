@@ -338,13 +338,15 @@ TEMPLATE;
      * @param int $indent
      * @param bool $usePrefix
      * @param string|null $dbPrefix
+     * @param string|null $schema
      * @return string|null
      */
     public function renderForeignKeysDown(
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        string $dbPrefix = null,
+        string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
         /** @var ForeignKeyInterface $foreignKey */
@@ -352,7 +354,8 @@ TEMPLATE;
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown(
                 $foreignKey,
                 $this->renderName($foreignKey->getTableName(), $usePrefix, $dbPrefix),
-                $indent
+                $indent,
+                $schema
             );
         }
 

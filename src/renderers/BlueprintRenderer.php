@@ -64,8 +64,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion),
-                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent),
-                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $usePrefix, $dbPrefix),
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema),
+                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent),
@@ -103,8 +103,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
                 $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, true),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
-                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, true),
-                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $usePrefix, $dbPrefix, true),
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema, true),
+                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix, true),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion, true),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent, true),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion, true),
@@ -253,6 +253,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
      * @param BlueprintInterface $blueprint
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @param bool $inverse
      * @return string|null
      */
@@ -260,6 +261,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
+        string $schema = null,
         bool $inverse = false
     ): ?string {
         $renderedForeignKeys = [];
@@ -271,7 +273,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         }
         /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
-            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent);
+            $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent, $schema);
         }
 
         return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
@@ -282,6 +284,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
      * @param BlueprintInterface $blueprint
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @param bool $usePrefix
      * @param string|null $dbPrefix
      * @param bool $inverse
@@ -291,6 +294,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
+        string $schema = null,
         bool $usePrefix = true,
         string $dbPrefix = null,
         bool $inverse = false
@@ -308,7 +312,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
                 $foreignKey,
                 $tableName,
                 $this->renderName($foreignKey->getReferredTable(), $usePrefix, $dbPrefix),
-                $indent
+                $indent,
+                $schema
             );
         }
 

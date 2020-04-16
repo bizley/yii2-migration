@@ -30,11 +30,13 @@ interface ForeignKeyRendererInterface
      * @param ForeignKeyInterface $foreignKey
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string
      */
     public function renderDown(
         ForeignKeyInterface $foreignKey,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        string $schema = null
     ): string;
 }

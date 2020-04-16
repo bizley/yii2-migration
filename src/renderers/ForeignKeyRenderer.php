@@ -110,13 +110,20 @@ TEMPLATE;
      * @param ForeignKeyInterface $foreignKey
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string
+     * @throws NotSupportedException
      */
     public function renderDown(
         ForeignKeyInterface $foreignKey,
         string $tableName,
-        int $indent = 0
+        int $indent = 0,
+        string $schema = null
     ): string {
+        if ($schema === Schema::SQLITE && $this->generalSchema === false) {
+            throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');
+        }
+
         $template = $this->applyIndent($indent, $this->dropKeyTemplate);
 
         return str_replace(
