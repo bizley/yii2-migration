@@ -47,13 +47,7 @@ final class Comparator implements ComparatorInterface
     ): void {
         $this->compareColumns($newStructure, $oldStructure, $blueprint, $onlyShow, $schema, $engineVersion);
         $this->compareForeignKeys($newStructure, $oldStructure, $blueprint, $onlyShow, $schema);
-        $this->comparePrimaryKeys(
-            $newStructure->getPrimaryKey(),
-            $oldStructure->getPrimaryKey(),
-            $blueprint,
-            $onlyShow,
-            $schema
-        );
+        $this->comparePrimaryKeys($newStructure, $oldStructure, $blueprint, $onlyShow, $schema);
         $this->compareIndexes($newStructure, $oldStructure, $blueprint);
     }
 
@@ -342,20 +336,22 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the primary keys between new and old structure.
-     * @param PrimaryKeyInterface|null $newPrimaryKey
-     * @param PrimaryKeyInterface|null $oldPrimaryKey
+     * @param StructureInterface $newStructure
+     * @param StructureInterface $oldStructure
      * @param BlueprintInterface $blueprint
      * @param bool $onlyShow
      * @param string|null $schema
      * @throws NotSupportedException
      */
     private function comparePrimaryKeys(
-        ?PrimaryKeyInterface $newPrimaryKey,
-        ?PrimaryKeyInterface $oldPrimaryKey,
+        StructureInterface $newStructure,
+        StructureInterface $oldStructure,
         BlueprintInterface $blueprint,
         bool $onlyShow,
         ?string $schema
     ): void {
+        $newPrimaryKey = $newStructure->getPrimaryKey();
+        $oldPrimaryKey = $oldStructure->getPrimaryKey();
         $blueprint->setTableNewPrimaryKey($newPrimaryKey);
         $blueprint->setTableOldPrimaryKey($oldPrimaryKey);
 
@@ -385,6 +381,14 @@ final class Comparator implements ComparatorInterface
 
                 /** @var PrimaryKeyInterface $oldPrimaryKey */
                 $blueprint->dropPrimaryKey($oldPrimaryKey);
+                if ($oldPrimaryKey->isComposite()) {
+                    $type = 'composite';
+                } else {
+                    /** @var ColumnInterface $column */
+                    $column = $oldStructure->getColumn($oldPrimaryKey->getColumns()[0]);
+                    $type = $column->getType();
+                }
+                $blueprint->setDroppedPrimaryKeyType($type);
             }
 
             $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
@@ -409,6 +413,14 @@ final class Comparator implements ComparatorInterface
 
                 /** @var PrimaryKeyInterface $newPrimaryKey */
                 $blueprint->addPrimaryKey($newPrimaryKey);
+                if ($newPrimaryKey->isComposite()) {
+                    $type = 'composite';
+                } else {
+                    /** @var ColumnInterface $column */
+                    $column = $newStructure->getColumn($newPrimaryKey->getColumns()[0]);
+                    $type = $column->getType();
+                }
+                $blueprint->setAddedPrimaryKeyType($type);
             }
         }
     }

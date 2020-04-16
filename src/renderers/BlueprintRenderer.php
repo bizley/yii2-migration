@@ -61,6 +61,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = array_filter(
             [
+                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion),
@@ -68,8 +70,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
                 $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent),
-                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
             ]
         );
 
@@ -396,10 +396,17 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): ?string {
         if ($inverse) {
             $primaryKey = $blueprint->getAddedPrimaryKey();
+            $type = $blueprint->getAddedPrimaryKeyType();
         } else {
             $primaryKey = $blueprint->getDroppedPrimaryKey();
+            $type = $blueprint->getDroppedPrimaryKeyType();
         }
-        return $this->primaryKeyRenderer->renderDown($primaryKey, $tableName, $indent, $schema);
+
+        if ($primaryKey === null || $type === null) {
+            return null;
+        }
+
+        return $this->primaryKeyRenderer->renderDown($primaryKey, $type, $tableName, $indent, $schema);
     }
 
     /**
@@ -420,9 +427,16 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): ?string {
         if ($inverse) {
             $primaryKey = $blueprint->getDroppedPrimaryKey();
+            $type = $blueprint->getDroppedPrimaryKeyType();
         } else {
             $primaryKey = $blueprint->getAddedPrimaryKey();
+            $type = $blueprint->getAddedPrimaryKeyType();
         }
-        return $this->primaryKeyRenderer->renderUp($primaryKey, $tableName, $indent, $schema);
+
+        if ($primaryKey === null || $type === null) {
+            return null;
+        }
+
+        return $this->primaryKeyRenderer->renderUp($primaryKey, $type, $tableName, $indent, $schema);
     }
 }

@@ -8,7 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
 use yii\base\NotSupportedException;
 
+use yii\db\Schema as YiiSchema;
+
 use function implode;
+use function in_array;
 use function str_repeat;
 use function str_replace;
 
@@ -30,7 +33,8 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the add primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
+     * @param PrimaryKeyInterface $primaryKey
+     * @param string $type
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
@@ -38,12 +42,13 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
      * @throws NotSupportedException
      */
     public function renderUp(
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey,
+        string $type,
         string $tableName,
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+        if (in_array($type, [YiiSchema::TYPE_INTEGER, YiiSchema::TYPE_BIGINT], true)) {
             return null;
         }
 
@@ -76,7 +81,8 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the drop primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
+     * @param PrimaryKeyInterface $primaryKey
+     * @param string $type
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
@@ -84,12 +90,13 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
      * @throws NotSupportedException
      */
     public function renderDown(
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey,
+        string $type,
         string $tableName,
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+        if (in_array($type, [YiiSchema::TYPE_INTEGER, YiiSchema::TYPE_BIGINT], true)) {
             return null;
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
+use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\StructureInterface;
@@ -233,8 +234,22 @@ TEMPLATE;
         int $indent = 0,
         string $schema = null
     ): ?string {
+        $primaryKey = $structure->getPrimaryKey();
+        if ($primaryKey === null) {
+            return null;
+        }
+
+        if ($primaryKey->isComposite()) {
+            $type = 'composite';
+        } else {
+            /** @var ColumnInterface $column */
+            $column = $structure->getColumn($primaryKey->getColumns()[0]);
+            $type = $column->getType();
+        }
+
         return $this->primaryKeyRenderer->renderUp(
-            $structure->getPrimaryKey(),
+            $primaryKey,
+            $type,
             $tableName,
             $indent,
             $schema

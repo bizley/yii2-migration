@@ -10,14 +10,16 @@ interface PrimaryKeyRendererInterface
 {
     /**
      * Renders the add primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
+     * @param PrimaryKeyInterface $primaryKey
+     * @param string $type
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
      * @return string|null
      */
     public function renderUp(
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey,
+        string $type,
         string $tableName,
         int $indent = 0,
         string $schema = null
@@ -25,14 +27,16 @@ interface PrimaryKeyRendererInterface
 
     /**
      * Renders the drop primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
+     * @param PrimaryKeyInterface $primaryKey
+     * @param string $type
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
      * @return string|null
      */
     public function renderDown(
-        ?PrimaryKeyInterface $primaryKey,
+        PrimaryKeyInterface $primaryKey,
+        string $type,
         string $tableName,
         int $indent = 0,
         string $schema = null
