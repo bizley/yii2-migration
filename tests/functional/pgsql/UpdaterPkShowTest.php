@@ -36,4 +36,27 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByDroppingPrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->dropPrimaryKey('string_pk-primary-key', 'string_pk')->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'string_pk\' with its migrations ...Showing differences:
+   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: append (DB: NULL != MIG: "PRIMARY KEY")
+   - different primary key definition
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
