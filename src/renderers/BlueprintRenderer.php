@@ -68,8 +68,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
                 $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent),
-                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent),
+                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
             ]
         );
 
@@ -99,8 +99,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = array_filter(
             [
-                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, true),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, true),
+                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema, true),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema, true),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
                 $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema, true),
@@ -383,6 +383,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
      * @param BlueprintInterface $blueprint
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @param bool $inverse
      * @return string|null
      */
@@ -390,6 +391,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
+        string $schema = null,
         bool $inverse = false
     ): ?string {
         if ($inverse) {
@@ -397,7 +399,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $primaryKey = $blueprint->getDroppedPrimaryKey();
         }
-        return $this->primaryKeyRenderer->renderDown($primaryKey, $tableName, $indent);
+        return $this->primaryKeyRenderer->renderDown($primaryKey, $tableName, $indent, $schema);
     }
 
     /**
@@ -405,6 +407,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
      * @param BlueprintInterface $blueprint
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @param bool $inverse
      * @return string|null
      */
@@ -412,6 +415,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
+        string $schema = null,
         bool $inverse = false
     ): ?string {
         if ($inverse) {
@@ -419,6 +423,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $primaryKey = $blueprint->getAddedPrimaryKey();
         }
-        return $this->primaryKeyRenderer->renderUp($primaryKey, $tableName, $indent);
+        return $this->primaryKeyRenderer->renderUp($primaryKey, $tableName, $indent, $schema);
     }
 }

@@ -28,7 +28,13 @@ interface PrimaryKeyRendererInterface
      * @param PrimaryKeyInterface|null $primaryKey
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string|null
      */
-    public function renderDown(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string;
+    public function renderDown(
+        ?PrimaryKeyInterface $primaryKey,
+        string $tableName,
+        int $indent = 0,
+        string $schema = null
+    ): ?string;
 }

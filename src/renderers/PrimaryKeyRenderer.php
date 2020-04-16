@@ -6,7 +6,6 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
-
 use yii\base\NotSupportedException;
 
 use function implode;
@@ -80,12 +79,22 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
      * @param PrimaryKeyInterface|null $primaryKey
      * @param string $tableName
      * @param int $indent
+     * @param string|null $schema
      * @return string|null
+     * @throws NotSupportedException
      */
-    public function renderDown(?PrimaryKeyInterface $primaryKey, string $tableName, int $indent = 0): ?string
-    {
+    public function renderDown(
+        ?PrimaryKeyInterface $primaryKey,
+        string $tableName,
+        int $indent = 0,
+        string $schema = null
+    ): ?string {
         if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;
+        }
+
+        if ($schema === Schema::SQLITE && $this->generalSchema === false) {
+            throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
         }
 
         $template = str_repeat(' ', $indent) . $this->dropKeyTemplate;
