@@ -39,4 +39,29 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByDroppingPrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->dropTable('string_pk')->execute();
+        $this->getDb()->createCommand()->createTable('string_pk', ['col' => $this->string()])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'string_pk\' with its migrations ...Showing differences:
+   - different \'col\' column property: append (DB: NULL != MIG: "PRIMARY KEY")
+   - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
+   - different primary key definition
+   - (!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
