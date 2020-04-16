@@ -190,28 +190,4 @@ interface BlueprintInterface
      * @param PrimaryKeyInterface|null $tableNewPrimaryKey
      */
     public function setTableNewPrimaryKey(?PrimaryKeyInterface $tableNewPrimaryKey): void;
-
-    /**
-     * Returns dropped primary key type.
-     * @return string|null
-     */
-    public function getDroppedPrimaryKeyType(): ?string;
-
-    /**
-     * Sets dropped primary key type.
-     * @param string $droppedPrimaryKeyType
-     */
-    public function setDroppedPrimaryKeyType(string $droppedPrimaryKeyType): void;
-
-    /**
-     * Returns added primary key type.
-     * @return string|null
-     */
-    public function getAddedPrimaryKeyType(): ?string;
-
-    /**
-     * Sets added primary key type.
-     * @param string $addedPrimaryKeyType
-     */
-    public function setAddedPrimaryKeyType(string $addedPrimaryKeyType): void;
 }

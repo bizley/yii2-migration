@@ -58,14 +58,10 @@ class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
             'public function up()
     {
         $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->notNull());
-        
-        $this->dropPrimaryKey(\'string_pk-primary-key\', \'{{%string_pk}}\');
     }
 
     public function down()
     {
-        $this->addPrimaryKey(\'string_pk-primary-key\', \'{{%string_pk}}\', [\'col\']);
-
         $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->append(\'PRIMARY KEY\'));
     }',
             MigrationControllerStub::$content

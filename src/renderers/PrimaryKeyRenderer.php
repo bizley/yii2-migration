@@ -8,10 +8,7 @@ use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
 use yii\base\NotSupportedException;
 
-use yii\db\Schema as YiiSchema;
-
 use function implode;
-use function in_array;
 use function str_repeat;
 use function str_replace;
 
@@ -33,8 +30,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the add primary key statement.
-     * @param PrimaryKeyInterface $primaryKey
-     * @param string $type
+     * @param PrimaryKeyInterface|null $primaryKey
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
@@ -42,13 +38,12 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
      * @throws NotSupportedException
      */
     public function renderUp(
-        PrimaryKeyInterface $primaryKey,
-        string $type,
+        ?PrimaryKeyInterface $primaryKey,
         string $tableName,
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if (in_array($type, [YiiSchema::TYPE_INTEGER, YiiSchema::TYPE_BIGINT], true)) {
+        if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;
         }
 
@@ -81,8 +76,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the drop primary key statement.
-     * @param PrimaryKeyInterface $primaryKey
-     * @param string $type
+     * @param PrimaryKeyInterface|null $primaryKey
      * @param string $tableName
      * @param int $indent
      * @param string|null $schema
@@ -90,13 +84,12 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
      * @throws NotSupportedException
      */
     public function renderDown(
-        PrimaryKeyInterface $primaryKey,
-        string $type,
+        ?PrimaryKeyInterface $primaryKey,
         string $tableName,
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if (in_array($type, [YiiSchema::TYPE_INTEGER, YiiSchema::TYPE_BIGINT], true)) {
+        if ($primaryKey === null || $primaryKey->isComposite() === false) {
             return null;
         }
 

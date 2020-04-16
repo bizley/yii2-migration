@@ -32,14 +32,8 @@ final class Blueprint implements BlueprintInterface
     /** @var PrimaryKeyInterface|null */
     private $primaryKeyToDrop;
 
-    /** @var string|null */
-    private $droppedPrimaryKeyType;
-
     /** @var PrimaryKeyInterface|null */
     private $primaryKeyToAdd;
-
-    /** @var string|null */
-    private $addedPrimaryKeyType;
 
     /** @var PrimaryKeyInterface|null */
     private $tableOldPrimaryKey;
@@ -335,41 +329,5 @@ final class Blueprint implements BlueprintInterface
     public function setTableNewPrimaryKey(?PrimaryKeyInterface $tableNewPrimaryKey): void
     {
         $this->tableNewPrimaryKey = $tableNewPrimaryKey;
-    }
-
-    /**
-     * Returns dropped primary key type.
-     * @return string|null
-     */
-    public function getDroppedPrimaryKeyType(): ?string
-    {
-        return $this->droppedPrimaryKeyType;
-    }
-
-    /**
-     * Sets dropped primary key type.
-     * @param string $droppedPrimaryKeyType
-     */
-    public function setDroppedPrimaryKeyType(string $droppedPrimaryKeyType): void
-    {
-        $this->droppedPrimaryKeyType = $droppedPrimaryKeyType;
-    }
-
-    /**
-     * Returns added primary key type.
-     * @return string|null
-     */
-    public function getAddedPrimaryKeyType(): ?string
-    {
-        return $this->addedPrimaryKeyType;
-    }
-
-    /**
-     * Sets added primary key type.
-     * @param string $addedPrimaryKeyType
-     */
-    public function setAddedPrimaryKeyType(string $addedPrimaryKeyType): void
-    {
-        $this->addedPrimaryKeyType = $addedPrimaryKeyType;
     }
 }

@@ -46,8 +46,14 @@ final class Comparator implements ComparatorInterface
         ?string $engineVersion
     ): void {
         $this->compareColumns($newStructure, $oldStructure, $blueprint, $onlyShow, $schema, $engineVersion);
+        $this->comparePrimaryKeys(
+            $newStructure->getPrimaryKey(),
+            $oldStructure->getPrimaryKey(),
+            $blueprint,
+            $onlyShow,
+            $schema
+        );
         $this->compareForeignKeys($newStructure, $oldStructure, $blueprint, $onlyShow, $schema);
-        $this->comparePrimaryKeys($newStructure, $oldStructure, $blueprint, $onlyShow, $schema);
         $this->compareIndexes($newStructure, $oldStructure, $blueprint);
     }
 
@@ -129,12 +135,7 @@ final class Comparator implements ComparatorInterface
                     $newProperty = (string)$newProperty;
                 }
                 if ($oldProperty !== $newProperty) {
-                    if (
-                        $propertyFetch === 'getAppend'
-                        && $oldProperty === null
-                        && is_string($newProperty)
-                        && $this->isAppendSame($newProperty, $oldColumn)
-                    ) {
+                    if ($propertyFetch === 'getAppend' && $this->isAppendSame($column, $oldColumn)) {
                         continue;
                     }
 
@@ -336,22 +337,20 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the primary keys between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
+     * @param PrimaryKeyInterface|null $newPrimaryKey
+     * @param PrimaryKeyInterface|null $oldPrimaryKey
      * @param BlueprintInterface $blueprint
      * @param bool $onlyShow
      * @param string|null $schema
      * @throws NotSupportedException
      */
     private function comparePrimaryKeys(
-        StructureInterface $newStructure,
-        StructureInterface $oldStructure,
+        ?PrimaryKeyInterface $newPrimaryKey,
+        ?PrimaryKeyInterface $oldPrimaryKey,
         BlueprintInterface $blueprint,
         bool $onlyShow,
         ?string $schema
     ): void {
-        $newPrimaryKey = $newStructure->getPrimaryKey();
-        $oldPrimaryKey = $oldStructure->getPrimaryKey();
         $blueprint->setTableNewPrimaryKey($newPrimaryKey);
         $blueprint->setTableOldPrimaryKey($oldPrimaryKey);
 
@@ -381,14 +380,6 @@ final class Comparator implements ComparatorInterface
 
                 /** @var PrimaryKeyInterface $oldPrimaryKey */
                 $blueprint->dropPrimaryKey($oldPrimaryKey);
-                if ($oldPrimaryKey->isComposite()) {
-                    $type = 'composite';
-                } else {
-                    /** @var ColumnInterface $column */
-                    $column = $oldStructure->getColumn($oldPrimaryKey->getColumns()[0]);
-                    $type = $column->getType();
-                }
-                $blueprint->setDroppedPrimaryKeyType($type);
             }
 
             $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
@@ -413,14 +404,6 @@ final class Comparator implements ComparatorInterface
 
                 /** @var PrimaryKeyInterface $newPrimaryKey */
                 $blueprint->addPrimaryKey($newPrimaryKey);
-                if ($newPrimaryKey->isComposite()) {
-                    $type = 'composite';
-                } else {
-                    /** @var ColumnInterface $column */
-                    $column = $newStructure->getColumn($newPrimaryKey->getColumns()[0]);
-                    $type = $column->getType();
-                }
-                $blueprint->setAddedPrimaryKeyType($type);
             }
         }
     }
@@ -589,43 +572,71 @@ final class Comparator implements ComparatorInterface
     }
 
     /**
-     * Checks if append statements are the same in new and old structure. Compares the actual statements and potential
-     * ones.
-     * @param string $append
-     * @param ColumnInterface $column
+     * Checks if append statements are the same in new and old structure.
+     * Compares the actual statements and potential ones.
+     * @param ColumnInterface $newColumn
+     * @param ColumnInterface $oldColumn
      * @return bool
      */
-    private function isAppendSame(string $append, ColumnInterface $column): bool
+    private function isAppendSame(ColumnInterface $newColumn, ColumnInterface $oldColumn): bool
+    {
+        [$newPrimaryKey, $newAutoincrement, $newAppend] = $this->stripAppend($newColumn->getAppend());
+        if ($newPrimaryKey === false && $newColumn->isPrimaryKey()) {
+            $newPrimaryKey = true;
+        }
+        if ($newAutoincrement === false && $newColumn->isAutoIncrement()) {
+            $newAutoincrement = true;
+        }
+
+        [$oldPrimaryKey, $oldAutoincrement, $oldAppend] = $this->stripAppend($oldColumn->getAppend());
+        if ($oldPrimaryKey === false && $newColumn->isPrimaryKey()) {
+            $oldPrimaryKey = true;
+        }
+        if ($oldAutoincrement === false && $newColumn->isAutoIncrement()) {
+            $oldAutoincrement = true;
+        }
+
+        return $newAppend === $oldAppend
+            && $newPrimaryKey === $oldPrimaryKey
+            && $newAutoincrement === $oldAutoincrement;
+    }
+
+    /**
+     * Strips append string from primary key and autoincrement constraints.
+     * @param string|null $append
+     * @return array<string|bool|null>
+     */
+    private function stripAppend(?string $append): array
     {
         $autoIncrement = false;
         $primaryKey = false;
 
-        if (strpos($append, 'AUTO_INCREMENT') !== false) {
-            $autoIncrement = true;
-            $append = trim(str_replace('AUTO_INCREMENT', '', $append));
+        if ($append !== null) {
+            if (strpos($append, 'AUTO_INCREMENT') !== false) {
+                $autoIncrement = true;
+                $append = trim(str_replace('AUTO_INCREMENT', '', $append));
+            }
+
+            if (strpos($append, 'AUTOINCREMENT') !== false) {
+                $autoIncrement = true;
+                $append = trim(str_replace('AUTOINCREMENT', '', $append));
+            }
+
+            if (strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
+                $primaryKey = true;
+                $append = trim(str_replace('IDENTITY PRIMARY KEY', '', $append));
+            }
+
+            if (strpos($append, 'PRIMARY KEY') !== false) {
+                $primaryKey = true;
+                $append = trim(str_replace('PRIMARY KEY', '', $append));
+            }
+
+            /** @var string $append */
+            $append = str_replace(' ', '', $append);
         }
 
-        if (strpos($append, 'AUTOINCREMENT') !== false) {
-            $autoIncrement = true;
-            $append = trim(str_replace('AUTOINCREMENT', '', $append));
-        }
-
-        if (strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
-            $primaryKey = true;
-            $append = trim(str_replace('IDENTITY PRIMARY KEY', '', $append));
-        }
-
-        if (strpos($append, 'PRIMARY KEY') !== false) {
-            $primaryKey = true;
-            $append = trim(str_replace('PRIMARY KEY', '', $append));
-        }
-
-        /** @var string $append */
-        $append = str_replace(' ', '', $append);
-
-        return $append === ''
-            && $autoIncrement === $column->isAutoIncrement()
-            && $primaryKey === $column->isPrimaryKey();
+        return [$primaryKey, $autoIncrement, $append];
     }
 
     /**

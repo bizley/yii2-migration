@@ -396,17 +396,11 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): ?string {
         if ($inverse) {
             $primaryKey = $blueprint->getAddedPrimaryKey();
-            $type = $blueprint->getAddedPrimaryKeyType();
         } else {
             $primaryKey = $blueprint->getDroppedPrimaryKey();
-            $type = $blueprint->getDroppedPrimaryKeyType();
         }
 
-        if ($primaryKey === null || $type === null) {
-            return null;
-        }
-
-        return $this->primaryKeyRenderer->renderDown($primaryKey, $type, $tableName, $indent, $schema);
+        return $this->primaryKeyRenderer->renderDown($primaryKey, $tableName, $indent, $schema);
     }
 
     /**
@@ -427,16 +421,10 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): ?string {
         if ($inverse) {
             $primaryKey = $blueprint->getDroppedPrimaryKey();
-            $type = $blueprint->getDroppedPrimaryKeyType();
         } else {
             $primaryKey = $blueprint->getAddedPrimaryKey();
-            $type = $blueprint->getAddedPrimaryKeyType();
         }
 
-        if ($primaryKey === null || $type === null) {
-            return null;
-        }
-
-        return $this->primaryKeyRenderer->renderUp($primaryKey, $type, $tableName, $indent, $schema);
+        return $this->primaryKeyRenderer->renderUp($primaryKey, $tableName, $indent, $schema);
     }
 }

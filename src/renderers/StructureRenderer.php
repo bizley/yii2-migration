@@ -234,26 +234,7 @@ TEMPLATE;
         int $indent = 0,
         string $schema = null
     ): ?string {
-        $primaryKey = $structure->getPrimaryKey();
-        if ($primaryKey === null) {
-            return null;
-        }
-
-        if ($primaryKey->isComposite()) {
-            $type = 'composite';
-        } else {
-            /** @var ColumnInterface $column */
-            $column = $structure->getColumn($primaryKey->getColumns()[0]);
-            $type = $column->getType();
-        }
-
-        return $this->primaryKeyRenderer->renderUp(
-            $primaryKey,
-            $type,
-            $tableName,
-            $indent,
-            $schema
-        );
+        return $this->primaryKeyRenderer->renderUp($structure->getPrimaryKey(), $tableName, $indent, $schema);
     }
 
     /**
