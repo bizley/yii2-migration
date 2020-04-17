@@ -77,7 +77,7 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldUpdateTableByAddingCompositePrimaryKey(): void
+    public function shouldShowUpdateTableByAddingCompositePrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropTable('no_pk')->execute();
         $this->getDb()->createCommand()->createTable(
