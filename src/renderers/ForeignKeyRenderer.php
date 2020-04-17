@@ -6,12 +6,10 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\Schema;
 use bizley\migration\table\ForeignKeyInterface;
-
 use yii\base\NotSupportedException;
 
 use function explode;
 use function implode;
-use function is_numeric;
 use function str_repeat;
 use function str_replace;
 
@@ -32,9 +30,6 @@ TEMPLATE;
 
     /** @var string */
     private $dropKeyTemplate = '$this->dropForeignKey(\'{keyName}\', \'{tableName}\');';
-
-    /** @var string */
-    private $keyNameTemplate = 'fk-{tableName}-{keyColumns}';
 
     /** @var bool */
     private $generalSchema;

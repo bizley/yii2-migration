@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\migration\table;
 
 use function implode;
+use function is_numeric;
 
 final class ForeignKey implements ForeignKeyInterface
 {
@@ -35,7 +36,7 @@ final class ForeignKey implements ForeignKeyInterface
      */
     public function getName(): string
     {
-        if (empty($this->name)) {
+        if (empty($this->name) || is_numeric($this->name)) {
             return "fk-{$this->tableName}-" . implode('-', $this->columns);
         }
         return $this->name;

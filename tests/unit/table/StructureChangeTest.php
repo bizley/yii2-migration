@@ -160,8 +160,8 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod('addColumn');
         $this->change->setData(
             [
-                'column',
-                ['type' => Schema::TYPE_INTEGER]
+                'name' => 'column',
+                'schema' => ['type' => Schema::TYPE_INTEGER]
             ]
         );
 
@@ -187,8 +187,8 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod('addColumn');
         $this->change->setData(
             [
-                'column',
-                [
+                'name' => 'column',
+                'schema' => [
                     'type' => Schema::TYPE_CHAR,
                     'length' => 10,
                     'isNotNull' => true,
@@ -241,8 +241,8 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod('alterColumn');
         $this->change->setData(
             [
-                'column',
-                ['type' => Schema::TYPE_INTEGER]
+                'name' => 'column',
+                'schema' => ['type' => Schema::TYPE_INTEGER]
             ]
         );
 
@@ -268,8 +268,8 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod('alterColumn');
         $this->change->setData(
             [
-                'column',
-                [
+                'name' => 'column',
+                'schema' => [
                     'type' => Schema::TYPE_CHAR,
                     'length' => 10,
                     'isNotNull' => true,
@@ -330,7 +330,12 @@ final class StructureChangeTest extends TestCase
     public function shouldProperlyReturnValueForRenameColumn(): void
     {
         $this->change->setMethod('renameColumn');
-        $this->change->setData(['a', 'b']);
+        $this->change->setData(
+            [
+                'old' => 'a',
+                'new' => 'b'
+            ]
+        );
 
         $this->assertSame(['old' => 'a', 'new' => 'b'], $this->change->getValue());
     }
@@ -363,7 +368,12 @@ final class StructureChangeTest extends TestCase
     public function shouldProperlyReturnValueForAddPrimaryKey(): void
     {
         $this->change->setMethod('addPrimaryKey');
-        $this->change->setData(['pk', ['column']]);
+        $this->change->setData(
+            [
+                'name' => 'pk',
+                'columns' => ['column']
+            ]
+        );
 
         /** @var PrimaryKeyInterface $primaryKey */
         $primaryKey = $this->change->getValue();
@@ -402,7 +412,17 @@ final class StructureChangeTest extends TestCase
     public function shouldProperlyReturnValueForAddForeignKey(): void
     {
         $this->change->setMethod('addForeignKey');
-        $this->change->setData(['fk', ['column'], 'tab', ['column']]);
+        $this->change->setData(
+            [
+                'name' => 'fk',
+                'columns' => ['column'],
+                'referredTable' => 'tab',
+                'referredColumns' => ['column'],
+                'onDelete' => 'CASCADE',
+                'onUpdate' => 'RESTRICT',
+                'tableName' => 'test'
+            ]
+        );
 
         /** @var ForeignKeyInterface $foreignKey */
         $foreignKey = $this->change->getValue();
@@ -411,6 +431,9 @@ final class StructureChangeTest extends TestCase
         $this->assertSame(['column'], $foreignKey->getColumns());
         $this->assertSame('tab', $foreignKey->getReferredTable());
         $this->assertSame(['column'], $foreignKey->getReferredColumns());
+        $this->assertSame('CASCADE', $foreignKey->getOnDelete());
+        $this->assertSame('RESTRICT', $foreignKey->getOnUpdate());
+        $this->assertSame('test', $foreignKey->getTableName());
     }
 
     public function providerForWrongCreateIndex(): array
@@ -442,7 +465,13 @@ final class StructureChangeTest extends TestCase
     public function shouldProperlyReturnValueForCreateIndex(): void
     {
         $this->change->setMethod('createIndex');
-        $this->change->setData(['idx', ['column'], true]);
+        $this->change->setData(
+            [
+                'name' => 'idx',
+                'columns' => ['column'],
+                'unique' => true,
+            ]
+        );
 
         /** @var IndexInterface $index */
         $index = $this->change->getValue();
@@ -470,9 +499,14 @@ final class StructureChangeTest extends TestCase
     public function shouldReturnProperlyValueForAddCommentOnColumn(): void
     {
         $this->change->setMethod('addCommentOnColumn');
-        $this->change->setData(['column', 'comment']);
+        $this->change->setData(
+            [
+                'column' => 'column',
+                'comment' => 'comment',
+            ]
+        );
 
-        $this->assertSame(['name' => 'column', 'comment' => 'comment'], $this->change->getValue());
+        $this->assertSame(['column' => 'column', 'comment' => 'comment'], $this->change->getValue());
     }
 
     public function providerForDataReturnMethods(): array

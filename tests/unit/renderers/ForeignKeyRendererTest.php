@@ -6,6 +6,7 @@ namespace bizley\tests\unit\renderers;
 
 use bizley\migration\renderers\ForeignKeyRenderer;
 use bizley\migration\Schema;
+use bizley\migration\table\ForeignKey;
 use bizley\migration\table\ForeignKeyInterface;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -24,7 +25,7 @@ final class ForeignKeyRendererTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
-    public function shouldThrowExceptionForSQLiteAndNonGeneralSchema(): void
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderUp(): void
     {
         $this->expectException(NotSupportedException::class);
 
@@ -32,6 +33,22 @@ final class ForeignKeyRendererTest extends TestCase
             $this->createMock(ForeignKeyInterface::class),
             'table',
             'refTable',
+            0,
+            Schema::SQLITE
+        );
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderDown(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        (new ForeignKeyRenderer(false))->renderDown(
+            $this->createMock(ForeignKeyInterface::class),
+            'table',
             0,
             Schema::SQLITE
         );
@@ -64,7 +81,10 @@ final class ForeignKeyRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldRenderProperTemplateForDown(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -168,6 +188,7 @@ RENDERED,
      * @param string|null $onUpdate
      * @param string $expectedAdd
      * @param string $expectedDrop
+     * @throws NotSupportedException
      */
     public function shouldRenderProperlyForeignKey(
         int $indent,
@@ -266,6 +287,7 @@ RENDERED,
      * @param array $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
+     * @throws NotSupportedException
      */
     public function shouldRenderProperlyForeignKeyName(
         ?string $name,
@@ -273,107 +295,10 @@ RENDERED,
         string $expectedAdd,
         string $expectedDrop
     ): void {
-        $foreignKey = $this->createMock(ForeignKeyInterface::class);
-        $foreignKey->method('getColumns')->willReturn($columns);
-        $foreignKey->method('getReferredColumns')->willReturn([]);
-        $foreignKey->method('getOnDelete')->willReturn(null);
-        $foreignKey->method('getOnUpdate')->willReturn(null);
-        $foreignKey->method('getName')->willReturn($name);
-
-        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
-        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
-    }
-
-    public function providerForRenderNameWithCustomTemplate(): array
-    {
-        return [
-            'not numeric' => [
-                'aaa',
-                [],
-                <<<'RENDERED'
-$this->addForeignKey(
-    'aaa',
-    'test',
-    [],
-    'refTable',
-    [],
-    null,
-    null
-);
-RENDERED,
-                '$this->dropForeignKey(\'aaa\', \'test\');'
-            ],
-            'numeric no columns' => [
-                '123',
-                [],
-                <<<'RENDERED'
-$this->addForeignKey(
-    'fk-test-',
-    'test',
-    [],
-    'refTable',
-    [],
-    null,
-    null
-);
-RENDERED,
-                '$this->dropForeignKey(\'fk-test-\', \'test\');'
-            ],
-            'null no columns' => [
-                null,
-                [],
-                <<<'RENDERED'
-$this->addForeignKey(
-    'fk-test-',
-    'test',
-    [],
-    'refTable',
-    [],
-    null,
-    null
-);
-RENDERED,
-                '$this->dropForeignKey(\'fk-test-\', \'test\');'
-            ],
-            'null columns' => [
-                null,
-                ['a', 'b'],
-                <<<'RENDERED'
-$this->addForeignKey(
-    'fk-test-a-b',
-    'test',
-    ['a', 'b'],
-    'refTable',
-    [],
-    null,
-    null
-);
-RENDERED,
-                '$this->dropForeignKey(\'fk-test-a-b\', \'test\');'
-            ],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider providerForRenderNameWithCustomTemplate
-     * @param string|null $name
-     * @param array $columns
-     * @param string $expectedAdd
-     * @param string $expectedDrop
-     */
-    public function shouldRenderProperlyForeignKeyNameWithCustomTemplate(
-        ?string $name,
-        array $columns,
-        string $expectedAdd,
-        string $expectedDrop
-    ): void {
-        $foreignKey = $this->createMock(ForeignKeyInterface::class);
-        $foreignKey->method('getColumns')->willReturn($columns);
-        $foreignKey->method('getReferredColumns')->willReturn([]);
-        $foreignKey->method('getOnDelete')->willReturn(null);
-        $foreignKey->method('getOnUpdate')->willReturn(null);
-        $foreignKey->method('getName')->willReturn($name);
+        $foreignKey = new ForeignKey();
+        $foreignKey->setColumns($columns);
+        $foreignKey->setName($name);
+        $foreignKey->setTableName('test');
 
         $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
         $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));

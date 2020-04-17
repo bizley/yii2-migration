@@ -443,7 +443,12 @@ final class StructureBuilderTest extends TestCase
         $changeAddColumn->method('getValue')->willReturn($column);
 
         $this->change->method('getMethod')->willReturn('addCommentOnColumn');
-        $this->change->method('getValue')->willReturn(['name' => 'column', 'comment' => 'comment-to-add']);
+        $this->change->method('getValue')->willReturn(
+            [
+                'column' => 'column',
+                'comment' => 'comment-to-add'
+            ]
+        );
 
         $structure = $this->builder->build([$changeAddColumn, $this->change], null, null);
 

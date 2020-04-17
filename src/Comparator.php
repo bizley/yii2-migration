@@ -589,10 +589,10 @@ final class Comparator implements ComparatorInterface
         }
 
         [$oldPrimaryKey, $oldAutoincrement, $oldAppend] = $this->stripAppend($oldColumn->getAppend());
-        if ($oldPrimaryKey === false && $newColumn->isPrimaryKey()) {
+        if ($oldPrimaryKey === false && $oldColumn->isPrimaryKey()) {
             $oldPrimaryKey = true;
         }
-        if ($oldAutoincrement === false && $newColumn->isAutoIncrement()) {
+        if ($oldAutoincrement === false && $oldColumn->isAutoIncrement()) {
             $oldAutoincrement = true;
         }
 
@@ -634,6 +634,9 @@ final class Comparator implements ComparatorInterface
 
             /** @var string $append */
             $append = str_replace(' ', '', $append);
+            if ($append === '') {
+                $append = null;
+            }
         }
 
         return [$primaryKey, $autoIncrement, $append];

@@ -24,13 +24,31 @@ final class PrimaryKeyRendererTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
-    public function shouldThrowExceptionForSQLiteAndNonGeneralSchema(): void
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderUp(): void
     {
         $this->expectException(NotSupportedException::class);
 
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(true);
         (new PrimaryKeyRenderer(false))->renderUp(
+            $primaryKey,
+            'table',
+            0,
+            Schema::SQLITE
+        );
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderDown(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        (new PrimaryKeyRenderer(false))->renderDown(
             $primaryKey,
             'table',
             0,
