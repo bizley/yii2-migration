@@ -15,7 +15,6 @@ use yii\helpers\Json;
 
 use function count;
 use function in_array;
-use function is_string;
 
 final class Comparator implements ComparatorInterface
 {
