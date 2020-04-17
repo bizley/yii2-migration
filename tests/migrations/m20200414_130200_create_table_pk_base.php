@@ -11,7 +11,14 @@ class m20200414_130200_create_table_pk_base extends Migration
             $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->createTable('no_pk', ['col' => $this->integer()], $tableOptions);
+        $this->createTable(
+            'no_pk',
+            [
+                'col' => $this->integer(),
+                'col2' => $this->integer()
+            ],
+            $tableOptions
+        );
 
         $this->createTable('string_pk', ['col' => $this->string()], $tableOptions);
         $this->addPrimaryKey('string_pk-primary-key', 'string_pk', 'col');

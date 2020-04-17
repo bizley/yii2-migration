@@ -24,7 +24,13 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     public function shouldShowUpdateTableByAddingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropTable('no_pk')->execute();
-        $this->getDb()->createCommand()->createTable('no_pk', ['col' => $this->primaryKey()])->execute();
+        $this->getDb()->createCommand()->createTable(
+            'no_pk',
+            [
+                'col' => $this->primaryKey(),
+                'col2' => $this->integer(),
+            ]
+        )->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         $this->assertStringContainsString(
@@ -58,6 +64,36 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
    - different primary key definition
    - (!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingCompositePrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->dropTable('no_pk')->execute();
+        $this->getDb()->createCommand()->createTable(
+            'no_pk',
+            [
+                'col' => $this->integer(),
+                'col2' => $this->integer(),
+                'PRIMARY KEY(col, col2)'
+            ]
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
+   - different primary key definition
+   - (!) ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually
 
  No files generated.',
             MigrationControllerStub::$stdout

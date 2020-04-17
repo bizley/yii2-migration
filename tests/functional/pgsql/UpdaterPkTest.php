@@ -64,4 +64,35 @@ class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingCompositePrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col2'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->addPrimaryKey(\'primary-new\', \'{{%no_pk}}\', [\'col\', \'col2\']);
+
+        $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->integer()->notNull());
+        $this->alterColumn(\'{{%no_pk}}\', \'col2\', $this->integer()->notNull());
+    }
+
+    public function down()
+    {
+        $this->dropPrimaryKey(\'primary-new\', \'{{%no_pk}}\');
+
+        $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->integer());
+        $this->alterColumn(\'{{%no_pk}}\', \'col2\', $this->integer());
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }

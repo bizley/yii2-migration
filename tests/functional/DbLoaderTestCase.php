@@ -147,7 +147,13 @@ abstract class DbLoaderTestCase extends DbTestCase
         $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
 
         // Tables are added like this and not through the migration to skip class' autoloading.
-        $this->createTable('no_pk', ['col' => $this->integer()]);
+        $this->createTable(
+            'no_pk',
+            [
+                'col' => $this->integer(),
+                'col2' => $this->integer()
+            ]
+        );
 
         $columns = ['col' => $this->string()];
         if (static::$schema === 'sqlite') {

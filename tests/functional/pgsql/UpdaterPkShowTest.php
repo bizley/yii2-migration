@@ -59,4 +59,27 @@ class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         );
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAddingCompositePrimaryKey(): void
+    {
+        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col2'])->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
+   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col2\' column property: not null (DB: TRUE != MIG: NULL)
+   - different primary key definition
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
