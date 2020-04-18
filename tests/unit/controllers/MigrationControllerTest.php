@@ -1496,4 +1496,26 @@ ERROR!
 
         $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
+
+    /**
+     * @test
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function shouldCreateDirectoryForPathByNamespace(): void
+    {
+        if (is_dir(__DIR__ . '/../../runtime/test')) {
+            rmdir(__DIR__ . '/../../runtime/test');
+        }
+
+        $controller = new MigrationController('id', $this->createMock(Module::class));
+        $controller->db = $this->db;
+        $controller->migrationNamespace = 'bizley\\tests\\runtime\\test';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'create';
+        $controller->beforeAction($action);
+
+        $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
+    }
 }
