@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: composer update $DEFAULT_COMPOSER_FLAGS
       - name: PHPStan tests
-        run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php src
+        run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php --no-ansi src
 
   PHPUnit:
     name: PHP ${{ matrix.php }}
