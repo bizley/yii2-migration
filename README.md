@@ -1,4 +1,6 @@
-# yii2-migration
+![Yii 2 Migration](yii2-migration.png)
+
+# Yii 2 Migration
 
 ![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)](https://packagist.org/packages/bizley/migration)
