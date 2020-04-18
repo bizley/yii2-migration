@@ -237,6 +237,33 @@ class ComparatorNonSqliteTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
+    public function shouldNotAlterColumnForIsUnique(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setUnique(false);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setUnique(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+        $index = $this->getIndex('idx');
+        $index->setUnique(true);
+        $index->setColumns(['col']);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->oldStructure->method('getIndex')->willReturn($index);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->newStructure->method('getIndex')->willReturn($index);
+
+        $this->compare();
+
+        $this->assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldAlterColumnForIsUnsigned(): void
     {
         $columnNew = $this->getColumn('col');
@@ -391,12 +418,72 @@ class ComparatorNonSqliteTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
+    public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppend(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAutoIncrement(true);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAppend('AUTOINCREMENT');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        $this->assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppend(): void
+    {
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAutoIncrement(true);
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAppend('AUTOINCREMENT');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        $this->assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
         $columnNew->setAppend('PRIMARY KEY');
         $columnOld = $this->getColumn('col');
         $columnOld->setPrimaryKey(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        $this->assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppend(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setPrimaryKey(true);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAppend('PRIMARY KEY');
         $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
         $this->newStructure->method('getColumn')->willReturn($columnNew);
         $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
@@ -826,6 +913,29 @@ class ComparatorNonSqliteTest extends TestCase
             $this->blueprint->getDescriptions()
         );
         $this->assertSame(['idx'], array_keys($this->blueprint->getAddedIndexes()));
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAddIndexWhenItComesFromForeignKey(): void
+    {
+        $index = $this->getIndex('idx');
+        $index->setColumns(['a']);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $foreignKey = $this->getForeignKey('fk');
+        $foreignKey->setColumns(['a']);
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKey]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKey);
+        $this->oldStructure->method('getIndexes')->willReturn([]);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKey]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKey);
+
+        $this->compare();
+
+        $this->assertFalse($this->blueprint->isPending());
+        $this->assertSame([], $this->blueprint->getDescriptions());
     }
 
     /**

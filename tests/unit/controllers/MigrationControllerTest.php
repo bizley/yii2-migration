@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\controllers;
 
+use bizley\migration\controllers\MigrationController;
 use bizley\migration\table\Blueprint;
 use bizley\tests\stubs\ArrangerStub;
 use bizley\tests\stubs\GeneratorStub;
@@ -28,6 +29,8 @@ use yii\db\Schema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 
+use function is_dir;
+use function rmdir;
 use function ucfirst;
 
 final class MigrationControllerTest extends TestCase
@@ -49,7 +52,7 @@ final class MigrationControllerTest extends TestCase
         $this->view = $this->createMock(View::class);
         $this->view->method('renderFile')->willReturn('rendered_file');
         $this->controller->view = $this->view;
-        Yii::setAlias('@bizley/tests', 'tests');
+        Yii::setAlias('@bizley/tests', __DIR__ . '/../..');
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$confirmControl = true;
         UpdaterStub::$throwForPrepare = false;
@@ -1470,5 +1473,27 @@ ERROR!
 ',
             MigrationControllerStub::$stdout
         );
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function shouldCreateDirectoryForPath(): void
+    {
+        if (is_dir(__DIR__ . '/../../runtime/test')) {
+            rmdir(__DIR__ . '/../../runtime/test');
+        }
+
+        $controller = new MigrationController('id', $this->createMock(Module::class));
+        $controller->db = $this->db;
+        $controller->migrationPath = '@bizley/tests/runtime/test';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'create';
+        $controller->beforeAction($action);
+
+        $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
 }
