@@ -5,9 +5,8 @@
 ![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)](https://packagist.org/packages/bizley/migration)
 ![License](https://img.shields.io/packagist/l/bizley/migration.svg)
-[![Build Status](https://travis-ci.org/bizley/yii2-migration.svg?branch=master)](https://travis-ci.org/bizley/yii2-migration)
 
-## Migration creator and updater
+## Migration Creator And Updater
 
 Generates migration file based on the existing database table and previous migrations.
 
