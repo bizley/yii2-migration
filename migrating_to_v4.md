@@ -1,6 +1,6 @@
 # Migrating to version 4.0
 
-This library has been almost completely rewritten and some of the old options might not work anymore. Here is the list of
+This library has been almost completely rewritten, and some old options might not work anymore. Here is the list of
 most important changes from end-user perspective. All class references should be prefixed with `\bizley\migration\`.
 
 Option changes

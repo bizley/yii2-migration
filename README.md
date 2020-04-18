@@ -27,7 +27,7 @@ Or add the package to your `composer.json` file:
 }
 ```
 
-and run `composer update`. 
+then run `composer update`. 
 
 ## Configuration
 
@@ -71,7 +71,7 @@ The following console command are available (assuming you named the controller `
   php yii migration/update table_name
   ```
 
-To generate migrations for all the tables in database at once (except the excluded ones) use asterisk (*):
+To generate migrations for all the tables in the database at once (except the excluded ones) use asterisk (*):
 
 ```
 php yii migration/create *
@@ -84,7 +84,7 @@ You can generate multiple migrations for many tables at once by separating the n
 php yii migration/create table_name1,table_name2,table_name3
 ```
 
-You can provide asterisk as a part of table name to use all tables matching the pattern:
+You can provide an asterisk as a part of table name to use all tables matching the pattern:
 
 ```
 php yii migration/update prefix_*
@@ -133,16 +133,16 @@ You can easily generate updating migration for database table by comparing its c
 > generalSchema=false: `$this->string(45)`    
 > generalSchema=true: `$this->string(45)`
 
-[2] Here you can place migrations containing actions that can not be covered by extractor i.e. when there is a migration 
+[2] Here you can place migrations containing actions that cannot be covered by the extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
 
 ## Renaming
 
-When you rename table or column remember to generate appropriate migration manually otherwise this extension will 
-not generate updating migration (in case of the table) or will generate migration with command to drop original column 
+When you rename a table or a column remember to generate appropriate migration manually otherwise this extension will 
+not generate updating migration (in case of the table) or will generate migration with command to drop the original column 
 and add renamed one (in case of the column). This is happening because yii2-migration can only compare two states of 
-the table without the knowledge of how one state turned into another. And while the very result of migration renaming 
+the table without the knowledge of how one state turned into another. While the very result of migration renaming 
 the column and the one dropping it and adding another is the same in terms of structure, the latter **makes you lose data**.
 
 Once you add renaming migration to the history it's being tracked by the extension.
@@ -163,7 +163,7 @@ This extension should work with all database types supported in Yii 2 core:
 - SQLite (2/3)
 
 Only history of migrations extending `yii\db\Migration` class can be properly scanned and only changes applied with
-default `yii\db\Migration` methods can be recognised (with the exception of `execute()`, `addCommentOnTable()` and 
+default `yii\db\Migration` methods can be recognised (except for `execute()`, `addCommentOnTable()`, and 
 `dropCommentFromTable()` methods). Changes made to table's data (like `insert()`, `upsert()`, `delete()`, `truncate()`, 
 etc.) are not tracked.
 
@@ -172,8 +172,8 @@ in columns definition in form of an instance of `yii\db\ColumnSchemaBuilder` (li
 
 ## Tests
 
-Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can override it by 
-creating `config.local.php` file there).  
+Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can 
+override it by creating `config.local.php` file there).  
 Docker Compose file for setting up the databases is stored in `tests/docker`.
 
 ## Previous versions
