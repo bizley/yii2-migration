@@ -4,98 +4,110 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use yii\base\Component;
-use yii\base\InvalidConfigException;
-use yii\db\Connection;
+use bizley\migration\table\ForeignKeyInterface;
+use yii\base\NotSupportedException;
+
 use function array_diff;
 use function array_key_exists;
 use function array_merge_recursive;
 use function array_unique;
+use function array_values;
 use function count;
 
-/**
- * Class Arranger
- * @package bizley\migration
- * @since 3.4.0
- */
-class Arranger extends Component
+final class Arranger implements ArrangerInterface
 {
-    /**
-     * @var Connection DB connection.
-     */
-    public $db;
+    /** @var TableMapperInterface */
+    private $mapper;
 
-    /**
-     * @var array DB tables to be arranged.
-     */
-    public $inputTables = [];
-
-    /**
-     * Checks if DB connection is passed.
-     * @throws InvalidConfigException
-     */
-    public function init(): void
+    public function __construct(TableMapperInterface $mapper)
     {
-        parent::init();
-
-        if (!($this->db instanceof Connection)) {
-            throw new InvalidConfigException("Parameter 'db' must be an instance of yii\\db\\Connection!");
-        }
+        $this->mapper = $mapper;
     }
 
+    /** @var array<string, array<string>> */
+    private $dependencies = [];
+
     /**
-     * @return array
-     * @throws InvalidConfigException
+     * Arranges the tables in proper order based on the presence of the foreign keys.
+     * @param array<string> $inputTables
+     * @throws NotSupportedException
      */
-    public function arrangeNewMigrations(): array
+    public function arrangeTables(array $inputTables): void
     {
-        foreach ($this->inputTables as $inputTable) {
+        foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
-
-            $generator = new Generator([
-                'db' => $this->db,
-                'tableName' => $inputTable,
-            ]);
-
-            $tableStructure = $generator->getTable();
-            foreach ($tableStructure->foreignKeys as $foreignKey) {
-                $this->addDependency($inputTable, $foreignKey->refTable);
+            $foreignKeys = $this->mapper->getStructureOf($inputTable)->getForeignKeys();
+            /** @var ForeignKeyInterface $foreignKey */
+            foreach ($foreignKeys as $foreignKey) {
+                $this->addDependency($inputTable, $foreignKey->getReferredTable());
             }
         }
 
-        return $this->arrangeTables($this->_dependency);
+        $this->arrangeDependencies($this->dependencies);
     }
 
-    private $_dependency = [];
-
     /**
+     * Adds dependency of the table.
      * @param string $table
-     * @param string|null $dependensOnTable
+     * @param string|null $dependsOnTable
      */
-    protected function addDependency(string $table, ?string $dependensOnTable = null): void
+    private function addDependency(string $table, string $dependsOnTable = null): void
     {
-        if (!array_key_exists($table, $this->_dependency)) {
-            $this->_dependency[$table] = [];
+        if (!array_key_exists($table, $this->dependencies)) {
+            $this->dependencies[$table] = [];
         }
 
-        if ($dependensOnTable) {
-            $this->_dependency[$table][] = $dependensOnTable;
+        if ($dependsOnTable) {
+            $this->dependencies[$table][] = $dependsOnTable;
         }
     }
 
+    /** @var array<string> */
+    private $tablesInOrder = [];
+
     /**
-     * @param array $input
-     * @return array
+     * Returns the tables in proper order.
+     * @return array<string>
      */
-    public function arrangeTables($input): array
+    public function getTablesInOrder(): array
     {
-        $output = [];
+        return $this->tablesInOrder;
+    }
+
+    /** @var array<string, array<string>> */
+    private $referencesToPostpone = [];
+
+    /**
+     * Returns the references that needs to be postponed. Foreign keys referring the tables in references must be
+     * added in migration after the migration creating all the tables.
+     * @return array<string>
+     */
+    public function getReferencesToPostpone(): array
+    {
+        $flattenedReferencesToPostpone = [];
+        $referencesToPostponeValues = array_values($this->referencesToPostpone);
+        /** @var array<string> $referencesToPostponeValue */
+        foreach ($referencesToPostponeValues as $referencesToPostponeValue) {
+            foreach ($referencesToPostponeValue as $reference) {
+                $flattenedReferencesToPostpone[] = $reference;
+            }
+        }
+
+        return array_unique($flattenedReferencesToPostpone);
+    }
+
+    /**
+     * Arranges the dependencies recursively.
+     * @param array<string, array<string>> $input
+     */
+    private function arrangeDependencies(array $input): void
+    {
+        $order = [];
         $checkList = [];
-        $postLink = [];
 
         $inputCount = count($input);
 
-        while ($inputCount > count($output)) {
+        while ($inputCount > count($order)) {
             $done = false;
             $lastCheckedName = $lastCheckedDependency = null;
 
@@ -117,32 +129,30 @@ class Arranger extends Component
 
                 if ($resolved) {
                     $checkList[$name] = true;
-                    $output[] = $name;
+                    $order[] = $name;
 
                     $done = true;
                 }
             }
 
-            if (!$done) {
+            if ($done === false) {
                 $input[$lastCheckedName] = array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
 
-                $redo = $this->arrangeTables($input);
-                $output = $redo['order'];
+                $this->arrangeDependencies($input);
+                $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
                     [$lastCheckedName => [$lastCheckedDependency]],
-                    $redo['suppressForeignKeys']
+                    $this->referencesToPostpone
                 );
-                $filteredLink = [];
+                $filteredDependencies = [];
+                /** @var string $name */
                 foreach ($postLinkMerged as $name => $dependencies) {
-                    $filteredLink[$name] = array_unique($dependencies);
+                    $filteredDependencies[$name] = array_unique($dependencies);
                 }
-                $postLink = $filteredLink;
+                $this->referencesToPostpone = $filteredDependencies;
             }
         }
 
-        return [
-            'order' => $output,
-            'suppressForeignKeys' => $postLink,
-        ];
+        $this->tablesInOrder = $order;
     }
 }

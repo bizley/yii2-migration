@@ -1,5 +1,4 @@
 .idea
 vendor
-docker
-runtime
 composer.lock
+.phpunit.result.cache

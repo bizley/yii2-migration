@@ -2,17 +2,16 @@
 
 namespace yii\db;
 
-use bizley\migration\table\TableChange;
-use bizley\migration\table\TableStructure;
+use bizley\migration\dummy\MigrationChangesInterface;
+use bizley\migration\table\StructureChange;
+use bizley\migration\table\StructureChangeInterface;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
-use yii\di\Instance;
+
 use function array_key_exists;
-use function get_class;
 use function is_array;
 use function preg_match;
 use function preg_split;
@@ -24,39 +23,28 @@ use function trim;
  * Dummy Migration class.
  * This class is used to gather migration details instead of applying them.
  */
-class Migration extends Component implements MigrationInterface
+class Migration extends Component implements MigrationChangesInterface
 {
     use SchemaBuilderTrait;
 
     public $maxSqlOutputLength;
     public $compact = false;
 
-    /**
-     * @var array List of all migration actions in form of 'table' => [array of changes]
-     */
-    public $changes = [];
+    /** @var array<StructureChangeInterface> List of all migration actions */
+    private $changes = [];
 
-    /**
-     * @var Connection|array|string
-     */
-    public $db = 'db';
+    /** @var Connection|array|string */
+    public $db;
 
-    /**
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     */
+    /** @throws NotSupportedException */
     public function init()
     {
         parent::init();
 
-        $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDb()
     {
         return $this->db;
@@ -85,11 +73,12 @@ class Migration extends Component implements MigrationInterface
     }
 
     /**
-     * Returns extracted columns data.
-     * @param array $columns
-     * @return array
+     * Extracts columns data.
+     * @param array<string, mixed> $columns
+     * @return array<string, array<string, string|int|null>>
+     * @throws ReflectionException
      */
-    protected function extractColumns($columns)
+    private function extractColumns(array $columns): array
     {
         $schema = [];
 
@@ -103,11 +92,11 @@ class Migration extends Component implements MigrationInterface
     /**
      * Updates column properties based on schema type map.
      * @param string $type
-     * @param array $keyToDb
-     * @param array $dbToKey
+     * @param array<string, string> $keyToDb
+     * @param array<string, string> $dbToKey
      * @return array
      */
-    public function fillTypeMapProperties($type, $keyToDb, $dbToKey)
+    private function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
     {
         $schema = [];
 
@@ -163,15 +152,14 @@ class Migration extends Component implements MigrationInterface
 
     /**
      * Returns extracted column data.
-     * Since 3.3.0 InvalidArgumentException is thrown for non-ColumnSchemaBuilder $columnData.
-     * @param ColumnSchemaBuilder $columnData
-     * @return array
+     * @param mixed $columnData
+     * @return array<string, string|int|null>
      * @throws ReflectionException
      * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
      */
-    protected function extractColumn($columnData)
+    private function extractColumn($columnData): array
     {
-        if (!$columnData instanceof ColumnSchemaBuilder) {
+        if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
                 'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
             );
@@ -183,26 +171,28 @@ class Migration extends Component implements MigrationInterface
 
         $schema = $this->fillTypeMapProperties(
             $reflectionProperty->getValue($columnData),
-            $this->db->schema->createQueryBuilder()->typeMap,
+            $this->db->schema->getQueryBuilder()->typeMap,
             $this->db->schema->typeMap
         );
 
-        foreach ([
-            'length',
-            'isNotNull',
-            'isUnique',
-            'check',
-            'default',
-            'append',
-            'isUnsigned',
-            'after',
-            'isFirst'
-         ] as $property) {
+        foreach (
+            [
+                'length',
+                'isNotNull',
+                'isUnique',
+                'check',
+                'default',
+                'append',
+                'isUnsigned',
+                'after',
+                'isFirst'
+            ] as $property
+        ) {
             $reflectionProperty = $reflectionClass->getProperty($property);
             $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
-            if (($value !== null && $value !== []) || !isset($schema[$property])) {
+            if (($value !== null && $value !== []) || array_key_exists($property, $schema) === false) {
                 $schema[$property] = $value;
             }
         }
@@ -212,250 +202,229 @@ class Migration extends Component implements MigrationInterface
         return $schema;
     }
 
-    /**
-     * Returns raw table name.
-     * @param string $table
-     * @return string
-     */
-    public function getRawTableName($table)
+    private function getRawTableName(string $table): string
     {
         return $this->db->schema->getRawTableName($table);
     }
 
     /**
-     * Adds method of structure change and its data
+     * Adds method of structure change and its data.
      * @param string $table
      * @param string $method
      * @param mixed $data
      */
-    public function addChange($table, $method, $data)
+    private function addChange(string $table, string $method, $data): void
     {
         $table = $this->getRawTableName($table);
 
-        if (!isset($this->changes[$table])) {
+        if (array_key_exists($table, $this->changes) === false) {
             $this->changes[$table] = [];
         }
 
-        $this->changes[$table][] = new TableChange([
-            'schema' => TableStructure::identifySchema(get_class($this->db->schema)),
-            'table' => $table,
-            'method' => $method,
-            'data' => $data,
-            'db' => $this->db,
-        ]);
+        $change = new StructureChange();
+        $change->setData($data);
+        $change->setMethod($method);
+        $change->setTable($table);
+
+        $this->changes[$table][] = $change;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @return array<string, array<StructureChangeInterface>> */
+    public function getChanges(): array
+    {
+        return $this->changes;
+    }
+
     public function execute($sql, $params = [])
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function insert($table, $columns)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function batchInsert($table, $columns, $rows)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function update($table, $columns, $condition = '', $params = [])
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function delete($table, $condition = '', $params = [])
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
+    {
+        // not supported
+    }
+
+    /** @throws ReflectionException */
     public function createTable($table, $columns, $options = null)
     {
         $this->addChange($table, 'createTable', $this->extractColumns($columns));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renameTable($table, $newName)
     {
         $this->addChange($table, 'renameTable', $this->getRawTableName($newName));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropTable($table)
     {
         $this->addChange($table, 'dropTable', null);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function truncateTable($table)
     {
         // not supported
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @throws ReflectionException */
     public function addColumn($table, $column, $type)
     {
-        $this->addChange($table, 'addColumn', [$column, $this->extractColumn($type)]);
+        $this->addChange(
+            $table,
+            'addColumn',
+            [
+                'name' => $column,
+                'schema' => $this->extractColumn($type)
+            ]
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropColumn($table, $column)
     {
         $this->addChange($table, 'dropColumn', $column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renameColumn($table, $name, $newName)
     {
-        $this->addChange($table, 'renameColumn', [$name, $newName]);
+        $this->addChange(
+            $table,
+            'renameColumn',
+            [
+                'old' => $name,
+                'new' => $newName
+            ]
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @throws ReflectionException */
     public function alterColumn($table, $column, $type)
     {
-        $this->addChange($table, 'alterColumn', [$column, $this->extractColumn($type)]);
+        $this->addChange(
+            $table,
+            'alterColumn',
+            [
+                'column' => $column,
+                'type' => $this->extractColumn($type)
+            ]
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addPrimaryKey($name, $table, $columns)
     {
         $this->addChange(
             $table,
             'addPrimaryKey',
             [
-                $name,
-                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
+                'name' => $name,
+                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
             ]
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropPrimaryKey($name, $table)
     {
         $this->addChange($table, 'dropPrimaryKey', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
     {
-        $this->addChange($table, 'addForeignKey', [
-            $name,
-            is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
-            $refTable,
-            is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
-            $delete,
-            $update
-        ]);
+        $columns = is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns);
+        $this->addChange(
+            $table,
+            'addForeignKey',
+            [
+                'name' => $name,
+                'columns' => $columns,
+                'referredTable' => $refTable,
+                'referredColumns' => is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
+                'onDelete' => $delete,
+                'onUpdate' => $update,
+                'tableName' => $this->getRawTableName($table)
+            ]
+        );
+        if ($this->db->driverName === 'mysql') {
+            // MySQL automatically adds index for foreign key
+            $this->addChange(
+                $table,
+                'createIndex',
+                [
+                    'name' => $name,
+                    'columns' => $columns,
+                    'unique' => false
+                ]
+            );
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropForeignKey($name, $table)
     {
         $this->addChange($table, 'dropForeignKey', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createIndex($name, $table, $columns, $unique = false)
     {
         $this->addChange(
             $table,
             'createIndex',
             [
-                $name,
-                is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
-                $unique
+                'name' => $name,
+                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+                'unique' => $unique
             ]
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropIndex($name, $table)
     {
         $this->addChange($table, 'dropIndex', $name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addCommentOnColumn($table, $column, $comment)
     {
-        $this->addChange($table, 'addCommentOnColumn', [$column, $comment]);
+        $this->addChange(
+            $table,
+            'addCommentOnColumn',
+            [
+                'column' => $column,
+                'comment' => $comment
+            ]
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addCommentOnTable($table, $comment)
     {
         // not supported
+        // Yii is not fetching table's comment when gathering table's info so we can not compare new with old one
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropCommentFromColumn($table, $column)
     {
         $this->addChange($table, 'dropCommentFromColumn', $column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropCommentFromTable($table)
     {
         // not supported
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
-    {
-        // not supported
+        // Yii is not fetching table's comment when gathering table's info so we can not compare new with old one
     }
 }
