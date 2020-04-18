@@ -119,7 +119,8 @@ $this->addForeignKey(
     null,
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#2' => [
@@ -138,7 +139,8 @@ RENDERED,
         null,
         null
     );
-RENDERED,
+RENDERED
+                ,
                 '    $this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#3' => [
@@ -157,7 +159,8 @@ $this->addForeignKey(
     'abc',
     'eee'
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk\', \'test\');'
             ],
             '#4' => [
@@ -176,7 +179,8 @@ $this->addForeignKey(
     'a',
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk\', \'test\');'
             ],
         ];
@@ -230,7 +234,8 @@ $this->addForeignKey(
     null,
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'aaa\', \'test\');'
             ],
             'numeric no columns' => [
@@ -246,7 +251,8 @@ $this->addForeignKey(
     null,
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null no columns' => [
@@ -262,7 +268,8 @@ $this->addForeignKey(
     null,
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk-test-\', \'test\');'
             ],
             'null columns' => [
@@ -278,7 +285,8 @@ $this->addForeignKey(
     null,
     null
 );
-RENDERED,
+RENDERED
+                ,
                 '$this->dropForeignKey(\'fk-test-a-b\', \'test\');'
             ],
         ];
