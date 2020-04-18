@@ -12,6 +12,7 @@ use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\db\Schema as YiiSchema;
 
+/** @group schema */
 final class SchemaTest extends TestCase
 {
     public function providerForSchema(): array

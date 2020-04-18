@@ -20,6 +20,7 @@ use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\QueryBuilder;
 use yii\db\TableSchema;
 
+/** @group tablemapper */
 final class TableMapperTest extends TestCase
 {
     /** @var MockObject|Connection */

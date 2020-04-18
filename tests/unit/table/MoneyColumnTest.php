@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\MoneyColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group moneycolumn
+ */
 final class MoneyColumnTest extends TestCase
 {
     /** @var MoneyColumn */

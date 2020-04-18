@@ -36,6 +36,7 @@ use function rmdir;
 use function ucfirst;
 use function unlink;
 
+/** @group controller */
 final class MigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */

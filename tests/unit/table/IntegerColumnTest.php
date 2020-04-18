@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\IntegerColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group integercolumn
+ */
 final class IntegerColumnTest extends TestCase
 {
     /** @var IntegerColumn */

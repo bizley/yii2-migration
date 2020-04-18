@@ -18,6 +18,7 @@ use yii\db\TableSchema;
 
 use function time;
 
+/** @group historymanager */
 final class HistoryManagerTest extends TestCase
 {
     /** @var MockObject|Connection */

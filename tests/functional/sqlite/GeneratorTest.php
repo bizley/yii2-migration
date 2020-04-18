@@ -11,7 +11,8 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
-class GeneratorTest extends \bizley\tests\functional\GeneratorTest
+/** @group sqlite */
+final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
     /** @var string */
     public static $schema = 'sqlite';

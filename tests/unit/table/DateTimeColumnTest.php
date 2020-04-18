@@ -9,6 +9,10 @@ use bizley\migration\table\DateTimeColumn;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
+/**
+ * @group table
+ * @group datetimecolumn
+ */
 final class DateTimeColumnTest extends TestCase
 {
     /** @var DateTimeColumn */

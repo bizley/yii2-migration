@@ -9,6 +9,10 @@ use bizley\migration\table\TimestampColumn;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
+/**
+ * @group table
+ * @group timestampcolumn
+ */
 final class TimestampColumnTest extends TestCase
 {
     /** @var TimestampColumn */

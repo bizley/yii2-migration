@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\TimeColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group timecolumn
+ */
 final class TimeColumnTest extends TestCase
 {
     /** @var TimeColumn */

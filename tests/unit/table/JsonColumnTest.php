@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\JsonColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group jsoncolumn
+ */
 final class JsonColumnTest extends TestCase
 {
     /** @var JsonColumn */

@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\BigIntegerColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group bigintegercolumn
+ */
 final class BigIntegerColumnTest extends TestCase
 {
     /** @var BigIntegerColumn */

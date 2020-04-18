@@ -13,7 +13,8 @@ use yii\console\ExitCode;
 use yii\db\Exception;
 use yii\helpers\Json;
 
-class GeneratorTest extends \bizley\tests\functional\GeneratorTest
+/** @group pgsql */
+final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
     /** @var string */
     public static $schema = 'pgsql';

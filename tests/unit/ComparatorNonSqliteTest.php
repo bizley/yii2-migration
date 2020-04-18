@@ -17,6 +17,7 @@ use yii\base\NotSupportedException;
 
 use function array_keys;
 
+/** @group comparator */
 class ComparatorNonSqliteTest extends TestCase
 {
     /** @var StructureInterface|MockObject */

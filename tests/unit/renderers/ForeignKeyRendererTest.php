@@ -11,6 +11,10 @@ use bizley\migration\table\ForeignKeyInterface;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
+/**
+ * @group renderers
+ * @group foreignkeyrenderer
+ */
 final class ForeignKeyRendererTest extends TestCase
 {
     /** @var ForeignKeyRenderer */

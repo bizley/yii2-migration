@@ -10,7 +10,8 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
+/** @group sqlite */
+final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
 {
     /** @var string */
     public static $schema = 'sqlite';

@@ -16,6 +16,10 @@ use bizley\migration\table\StructureInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group renderers
+ * @group structurerenderer
+ */
 final class StructureRendererTest extends TestCase
 {
     /** @var StructureRenderer */

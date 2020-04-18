@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\FloatColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group floatcolumn
+ */
 final class FloatColumnTest extends TestCase
 {
     /** @var FloatColumn */

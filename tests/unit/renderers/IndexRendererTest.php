@@ -8,6 +8,10 @@ use bizley\migration\renderers\IndexRenderer;
 use bizley\migration\table\IndexInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group renderers
+ * @group indexrenderer
+ */
 final class IndexRendererTest extends TestCase
 {
     /** @var IndexRenderer */

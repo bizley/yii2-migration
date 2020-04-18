@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\DecimalColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group decimalcolumn
+ */
 final class DecimalColumnTest extends TestCase
 {
     /** @var DecimalColumn */

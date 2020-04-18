@@ -14,6 +14,7 @@ use yii\base\NotSupportedException;
 
 use function array_keys;
 
+/** @group arranger */
 final class ArrangerTest extends TestCase
 {
     public function providerForArrange(): array

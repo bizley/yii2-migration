@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\db\Connection;
 
+/** @group extractor */
 final class ExtractorTest extends TestCase
 {
     /** @var MockObject|Connection */

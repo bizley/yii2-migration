@@ -10,6 +10,10 @@ use bizley\migration\table\PrimaryKeyInterface;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
+/**
+ * @group renderers
+ * @group primarykeyrenderer
+ */
 final class PrimaryKeyRendererTest extends TestCase
 {
     /** @var PrimaryKeyRenderer */

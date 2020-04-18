@@ -7,6 +7,10 @@ namespace bizley\tests\unit\table;
 use bizley\migration\table\PrimaryKey;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group primarykey
+ */
 final class PrimaryKeyTest extends TestCase
 {
     /** @var PrimaryKey */

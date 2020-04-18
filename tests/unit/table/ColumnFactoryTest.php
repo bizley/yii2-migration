@@ -31,6 +31,10 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use yii\db\Schema;
 
+/**
+ * @group table
+ * @group columnfactory
+ */
 final class ColumnFactoryTest extends TestCase
 {
     public function providerForTypes(): array

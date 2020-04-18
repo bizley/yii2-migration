@@ -12,6 +12,7 @@ use yii\base\Module;
 use yii\base\View;
 use yii\db\Connection;
 
+/** @group controller */
 final class BaseMigrationControllerTest extends TestCase
 {
     /** @var BaseMigrationController */

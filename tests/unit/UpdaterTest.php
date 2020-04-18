@@ -22,6 +22,7 @@ use yii\db\TableSchema;
 
 use function is_string;
 
+/** @group updater */
 final class UpdaterTest extends TestCase
 {
     /** @var TableMapperInterface|MockObject */

@@ -14,7 +14,8 @@ use yii\db\Exception;
 
 use function preg_match_all;
 
-class GeneratorTest extends \bizley\tests\functional\GeneratorTest
+/** @group mysql */
+final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 {
     /** @var string */
     public static $schema = 'mysql';

@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\BooleanColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group booleancolumn
+ */
 final class BooleanColumnTest extends TestCase
 {
     /** @var BooleanColumn */

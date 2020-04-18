@@ -10,6 +10,10 @@ use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\PrimaryKey;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group genericcolumn
+ */
 final class GenericColumnTest extends TestCase
 {
     /** @var Column */

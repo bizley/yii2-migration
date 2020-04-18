@@ -17,6 +17,10 @@ use bizley\migration\table\PrimaryKeyInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group renderers
+ * @group blueprintrenderer
+ */
 final class BlueprintRendererTest extends TestCase
 {
     /** @var BlueprintRenderer */

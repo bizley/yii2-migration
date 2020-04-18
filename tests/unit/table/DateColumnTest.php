@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\DateColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group datecolumn
+ */
 final class DateColumnTest extends TestCase
 {
     /** @var DateColumn */

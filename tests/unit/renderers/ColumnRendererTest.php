@@ -12,6 +12,10 @@ use bizley\migration\table\PrimaryKeyVariantColumnInterface;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
+/**
+ * @group renderers
+ * @group columnrenderer
+ */
 final class ColumnRendererTest extends TestCase
 {
     protected function getRenderer(bool $generalSchema = true): ColumnRenderer

@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\UnsignedPrimaryKeyColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group primarykeyunsignedcolumn
+ */
 final class UnsignedPrimaryKeyColumnTest extends TestCase
 {
     /** @var UnsignedPrimaryKeyColumn */

@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\StringColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group stringcolumn
+ */
 final class StringColumnTest extends TestCase
 {
     /** @var StringColumn */

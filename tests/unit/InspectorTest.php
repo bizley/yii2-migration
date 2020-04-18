@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 
+/** @group inspector */
 final class InspectorTest extends TestCase
 {
     /** @var HistoryManagerInterface|MockObject */

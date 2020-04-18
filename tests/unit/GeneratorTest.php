@@ -19,6 +19,7 @@ use yii\db\TableSchema;
 
 use function is_string;
 
+/** @group generator */
 final class GeneratorTest extends TestCase
 {
     /** @var TableMapperInterface|MockObject */

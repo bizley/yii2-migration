@@ -10,7 +10,8 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
+/** @group mysql */
+final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
 {
     /** @var string */
     public static $schema = 'mysql';

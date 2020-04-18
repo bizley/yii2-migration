@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\BigPrimaryKeyColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group bigprimarykeycolumn
+ */
 final class BigPrimaryKeyColumnTest extends TestCase
 {
     /** @var BigPrimaryKeyColumn */

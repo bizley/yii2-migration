@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\DoubleColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group doublecolumn
+ */
 final class DoubleColumnTest extends TestCase
 {
     /** @var DoubleColumn */

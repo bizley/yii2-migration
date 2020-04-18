@@ -8,6 +8,10 @@ use bizley\migration\Schema;
 use bizley\migration\table\BinaryColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group table
+ * @group binarycolumn
+ */
 final class BinaryColumnTest extends TestCase
 {
     /** @var BinaryColumn */
