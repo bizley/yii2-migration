@@ -171,6 +171,7 @@ class MigrationController extends BaseMigrationController
                         $this->workingNamespace = $namespace;
                     }
                 }
+                unset($namespace);
             } elseif ($this->migrationPath !== null) {
                 if (is_array($this->migrationPath) === false) {
                     $this->migrationPath = [$this->migrationPath];
@@ -558,12 +559,16 @@ class MigrationController extends BaseMigrationController
      * Stores the content in a file under the given path.
      * @param string $path
      * @param mixed $content
-     * @throws RuntimeException
+     * @throws Throwable
      */
     public function storeFile(string $path, $content): void
     {
-        if (file_put_contents($path, $content) === false) {
-            throw new RuntimeException('Migration file can not be saved!');
+        try {
+            if (file_put_contents($path, $content) === false) {
+                throw new RuntimeException('Migration file can not be saved!');
+            }
+        } catch (Throwable $exception) {
+            throw $exception;
         }
     }
 

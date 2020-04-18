@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\controllers;
 
-use bizley\migration\controllers\MigrationController;
 use bizley\migration\table\Blueprint;
 use bizley\tests\stubs\ArrangerStub;
 use bizley\tests\stubs\GeneratorStub;
+use bizley\tests\stubs\MigrationControllerStoringStub;
 use bizley\tests\stubs\MigrationControllerStub;
 use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,9 +29,12 @@ use yii\db\Schema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 
+use function chmod;
+use function glob;
 use function is_dir;
 use function rmdir;
 use function ucfirst;
+use function unlink;
 
 final class MigrationControllerTest extends TestCase
 {
@@ -1482,11 +1485,13 @@ ERROR!
      */
     public function shouldCreateDirectoryForPath(): void
     {
+        chmod(__DIR__ . '/../../runtime', 0777);
+
         if (is_dir(__DIR__ . '/../../runtime/test')) {
             rmdir(__DIR__ . '/../../runtime/test');
         }
 
-        $controller = new MigrationController('id', $this->createMock(Module::class));
+        $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;
         $controller->migrationPath = '@bizley/tests/runtime/test';
 
@@ -1504,11 +1509,13 @@ ERROR!
      */
     public function shouldCreateDirectoryForPathByNamespace(): void
     {
+        chmod(__DIR__ . '/../../runtime', 0777);
+
         if (is_dir(__DIR__ . '/../../runtime/test')) {
             rmdir(__DIR__ . '/../../runtime/test');
         }
 
-        $controller = new MigrationController('id', $this->createMock(Module::class));
+        $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;
         $controller->migrationNamespace = 'bizley\\tests\\runtime\\test';
 
@@ -1517,5 +1524,85 @@ ERROR!
         $controller->beforeAction($action);
 
         $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Exception
+     */
+    public function shouldStoreOneMigration(): void
+    {
+        chmod(__DIR__ . '/../../runtime', 0777);
+
+        $potentialFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php');
+        foreach ($potentialFiles as $potentialFile) {
+            unlink($potentialFile);
+        }
+
+        $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
+        $controller->db = $this->db;
+        $controller->view = $this->view;
+        $controller->migrationPath = '@bizley/tests/runtime';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'create';
+        $controller->beforeAction($action);
+
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->assertSame(ExitCode::OK, $controller->actionCreate('test'));
+        $this->assertNotEmpty(glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php'));
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Exception
+     */
+    public function shouldNotStoreOneMigration(): void
+    {
+        chmod(__DIR__ . '/../../runtime', 0644);
+        MigrationControllerStoringStub::$stdout = '';
+
+        $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
+        $controller->db = $this->db;
+        $controller->view = $this->view;
+        $controller->migrationPath = '@bizley/tests/runtime';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'create';
+        $controller->beforeAction($action);
+
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
+        $this->assertStringContainsString(
+            ' > Generating migration for creating table \'test\' ...ERROR!
+ > file_put_contents(',
+            MigrationControllerStoringStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_test.php): failed to open stream: Permission denied',
+            MigrationControllerStoringStub::$stdout
+        );
+
+        chmod(__DIR__ . '/../../runtime', 0777);
     }
 }
