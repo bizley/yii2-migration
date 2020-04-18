@@ -54,7 +54,7 @@ jobs:
           MYSQL_USER: migration
           MYSQL_PASSWORD: password
         ports:
-          - 3306:3306
+          - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
         image: postgres:9.6.17
@@ -63,7 +63,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: migration
         ports:
-          - 5432:5432
+          - 5432/tcp
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
@@ -78,7 +78,7 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           update: true
-      - name: Start mysql service
+      - name: Start MySQL service
         run: sudo /etc/init.d/mysql start
       - name: Get composer cache directory
         id: composer-cache
@@ -91,5 +91,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
         run: composer update $DEFAULT_COMPOSER_FLAGS
+      - name: Prepare DB connections for tests
+        run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n\$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
       - name: PHPUnit tests
         run: vendor/bin/phpunit --verbose
