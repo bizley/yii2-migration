@@ -71,7 +71,7 @@ Action changes
 
 ### create
 
-Can take now asterisk (`*`) as an argument (to generate migrations for all tables in database except excluded ones).
+Can take now asterisk (`*`) as an argument (to generate migrations for all tables in the database except excluded ones).
 Also accept asterisks as a part of table name(s) (i.e. `ta*e`, to generate migrations for all tables matching the 
 pattern, except excluded ones).
 
@@ -81,7 +81,7 @@ Not available anymore. Use `create *` instead.
 
 ### update
 
-Can take now asterisk (`*`) as an argument (to generate migrations for all tables in database except excluded ones).
+Can take now asterisk (`*`) as an argument (to generate migrations for all tables in the database except excluded ones).
 Also accept asterisks as a part of table name(s) (i.e. `tab*le`, to generate migrations for all tables matching the 
 pattern, except excluded ones).
 
