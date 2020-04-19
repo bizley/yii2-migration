@@ -9,19 +9,7 @@
 
 Generates migration file based on the existing database table and previous migrations.
 
-## Installation for PHP >= 7.1 and Yii >= 2.0.15.1
-
-Add the package to your composer.json:
-
-    {
-        "require": {
-            "bizley/migration": "^3.6"
-        }
-    }
-
-and run `composer update` or alternatively run `composer require bizley/migration:^3.6`
-
-## Installation for PHP < 7.1
+## Installation
 
 Add the package to your composer.json:
 
@@ -32,6 +20,13 @@ Add the package to your composer.json:
     }
 
 and run `composer update` or alternatively run `composer require bizley/migration:^2.9`
+
+## Other versions
+
+| version constraint | PHP requirements | Yii requirements                                                             
+|:------------------:|:----------------:|:----------------:
+| ^4.0               | >= 7.2           | >= 2.0.19
+| ^3.6               | >= 7.1           | >= 2.0.15.1
 
 ## Configuration
 

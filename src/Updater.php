@@ -198,8 +198,7 @@ class Updater extends Generator
             require_once $file;
         }
 
-        $subject = new $migration();
-        $subject->db = $this->db;
+        $subject = new $migration(['db' => clone $this->db]);
         $subject->up();
 
         return $subject->changes;
@@ -387,21 +386,25 @@ class Updater extends Generator
 
             $previousColumn = $name;
 
-            foreach ([
-                'type',
-                'isNotNull',
-                'length',
-                'isUnique',
-                'isUnsigned',
-                'default',
-                'append',
-                'comment'
-            ] as $property) {
-                if (!$this->generalSchema
+            foreach (
+                [
+                    'type',
+                    'isNotNull',
+                    'length',
+                    'isUnique',
+                    'isUnsigned',
+                    'default',
+                    'append',
+                    'comment'
+                ] as $property
+            ) {
+                if (
+                    !$this->generalSchema
                     && $property === 'append'
                     && $column->append === null
                     && !$this->table->primaryKey->isComposite()
-                    && $column->isColumnInPK($this->table->primaryKey)) {
+                    && $column->isColumnInPK($this->table->primaryKey)
+                ) {
                     $column->append = $column->prepareSchemaAppend(true, $column->autoIncrement);
                 }
 
@@ -491,12 +494,14 @@ class Updater extends Generator
                 ? $this->oldTable->foreignKeys[$name]->columns
                 : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
-                    array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns)),
+                        array_diff($oldTableFKColumns, array_intersect($tableFKColumns, $oldTableFKColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableFKColumns) . ') <> ';
@@ -526,12 +531,14 @@ class Updater extends Generator
                 ? $this->oldTable->foreignKeys[$name]->refColumns
                 : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
-                    array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns)),
+                        array_diff($oldTableFKRefColumns, array_intersect($tableFKRefColumns, $oldTableFKRefColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
                     echo "   - different foreign key '$name' referral columns (";
                     echo 'DB: (' . implode(', ', $tableFKRefColumns) . ') <> ';
@@ -645,12 +652,14 @@ class Updater extends Generator
                 ? $this->oldTable->indexes[$name]->columns
                 : [];
 
-            if (count(
-                array_merge(
-                    array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
-                    array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+            if (
+                count(
+                    array_merge(
+                        array_diff($tableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns)),
+                        array_diff($oldTableIndexColumns, array_intersect($tableIndexColumns, $oldTableIndexColumns))
+                    )
                 )
-            )) {
+            ) {
                 if ($this->showOnly) {
                     echo "   - different index '$name' columns (";
                     echo 'DB: (' . implode(', ', $tableIndexColumns) . ') <> ';

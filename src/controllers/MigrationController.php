@@ -26,13 +26,13 @@ use yii\helpers\FileHelper;
  * Generates migration file based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 2.9.4
+ * @version 2.9.5
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends Controller
 {
-    protected $version = '2.9.4';
+    protected $version = '2.9.5';
 
     /**
      * @var string Default command action.
@@ -252,6 +252,7 @@ class MigrationController extends Controller
     }
 
     protected $workingPath;
+    protected $workingNamespace;
 
     /**
      * This method is invoked right before an action is to be executed (after all possible filters).
@@ -280,8 +281,10 @@ class MigrationController extends Controller
                         $this->workingPath = $this->preparePathDirectory(
                             '@' . FileHelper::normalizePath($namespace, '/')
                         );
+                        $this->workingNamespace = $namespace;
                     }
                 }
+                unset($namespace);
             } elseif ($this->migrationPath !== null) {
                 if (!is_array($this->migrationPath)) {
                     $this->migrationPath = [$this->migrationPath];
@@ -455,8 +458,10 @@ class MigrationController extends Controller
             $tables = $arrangedTables['order'];
             $suppressForeignKeys = $arrangedTables['suppressForeignKeys'];
 
-            if (count($suppressForeignKeys)
-                && TableStructure::identifySchema(get_class($this->db->schema)) === TableStructure::SCHEMA_SQLITE) {
+            if (
+                count($suppressForeignKeys)
+                && TableStructure::identifySchema(get_class($this->db->schema)) === TableStructure::SCHEMA_SQLITE
+            ) {
                 $this->stdout(
                     "WARNING!\n > Creating provided tables in batch requires manual migration!\n",
                     Console::FG_RED
@@ -523,7 +528,7 @@ class MigrationController extends Controller
                     $this->createMigrationHistoryTable();
                 }
 
-                $this->addMigrationHistory($className, $this->migrationNamespace);
+                $this->addMigrationHistory($className, $this->workingNamespace);
             }
 
             $this->stdout("\n");
@@ -544,11 +549,19 @@ class MigrationController extends Controller
             );
             $file = $this->workingPath . DIRECTORY_SEPARATOR . $className . '.php';
 
-            if ($this->generateFile($file, $this->view->renderFile(Yii::getAlias($this->templateFileForeignKey), [
-                    'fks' => $postponedForeignKeys,
-                    'className' => $className,
-                    'namespace' => $this->migrationNamespace
-                ])) === false) {
+            if (
+                $this->generateFile(
+                    $file,
+                    $this->view->renderFile(
+                        Yii::getAlias($this->templateFileForeignKey),
+                        [
+                            'fks' => $postponedForeignKeys,
+                            'className' => $className,
+                            'namespace' => $this->migrationNamespace
+                        ]
+                    )
+                ) === false
+            ) {
                 $this->stdout(
                     "ERROR!\n > Migration file for foreign keys can not be generated!\n\n",
                     Console::FG_RED
@@ -561,7 +574,7 @@ class MigrationController extends Controller
             $this->stdout(" > Saved as '{$file}'\n");
 
             if ($this->fixHistory) {
-                $this->addMigrationHistory($className, $this->migrationNamespace);
+                $this->addMigrationHistory($className, $this->workingNamespace);
             }
         }
 
@@ -681,7 +694,7 @@ class MigrationController extends Controller
                         $this->createMigrationHistoryTable();
                     }
 
-                    $this->addMigrationHistory($className, $this->migrationNamespace);
+                    $this->addMigrationHistory($className, $this->workingNamespace);
                 }
             }
 
