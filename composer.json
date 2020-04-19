@@ -2,11 +2,11 @@
   "name": "bizley/migration",
   "description": "Migration generator for Yii 2.",
   "type": "yii2-extension",
-  "keywords": ["yii2", "migration", "migrate", "generator", "console"],
+  "keywords": ["yii2", "migration", "migrate", "generator", "console", "updater"],
   "license": "Apache-2.0",
   "authors": [
     {
-      "name": "Pawel Bizley Brzozowski",
+      "name": "Paweł Bizley Brzozowski",
       "email": "pawel@positive.codes"
     }
   ],
