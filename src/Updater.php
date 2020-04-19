@@ -215,8 +215,7 @@ class Updater extends Generator
             require_once $file;
         }
 
-        $subject = new $migration();
-        $subject->db = $this->db;
+        $subject = new $migration(['db' => clone $this->db]);
         $subject->up();
 
         return $subject->changes;
