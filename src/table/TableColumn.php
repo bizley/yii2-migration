@@ -12,9 +12,9 @@ use function array_unshift;
 use function implode;
 use function in_array;
 use function is_array;
-use function mb_strtoupper;
 use function preg_match;
 use function preg_replace;
+use function str_ireplace;
 use function str_repeat;
 use function str_replace;
 use function stripos;
@@ -248,7 +248,8 @@ class TableColumn extends BaseObject
         }
 
         if ($this->schema === TableStructure::SCHEMA_MSSQL) {
-            if (stripos($this->append, 'IDENTITY') !== false
+            if (
+                stripos($this->append, 'IDENTITY') !== false
                 && stripos($this->append, 'PRIMARY KEY') !== false
             ) {
                 return true;
@@ -308,34 +309,34 @@ class TableColumn extends BaseObject
     public function removePKAppend(): ?string
     {
         if (!$this->isColumnAppendPK()) {
-            return null;
+            return $this->append;
         }
 
-        $uppercaseAppend = preg_replace('/\s+/', ' ', mb_strtoupper($this->append, 'UTF-8'));
+        $append = preg_replace('/\s+/', ' ', $this->append);
 
         switch ($this->schema) {
             case TableStructure::SCHEMA_MSSQL:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'IDENTITY'], '', $uppercaseAppend);
+                $filteredAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $append);
                 break;
 
             case TableStructure::SCHEMA_OCI:
             case TableStructure::SCHEMA_PGSQL:
-                $formattedAppend = str_replace('PRIMARY KEY', '', $uppercaseAppend);
+                $filteredAppend = str_ireplace('PRIMARY KEY', '', $append);
                 break;
 
             case TableStructure::SCHEMA_SQLITE:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $uppercaseAppend);
+                $filteredAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $append);
                 break;
 
             case TableStructure::SCHEMA_CUBRID:
             case TableStructure::SCHEMA_MYSQL:
             default:
-                $formattedAppend = str_replace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $uppercaseAppend);
+                $filteredAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $append);
         }
 
-        $formattedAppend = trim($formattedAppend);
+        $filteredAppend = trim($filteredAppend);
 
-        return !empty($formattedAppend) ? $formattedAppend : null;
+        return !empty($filteredAppend) ? $filteredAppend : null;
     }
 
     /**
