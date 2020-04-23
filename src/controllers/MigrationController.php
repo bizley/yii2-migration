@@ -208,7 +208,7 @@ class MigrationController extends BaseMigrationController
     {
         /** @var Connection $db */
         $db = $this->db;
-        $tables = $db->getSchema()->getTableNames();
+        $tables = $this->getAllTableNames($db);
         $migrationTable = $db->getSchema()->getRawTableName($this->migrationTable);
 
         $tablesCount = count($tables);
@@ -296,15 +296,16 @@ class MigrationController extends BaseMigrationController
         foreach ($tables as $tableName) {
             $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
 
+            $escapedTableName = str_replace('.', '_', $tableName);
             if ($countTables > 1) {
                 $migrationClassName = sprintf(
                     "m%s_%0{$counterSize}d_create_table_%s",
                     gmdate('ymd_His'),
                     $migrationsGenerated + 1,
-                    $tableName
+                    $escapedTableName
                 );
             } else {
-                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $tableName);
+                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $escapedTableName);
             }
 
             try {
@@ -463,7 +464,7 @@ class MigrationController extends BaseMigrationController
                         "m%s_%0{$counterSize}d_create_table_%s",
                         gmdate('ymd_His'),
                         $migrationsGenerated + 1,
-                        $tableName
+                        str_replace('.', '_', $tableName)
                     ),
                     $referencesToPostpone
                 );
@@ -501,14 +502,15 @@ class MigrationController extends BaseMigrationController
         foreach ($blueprints as $tableName => $blueprint) {
             $this->stdout("\n > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
+            $escapedTableName = str_replace('.', '_', $tableName);
             if ($migrationsGenerated === 0) {
-                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $tableName;
+                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $escapedTableName;
             } else {
                 $migrationClassName = sprintf(
                     "m%s_%0{$counterSize}d_update_table_%s",
                     gmdate('ymd_His'),
                     $migrationsGenerated + 1,
-                    $tableName
+                    $escapedTableName
                 );
             }
 
@@ -703,7 +705,7 @@ class MigrationController extends BaseMigrationController
 
         /** @var Connection $db */
         $db = $this->db;
-        $allTables = $db->getSchema()->getTableNames();
+        $allTables = $this->getAllTableNames($db);
         if (count($allTables) === 0) {
             return [];
         }
@@ -799,5 +801,32 @@ class MigrationController extends BaseMigrationController
         }
 
         return $inputTables;
+    }
+
+    /**
+     * @param Connection $db
+     * @return array
+     * @throws NotSupportedException
+     */
+    public function getAllTableNames(Connection $db): array
+    {
+        $tables = array();
+
+        try {
+            $schemaNames = $db->getSchema()->getSchemaNames(true);
+        } catch (NotSupportedException $ex) {
+        }
+
+        if (is_null($schemaNames) || count($schemaNames) < 2) {
+            $tables = $db->getSchema()->getTableNames();
+        } else {
+            foreach ($db->getSchema()->getSchemaNames() as $schemaName) {
+                $tables = array_merge(
+                    $tables,
+                    array_column($db->getSchema()->getTableSchemas($schemaName), 'fullName')
+                );
+            }
+        }
+        return $tables;
     }
 }
