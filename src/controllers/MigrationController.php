@@ -805,13 +805,15 @@ class MigrationController extends BaseMigrationController
 
     /**
      * @param Connection $db
-     * @return array
+     * @return array<string>
      * @throws NotSupportedException
      */
     public function getAllTableNames(Connection $db): array
     {
         $tables = array();
 
+        /** @var array<string>|null $schemaNames */
+        $schemaNames = array();
         try {
             $schemaNames = $db->getSchema()->getSchemaNames(true);
         } catch (NotSupportedException $ex) {
