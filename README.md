@@ -24,7 +24,7 @@ For stable v3 go to the https://github.com/bizley/yii2-migration/blob/3.x/README
 Run console command
 
 ```
-composer require bizley/migration:4.0-RC1
+composer require bizley/migration:4.0-RC2
 ```
 
 Or add the package to your `composer.json` file:
@@ -32,7 +32,7 @@ Or add the package to your `composer.json` file:
 ```json
 {
     "require": {
-        "bizley/migration": "4.0-RC1"
+        "bizley/migration": "4.0-RC2"
     }
 }
 ```
