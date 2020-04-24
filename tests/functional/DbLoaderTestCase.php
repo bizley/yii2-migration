@@ -73,6 +73,15 @@ abstract class DbLoaderTestCase extends DbTestCase
     }
 
     /**
+     * @param string $schema
+     * @throws Exception
+     */
+    protected function createSchema(string $schema): void
+    {
+        $this->getDb()->createCommand('CREATE SCHEMA IF NOT EXISTS ' . $schema)->execute();
+    }
+
+    /**
      * @throws NotSupportedException
      * @throws Exception
      */
@@ -170,6 +179,61 @@ abstract class DbLoaderTestCase extends DbTestCase
                 $this->historyTable,
                 [
                     'version' => 'm20200414_130200_create_table_pk_base',
+                    'apply_time' => 1586131201,
+                ]
+            )
+            ->execute();
+    }
+
+    /**
+     * @throws NotSupportedException
+     * @throws Exception
+     */
+    protected function addSchemasBase(): void
+    {
+        $this->createMigrationHistoryTable();
+
+        $this->dropTable('schema2.table1');
+        $this->dropTable('schema1.table1');
+        $this->dropTable('table1');
+
+        $this->createSchema('schema1');
+        $this->createSchema('schema2');
+
+        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
+
+        // Tables are added like this and not through the migration to skip class' autoloading.
+        $this->createTable(
+            'table1',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer(),
+                'col2' => $this->string(),
+            ]
+        );
+        $this->createTable(
+            'schema1.table1',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer(),
+                'col2' => $this->string(),
+            ]
+        );
+        $this->createTable(
+            'schema2.table1',
+            [
+                'id' => $this->primaryKey(),
+                'col' => $this->integer(),
+                'col2' => $this->string(),
+            ]
+        );
+
+        $this->getDb()
+            ->createCommand()
+            ->insert(
+                $this->historyTable,
+                [
+                    'version' => 'm20200422_210000_create_table_schemas_base',
                     'apply_time' => 1586131201,
                 ]
             )

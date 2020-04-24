@@ -604,4 +604,56 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
         $this->assertSame(['33', '32', '31'], $matches[1]);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
+    public function shouldGenerateTablesWithSchema(): void
+    {
+        $this->createSchema('schema1');
+
+        $this->createTables([
+            'schema1.table' => ['col' => $this->integer()]
+        ]);
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['schema1.table']));
+
+        $this->assertStringContainsString(
+            '
+ > Generating migration for creating table \'schema1.table\' ...DONE!
+ > Saved as \'',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertStringContainsString(
+            '_create_table_schema1_table.php\'
+
+ Generated 1 file
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+
+        $this->assertStringContainsString(
+            '_create_table_schema1_table extends Migration',
+            MigrationControllerStub::$content
+        );
+        $this->assertStringContainsString(
+            '
+        $this->createTable(
+            \'{{%schema1.table}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );',
+            MigrationControllerStub::$content
+        );
+
+        $this->getDb()->createCommand()->dropTable('schema1.table')->execute();
+    }
 }
