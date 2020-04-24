@@ -629,7 +629,6 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
  > Saved as \'',
             MigrationControllerStub::$stdout
         );
-
         $this->assertStringContainsString(
             '_create_table_schema1_table.php\'
 
@@ -638,7 +637,6 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 ',
             MigrationControllerStub::$stdout
         );
-
 
         $this->assertStringContainsString(
             '_create_table_schema1_table extends Migration',
@@ -657,6 +655,5 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->getDb()->createCommand()->dropTable('schema1.table')->execute();
-
     }
 }

@@ -21,7 +21,6 @@ class m20200422_210000_create_table_schemas_base extends Migration
             $tableOptions
         );
 
-
         $this->createTable(
             'schema1.table1',
             [

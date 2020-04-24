@@ -37,6 +37,8 @@ use function sprintf;
 use function strlen;
 use function strpos;
 use function trim;
+use function array_column;
+use function str_replace;
 
 /**
  * Migration creator and updater.
@@ -296,16 +298,16 @@ class MigrationController extends BaseMigrationController
         foreach ($tables as $tableName) {
             $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
 
-            $escapedTableName = str_replace('.', '_', $tableName);
+            $normalizedTableName = str_replace('.', '_', $tableName);
             if ($countTables > 1) {
                 $migrationClassName = sprintf(
                     "m%s_%0{$counterSize}d_create_table_%s",
                     gmdate('ymd_His'),
                     $migrationsGenerated + 1,
-                    $escapedTableName
+                    $normalizedTableName
                 );
             } else {
-                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $escapedTableName);
+                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $normalizedTableName);
             }
 
             try {
@@ -502,15 +504,15 @@ class MigrationController extends BaseMigrationController
         foreach ($blueprints as $tableName => $blueprint) {
             $this->stdout("\n > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
-            $escapedTableName = str_replace('.', '_', $tableName);
+            $normalizedTableName = str_replace('.', '_', $tableName);
             if ($migrationsGenerated === 0) {
-                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $escapedTableName;
+                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $normalizedTableName;
             } else {
                 $migrationClassName = sprintf(
                     "m%s_%0{$counterSize}d_update_table_%s",
                     gmdate('ymd_His'),
                     $migrationsGenerated + 1,
-                    $escapedTableName
+                    $normalizedTableName
                 );
             }
 
@@ -808,21 +810,21 @@ class MigrationController extends BaseMigrationController
      * @return array<string>
      * @throws NotSupportedException
      */
-    public function getAllTableNames(Connection $db): array
+    private function getAllTableNames(Connection $db): array
     {
-        $tables = array();
+        $tables = [];
 
         /** @var array<string>|null $schemaNames */
-        $schemaNames = array();
+        $schemaNames = [];
         try {
             $schemaNames = $db->getSchema()->getSchemaNames(true);
         } catch (NotSupportedException $ex) {
         }
 
-        if (is_null($schemaNames) || count($schemaNames) < 2) {
+        if ($schemaNames === null || count($schemaNames) < 2) {
             $tables = $db->getSchema()->getTableNames();
         } else {
-            foreach ($db->getSchema()->getSchemaNames() as $schemaName) {
+            foreach ($schemaNames as $schemaName) {
                 $tables = array_merge(
                     $tables,
                     array_column($db->getSchema()->getTableSchemas($schemaName), 'fullName')

@@ -76,12 +76,10 @@ abstract class DbLoaderTestCase extends DbTestCase
      * @param string $schema
      * @throws Exception
      */
-    protected function createSchema(string $schema)
+    protected function createSchema(string $schema): void
     {
-        /* Are checks for sql injection needed? */
         $this->getDb()->createCommand('CREATE SCHEMA IF NOT EXISTS ' . $schema)->execute();
     }
-
 
     /**
      * @throws NotSupportedException
@@ -193,7 +191,6 @@ abstract class DbLoaderTestCase extends DbTestCase
      */
     protected function addSchemasBase(): void
     {
-
         $this->createMigrationHistoryTable();
 
         $this->dropTable('schema2.table1');
@@ -214,8 +211,6 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'col2' => $this->string(),
             ]
         );
-
-
         $this->createTable(
             'schema1.table1',
             [
@@ -232,7 +227,6 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'col2' => $this->string(),
             ]
         );
-
 
         $this->getDb()
             ->createCommand()

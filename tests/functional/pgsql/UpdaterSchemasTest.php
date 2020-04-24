@@ -190,5 +190,4 @@ class UpdaterSchemasTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
-
 }
