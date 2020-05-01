@@ -12,19 +12,10 @@ Generates migration file based on the existing database table and previous migra
 
 ## Installation
 
-```
-THIS IS BETA VERSION OF YII 2 MIGRATION V4.  
-STABLE VERSION WILL BE RELEASED WHEN ALL UNEXPECTED BUGS ARE REMOVED.  
-USING IT NOW ON PRODUCTION IS STRONGLY DISCOURAGED.
-
-For stable v3 go to the https://github.com/bizley/yii2-migration/blob/3.x/README.md
-```
-
-
 Run console command
 
 ```
-composer require bizley/migration:4.0-RC2
+composer require bizley/migration
 ```
 
 Or add the package to your `composer.json` file:
@@ -32,7 +23,7 @@ Or add the package to your `composer.json` file:
 ```json
 {
     "require": {
-        "bizley/migration": "4.0-RC2"
+        "bizley/migration": "^4.0"
     }
 }
 ```

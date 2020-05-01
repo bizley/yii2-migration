@@ -13,6 +13,12 @@
   "support": {
     "source": "https://github.com/bizley/yii2-migration"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/bizley"
+    }
+  ],
   "require": {
     "php": "^7.2",
     "ext-mbstring": "*",
