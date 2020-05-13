@@ -192,6 +192,9 @@ final class ColumnRenderer implements ColumnRendererInterface
         string $engineVersion = null
     ): ?string {
         $this->definition = [];
+        $this->isPrimaryKeyPossible = true;
+        $this->isNotNullPossible = true;
+        $this->isUnsignedPossible = true;
 
         $this->buildColumnDefinition($column, $primaryKey, $schema, $engineVersion);
         $this->buildGeneralDefinition($column, $primaryKey, $schema);
