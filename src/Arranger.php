@@ -34,6 +34,10 @@ final class Arranger implements ArrangerInterface
      */
     public function arrangeTables(array $inputTables): void
     {
+        $this->dependencies = [];
+        $this->referencesToPostpone = [];
+        $this->tablesInOrder = [];
+
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
             $foreignKeys = $this->mapper->getStructureOf($inputTable)->getForeignKeys();
