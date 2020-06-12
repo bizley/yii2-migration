@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: "[BUG] "
 labels: bug
 assignees: bizley
 
@@ -17,5 +17,5 @@ A clear and concise description of what you expected to happen.
 Add any other context about the problem here.
 
 **Affected versions**
-What version of `yii2-migration` are you working with?
+What version of `yii2-migration` are you working with? (Please remember that v1, v2, and v3 are not supported anymore)
 What is the database engine and its version?
