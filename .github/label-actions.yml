@@ -1,0 +1,6 @@
+actions:
+  no-response:
+    comment: >
+      There has been no response from the author of the issue so I'm closing it.
+      If you think it should be reopened please comment here.
+    close: true
