@@ -77,7 +77,7 @@ pattern, except excluded ones).
 
 ### create-all
 
-Not available anymore. Use `create *` instead.
+Not available anymore. Use `create *` instead (or `create "*"` in environments that hijack asterisk).
 
 ### update
 
@@ -87,4 +87,4 @@ pattern, except excluded ones).
 
 ### update-all
 
-Not available anymore. Use `update *` instead.
+Not available anymore. Use `update *` instead (or `update "*"` in environments that hijack asterisk).
