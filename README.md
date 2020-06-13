@@ -78,7 +78,7 @@ To generate migrations for all the tables in the database at once (except the ex
 php yii migration/create *
 php yii migration/update *
 ```
-
+In environments that hijack asterisk (like dockerized env) use `"*"`.  
 You can generate multiple migrations for many tables at once by separating the names with comma:
 
 ```
