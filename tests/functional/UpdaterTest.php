@@ -237,4 +237,16 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
+    {
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }
