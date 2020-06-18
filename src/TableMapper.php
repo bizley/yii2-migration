@@ -184,14 +184,14 @@ final class TableMapper implements TableMapperInterface
 
             $mappedColumn = ColumnFactory::build($column->type);
             $mappedColumn->setName($column->name);
-            $mappedColumn->setSize($column->size);
-            if ($column->precision === null && $column->scale === null) {
+            if ($column->size === null && $column->precision === null && $column->scale === null) {
                 $mappedColumn->setLength(
                     Schema::getDefaultLength($schema, $mappedColumn->getType(), $engineVersion),
                     $schema,
                     $engineVersion
                 );
             } else {
+                $mappedColumn->setSize($column->size);
                 $mappedColumn->setPrecision($column->precision);
                 $mappedColumn->setScale($column->scale);
             }

@@ -318,7 +318,7 @@ final class TableMapperTest extends TestCase
         $this->assertSame(1, (int)$structureColumn->getSize());
         $this->assertNull($structureColumn->getPrecision());
         $this->assertNull($structureColumn->getScale());
-        $this->assertNull($structureColumn->isNotNull());
+        $this->assertFalse($structureColumn->isNotNull());
         $this->assertSame('a', $structureColumn->getDefault());
         $this->assertFalse($structureColumn->isPrimaryKey());
         $this->assertFalse($structureColumn->isUnsigned());
