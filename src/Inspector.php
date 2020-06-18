@@ -45,6 +45,9 @@ final class Inspector implements InspectorInterface
         $this->comparator = $comparator;
     }
 
+    /** @var array<StructureChangeInterface> */
+    private $appliedChanges = [];
+
     /** @var string */
     private $currentTable;
 
@@ -70,6 +73,7 @@ final class Inspector implements InspectorInterface
         ?string $engineVersion
     ): BlueprintInterface {
         $this->currentTable = $newStructure->getName();
+        $this->appliedChanges = [];
         $history = $this->historyManager->fetchHistory();
 
         $blueprint = new Blueprint();
@@ -89,7 +93,9 @@ final class Inspector implements InspectorInterface
                 }
             }
 
-            if (count($this->appliedChanges)) {
+            /** @var int $appliedChanges */
+            $appliedChanges = count($this->appliedChanges);
+            if ($appliedChanges) {
                 $this->comparator->compare(
                     $newStructure,
                     $this->structureBuilder->build(array_reverse($this->appliedChanges), $schema, $engineVersion),
@@ -107,9 +113,6 @@ final class Inspector implements InspectorInterface
 
         return $blueprint;
     }
-
-    /** @var array<StructureChangeInterface> */
-    private $appliedChanges = [];
 
     /**
      * Gathers the changes from migrations recursively.
