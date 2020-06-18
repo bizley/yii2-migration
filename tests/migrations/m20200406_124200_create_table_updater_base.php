@@ -17,6 +17,7 @@ class m20200406_124200_create_table_updater_base extends Migration
                 'id' => $this->primaryKey(),
                 'col' => $this->integer(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ],
             $tableOptions
         );

@@ -315,7 +315,7 @@ final class TableMapperTest extends TestCase
         $this->assertNotNull($structureColumn);
         $this->assertInstanceOf(CharacterColumn::class, $structureColumn);
         $this->assertSame('column-name', $structureColumn->getName());
-        $this->assertSame(1, $structureColumn->getSize());
+        $this->assertSame(1, (int)$structureColumn->getSize());
         $this->assertNull($structureColumn->getPrecision());
         $this->assertNull($structureColumn->getScale());
         $this->assertNull($structureColumn->isNotNull());

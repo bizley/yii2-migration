@@ -32,7 +32,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         $this->assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - different primary key definition
 
  No files generated.',
@@ -54,7 +54,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
         $this->assertStringContainsString(
             ' > Comparing current table \'string_pk\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - different \'col\' column property: append (DB: NULL != MIG: "PRIMARY KEY")
    - different primary key definition
 
@@ -77,8 +77,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         $this->assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
-   - different \'col2\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
+   - different \'col2\' column property: not null (DB: TRUE != MIG: FALSE)
    - different primary key definition
 
  No files generated.',

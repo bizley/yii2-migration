@@ -21,8 +21,8 @@ abstract class Column
     /** @var string */
     private $type;
 
-    /** @var bool|null */
-    private $notNull;
+    /** @var bool */
+    private $notNull = false;
 
     /** @var int|string|null */
     private $size;
@@ -111,7 +111,8 @@ abstract class Column
      */
     public function setNotNull(?bool $notNull): void
     {
-        $this->notNull = $notNull;
+        // this makes sure notNull is strictly `boolean` without introducing BC break for this method
+        $this->notNull = $notNull ?? false;
     }
 
     /**

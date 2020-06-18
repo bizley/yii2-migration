@@ -187,7 +187,7 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->unsigned()->after(\'col2\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->unsigned()->after(\'col3\'));
     }
 
     public function down()
@@ -212,7 +212,7 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->notNull()->after(\'col2\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->notNull()->after(\'col3\'));
     }
 
     public function down()
@@ -241,7 +241,7 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->comment(\'test\')->after(\'col2\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->comment(\'test\')->after(\'col3\'));
     }
 
     public function down()
@@ -426,5 +426,17 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }',
             MigrationControllerStub::$content
         );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
+    {
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertSame('', MigrationControllerStub::$content);
     }
 }

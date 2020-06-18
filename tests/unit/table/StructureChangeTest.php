@@ -80,7 +80,7 @@ final class StructureChangeTest extends TestCase
         $this->assertInstanceOf(IntegerColumn::class, $column);
         $this->assertSame('column', $column->getName());
         $this->assertNull($column->getLength());
-        $this->assertNull($column->isNotNull());
+        $this->assertFalse($column->isNotNull());
         $this->assertFalse($column->isUnique());
         $this->assertFalse($column->isAutoIncrement());
         $this->assertFalse($column->isPrimaryKey());
@@ -173,7 +173,7 @@ final class StructureChangeTest extends TestCase
         $this->assertInstanceOf(IntegerColumn::class, $column);
         $this->assertSame('column', $column->getName());
         $this->assertNull($column->getLength());
-        $this->assertNull($column->isNotNull());
+        $this->assertFalse($column->isNotNull());
         $this->assertFalse($column->isUnique());
         $this->assertFalse($column->isAutoIncrement());
         $this->assertFalse($column->isPrimaryKey());
@@ -254,7 +254,7 @@ final class StructureChangeTest extends TestCase
         $this->assertInstanceOf(IntegerColumn::class, $column);
         $this->assertSame('column', $column->getName());
         $this->assertNull($column->getLength());
-        $this->assertNull($column->isNotNull());
+        $this->assertFalse($column->isNotNull());
         $this->assertFalse($column->isUnique());
         $this->assertFalse($column->isAutoIncrement());
         $this->assertFalse($column->isPrimaryKey());

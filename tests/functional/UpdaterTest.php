@@ -97,7 +97,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col2\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col3\'));
     }
 
     public function down()

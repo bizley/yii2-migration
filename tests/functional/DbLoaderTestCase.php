@@ -102,6 +102,7 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'id' => $this->primaryKey(),
                 'col' => $this->integer(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         );
 
