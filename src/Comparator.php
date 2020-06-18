@@ -151,6 +151,15 @@ final class Comparator implements ComparatorInterface
                         continue;
                     }
 
+                    if (
+                        $propertyFetch === 'getDefault'
+                        && $schema === Schema::SQLITE
+                        && $newProperty === 'NULL'
+                        && $oldProperty === null
+                    ) {
+                        continue;
+                    }
+
                     $blueprint->addDescription(
                         "different '$name' column property: $propertyName ("
                         . 'DB: ' . $this->stringifyValue($newProperty) . ' != '

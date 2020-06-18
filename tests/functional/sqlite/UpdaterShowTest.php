@@ -224,7 +224,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
 
  No files generated.',
