@@ -22,7 +22,9 @@ use yii\di\Instance;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
+use function array_column;
 use function array_merge;
+use function array_unique;
 use function count;
 use function explode;
 use function file_put_contents;
@@ -34,25 +36,24 @@ use function is_dir;
 use function preg_match;
 use function sort;
 use function sprintf;
+use function str_replace;
 use function strlen;
 use function strpos;
 use function trim;
-use function array_column;
-use function str_replace;
 
 /**
  * Migration creator and updater.
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.0.1
+ * @version 4.0.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.0.1';
+    private $version = '4.0.2';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -410,7 +411,7 @@ class MigrationController extends BaseMigrationController
 
                     $this->stdout("\n");
                 } else {
-                    $this->stdout("DONE!\n");
+                    $this->stdout("DONE!\n", Console::FG_GREEN);
                 }
             } catch (NotSupportedException $exception) {
                 $this->stdout(
