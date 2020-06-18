@@ -323,8 +323,8 @@ class Migration extends Component implements MigrationChangesInterface
             $table,
             'alterColumn',
             [
-                'column' => $column,
-                'type' => $this->extractColumn($type)
+                'name' => $column,
+                'schema' => $this->extractColumn($type)
             ]
         );
     }
