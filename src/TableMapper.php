@@ -248,7 +248,7 @@ final class TableMapper implements TableMapperInterface
     {
         try {
             $slavePdo = $this->db->getSlavePdo();
-            return $slavePdo ? $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION) : null;
+            return $slavePdo !== null ? $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION) : null;
         } catch (Throwable $exception) {
             return null;
         }
