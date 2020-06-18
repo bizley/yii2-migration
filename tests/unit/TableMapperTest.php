@@ -432,4 +432,34 @@ final class TableMapperTest extends TestCase
 
         $this->assertSame('5.7.1', $this->mapper->getEngineVersion());
     }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReturnNullAsEngineVersionWhenThereIsException(): void
+    {
+        $this->prepareSchemaMock();
+        $this->mapper->getStructureOf('abcdef');
+
+        $pdo = $this->createMock(PDO::class);
+        $pdo->method('getAttribute')->willThrowException(new \Exception());
+        $this->db->method('getSlavePdo')->willReturn($pdo);
+
+        $this->assertNull($this->mapper->getEngineVersion());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReturnNullAsEngineVersionWhenPdoIsNull(): void
+    {
+        $this->prepareSchemaMock();
+        $this->mapper->getStructureOf('abcdef');
+
+        $this->db->method('getSlavePdo')->willReturn(null);
+
+        $this->assertNull($this->mapper->getEngineVersion());
+    }
 }

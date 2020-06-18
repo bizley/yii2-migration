@@ -247,8 +247,7 @@ final class TableMapper implements TableMapperInterface
     public function getEngineVersion(): ?string
     {
         try {
-            $slavePdo = $this->db->getSlavePdo();
-            return $slavePdo !== null ? $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION) : null;
+            return $this->db->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
         } catch (Throwable $exception) {
             return null;
         }
