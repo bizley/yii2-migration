@@ -134,7 +134,7 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         $this->assertStringContainsString(
             'public function up()
     {
-        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->notNull()->after(\'col2\'));
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->notNull()->after(\'col3\'));
     }
 
     public function down()

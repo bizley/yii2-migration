@@ -30,6 +30,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             [
                 'id' => $this->primaryKey(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -60,6 +61,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->string(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -92,6 +94,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->integer(),
                 'col2' => $this->string(45),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -122,6 +125,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->integer()->defaultValue(4),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -152,6 +156,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->integer()->unsigned(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -182,6 +187,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->integer()->unique(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
@@ -211,13 +217,14 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
                 'id' => $this->primaryKey(),
                 'col' => $this->integer()->notNull(),
                 'col2' => $this->string(),
+                'col3' => $this->timestamp()->defaultValue(null)
             ]
         )->execute();
 
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
 
  No files generated.',

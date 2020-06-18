@@ -20,14 +20,15 @@ use yii\base\NotSupportedException;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\cubrid\Schema as CubridSchema;
-use yii\db\ForeignKeyConstraint;
-use yii\db\IndexConstraint;
 use yii\db\mssql\Schema as MssqlSchema;
 use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\oci\Schema as OciSchema;
 use yii\db\pgsql\Schema as PgsqlSchema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
+
+use function count;
+use function in_array;
 
 final class TableMapper implements TableMapperInterface
 {
@@ -86,7 +87,6 @@ final class TableMapper implements TableMapperInterface
         $schema = $this->db->getSchema();
         $tableForeignKeys = $schema->getTableForeignKeys($table, true);
 
-        /** @var ForeignKeyConstraint $foreignKey */
         foreach ($tableForeignKeys as $foreignKey) {
             $mappedForeignKey = new ForeignKey();
             $mappedForeignKey->setTableName($table);
@@ -116,7 +116,6 @@ final class TableMapper implements TableMapperInterface
         $schema = $this->db->getSchema();
         $tableIndexes = $schema->getTableIndexes($table, true);
 
-        /** @var IndexConstraint $index */
         foreach ($tableIndexes as $index) {
             if ($index->isPrimary === false) {
                 $mappedIndex = new Index();
@@ -159,6 +158,7 @@ final class TableMapper implements TableMapperInterface
      * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<string, ColumnInterface>
+     * @throws NotSupportedException
      */
     private function getColumns(string $table, array $indexes = []): array
     {
@@ -167,6 +167,8 @@ final class TableMapper implements TableMapperInterface
         if ($tableSchema === null) {
             return [];
         }
+        $schema = $this->getSchemaType();
+        $engineVersion = $this->getEngineVersion();
 
         foreach ($tableSchema->columns as $column) {
             $isUnique = false;
@@ -182,9 +184,17 @@ final class TableMapper implements TableMapperInterface
 
             $mappedColumn = ColumnFactory::build($column->type);
             $mappedColumn->setName($column->name);
-            $mappedColumn->setSize($column->size);
-            $mappedColumn->setPrecision($column->precision);
-            $mappedColumn->setScale($column->scale);
+            if ($column->size === null && $column->precision === null && $column->scale === null) {
+                $mappedColumn->setLength(
+                    Schema::getDefaultLength($schema, $mappedColumn->getType(), $engineVersion),
+                    $schema,
+                    $engineVersion
+                );
+            } else {
+                $mappedColumn->setSize($column->size);
+                $mappedColumn->setPrecision($column->precision);
+                $mappedColumn->setScale($column->scale);
+            }
             $mappedColumn->setNotNull($column->allowNull ? null : true);
             $mappedColumn->setUnique($isUnique);
             $mappedColumn->setDefault($column->defaultValue);

@@ -36,7 +36,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         $this->assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
-   - different \'col\' column property: not null (DB: TRUE != MIG: NULL)
+   - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
    - different primary key definition
    - (!) ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually

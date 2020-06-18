@@ -119,7 +119,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 \'col_text\' => $this->text(),
                 \'col_time\' => $this->time(),
                 \'col_timestamp\' => $this->timestamp(),
-                \'col_json\' => $this->string(),
+                \'col_json\' => $this->string(255),
             ],
             $tableOptions
         );
