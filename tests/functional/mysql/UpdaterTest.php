@@ -427,4 +427,12 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     */
+    public function shouldNotUpdateTableWithForeignKeyAndIndexWhenItsNotChanged(): void
+    {
+
+    }
 }

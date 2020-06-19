@@ -44,10 +44,30 @@ class m20200406_124200_create_table_updater_base extends Migration
             'CASCADE',
             'CASCADE'
         );
+
+        $this->createTable(
+            'updater_base_fk_with_idx',
+            [
+                'id' => $this->primaryKey(),
+                'updater_base_id' => $this->integer(),
+            ],
+            $tableOptions
+        );
+        $this->createIndex('idx-updater_base_id', 'updater_base_fk_with_idx', 'updater_base_id');
+        $this->addForeignKey(
+            'fk-existing-ids',
+            'updater_base_fk_with_idx',
+            'updater_base_id',
+            'updater_base_fk_target',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
     }
 
     public function down()
     {
+        $this->dropTable('updater_base_fk_with_idx');
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
