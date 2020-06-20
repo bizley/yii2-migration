@@ -250,4 +250,15 @@ abstract class UpdaterTest extends DbLoaderTestCase
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         $this->assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     */
+    public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
+    {
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
 }

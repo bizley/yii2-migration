@@ -427,13 +427,4 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
-
-    /**
-     * @test
-     */
-    public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
-    {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
-        $this->assertSame('', MigrationControllerStub::$content);
-    }
 }
