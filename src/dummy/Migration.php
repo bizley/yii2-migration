@@ -355,7 +355,7 @@ class Migration extends Component implements MigrationChangesInterface
             [
                 'name' => $name,
                 'columns' => $columns,
-                'referredTable' => $refTable,
+                'referredTable' => $this->getRawTableName($refTable),
                 'referredColumns' => is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
                 'onDelete' => $delete,
                 'onUpdate' => $update,
