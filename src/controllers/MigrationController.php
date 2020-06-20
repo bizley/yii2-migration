@@ -502,11 +502,12 @@ class MigrationController extends BaseMigrationController
             }
         }
 
+        $countBlueprints = count($blueprints);
         foreach ($blueprints as $tableName => $blueprint) {
             $this->stdout("\n > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
             $normalizedTableName = str_replace('.', '_', $tableName);
-            if ($migrationsGenerated === 0) {
+            if ($migrationsGenerated === 0 && $countBlueprints === 1) {
                 $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $normalizedTableName;
             } else {
                 $migrationClassName = sprintf(
