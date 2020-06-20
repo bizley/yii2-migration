@@ -7,7 +7,10 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 use yii\base\InvalidArgumentException;
 
+use function array_diff;
+use function array_intersect;
 use function array_key_exists;
+use function array_merge;
 use function count;
 
 final class StructureBuilder implements StructureBuilderInterface
@@ -81,6 +84,8 @@ final class StructureBuilder implements StructureBuilderInterface
                     break;
             }
         }
+
+        $this->addHiddenIndexes($structure, $schema);
 
         return $structure;
     }
@@ -305,6 +310,58 @@ final class StructureBuilder implements StructureBuilderInterface
         $column = $structure->getColumn($columnName);
         if ($column) {
             $column->setComment(null);
+        }
+    }
+
+    /**
+     * Adds automatic indexes made by DB engine.
+     * @param StructureInterface $structure
+     * @param string|null $schema
+     */
+    private function addHiddenIndexes(StructureInterface $structure, ?string $schema): void
+    {
+        if ($schema === Schema::MYSQL) {
+            // MySQL automatically adds index for foreign key when it's not explicitly added
+
+            $indexesToAdd = [];
+
+            $foreignKeys = $structure->getForeignKeys();
+            $indexes = $structure->getIndexes();
+            /** @var ForeignKeyInterface $foreignKey */
+            foreach ($foreignKeys as $foreignKey) {
+                $foreignKeyColumns = $foreignKey->getColumns();
+                $foundIndex = false;
+                /** @var IndexInterface $index */
+                foreach ($indexes as $index) {
+                    $indexColumns = $index->getColumns();
+                    $intersection = array_intersect($foreignKeyColumns, $indexColumns);
+                    if (
+                        count(
+                            array_merge(
+                                array_diff($foreignKeyColumns, $intersection),
+                                array_diff($indexColumns, $intersection)
+                            )
+                        ) === 0
+                    ) {
+                        $foundIndex = true;
+                        break;
+                    }
+                }
+                if ($foundIndex === false) {
+                    $indexesToAdd[] = [
+                        'name' => $foreignKey->getName(),
+                        'columns' => $foreignKeyColumns
+                    ];
+                }
+            }
+
+            foreach ($indexesToAdd as $indexToAdd) {
+                $index = new Index();
+                $index->setName($indexToAdd['name']);
+                $index->setColumns($indexToAdd['columns']);
+
+                $structure->addIndex($index);
+            }
         }
     }
 }

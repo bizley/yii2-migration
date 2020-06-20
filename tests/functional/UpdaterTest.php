@@ -60,6 +60,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
  > Are you sure you want to generate migrations for the following tables?
    - updater_base_fk
    - updater_base_fk_target
+   - updater_base_fk_with_idx
  Operation cancelled by user.
 ',
             MigrationControllerStub::$stdout
@@ -247,6 +248,17 @@ abstract class UpdaterTest extends DbLoaderTestCase
     public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
     {
         $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     */
+    public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
+    {
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
         $this->assertSame('', MigrationControllerStub::$content);
     }
 }

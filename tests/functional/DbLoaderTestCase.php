@@ -12,6 +12,7 @@ use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
 
 use function array_reverse;
+use function time;
 
 abstract class DbLoaderTestCase extends DbTestCase
 {
@@ -89,6 +90,7 @@ abstract class DbLoaderTestCase extends DbTestCase
     {
         $this->createMigrationHistoryTable();
 
+        $this->dropTable('updater_base_fk_with_idx');
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
@@ -131,16 +133,31 @@ abstract class DbLoaderTestCase extends DbTestCase
             )->execute();
         }
 
+        $columns = [
+            'id' => $this->primaryKey(),
+            'updater_base_id' => $this->integer(),
+        ];
+        if (static::$schema === 'sqlite') {
+            $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base_fk_target(id)';
+        }
+        $this->createTable('updater_base_fk_with_idx', $columns);
         $this->getDb()
             ->createCommand()
-            ->insert(
-                $this->historyTable,
-                [
-                    'version' => 'm20200406_124200_create_table_updater_base',
-                    'apply_time' => 1586131201,
-                ]
-            )
+            ->createIndex('idx-updater_base_id', 'updater_base_fk_with_idx', 'updater_base_id')
             ->execute();
+        if (static::$schema !== 'sqlite') {
+            $this->getDb()->createCommand()->addForeignKey(
+                'fk-existing-ids',
+                'updater_base_fk_with_idx',
+                'updater_base_id',
+                'updater_base_fk_target',
+                'id',
+                'CASCADE',
+                'CASCADE'
+            )->execute();
+        }
+
+        $this->addHistoryEntry('m20200406_124200_create_table_updater_base');
     }
 
     /**
@@ -174,16 +191,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             $this->getDb()->createCommand()->addPrimaryKey('string_pk-primary-key', 'string_pk', 'col')->execute();
         }
 
-        $this->getDb()
-            ->createCommand()
-            ->insert(
-                $this->historyTable,
-                [
-                    'version' => 'm20200414_130200_create_table_pk_base',
-                    'apply_time' => 1586131201,
-                ]
-            )
-            ->execute();
+        $this->addHistoryEntry('m20200414_130200_create_table_pk_base');
     }
 
     /**
@@ -229,16 +237,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             ]
         );
 
-        $this->getDb()
-            ->createCommand()
-            ->insert(
-                $this->historyTable,
-                [
-                    'version' => 'm20200422_210000_create_table_schemas_base',
-                    'apply_time' => 1586131201,
-                ]
-            )
-            ->execute();
+        $this->addHistoryEntry('m20200422_210000_create_table_schemas_base');
     }
 
     /**
@@ -260,13 +259,18 @@ abstract class DbLoaderTestCase extends DbTestCase
                 ]
             )
             ->execute();
+        $this->addHistoryEntry(MigrateController::BASE_MIGRATION);
+    }
+
+    private function addHistoryEntry(string $version): void
+    {
         $this->getDb()
             ->createCommand()
             ->insert(
                 $this->historyTable,
                 [
-                    'version' => MigrateController::BASE_MIGRATION,
-                    'apply_time' => 1586131200,
+                    'version' => $version,
+                    'apply_time' => time(),
                 ]
             )
             ->execute();
