@@ -362,18 +362,6 @@ class Migration extends Component implements MigrationChangesInterface
                 'tableName' => $this->getRawTableName($table)
             ]
         );
-        if ($this->db->driverName === 'mysql') {
-            // MySQL automatically adds index for foreign key
-            $this->addChange(
-                $table,
-                'createIndex',
-                [
-                    'name' => $name,
-                    'columns' => $columns,
-                    'unique' => false
-                ]
-            );
-        }
     }
 
     public function dropForeignKey($name, $table)
