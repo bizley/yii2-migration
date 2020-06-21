@@ -40,10 +40,15 @@ jobs:
   PHPUnit:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         php: ['7.2', '7.3', '7.4']
+        experimental: [false]
+        include:
+          - php: '8.0'
+            experimental: true
     services:
       mysql:
         image: mysql:5.7.29
