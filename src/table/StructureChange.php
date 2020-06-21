@@ -76,20 +76,22 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns value of the change based on the method.
+     * @param string|null $schema
+     * @param string|null $engineVersion
      * @return mixed Change value
      */
-    public function getValue()
+    public function getValue(string $schema = null, string $engineVersion = null)
     {
         switch ($this->getMethod()) {
             case 'createTable':
-                return $this->getValueForCreateTable();
+                return $this->getValueForCreateTable($schema, $engineVersion);
 
             case 'renameColumn':
                 return $this->getValueForRenameColumn();
 
             case 'addColumn':
             case 'alterColumn':
-                return $this->getValueForAddColumn();
+                return $this->getValueForAddColumn($schema, $engineVersion);
 
             case 'addPrimaryKey':
                 return $this->getValueForAddPrimaryKey();
@@ -117,9 +119,11 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns create table value of the change.
+     * @param string|null $engineName
+     * @param string|null $engineVersion
      * @return array<ColumnInterface>
      */
-    private function getValueForCreateTable(): array
+    private function getValueForCreateTable(string $engineName = null, string $engineVersion = null): array
     {
         $columns = [];
 
@@ -131,7 +135,7 @@ final class StructureChange implements StructureChangeInterface
         foreach ($data as $columnName => $schema) {
             $column = ColumnFactory::build($schema['type'] ?? 'unknown');
             $column->setName($columnName);
-            $column->setLength($schema['length'] ?? null);
+            $column->setLength($schema['length'] ?? null, $engineName, $engineVersion);
             $column->setNotNull($schema['isNotNull'] ?? null);
             $column->setUnique($schema['isUnique'] ?? false);
             $column->setAutoIncrement($schema['autoIncrement'] ?? false);
@@ -174,9 +178,11 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add column value of the change.
+     * @param string|null $engineName
+     * @param string|null $engineVersion
      * @return ColumnInterface
      */
-    private function getValueForAddColumn(): ColumnInterface
+    private function getValueForAddColumn(string $engineName = null, string $engineVersion = null): ColumnInterface
     {
         $data = $this->getData();
         if (
@@ -191,7 +197,7 @@ final class StructureChange implements StructureChangeInterface
 
         $column = ColumnFactory::build($data['schema']['type'] ?? 'unknown');
         $column->setName($data['name']);
-        $column->setLength($data['schema']['length'] ?? null);
+        $column->setLength($data['schema']['length'] ?? null, $engineName, $engineVersion);
         $column->setNotNull($data['schema']['isNotNull'] ?? null);
         $column->setUnique($data['schema']['isUnique'] ?? false);
         $column->setAutoIncrement($data['schema']['autoIncrement'] ?? false);

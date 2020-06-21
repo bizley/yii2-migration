@@ -50,6 +50,7 @@ class m20200406_124200_create_table_updater_base extends Migration
             [
                 'id' => $this->primaryKey(),
                 'updater_base_id' => $this->integer(),
+                'amount' => $this->decimal(10, 2)->notNull()
             ],
             $tableOptions
         );

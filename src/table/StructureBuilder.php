@@ -35,12 +35,22 @@ final class StructureBuilder implements StructureBuilderInterface
             switch ($change->getMethod()) {
                 case 'createTable':
                     $structure->setName($change->getTable());
-                    $this->applyCreateTableValue($structure, $change->getValue(), $schema, $engineVersion);
+                    $this->applyCreateTableValue(
+                        $structure,
+                        $change->getValue($schema, $engineVersion),
+                        $schema,
+                        $engineVersion
+                    );
                     break;
 
                 case 'addColumn':
                 case 'alterColumn':
-                    $this->applyAddColumnValue($structure, $change->getValue(), $schema, $engineVersion);
+                    $this->applyAddColumnValue(
+                        $structure,
+                        $change->getValue($schema, $engineVersion),
+                        $schema,
+                        $engineVersion
+                    );
                     break;
 
                 case 'dropColumn':
