@@ -136,6 +136,7 @@ abstract class DbLoaderTestCase extends DbTestCase
         $columns = [
             'id' => $this->primaryKey(),
             'updater_base_id' => $this->integer(),
+            'amount' => $this->decimal(10, 2)->notNull()
         ];
         if (static::$schema === 'sqlite') {
             $columns[] = 'FOREIGN KEY(updater_base_id) REFERENCES updater_base_fk_target(id)';
