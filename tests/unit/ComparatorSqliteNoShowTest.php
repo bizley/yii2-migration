@@ -399,6 +399,46 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
      * @test
      * @throws NotSupportedException
      */
+    public function shouldReplaceForeignKeyWithDifferentOnUpdateConstraint(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setOnUpdate('CASCADE');
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setOnUpdate('RESTRICT');
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReplaceForeignKeyWithDifferentOnDeleteConstraint(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setOnDelete('CASCADE');
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setOnDelete('RESTRICT');
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldReplacePrimaryKeyWhenOnlyNewOne(): void
     {
         $this->expectException(NotSupportedException::class);
