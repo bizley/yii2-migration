@@ -320,4 +320,110 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             MigrationControllerStub::$content
         );
     }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAlteringForeignKeyColumns(): void
+    {
+        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-plus',
+            'updater_base_fk',
+            'col',
+            'updater_base_fk_target',
+            'id'
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'col\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'NO ACTION\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'updater_base_id\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByAlteringForeignKeyConstraints(): void
+    {
+        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-plus',
+            'updater_base_fk',
+            'updater_base_id',
+            'updater_base_fk_target',
+            'id',
+            'NO ACTION',
+            'RESTRICT'
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            'public function up()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'updater_base_id\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'RESTRICT\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'updater_base_id\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }',
+            MigrationControllerStub::$content
+        );
+    }
 }
