@@ -6,8 +6,9 @@ class m20200406_124200_create_table_updater_base extends Migration
 {
     public function up()
     {
+        $driverName = $this->db->driverName;
         $tableOptions = null;
-        if ($this->db->driverName === 'mysql') {
+        if ($driverName === 'mysql') {
             $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
         }
 
@@ -36,13 +37,13 @@ class m20200406_124200_create_table_updater_base extends Migration
         );
         $this->createIndex('idx-col', 'updater_base_fk', 'col');
         $this->addForeignKey(
-            $this->db->driverName !== 'sqlite' ? 'fk-plus' : '',
+            $driverName !== 'sqlite' ? 'fk-plus' : '',
             'updater_base_fk',
             'updater_base_id',
             'updater_base_fk_target',
             'id',
-            'CASCADE',
-            'CASCADE'
+            $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE',
+            $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE'
         );
 
         $this->createTable(
@@ -61,8 +62,8 @@ class m20200406_124200_create_table_updater_base extends Migration
             'updater_base_id',
             'updater_base_fk_target',
             'id',
-            'CASCADE',
-            'CASCADE'
+            $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE',
+            $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE'
         );
     }
 
