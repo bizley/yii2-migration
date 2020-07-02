@@ -322,6 +322,50 @@ final class Comparator implements ComparatorInterface
                 $blueprint->dropForeignKey($oldForeignKey);
                 $blueprint->addForeignKey($foreignKey);
             }
+
+            $newOnUpdate = $foreignKey->getOnUpdate();
+            $oldOnUpdate = $oldForeignKey->getOnUpdate();
+            if ($newOnUpdate !== $oldOnUpdate) {
+                $blueprint->addDescription(
+                    "different foreign key '$name' ON UPDATE constraint ("
+                    . 'DB: ' . $this->stringifyValue($newOnUpdate) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldOnUpdate) . ')'
+                );
+
+                if ($schema === Schema::SQLITE) {
+                    $blueprint->addDescription(
+                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
+                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+                }
+
+                $blueprint->dropForeignKey($oldForeignKey);
+                $blueprint->addForeignKey($foreignKey);
+            }
+
+            $newOnDelete = $foreignKey->getOnDelete();
+            $oldOnDelete = $oldForeignKey->getOnDelete();
+            if ($newOnDelete !== $oldOnDelete) {
+                $blueprint->addDescription(
+                    "different foreign key '$name' ON DELETE constraint ("
+                    . 'DB: ' . $this->stringifyValue($newOnDelete) . ' != '
+                    . 'MIG: ' . $this->stringifyValue($oldOnDelete) . ')'
+                );
+
+                if ($schema === Schema::SQLITE) {
+                    $blueprint->addDescription(
+                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                    );
+                    if ($onlyShow === false) {
+                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
+                    }
+                }
+
+                $blueprint->dropForeignKey($oldForeignKey);
+                $blueprint->addForeignKey($foreignKey);
+            }
         }
 
         /** @var ForeignKeyInterface $foreignKey */
