@@ -232,7 +232,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
      * @throws InvalidRouteException
      * @throws Exception
      */
-    public function shouldShowUpdateTableByAlteringForeignKey(): void
+    public function shouldShowUpdateTableByAlteringForeignKeyColumns(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
         $this->getDb()->createCommand()->addForeignKey(
@@ -249,6 +249,37 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
         $this->assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - different foreign key \'fk-plus\' columns (DB: ["col"] != MIG: ["updater_base_id"])
+
+ No files generated.',
+            MigrationControllerStub::$stdout
+        );
+        $this->assertSame('', MigrationControllerStub::$content);
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldShowUpdateTableByAlteringForeignKeyConstraints(): void
+    {
+        $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
+        $this->getDb()->createCommand()->addForeignKey(
+            'fk-plus',
+            'updater_base_fk',
+            'updater_base_id',
+            'updater_base_fk_target',
+            'id',
+            'RESTRICT',
+            'RESTRICT'
+        )->execute();
+
+        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        $this->assertStringContainsString(
+            ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
+   - different foreign key \'fk-plus\' ON UPDATE constraint (DB: "RESTRICT" != MIG: "CASCADE")
+   - different foreign key \'fk-plus\' ON DELETE constraint (DB: "RESTRICT" != MIG: "CASCADE")
 
  No files generated.',
             MigrationControllerStub::$stdout

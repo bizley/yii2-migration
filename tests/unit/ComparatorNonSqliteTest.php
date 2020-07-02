@@ -721,6 +721,58 @@ class ComparatorNonSqliteTest extends TestCase
      * @test
      * @throws NotSupportedException
      */
+    public function shouldReplaceForeignKeyWithDifferentOnUpdateConstraint(): void
+    {
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setOnUpdate('CASCADE');
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setOnUpdate('RESTRICT');
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+
+        $this->assertTrue($this->blueprint->isPending());
+        $this->assertSame(
+            ["different foreign key 'fk' ON UPDATE constraint (DB: \"CASCADE\" != MIG: \"RESTRICT\")"],
+            $this->blueprint->getDescriptions()
+        );
+        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReplaceForeignKeyWithDifferentOnDeleteConstraint(): void
+    {
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setOnDelete('RESTRICT');
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setOnDelete('CASCADE');
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+
+        $this->assertTrue($this->blueprint->isPending());
+        $this->assertSame(
+            ["different foreign key 'fk' ON DELETE constraint (DB: \"RESTRICT\" != MIG: \"CASCADE\")"],
+            $this->blueprint->getDescriptions()
+        );
+        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldReplacePrimaryKeyWhenOnlyNewOne(): void
     {
         $primaryKeyNew = new PrimaryKey();
