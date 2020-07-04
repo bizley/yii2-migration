@@ -3,6 +3,7 @@
 namespace yii\db;
 
 use bizley\migration\dummy\MigrationChangesInterface;
+use bizley\migration\SqlColumnMapper;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
 use ReflectionClass;
@@ -13,6 +14,7 @@ use yii\base\NotSupportedException;
 
 use function array_key_exists;
 use function is_array;
+use function is_string;
 use function preg_match;
 use function preg_split;
 use function str_replace;
@@ -77,6 +79,7 @@ class Migration extends Component implements MigrationChangesInterface
      * @param array<string, mixed> $columns
      * @return array<string, array<string, string|int|null>>
      * @throws ReflectionException
+     * @throws NotSupportedException
      */
     private function extractColumns(array $columns): array
     {
@@ -156,9 +159,14 @@ class Migration extends Component implements MigrationChangesInterface
      * @return array<string, string|int|null>
      * @throws ReflectionException
      * @throws InvalidArgumentException in case column data is not an instance of ColumnSchemaBuilder
+     * @throws NotSupportedException
      */
     private function extractColumn($columnData): array
     {
+        if (is_string($columnData)) {
+            return SqlColumnMapper::map($columnData, $this->db->schema->typeMap);
+        }
+
         if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
                 'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
@@ -286,7 +294,10 @@ class Migration extends Component implements MigrationChangesInterface
         // not supported
     }
 
-    /** @throws ReflectionException */
+    /**
+     * @throws ReflectionException
+     * @throws NotSupportedException
+     */
     public function addColumn($table, $column, $type)
     {
         $this->addChange(
@@ -316,7 +327,10 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    /** @throws ReflectionException */
+    /**
+     * @throws ReflectionException
+     * @throws NotSupportedException
+     */
     public function alterColumn($table, $column, $type)
     {
         $this->addChange(
