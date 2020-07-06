@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 
 use function array_key_exists;
@@ -56,7 +55,6 @@ class SqlColumnMapper
      * @param string $definition
      * @param array<string, string> $typeMap
      * @return array<string, mixed>
-     * @throws NotSupportedException
      */
     public static function map(string $definition, array $typeMap): array
     {
@@ -65,7 +63,6 @@ class SqlColumnMapper
 
     /**
      * @return array<string, mixed>
-     * @throws NotSupportedException
      */
     private function getSchema(): array
     {
@@ -85,9 +82,6 @@ class SqlColumnMapper
         return $this->schema;
     }
 
-    /**
-     * @throws NotSupportedException
-     */
     private function detectTypeAndLength(): void
     {
         foreach ($this->typeMap as $dbType => $yiiType) {
@@ -110,9 +104,7 @@ class SqlColumnMapper
             }
         }
 
-        throw new NotSupportedException(
-            "Type of column defined by SQL '{$this->definition}' has not been recognized."
-        );
+        $this->schema['type'] = 'string';
     }
 
     private function detectComment(): void
