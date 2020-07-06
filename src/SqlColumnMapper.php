@@ -8,6 +8,7 @@ use yii\base\NotSupportedException;
 use yii\db\Expression;
 
 use function array_key_exists;
+use function array_slice;
 use function is_numeric;
 use function preg_match;
 use function preg_replace;
@@ -118,7 +119,7 @@ class SqlColumnMapper
     {
         if (preg_match('/COMMENT\s?\'/i', $this->definition, $matches)) {
             $cutFrom = (int)stripos($this->definition, 'COMMENT');
-            [$cutTo, $sentence] = $this->findSingleQuotedPart($this->definition, $cutFrom);
+            [$cutTo, $sentence] = $this->findPart("'", $this->definition, $cutFrom);
             $this->schema['comment'] = $sentence;
             $definitionFirstPart = substr($this->definition, 0, $cutFrom);
             $definitionLastPart = substr($this->definition, (int)$cutTo);
@@ -135,22 +136,22 @@ class SqlColumnMapper
         if (preg_match('/DEFAULT\s?\'/i', $this->definition, $matches)) {
             $detected = true;
             $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findSingleQuotedPart($this->definition, $cutFrom);
+            [$cutTo, $sentence] = $this->findPart("'", $this->definition, $cutFrom);
             $this->schema['default'] = $sentence;
         } elseif (preg_match('/DEFAULT\s?\(/i', $this->definition, $matches)) {
             $detected = true;
             $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findParenthesizedPart($this->definition, $cutFrom);
+            [$cutTo, $sentence] = $this->findPart('(', $this->definition, $cutFrom);
             $this->schema['default'] = new Expression((string)$sentence);
         } elseif (preg_match('/DEFAULT\s?[0-9]/i', $this->definition, $matches)) {
             $detected = true;
             $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findNumericPart($this->definition, $cutFrom);
+            [$cutTo, $sentence] = $this->findPart('1', $this->definition, $cutFrom);
             $this->schema['default'] = $sentence;
         } elseif (preg_match('/DEFAULT\s?[a-z]/i', $this->definition, $matches)) {
             $detected = true;
             $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findExpressionPart($this->definition, $cutFrom + 7);
+            [$cutTo, $sentence] = $this->findPart('', $this->definition, $cutFrom + 7);
             $this->schema['default'] = new Expression((string)$sentence);
         }
 
@@ -189,7 +190,7 @@ class SqlColumnMapper
     {
         if (preg_match('/AFTER\s?\'/i', $this->definition, $matches)) {
             $cutFrom = (int)stripos($this->definition, 'AFTER');
-            [$cutTo, $sentence] = $this->findBacktickedPart($this->definition, $cutFrom + 5);
+            [$cutTo, $sentence] = $this->findPart('`', $this->definition, $cutFrom + 5);
             $this->schema['after'] = $sentence;
             $definitionFirstPart = substr($this->definition, 0, $cutFrom);
             $definitionLastPart = substr($this->definition, (int)$cutTo);
@@ -236,21 +237,48 @@ class SqlColumnMapper
     }
 
     /**
+     * @param string $type
      * @param string $sentence
      * @param int $offset
      * @return array<int|string>
      */
-    private function findSingleQuotedPart(string $sentence, int $offset = 0): array
+    private function findPart(string $type, string $sentence, int $offset = 0): array
     {
         $sentence = substr($sentence, $offset);
-        $end = 0;
-        $part = '';
 
         $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
         if ($sentenceArray === false) {
             $sentenceArray = [];
         }
 
+        switch ($type) {
+            case "'":
+                [$end, $part] = $this->findSingleQuotedPart($sentenceArray);
+                break;
+            case '`':
+                [$end, $part] = $this->findBacktickedPart($sentenceArray);
+                break;
+            case '(':
+                [$end, $part] = $this->findParenthesizedPart($sentenceArray);
+                break;
+            case '1':
+                [$end, $part] = $this->findNumericPart($sentenceArray);
+                break;
+            default:
+                [$end, $part] = $this->findExpressionPart($sentenceArray);
+        }
+
+        return [$end ? (int)$end + $offset : 0, $part];
+    }
+
+    /**
+     * @param string[] $sentenceArray
+     * @return array<int|string>
+     */
+    private function findSingleQuotedPart(array $sentenceArray): array
+    {
+        $part = '';
+        $end = 0;
         $collect = false;
         $consecutiveQuotes = 0;
         foreach ($sentenceArray as $index => $char) {
@@ -271,7 +299,7 @@ class SqlColumnMapper
                     $consecutiveQuotes = 0;
                 }
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
                 if ($char === "'") {
                     $consecutiveQuotes++;
                 }
@@ -285,21 +313,13 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $sentence
-     * @param int $offset
+     * @param string[] $sentenceArray
      * @return array<int|string>
      */
-    private function findBacktickedPart(string $sentence, int $offset = 0): array
+    private function findBacktickedPart(array $sentenceArray): array
     {
-        $sentence = substr($sentence, $offset);
-        $end = 0;
         $part = '';
-
-        $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
-        if ($sentenceArray === false) {
-            $sentenceArray = [];
-        }
-
+        $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
             if (!$collect && $char !== '`' && !preg_match('/[a-z]/i', $char)) {
@@ -310,7 +330,7 @@ class SqlColumnMapper
                 $collect = true;
                 if ($char !== '`') {
                     $part .= $char;
-                    $end = $index + $offset + 1;
+                    $end = $index + 1;
                 }
                 continue;
             }
@@ -320,7 +340,7 @@ class SqlColumnMapper
                     break;
                 }
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
             }
         }
 
@@ -328,21 +348,13 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $sentence
-     * @param int $offset
+     * @param string[] $sentenceArray
      * @return array<int|string>
      */
-    private function findParenthesizedPart(string $sentence, int $offset = 0): array
+    private function findParenthesizedPart(array $sentenceArray): array
     {
-        $sentence = substr($sentence, $offset);
-        $end = 0;
         $part = '';
-
-        $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
-        if ($sentenceArray === false) {
-            $sentenceArray = [];
-        }
-
+        $end = 0;
         $collect = false;
         $openedParenthesis = 0;
         foreach ($sentenceArray as $index => $char) {
@@ -356,7 +368,7 @@ class SqlColumnMapper
 
             if ($collect) {
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
                 if ($char === '(') {
                     $openedParenthesis++;
                 } elseif ($char === ')') {
@@ -372,21 +384,13 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $sentence
-     * @param int $offset
+     * @param string[] $sentenceArray
      * @return array<int|string>
      */
-    private function findNumericPart(string $sentence, int $offset = 0): array
+    private function findNumericPart(array $sentenceArray): array
     {
-        $sentence = substr($sentence, $offset);
-        $end = 0;
         $part = '';
-
-        $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
-        if ($sentenceArray === false) {
-            $sentenceArray = [];
-        }
-
+        $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
             if (!$collect && !is_numeric($char) && $char !== '-') {
@@ -396,7 +400,7 @@ class SqlColumnMapper
             if (!$collect && (is_numeric($char) || $char === '-')) {
                 $collect = true;
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
                 continue;
             }
 
@@ -405,7 +409,7 @@ class SqlColumnMapper
                     break;
                 }
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
             }
         }
 
@@ -413,21 +417,13 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $sentence
-     * @param int $offset
+     * @param string[] $sentenceArray
      * @return array<int|string>
      */
-    private function findExpressionPart(string $sentence, int $offset = 0): array
+    private function findExpressionPart(array $sentenceArray): array
     {
-        $sentence = substr($sentence, $offset);
-        $end = 0;
         $part = '';
-
-        $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
-        if ($sentenceArray === false) {
-            $sentenceArray = [];
-        }
-
+        $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
             if (!$collect && !preg_match('/[a-z]/i', $char)) {
@@ -444,14 +440,16 @@ class SqlColumnMapper
                 }
 
                 if ($char === '(') {
-                    [$parenthesisPartEnd, $parenthesisPart] = $this->findParenthesizedPart($sentence, $index);
+                    [$parenthesisPartEnd, $parenthesisPart] = $this->findParenthesizedPart(
+                        array_slice($sentenceArray, $index)
+                    );
                     $part .= $parenthesisPart;
                     $end = $parenthesisPartEnd;
                     break;
                 }
 
                 $part .= $char;
-                $end = $index + $offset + 1;
+                $end = $index + 1;
             }
         }
 
