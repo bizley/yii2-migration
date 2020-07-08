@@ -50,6 +50,19 @@ final class MigrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
+        Yii::$app = new class {
+            public $errorHandler;
+
+            public function __construct()
+            {
+                $this->errorHandler = new \stdClass();
+            }
+
+            public function has(): bool
+            {
+                return false;
+            }
+        };
         $this->db = $this->createMock(Connection::class);
         $this->controller = new MigrationControllerStub('id', $this->createMock(Module::class));
         $this->controller->db = $this->db;
@@ -65,16 +78,22 @@ final class MigrationControllerTest extends TestCase
         GeneratorStub::$throwForKeys = false;
     }
 
+    protected function tearDown(): void
+    {
+        Yii::$app = null;
+    }
+
     public function providerForOptions(): array
     {
         return [
-            'default' => ['default', ['color', 'interactive', 'help', 'db']],
+            'default' => ['default', ['color', 'interactive', 'help', 'silentExitOnException', 'db']],
             'create' => [
                 'create',
                 [
                     'color',
                     'interactive',
                     'help',
+                    'silentExitOnException',
                     'db',
                     'fixHistory',
                     'generalSchema',
@@ -91,6 +110,7 @@ final class MigrationControllerTest extends TestCase
                     'color',
                     'interactive',
                     'help',
+                    'silentExitOnException',
                     'db',
                     'fixHistory',
                     'generalSchema',

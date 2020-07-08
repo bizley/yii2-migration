@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\base\Module;
 use yii\base\View;
+use yii\console\Request;
+use yii\console\Response;
 use yii\db\Connection;
 
 /** @group controller */
@@ -20,7 +22,14 @@ final class BaseMigrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->controller = new BaseMigrationController('id', $this->createMock(Module::class));
+        $this->controller = new BaseMigrationController(
+            'id',
+            $this->createMock(Module::class),
+            [
+                'request' => Request::class,
+                'response' => Response::class
+            ]
+        );
         $this->controller->db = $this->createMock(Connection::class);
         $this->controller->view = $this->createMock(View::class);
     }
