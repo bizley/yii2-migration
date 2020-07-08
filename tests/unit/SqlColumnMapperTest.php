@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use yii\db\cubrid\Schema as CubridSchema;
 use yii\db\mssql\Schema as MSSqlSchema;
 use yii\db\mysql\Schema as MySqlSchema;
+use yii\db\pgsql\Schema as PostgreSqlSchema;
+use yii\db\sqlite\Schema as SqliteSchema;
 
 /** @group sqlcolumnmapper */
 class SqlColumnMapperTest extends TestCase
@@ -110,7 +112,7 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectMSSqlTypes(string $definition, array $schema): void
     {
-        $this->assertSame($schema, SqlColumnMapper::map($definition, (new MSSqlSchema())->typeMap));
+        self::assertSame($schema, SqlColumnMapper::map($definition, (new MSSqlSchema())->typeMap));
     }
 
     public function providerForMySql(): array
@@ -198,6 +200,223 @@ class SqlColumnMapperTest extends TestCase
                     'string' => 'string',
                 ]
             )
+        );
+    }
+
+    public function providerForPostgreSql(): array
+    {
+        return [
+            ['bit', ['type' => 'integer']],
+            ['bit varying', ['type' => 'integer']],
+            ['varbit', ['type' => 'integer']],
+            ['bool', ['type' => 'boolean']],
+            ['boolean', ['type' => 'boolean']],
+            ['box', ['type' => 'string']],
+            ['circle', ['type' => 'string']],
+            ['point', ['type' => 'string']],
+            ['line', ['type' => 'string']],
+            ['lseg', ['type' => 'string']],
+            ['polygon', ['type' => 'string']],
+            ['path', ['type' => 'string']],
+            ['character', ['type' => 'char']],
+            ['char', ['type' => 'char']],
+            ['bpchar', ['type' => 'char']],
+            ['character varying', ['type' => 'string']],
+            ['varchar', ['type' => 'string']],
+            ['text', ['type' => 'text']],
+            ['bytea', ['type' => 'binary']],
+            ['cidr', ['type' => 'string']],
+            ['inet', ['type' => 'string']],
+            ['macaddr', ['type' => 'string']],
+            ['real', ['type' => 'float']],
+            ['float4', ['type' => 'float']],
+            ['double precision', ['type' => 'double']],
+            ['float8', ['type' => 'double']],
+            ['decimal', ['type' => 'decimal']],
+            ['numeric', ['type' => 'decimal']],
+            ['money', ['type' => 'money']],
+            ['smallint', ['type' => 'smallint']],
+            ['int2', ['type' => 'smallint']],
+            ['int4', ['type' => 'integer']],
+            ['int', ['type' => 'integer']],
+            ['integer', ['type' => 'integer']],
+            ['bigint', ['type' => 'bigint']],
+            ['int8', ['type' => 'bigint']],
+            ['oid', ['type' => 'bigint']],
+            ['smallserial', ['type' => 'smallint']],
+            ['serial2', ['type' => 'smallint']],
+            ['serial4', ['type' => 'integer']],
+            ['serial', ['type' => 'integer']],
+            ['bigserial', ['type' => 'bigint']],
+            ['serial8', ['type' => 'bigint']],
+            ['pg_lsn', ['type' => 'bigint']],
+            ['date', ['type' => 'date']],
+            ['interval', ['type' => 'string']],
+            ['time without time zone', ['type' => 'time']],
+            ['time', ['type' => 'time']],
+            ['time with time zone', ['type' => 'time']],
+            ['timetz', ['type' => 'time']],
+            ['timestamp without time zone', ['type' => 'timestamp']],
+            ['timestamp', ['type' => 'timestamp']],
+            ['timestamp with time zone', ['type' => 'timestamp']],
+            ['timestamptz', ['type' => 'timestamp']],
+            ['abstime', ['type' => 'timestamp']],
+            ['tsquery', ['type' => 'string']],
+            ['tsvector', ['type' => 'string']],
+            ['txid_snapshot', ['type' => 'string']],
+            ['unknown', ['type' => 'string']],
+            ['uuid', ['type' => 'string']],
+            ['json', ['type' => 'json']],
+            ['jsonb', ['type' => 'json']],
+            ['xml', ['type' => 'string']],
+            ['xxx', ['type' => 'string', 'append' => 'xxx']],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForPostgreSql
+     * @param string $definition
+     * @param array $schema
+     */
+    public function shouldDetectPostgreSqlTypes(string $definition, array $schema): void
+    {
+        $this->assertSame($schema, SqlColumnMapper::map($definition, (new PostgreSqlSchema())->typeMap));
+    }
+
+    public function providerForSqlite(): array
+    {
+        return [
+            ['tinyint', ['type' => 'tinyint']],
+            ['bit', ['type' => 'smallint']],
+            ['boolean', ['type' => 'boolean']],
+            ['bool', ['type' => 'boolean']],
+            ['smallint', ['type' => 'smallint']],
+            ['mediumint', ['type' => 'integer']],
+            ['int', ['type' => 'integer']],
+            ['integer', ['type' => 'integer']],
+            ['bigint', ['type' => 'bigint']],
+            ['float', ['type' => 'float']],
+            ['double', ['type' => 'double']],
+            ['real', ['type' => 'float']],
+            ['decimal', ['type' => 'decimal']],
+            ['numeric', ['type' => 'decimal']],
+            ['tinytext', ['type' => 'text']],
+            ['mediumtext', ['type' => 'text']],
+            ['longtext', ['type' => 'text']],
+            ['text', ['type' => 'text']],
+            ['varchar', ['type' => 'string']],
+            ['string', ['type' => 'string']],
+            ['char', ['type' => 'char']],
+            ['blob', ['type' => 'binary']],
+            ['datetime', ['type' => 'datetime']],
+            ['year', ['type' => 'date']],
+            ['date', ['type' => 'date']],
+            ['time', ['type' => 'time']],
+            ['timestamp', ['type' => 'timestamp']],
+            ['enum', ['type' => 'string']],
+            ['xxx', ['type' => 'string', 'append' => 'xxx']],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSqlite
+     * @param string $definition
+     * @param array $schema
+     */
+    public function shouldDetectSqliteTypes(string $definition, array $schema): void
+    {
+        $this->assertSame($schema, SqlColumnMapper::map($definition, (new SqliteSchema())->typeMap));
+    }
+
+    /** @test */
+    public function shouldDetectTypeWithoutLength(): void
+    {
+        $this->assertSame(['type' => 'string'], SqlColumnMapper::map('varchar', ['varchar' => 'string']));
+    }
+
+    /** @test */
+    public function shouldDetectTypeWithLength(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'length' => '255'
+            ],
+            SqlColumnMapper::map('varchar(255)', ['varchar' => 'string'])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectTypeWithLengthVariant2(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'float',
+                'length' => '5,2'
+            ],
+            SqlColumnMapper::map('float(5, 2)', ['float' => 'float'])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectComment(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'comment' => 'test',
+            ],
+            SqlColumnMapper::map('comment \'test\'', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectCommentWithQuote(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'comment' => "te''st",
+            ],
+            SqlColumnMapper::map("comment 'te''st'", [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectStringDefault(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'default' => "test",
+            ],
+            SqlColumnMapper::map("default 'test'", [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectNumericDefault(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'default' => '12',
+            ],
+            SqlColumnMapper::map('default 12', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectNumericDefaultWithDot(): void
+    {
+        $this->assertSame(
+            [
+                'type' => 'string',
+                'default' => '1.5',
+            ],
+            SqlColumnMapper::map('default 1.5', [])
         );
     }
 }
