@@ -173,14 +173,14 @@ class SqlColumnMapper
     private function detectFirst(): void
     {
         if (stripos($this->definition, 'FIRST') !== false) {
-            $this->schema['isFirst'] = false;
+            $this->schema['isFirst'] = true;
             $this->definition = str_ireplace('FIRST', '', $this->definition);
         }
     }
 
     private function detectAfter(): void
     {
-        if (preg_match('/AFTER\s?\'/i', $this->definition, $matches)) {
+        if (preg_match('/AFTER\s?`/i', $this->definition, $matches)) {
             $cutFrom = (int)stripos($this->definition, 'AFTER');
             [$cutTo, $sentence] = $this->findPart('`', $this->definition, $cutFrom + 5);
             $this->schema['after'] = $sentence;
@@ -328,11 +328,11 @@ class SqlColumnMapper
             }
 
             if ($collect) {
-                if ($char === "`" || preg_match('/\s/', $char)) {
+                if ($char === '`' || preg_match('/\s/', $char)) {
                     break;
                 }
                 $part .= $char;
-                $end = $index + 1;
+                $end = $index + 2;
             }
         }
 

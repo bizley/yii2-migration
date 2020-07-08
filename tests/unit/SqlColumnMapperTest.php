@@ -61,7 +61,7 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectCubridTypes(string $definition, array $schema): void
     {
-        $this->assertSame($schema, SqlColumnMapper::map($definition, (new CubridSchema())->typeMap));
+        self::assertSame($schema, SqlColumnMapper::map($definition, (new CubridSchema())->typeMap));
     }
 
     public function providerForMSSql(): array
@@ -159,7 +159,7 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectMySqlTypes(string $definition, array $schema): void
     {
-        $this->assertSame($schema, SqlColumnMapper::map($definition, (new MySqlSchema())->typeMap));
+        self::assertSame($schema, SqlColumnMapper::map($definition, (new MySqlSchema())->typeMap));
     }
 
     public function providerForOracle(): array
@@ -185,7 +185,7 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectOracleTypes(string $definition, array $schema): void
     {
-        $this->assertSame(
+        self::assertSame(
             $schema,
             SqlColumnMapper::map(
                 $definition,
@@ -281,7 +281,7 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectPostgreSqlTypes(string $definition, array $schema): void
     {
-        $this->assertSame($schema, SqlColumnMapper::map($definition, (new PostgreSqlSchema())->typeMap));
+        self::assertSame($schema, SqlColumnMapper::map($definition, (new PostgreSqlSchema())->typeMap));
     }
 
     public function providerForSqlite(): array
@@ -327,19 +327,19 @@ class SqlColumnMapperTest extends TestCase
      */
     public function shouldDetectSqliteTypes(string $definition, array $schema): void
     {
-        $this->assertSame($schema, SqlColumnMapper::map($definition, (new SqliteSchema())->typeMap));
+        self::assertSame($schema, SqlColumnMapper::map($definition, (new SqliteSchema())->typeMap));
     }
 
     /** @test */
     public function shouldDetectTypeWithoutLength(): void
     {
-        $this->assertSame(['type' => 'string'], SqlColumnMapper::map('varchar', ['varchar' => 'string']));
+        self::assertSame(['type' => 'string'], SqlColumnMapper::map('varchar', ['varchar' => 'string']));
     }
 
     /** @test */
     public function shouldDetectTypeWithLength(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'length' => '255'
@@ -351,7 +351,7 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectTypeWithLengthVariant2(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'float',
                 'length' => '5,2'
@@ -363,7 +363,7 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectComment(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'comment' => 'test',
@@ -375,7 +375,7 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectCommentWithQuote(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'comment' => "te''st",
@@ -387,7 +387,7 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectStringDefault(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'default' => "test",
@@ -399,7 +399,7 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectNumericDefault(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'default' => '12',
@@ -411,12 +411,170 @@ class SqlColumnMapperTest extends TestCase
     /** @test */
     public function shouldDetectNumericDefaultWithDot(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'type' => 'string',
                 'default' => '1.5',
             ],
             SqlColumnMapper::map('default 1.5', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectParenthesizedDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default (default (value))', []);
+        self::assertSame('string', $schema['type']);
+        self::assertSame('(default (value))', $schema['default']->expression);
+    }
+
+    /** @test */
+    public function shouldDetectExpressionDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default CURRENT_TIMESTAMP', []);
+        self::assertSame('string', $schema['type']);
+        self::assertSame('CURRENT_TIMESTAMP', $schema['default']->expression);
+    }
+
+    /** @test */
+    public function shouldDetectParenthesizedExpressionDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default NOW()', []);
+        self::assertSame('string', $schema['type']);
+        self::assertSame('NOW()', $schema['default']->expression);
+    }
+
+    /** @test */
+    public function shouldDetectFirst(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isFirst' => true,
+            ],
+            SqlColumnMapper::map('first', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectAfter(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'after' => 'col',
+            ],
+            SqlColumnMapper::map('after `col`', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectNotNull(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isNotNull' => true,
+            ],
+            SqlColumnMapper::map('not null', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectNull(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isNotNull' => false,
+            ],
+            SqlColumnMapper::map('null', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectAutoincrement(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'autoIncrement' => true,
+            ],
+            SqlColumnMapper::map('AUTOINCREMENT', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectAutoincrementVariant2(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'autoIncrement' => true,
+            ],
+            SqlColumnMapper::map('AUTO_INCREMENT', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectPrimaryKey(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isPrimaryKey' => true,
+            ],
+            SqlColumnMapper::map('IDENTITY PRIMARY KEY', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectPrimaryKeyVariant2(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isPrimaryKey' => true,
+            ],
+            SqlColumnMapper::map('PRIMARY KEY', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectUnsigned(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isUnsigned' => true,
+            ],
+            SqlColumnMapper::map('unsigned', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectUnique(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isUnique' => true,
+            ],
+            SqlColumnMapper::map('Unique', [])
+        );
+    }
+
+    /** @test */
+    public function shouldPrepareAppend(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+                'isNotNull' => true,
+                'isPrimaryKey' => true,
+                'append' => 'test'
+            ],
+            SqlColumnMapper::map('primary key not null test', [])
         );
     }
 }
