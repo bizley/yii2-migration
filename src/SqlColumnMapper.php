@@ -66,7 +66,6 @@ class SqlColumnMapper
      */
     private function getSchema(): array
     {
-        $this->detectTypeAndLength();
         $this->detectComment();
         $this->detectDefault();
         $this->detectFirst();
@@ -77,6 +76,8 @@ class SqlColumnMapper
         $this->detectPrimaryKey();
         $this->detectUnsigned();
         $this->detectUnique();
+        $this->detectTypeAndLength();
+
         $this->prepareAppend();
 
         return $this->schema;

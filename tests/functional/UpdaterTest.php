@@ -40,9 +40,9 @@ abstract class UpdaterTest extends DbLoaderTestCase
      */
     public function shouldHandleNonExistingTable(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['non-existing-table']));
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['non-existing-table']));
 
-        $this->assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
     }
 
     /**
@@ -54,8 +54,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     public function shouldFindMatchingTables(): void
     {
         MigrationControllerStub::$confirmControl = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_*']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_*']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
  > Are you sure you want to generate migrations for the following tables?
    - updater_base_fk
@@ -77,8 +77,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
 
  > Comparing current table \'updater_base\' with its migrations ...DONE!
@@ -87,7 +87,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
  > Saved as \'',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_updater_base.php\'
 
  Generated 1 file
@@ -95,7 +95,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
 ',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'public function up()
     {
         $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col3\'));
@@ -119,8 +119,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->createIndex(\'idx-add\', \'{{%updater_base}}\', [\'col\']);
@@ -144,8 +144,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->createIndex(\'idx-add-unique\', \'{{%updater_base}}\', [\'col\'], true);
@@ -169,8 +169,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->createIndex(\'idx-add-multi\', \'{{%updater_base}}\', [\'col\', \'col2\']);
@@ -199,8 +199,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
             true
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->createIndex(\'idx-add-multi-unique\', \'{{%updater_base}}\', [\'col\', \'col2\'], true);
@@ -224,8 +224,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropIndex(\'idx-col\', \'{{%updater_base_fk}}\');
@@ -247,8 +247,8 @@ abstract class UpdaterTest extends DbLoaderTestCase
      */
     public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -258,7 +258,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
      */
     public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

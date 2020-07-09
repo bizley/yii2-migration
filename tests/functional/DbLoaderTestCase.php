@@ -242,6 +242,32 @@ abstract class DbLoaderTestCase extends DbTestCase
     }
 
     /**
+     * @throws NotSupportedException
+     * @throws Exception
+     */
+    protected function addExperimentalBase(): void
+    {
+        $this->createMigrationHistoryTable();
+
+        $this->dropTable('exp_updater_base');
+
+        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
+
+        // Tables are added like this and not through the migration to skip class' autoloading.
+        $this->createTable(
+            'exp_updater_base',
+            [
+                'id' => $this->primaryKey(),
+                'col' => 'VARCHAR(255) COMMENT \'test\'',
+                'col2' => 'INTEGER UNSIGNED',
+                'col3' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP'
+            ]
+        );
+
+        $this->addHistoryEntry('m20200709_121500_create_table_exp_updater_base');
+    }
+
+    /**
      * @throws Exception
      * @throws NotSupportedException
      */
