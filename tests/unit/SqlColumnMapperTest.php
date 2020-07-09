@@ -349,6 +349,17 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldDetectEnum(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map("enum('one', 'two')", ['enum' => 'string'])
+        );
+    }
+
+    /** @test */
     public function shouldDetectTypeWithLengthVariant2(): void
     {
         self::assertSame(
