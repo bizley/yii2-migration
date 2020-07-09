@@ -39,6 +39,9 @@ class Migration extends Component implements MigrationChangesInterface
     /** @var Connection|array|string */
     public $db;
 
+    /** @var bool */
+    public $experimental = false;
+
     /** @throws NotSupportedException */
     public function init()
     {
@@ -177,7 +180,7 @@ class Migration extends Component implements MigrationChangesInterface
             $typeMap = $this->db->schema->typeMap;
         }
 
-        if (is_string($columnData)) {
+        if ($this->experimental && is_string($columnData)) {
             return SqlColumnMapper::map($columnData, $typeMap);
         }
 

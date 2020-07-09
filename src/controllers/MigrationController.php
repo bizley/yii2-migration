@@ -109,7 +109,7 @@ class MigrationController extends BaseMigrationController
             'useTablePrefix',
             'excludeTables'
         ];
-        $updateOptions = ['onlyShow', 'skipMigrations'];
+        $updateOptions = ['onlyShow', 'skipMigrations', 'experimental'];
 
         switch ($actionID) {
             case 'create':
@@ -129,6 +129,7 @@ class MigrationController extends BaseMigrationController
         return array_merge(
             parent::optionAliases(),
             [
+                'ex' => 'experimental',
                 'fh' => 'fixHistory',
                 'gs' => 'generalSchema',
                 'mn' => 'migrationNamespace',

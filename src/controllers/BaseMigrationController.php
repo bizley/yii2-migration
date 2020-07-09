@@ -80,6 +80,15 @@ class BaseMigrationController extends Controller
      */
     public $generalSchema = true;
 
+    /**
+     * @var bool Whether to run in experimental mode. This mode allows using raw SQL column definition for migration
+     * updater (i.e. ['column' => 'varchar(255)'] instead of ['column' => $this->string()]). Since the generating
+     * process in this mode depends on the individual DBMS syntax the results might not be correct. All help improving
+     * this mode is more than welcome.
+     * @since 4.1.0
+     */
+    public $experimental = false;
+
     /** @var string|array<string, mixed>|Closure */
     public $historyManagerClass = HistoryManager::class;
 
@@ -269,7 +278,7 @@ class BaseMigrationController extends Controller
     public function getExtractor(): ExtractorInterface
     {
         if ($this->extractor === null) {
-            $configuredObject = Yii::createObject($this->extractorClass, [$this->db]);
+            $configuredObject = Yii::createObject($this->extractorClass, [$this->db, $this->experimental]);
             if (!$configuredObject instanceof ExtractorInterface) {
                 throw new InvalidConfigException('Extractor must implement bizley\migration\ExtractorInterface.');
             }

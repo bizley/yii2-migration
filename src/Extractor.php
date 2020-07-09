@@ -19,9 +19,16 @@ final class Extractor implements ExtractorInterface
     /** @var Connection */
     private $db;
 
-    public function __construct(Connection $db)
+    /**
+     * @var bool
+     * @since 4.1.0
+     */
+    private $experimental;
+
+    public function __construct(Connection $db, bool $experimental = false)
     {
         $this->db = $db;
+        $this->experimental = $experimental;
     }
 
     /** @var MigrationChangesInterface */
@@ -56,7 +63,7 @@ final class Extractor implements ExtractorInterface
             require_once $file;
         }
 
-        $this->subject = new $migration(['db' => clone $this->db]);
+        $this->subject = new $migration(['db' => clone $this->db, 'experimental' => $this->experimental]);
         if ($this->subject instanceof MigrationChangesInterface === false) {
             throw new ErrorException(
                 "Class '{$migration}' must implement bizley\migration\dummy\MigrationChangesInterface."
