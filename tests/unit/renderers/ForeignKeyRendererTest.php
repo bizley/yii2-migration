@@ -71,7 +71,7 @@ final class ForeignKeyRendererTest extends TestCase
         $foreignKey->method('getOnUpdate')->willReturn(null);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->addForeignKey(
     \'fk\',
     \'table\',
@@ -94,7 +94,7 @@ final class ForeignKeyRendererTest extends TestCase
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->dropForeignKey(\'fk\', \'table\');',
             $this->renderer->renderDown($foreignKey, 'table')
         );
@@ -214,8 +214,8 @@ RENDERED
         $foreignKey->method('getOnUpdate')->willReturn($onUpdate);
         $foreignKey->method('getName')->willReturn('fk');
 
-        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable', $indent));
-        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test', $indent));
+        self::assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable', $indent));
+        self::assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test', $indent));
     }
 
     public function providerForRenderName(): array
@@ -312,7 +312,7 @@ RENDERED
         $foreignKey->setName($name);
         $foreignKey->setTableName('test');
 
-        $this->assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
-        $this->assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
+        self::assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
+        self::assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
     }
 }

@@ -25,7 +25,7 @@ final class JsonColumnTest extends TestCase
     /** @test */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('json()', $this->column->getDefinition());
+        self::assertSame('json()', $this->column->getDefinition());
     }
 
     public function providerForDefaults(): array
@@ -50,7 +50,7 @@ final class JsonColumnTest extends TestCase
     public function shouldReturnProperDefault($defaultToSet, $expected): void
     {
         $this->column->setDefault($defaultToSet);
-        $this->assertSame($expected, $this->column->getDefault());
+        self::assertSame($expected, $this->column->getDefault());
     }
 
     public function providerForGettingLength(): array
@@ -73,7 +73,7 @@ final class JsonColumnTest extends TestCase
      */
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForSettingLength(): array
@@ -97,13 +97,13 @@ final class JsonColumnTest extends TestCase
     public function shouldSetProperLength(string $schema, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /** @test */
     public function shouldNotDecodeJsonWhenThereIsException(): void
     {
         $this->column->setDefault('{"bad":"json');
-        $this->assertSame('{"bad":"json', $this->column->getDefault());
+        self::assertSame('{"bad":"json', $this->column->getDefault());
     }
 }

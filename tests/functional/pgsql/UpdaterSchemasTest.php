@@ -46,8 +46,8 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     public function shouldFindMatchingSchemasTables(): void
     {
         MigrationControllerStub::$confirmControl = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
  > Are you sure you want to generate migrations for the following tables?
    - schema1.table1
@@ -71,8 +71,8 @@ class UpdaterSchemasTest extends DbLoaderTestCase
         ]);
 
         MigrationControllerStub::$confirmControl = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
  > Are you sure you want to generate migrations for the following tables?
    - schematable
@@ -103,8 +103,8 @@ class UpdaterSchemasTest extends DbLoaderTestCase
             $transaction->commit();
         }
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['test.table']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['test.table']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
 
  > Comparing current table \'test.table\' with its migrations ...DONE!
@@ -114,7 +114,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
             MigrationControllerStub::$stdout
         );
 
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test_table.php\'
 
  Generated 1 file
@@ -122,11 +122,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
 ',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test_table extends Migration',
             MigrationControllerStub::$content
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%test.table}}\',
@@ -155,8 +155,8 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->addColumn('schema1.table1', 'added', $this->integer())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema1.table1']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema1.table1']));
+        self::assertStringContainsString(
             ' > 1 table excluded by the config.
 
  > Comparing current table \'schema1.table1\' with its migrations ...DONE!
@@ -165,7 +165,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
  > Saved as \'',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_schema1_table1.php\'
 
  Generated 1 file
@@ -173,11 +173,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
 ',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_schema1_table1 extends Migration',
             MigrationControllerStub::$content
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'public function up()
     {
         $this->addColumn(\'{{%schema1.table1}}\', \'added\', $this->integer()->after(\'col2\'));

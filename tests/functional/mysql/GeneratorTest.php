@@ -45,8 +45,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_standard_columns}}\',
@@ -101,8 +101,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_gs_columns}}\',
@@ -159,8 +159,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_default_size}}\',
@@ -194,8 +194,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%big_primary_key}}\',
@@ -227,8 +227,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%big_primary_key}}\',
@@ -269,8 +269,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_gs_columns}}\',
@@ -317,8 +317,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%appendixes}}\',
@@ -358,8 +358,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
         $this->getDb()->createCommand()->addPrimaryKey('PK', 'composite_primary_key', ['col1', 'col2'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%composite_primary_key}}\',
@@ -388,8 +388,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%unique}}\',
@@ -427,8 +427,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
         $this->getDb()->createCommand()->addForeignKey('fk-table12', 'table12', ['col'], 'table11', ['id'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%table12}}\',
@@ -499,8 +499,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             'CASCADE'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table21,table22']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table21,table22']));
+        self::assertStringContainsString(
             'public function up()
     {
         $tableOptions = null;
@@ -526,7 +526,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }',
             MigrationControllerStub::$content
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'public function up()
     {
         $tableOptions = null;
@@ -560,7 +560,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }',
             MigrationControllerStub::$content
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'public function up()
     {
         $this->addForeignKey(
@@ -630,9 +630,9 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             'CASCADE'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table31,table32,table33']));
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table31,table32,table33']));
         preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
-        $this->assertSame(['33', '32', '31'], $matches[1]);
+        self::assertSame(['33', '32', '31'], $matches[1]);
     }
 
     /**
@@ -653,8 +653,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_pk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $tableOptions = null;
@@ -699,8 +699,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_big_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_big_pk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $tableOptions = null;

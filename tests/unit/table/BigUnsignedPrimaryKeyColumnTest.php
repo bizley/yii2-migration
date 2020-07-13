@@ -27,7 +27,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
      */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('bigPrimaryKey({renderLength})', $this->column->getDefinition());
+        self::assertSame('bigPrimaryKey({renderLength})', $this->column->getDefinition());
     }
 
     /**
@@ -35,7 +35,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
      */
     public function shouldBeUnsigned(): void
     {
-        $this->assertTrue($this->column->isUnsigned());
+        self::assertTrue($this->column->isUnsigned());
     }
 
     public function providerForGettingLength(): array
@@ -59,7 +59,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setSize(1);
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForSettingLength(): array
@@ -84,7 +84,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
-        $this->assertSame($expectedSize, $this->column->getSize());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedSize, $this->column->getSize());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }

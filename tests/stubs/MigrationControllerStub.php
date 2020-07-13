@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace bizley\tests\stubs;
 
 use bizley\migration\controllers\MigrationController;
+use yii\console\Request;
+use yii\console\Response;
 
 final class MigrationControllerStub extends MigrationController
 {
@@ -16,6 +18,12 @@ final class MigrationControllerStub extends MigrationController
 
     /** @var string */
     public static $content = '';
+
+    /** @var Request|array|string */
+    public $request = Request::class;
+
+    /** @var Response|array|string */
+    public $response = Response::class;
 
     public function stdout($string) // BC declaration
     {

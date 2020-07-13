@@ -39,14 +39,14 @@ abstract class ListTest extends DbLoaderTestCase
      */
     public function shouldShowListActionWithAllTables(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('list'));
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('list'));
 
-        $this->assertStringContainsString('Yii 2 Migration Generator Tool v', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString(' > Your database contains ', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - updater_base', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - updater_base_fk', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - updater_base_fk_target', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString(
+        self::assertStringContainsString('Yii 2 Migration Generator Tool v', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(' > Your database contains ', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - updater_base', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - updater_base_fk', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - updater_base_fk_target', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(
             '
  > Run
    migration/create <table>

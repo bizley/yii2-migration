@@ -43,14 +43,14 @@ class ListSchemasTest extends DbLoaderTestCase
      */
     public function shouldShowListActionWithAllTables(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('list'));
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('list'));
 
-        $this->assertStringContainsString('Yii 2 Migration Generator Tool v', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString(' > Your database contains ', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - table1', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - schema1.table1', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString('   - schema2.table1', MigrationControllerStub::$stdout);
-        $this->assertStringContainsString(
+        self::assertStringContainsString('Yii 2 Migration Generator Tool v', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(' > Your database contains ', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - table1', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - schema1.table1', MigrationControllerStub::$stdout);
+        self::assertStringContainsString('   - schema2.table1', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(
             '
  > Run
    migration/create <table>

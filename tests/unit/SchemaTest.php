@@ -42,7 +42,7 @@ final class SchemaTest extends TestCase
                 'db' => $this->createMock(Connection::class)
             ]
         );
-        $this->assertSame($expected, Schema::identifySchema($schema));
+        self::assertSame($expected, Schema::identifySchema($schema));
     }
 
     /**
@@ -51,14 +51,14 @@ final class SchemaTest extends TestCase
      */
     public function shouldCheckIfSchemaIsSqlite(): void
     {
-        $this->assertTrue(Schema::isSQLite(Yii::createObject(\yii\db\sqlite\Schema::class)));
-        $this->assertFalse(Schema::isSQLite(new stdClass()));
+        self::assertTrue(Schema::isSQLite(Yii::createObject(\yii\db\sqlite\Schema::class)));
+        self::assertFalse(Schema::isSQLite(new stdClass()));
     }
 
     /** @test */
     public function shouldReturnNoDefaultLengthForNoSchema(): void
     {
-        $this->assertNull(Schema::getDefaultLength(null, YiiSchema::TYPE_PK));
+        self::assertNull(Schema::getDefaultLength(null, YiiSchema::TYPE_PK));
     }
 
     public function providerForSchemaDefaultLengthForCubrid(): array
@@ -96,7 +96,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForCubrid(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::CUBRID, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::CUBRID, $type));
     }
 
     public function providerForSchemaDefaultLengthForMSSQL(): array
@@ -134,7 +134,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForMSSQL(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::MSSQL, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::MSSQL, $type));
     }
 
     public function providerForSchemaDefaultLengthForMySQL(): array
@@ -172,7 +172,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForMySQL(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type));
     }
 
     public function providerForSchemaDefaultLengthForMySQLPlus(): array
@@ -210,7 +210,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForMySQLPlus(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type, '5.6.4'));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type, '5.6.4'));
     }
 
     public function providerForSchemaDefaultLengthForOCI(): array
@@ -248,7 +248,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForOCI(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::OCI, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::OCI, $type));
     }
 
     public function providerForSchemaDefaultLengthForPgSQL(): array
@@ -286,7 +286,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForPgSQL(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::PGSQL, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::PGSQL, $type));
     }
 
     public function providerForSchemaDefaultLengthForSQLite(): array
@@ -324,13 +324,13 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperDefaultLengthForSQLite(string $type, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getDefaultLength(Schema::SQLITE, $type));
+        self::assertSame($expected, Schema::getDefaultLength(Schema::SQLITE, $type));
     }
 
     /** @test */
     public function shouldReturnNoAliasForNoSchema(): void
     {
-        $this->assertNull(Schema::getAlias(null, YiiSchema::TYPE_PK, '11'));
+        self::assertNull(Schema::getAlias(null, YiiSchema::TYPE_PK, '11'));
     }
 
     public function providerForSchemaAliasesForCubrid(): array
@@ -353,7 +353,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForCubrid(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::CUBRID, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::CUBRID, $type, $length));
     }
 
     public function providerForSchemaAliasesForMSSQL(): array
@@ -376,7 +376,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForMSSQL(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::MSSQL, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::MSSQL, $type, $length));
     }
 
     public function providerForSchemaAliasesForMySQL(): array
@@ -399,7 +399,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForMySQL(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::MYSQL, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::MYSQL, $type, $length));
     }
 
     public function providerForSchemaAliasesForOCI(): array
@@ -425,7 +425,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForOCI(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::OCI, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::OCI, $type, $length));
     }
 
     public function providerForSchemaAliasesForPgSQL(): array
@@ -446,7 +446,7 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForPgSQL(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
     }
 
     public function providerForSchemaAliasesForSQLite(): array
@@ -467,6 +467,6 @@ final class SchemaTest extends TestCase
      */
     public function shouldReturnProperAliasForSQLite(string $type, string $length, string $expected = null): void
     {
-        $this->assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
+        self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
     }
 }

@@ -41,7 +41,7 @@ final class ColumnRendererTest extends TestCase
      */
     public function shouldProperlyEscapeQuotes(?string $expected, ?string $input): void
     {
-        $this->assertSame($expected, $this->getRenderer()->escapeQuotes($input));
+        self::assertSame($expected, $this->getRenderer()->escapeQuotes($input));
     }
 
     /** @test */
@@ -51,7 +51,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -61,7 +61,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -71,7 +71,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column));
     }
 
     /** @test */
@@ -83,7 +83,7 @@ final class ColumnRendererTest extends TestCase
 
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column, $primaryKey));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column, $primaryKey));
     }
 
     /** @test */
@@ -93,7 +93,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -106,7 +106,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
     /** @test */
@@ -120,7 +120,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
     /** @test */
@@ -135,7 +135,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertSame('\'col\' => $this->primaryKeyDef(),', $this->getRenderer()->render($column, $primaryKey));
+        self::assertSame('\'col\' => $this->primaryKeyDef(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
     /** @test */
@@ -146,7 +146,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn('12');
 
-        $this->assertSame('\'col\' => $this->def(12),', $this->getRenderer(false)->render($column));
+        self::assertSame('\'col\' => $this->def(12),', $this->getRenderer(false)->render($column));
     }
 
     /** @test */
@@ -157,7 +157,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn(null);
 
-        $this->assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -168,7 +168,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn('11');
 
-        $this->assertSame('\'col\' => $this->def(11),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def(11),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -179,7 +179,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('isUnsigned')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -190,7 +190,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getDefault')->willReturn(new Expression('TEST'));
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def()->defaultExpression(\'TEST\'),',
             $this->getRenderer()->render($column)
         );
@@ -204,7 +204,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getDefault')->willReturn([1, 2, 3]);
 
-        $this->assertSame('\'col\' => $this->def()->defaultValue(\'[1,2,3]\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->defaultValue(\'[1,2,3]\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -215,7 +215,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getDefault')->willReturn(123);
 
-        $this->assertSame('\'col\' => $this->def()->defaultValue(\'123\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->defaultValue(\'123\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -226,7 +226,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getComment')->willReturn('test');
 
-        $this->assertSame('\'col\' => $this->def()->comment(\'test\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->comment(\'test\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -237,7 +237,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getAfter')->willReturn('first');
 
-        $this->assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -249,7 +249,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getAfter')->willReturn('first');
         $column->method('isFirst')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -261,7 +261,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getAfter')->willReturn(null);
         $column->method('isFirst')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def()->first(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->first(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -272,7 +272,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getAppend')->willReturn('aaa');
 
-        $this->assertSame('\'col\' => $this->def()->append(\'aaa\'),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->append(\'aaa\'),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -286,7 +286,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(true);
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def()->append(\'aaa\'),',
             $this->getRenderer()->render($column, $primaryKey)
         );
@@ -304,7 +304,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def()->append(\'aaa\'),',
             $this->getRenderer()->render($column, $primaryKey)
         );
@@ -323,7 +323,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def()->append(\'aaa\'),',
             $this->getRenderer()->render($column, $primaryKey)
         );
@@ -342,7 +342,7 @@ final class ColumnRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def()->append(\'schema-append aaa\'),',
             $this->getRenderer()->render($column, $primaryKey)
         );
@@ -355,7 +355,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->addColumn(\'table\', \'col\', $this->def());',
             $this->getRenderer()->renderAdd($column, 'table')
         );
@@ -368,7 +368,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->alterColumn(\'table\', \'col\', $this->def());',
             $this->getRenderer()->renderAlter($column, 'table')
         );
@@ -380,7 +380,7 @@ final class ColumnRendererTest extends TestCase
         $column = $this->createMock(ColumnInterface::class);
         $column->method('getName')->willReturn('col');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->dropColumn(\'table\', \'col\');',
             $this->getRenderer()->renderDrop($column, 'table')
         );
@@ -394,7 +394,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('getLength')->willReturn('max');
 
-        $this->assertSame(
+        self::assertSame(
             '\'col\' => $this->def(\'max\'),',
             $this->getRenderer()->render($column)
         );
@@ -408,7 +408,7 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('isNotNull')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def()->notNull(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->notNull(),', $this->getRenderer()->render($column));
     }
 
     /** @test */
@@ -419,6 +419,6 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefinition')->willReturn('def({renderLength})');
         $column->method('isUnsigned')->willReturn(true);
 
-        $this->assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
+        self::assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
     }
 }

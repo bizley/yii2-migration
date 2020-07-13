@@ -116,7 +116,7 @@ You can easily generate updating migration for database table by comparing its c
 | `fixHistory`         | `fh`  | Whether to add migration history entry when migration is generated.
 | `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
 | `excludeTables`      |       | List of tables that should be skipped.
-
+| `experimental`       | `ex`  | **New in 4.1.0** - Whether to run in experimental mode (see [3] below).
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 
@@ -137,6 +137,10 @@ You can easily generate updating migration for database table by comparing its c
 [2] Here you can place migrations containing actions that cannot be covered by the extractor i.e. when there is a migration 
 setting the RBAC hierarchy with authManager component. Such actions should be kept in separated migration and placed on 
 this list to prevent them from being run during the extraction process.
+
+[3] This mode allows using raw SQL column definition for migration updater (i.e. `['column' => 'varchar(255)']` instead 
+of `['column' => $this->string()]`). Since the generating process in this mode depends on the individual DBMS syntax 
+the results might not be correct. All help improving this mode is more than welcome.
 
 ## Renaming
 

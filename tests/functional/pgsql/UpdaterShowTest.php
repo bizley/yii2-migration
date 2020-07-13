@@ -26,15 +26,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - excessive column \'col\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -47,8 +47,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: type (DB: "string" != MIG: "integer")
    - different \'col\' column property: length (DB: "255" != MIG: NULL)
@@ -56,7 +56,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -69,15 +69,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col2', $this->string(45))->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col2\' column property: length (DB: "45" != MIG: "255")
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -94,15 +94,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             $this->integer()->defaultValue(4)
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: default (DB: "4" != MIG: NULL)
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -115,15 +115,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -136,15 +136,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'updater_base_col_key\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -157,15 +157,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - excessive foreign key \'fk-plus\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -187,15 +187,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             'CASCADE'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - different foreign key \'fk-plus\' columns (DB: ["col"] != MIG: ["updater_base_id"])
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -217,8 +217,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             'RESTRICT'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - different foreign key \'fk-plus\' ON UPDATE constraint (DB: "RESTRICT" != MIG: "CASCADE")
    - different foreign key \'fk-plus\' ON DELETE constraint (DB: "RESTRICT" != MIG: "CASCADE")
@@ -226,6 +226,6 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

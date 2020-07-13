@@ -3,6 +3,8 @@
 namespace yii\db;
 
 use bizley\migration\dummy\MigrationChangesInterface;
+use bizley\migration\Schema;
+use bizley\migration\SqlColumnMapper;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
 use ReflectionClass;
@@ -13,6 +15,7 @@ use yii\base\NotSupportedException;
 
 use function array_key_exists;
 use function is_array;
+use function is_string;
 use function preg_match;
 use function preg_split;
 use function str_replace;
@@ -35,6 +38,9 @@ class Migration extends Component implements MigrationChangesInterface
 
     /** @var Connection|array|string */
     public $db;
+
+    /** @var bool */
+    public $experimental = false;
 
     /** @throws NotSupportedException */
     public function init()
@@ -159,6 +165,25 @@ class Migration extends Component implements MigrationChangesInterface
      */
     private function extractColumn($columnData): array
     {
+        if (Schema::identifySchema($this->db->schema) === Schema::OCI) {
+            $typeMap = [
+                'float' => 'double',
+                'double' => 'double',
+                'number' => 'decimal',
+                'integer' => 'integer',
+                'blob' => 'binary',
+                'clob' => 'text',
+                'timestamp' => 'timestamp',
+                'string' => 'string',
+            ];
+        } else {
+            $typeMap = $this->db->schema->typeMap;
+        }
+
+        if ($this->experimental && is_string($columnData)) {
+            return SqlColumnMapper::map($columnData, $typeMap);
+        }
+
         if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
                 'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
@@ -172,7 +197,7 @@ class Migration extends Component implements MigrationChangesInterface
         $schema = $this->fillTypeMapProperties(
             $reflectionProperty->getValue($columnData),
             $this->db->schema->getQueryBuilder()->typeMap,
-            $this->db->schema->typeMap
+            $typeMap
         );
 
         foreach (
@@ -286,7 +311,9 @@ class Migration extends Component implements MigrationChangesInterface
         // not supported
     }
 
-    /** @throws ReflectionException */
+    /**
+     * @throws ReflectionException
+     */
     public function addColumn($table, $column, $type)
     {
         $this->addChange(
@@ -316,7 +343,9 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    /** @throws ReflectionException */
+    /**
+     * @throws ReflectionException
+     */
     public function alterColumn($table, $column, $type)
     {
         $this->addChange(

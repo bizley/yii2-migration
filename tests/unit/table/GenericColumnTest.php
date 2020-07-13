@@ -59,7 +59,7 @@ final class GenericColumnTest extends TestCase
         $this->column->setName($name);
         $primaryKey = new PrimaryKey();
         $primaryKey->setColumns($columns);
-        $this->assertSame($expected, $this->column->isColumnInPrimaryKey($primaryKey));
+        self::assertSame($expected, $this->column->isColumnInPrimaryKey($primaryKey));
     }
 
     public function providerForPrimaryKeyInfoAppended(): array
@@ -85,7 +85,7 @@ final class GenericColumnTest extends TestCase
     public function shouldCheckIfPrimaryKeyInfoIsAppended(string $append, string $schema, bool $expected): void
     {
         $this->column->setAppend($append);
-        $this->assertSame($expected, $this->column->isPrimaryKeyInfoAppended($schema));
+        self::assertSame($expected, $this->column->isPrimaryKeyInfoAppended($schema));
     }
 
     public function providerForPrepareSchemaAppend(): array
@@ -132,7 +132,7 @@ final class GenericColumnTest extends TestCase
         bool $autoIncrement,
         ?string $expected
     ): void {
-        $this->assertSame($expected, $this->column->prepareSchemaAppend($primaryKey, $autoIncrement, $schema));
+        self::assertSame($expected, $this->column->prepareSchemaAppend($primaryKey, $autoIncrement, $schema));
     }
 
     public function providerForEscapingQuotes(): array
@@ -151,7 +151,7 @@ final class GenericColumnTest extends TestCase
      */
     public function shouldEscapeQuotes(string $value, string $expected): void
     {
-        $this->assertSame($expected, $this->column->escapeQuotes($value));
+        self::assertSame($expected, $this->column->escapeQuotes($value));
     }
 
     public function providerForRemovingPrimaryKeyInfo(): array
@@ -205,14 +205,14 @@ final class GenericColumnTest extends TestCase
     public function shouldRemoveAppendedPrimaryKeyInfo(string $schema, string $append, ?string $expected): void
     {
         $this->column->setAppend($append);
-        $this->assertSame($expected, $this->column->removeAppendedPrimaryKeyInfo($schema));
+        self::assertSame($expected, $this->column->removeAppendedPrimaryKeyInfo($schema));
     }
 
     /** @test */
     public function shouldProperlySetType(): void
     {
         $this->column->setType('test');
-        $this->assertSame('test', $this->column->getType());
+        self::assertSame('test', $this->column->getType());
     }
 
     public function providerForSizePrecisionScale(): array
@@ -233,7 +233,7 @@ final class GenericColumnTest extends TestCase
     public function shouldProperlySetSize($size, $expected): void
     {
         $this->column->setSize($size);
-        $this->assertSame($expected, $this->column->getSize());
+        self::assertSame($expected, $this->column->getSize());
     }
 
     /**
@@ -245,7 +245,7 @@ final class GenericColumnTest extends TestCase
     public function shouldProperlySetPrecision($precision, $expected): void
     {
         $this->column->setPrecision($precision);
-        $this->assertSame($expected, $this->column->getPrecision());
+        self::assertSame($expected, $this->column->getPrecision());
     }
 
     /**
@@ -257,6 +257,6 @@ final class GenericColumnTest extends TestCase
     public function shouldProperlySetScale($scale, $expected): void
     {
         $this->column->setScale($scale);
-        $this->assertSame($expected, $this->column->getScale());
+        self::assertSame($expected, $this->column->getScale());
     }
 }

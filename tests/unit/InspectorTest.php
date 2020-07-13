@@ -58,7 +58,7 @@ final class InspectorTest extends TestCase
     public function shouldReturnPendingBlueprintWhenNoHistory(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn([]);
-        $this->comparator->expects($this->never())->method('compare');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -69,8 +69,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('table', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('table', $blueprint->getTableName());
     }
 
     /**
@@ -82,7 +82,7 @@ final class InspectorTest extends TestCase
     public function shouldReturnPendingBlueprintWhenAllHistorySkipped(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1]);
-        $this->comparator->expects($this->never())->method('compare');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -93,8 +93,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('table', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('table', $blueprint->getTableName());
     }
 
     /**
@@ -106,7 +106,7 @@ final class InspectorTest extends TestCase
     public function shouldReturnPendingBlueprintWhenAllHistorySkippedAndMigrationNotTrimmed(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration\\' => 1]);
-        $this->comparator->expects($this->never())->method('compare');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -117,8 +117,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('table', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('table', $blueprint->getTableName());
     }
 
     /**
@@ -130,7 +130,7 @@ final class InspectorTest extends TestCase
     public function shouldReturnPendingBlueprintWhenNoChangesGathered(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1]);
-        $this->comparator->expects($this->never())->method('compare');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -141,8 +141,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('table', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('table', $blueprint->getTableName());
     }
 
     /**
@@ -157,7 +157,7 @@ final class InspectorTest extends TestCase
         $this->extractor->method('getChanges')->willReturn(
             ['no-test' => [$this->createMock(StructureChangeInterface::class)]]
         );
-        $this->comparator->expects($this->never())->method('compare');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('test');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -168,8 +168,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('test', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('test', $blueprint->getTableName());
     }
 
 
@@ -190,8 +190,8 @@ final class InspectorTest extends TestCase
         $structureChange = $this->createMock(StructureChangeInterface::class);
         $structureChange->method('getMethod')->willReturn('dropTable');
         $this->extractor->method('getChanges')->willReturn(['test' => [$structureChange]]);
-        $this->extractor->expects($this->once())->method('extract');
-        $this->comparator->expects($this->never())->method('compare');
+        $this->extractor->expects(self::once())->method('extract');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('test');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -202,8 +202,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('test', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('test', $blueprint->getTableName());
     }
 
     /**
@@ -223,8 +223,8 @@ final class InspectorTest extends TestCase
         $structureChange = $this->createMock(StructureChangeInterface::class);
         $structureChange->method('getMethod')->willReturn('createTable');
         $this->extractor->method('getChanges')->willReturn(['test' => [$structureChange]]);
-        $this->extractor->expects($this->once())->method('extract');
-        $this->comparator->expects($this->once())->method('compare');
+        $this->extractor->expects(self::once())->method('extract');
+        $this->comparator->expects(self::once())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('test');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -235,8 +235,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertFalse($blueprint->isPending());
-        $this->assertSame('test', $blueprint->getTableName());
+        self::assertFalse($blueprint->isPending());
+        self::assertSame('test', $blueprint->getTableName());
     }
 
     /**
@@ -264,8 +264,8 @@ final class InspectorTest extends TestCase
                 'renamed-test' => [$structureChangeDrop]
             ]
         );
-        $this->extractor->expects($this->exactly(2))->method('extract');
-        $this->comparator->expects($this->never())->method('compare');
+        $this->extractor->expects(self::exactly(2))->method('extract');
+        $this->comparator->expects(self::never())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('test');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -276,8 +276,8 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertTrue($blueprint->isPending());
-        $this->assertSame('test', $blueprint->getTableName());
+        self::assertTrue($blueprint->isPending());
+        self::assertSame('test', $blueprint->getTableName());
     }
 
     /**
@@ -292,8 +292,8 @@ final class InspectorTest extends TestCase
         $structureChange = $this->createMock(StructureChangeInterface::class);
         $structureChange->method('getMethod')->willReturn('addColumn');
         $this->extractor->method('getChanges')->willReturn(['test' => [$structureChange]]);
-        $this->extractor->expects($this->once())->method('extract');
-        $this->comparator->expects($this->once())->method('compare');
+        $this->extractor->expects(self::once())->method('extract');
+        $this->comparator->expects(self::once())->method('compare');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('test');
         $blueprint = $this->inspector->prepareBlueprint(
@@ -304,7 +304,7 @@ final class InspectorTest extends TestCase
             null,
             null
         );
-        $this->assertFalse($blueprint->isPending());
-        $this->assertSame('test', $blueprint->getTableName());
+        self::assertFalse($blueprint->isPending());
+        self::assertSame('test', $blueprint->getTableName());
     }
 }

@@ -12,6 +12,7 @@ use bizley\tests\stubs\MigrationControllerStub;
 use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Yii;
 use yii\base\Action;
 use yii\base\Controller;
@@ -50,6 +51,19 @@ final class MigrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
+        Yii::$app = new class {
+            public $errorHandler;
+
+            public function __construct()
+            {
+                $this->errorHandler = new stdClass();
+            }
+
+            public function has(): bool
+            {
+                return false;
+            }
+        };
         $this->db = $this->createMock(Connection::class);
         $this->controller = new MigrationControllerStub('id', $this->createMock(Module::class));
         $this->controller->db = $this->db;
@@ -65,16 +79,22 @@ final class MigrationControllerTest extends TestCase
         GeneratorStub::$throwForKeys = false;
     }
 
+    protected function tearDown(): void
+    {
+        Yii::$app = null;
+    }
+
     public function providerForOptions(): array
     {
         return [
-            'default' => ['default', ['color', 'interactive', 'help', 'db']],
+            'default' => ['default', ['color', 'interactive', 'help', 'silentExitOnException', 'db']],
             'create' => [
                 'create',
                 [
                     'color',
                     'interactive',
                     'help',
+                    'silentExitOnException',
                     'db',
                     'fixHistory',
                     'generalSchema',
@@ -91,6 +111,7 @@ final class MigrationControllerTest extends TestCase
                     'color',
                     'interactive',
                     'help',
+                    'silentExitOnException',
                     'db',
                     'fixHistory',
                     'generalSchema',
@@ -100,7 +121,8 @@ final class MigrationControllerTest extends TestCase
                     'useTablePrefix',
                     'excludeTables',
                     'onlyShow',
-                    'skipMigrations'
+                    'skipMigrations',
+                    'experimental'
                 ]
             ],
         ];
@@ -114,15 +136,16 @@ final class MigrationControllerTest extends TestCase
      */
     public function shouldReturnProperOptions(string $actionId, array $expected): void
     {
-        $this->assertSame($expected, $this->controller->options($actionId));
+        self::assertSame($expected, $this->controller->options($actionId));
     }
 
     /** @test */
     public function shouldReturnProperOptionAliases(): void
     {
-        $this->assertSame(
+        self::assertSame(
             [
                 'h' => 'help',
+                'ex' => 'experimental',
                 'fh' => 'fixHistory',
                 'gs' => 'generalSchema',
                 'mn' => 'migrationNamespace',
@@ -148,7 +171,7 @@ final class MigrationControllerTest extends TestCase
                 $event->isValid = false;
             }
         );
-        $this->assertFalse($this->controller->beforeAction($this->createMock(Action::class)));
+        self::assertFalse($this->controller->beforeAction($this->createMock(Action::class)));
     }
 
     /**
@@ -158,8 +181,8 @@ final class MigrationControllerTest extends TestCase
      */
     public function shouldReturnTrueBeforeDefaultAction(): void
     {
-        $this->assertTrue($this->controller->beforeAction($this->createMock(Action::class)));
-        $this->assertStringContainsString(
+        self::assertTrue($this->controller->beforeAction($this->createMock(Action::class)));
+        self::assertStringContainsString(
             'Yii 2 Migration Generator Tool v',
             MigrationControllerStub::$stdout
         );
@@ -203,8 +226,8 @@ final class MigrationControllerTest extends TestCase
         $action->id = $actionId;
         $this->controller->migrationPath = 'tests';
         $this->controller->skipMigrations = ['a\\b\\'];
-        $this->assertTrue($this->controller->beforeAction($action));
-        $this->assertSame(['a\\b'], $this->controller->skipMigrations);
+        self::assertTrue($this->controller->beforeAction($action));
+        self::assertSame(['a\\b'], $this->controller->skipMigrations);
     }
 
     /**
@@ -219,8 +242,8 @@ final class MigrationControllerTest extends TestCase
         $action = $this->createMock(Action::class);
         $action->id = $actionId;
         $this->controller->migrationNamespace = 'bizley\\tests';
-        $this->assertTrue($this->controller->beforeAction($action));
-        $this->assertSame(['bizley\\tests'], $this->controller->migrationNamespace);
+        self::assertTrue($this->controller->beforeAction($action));
+        self::assertSame(['bizley\\tests'], $this->controller->migrationNamespace);
     }
 
     /**
@@ -235,8 +258,8 @@ final class MigrationControllerTest extends TestCase
         $action = $this->createMock(Action::class);
         $action->id = $actionId;
         $this->controller->migrationPath = 'tests';
-        $this->assertTrue($this->controller->beforeAction($action));
-        $this->assertSame(['tests'], $this->controller->migrationPath);
+        self::assertTrue($this->controller->beforeAction($action));
+        self::assertSame(['tests'], $this->controller->migrationPath);
     }
 
     /**
@@ -248,8 +271,8 @@ final class MigrationControllerTest extends TestCase
         $schema = $this->createMock(Schema::class);
         $schema->method('getTableNames')->willReturn([]);
         $this->db->method('getSchema')->willReturn($schema);
-        $this->assertSame(ExitCode::OK, $this->controller->actionList());
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionList());
+        self::assertSame(
             ' > Your database does not contain any tables yet.
 
  > Run
@@ -278,8 +301,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getTableNames')->willReturn(['a', 'b', 't', 'migration_history']);
         $schema->method('getRawTableName')->willReturn('migration_history');
         $this->db->method('getSchema')->willReturn($schema);
-        $this->assertSame(ExitCode::OK, $this->controller->actionList());
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionList());
+        self::assertSame(
             ' > Your database contains 4 tables:
    - a
    - b
@@ -313,8 +336,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getTableNames')->willReturn([]);
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}(''));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}(''));
+        self::assertSame(
             '
  > No matching tables in database.
 ',
@@ -334,8 +357,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getRawTableName')->willReturn('mig');
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('not-test'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('not-test'));
+        self::assertSame(
             '
  > No matching tables in database.
 ',
@@ -356,8 +379,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test'));
+        self::assertSame(
             '
  > No matching tables in database.
  > 1 table excluded by the config.
@@ -379,8 +402,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getRawTableName')->willReturn('mig');
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -404,8 +427,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
+        self::assertSame(
             ' > 1 table excluded by the config.
  > Are you sure you want to generate migrations for the following tables?
    - test2
@@ -430,8 +453,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - pref_a
    - pref_b
@@ -455,8 +478,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_suf'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_suf'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - a_suf
    - b_suf
@@ -480,8 +503,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*_suf'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*_suf'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - pref_a_suf
    - pref_b_suf
@@ -505,8 +528,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_tab_*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*_tab_*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - a_tab_a
    - b_tab_b
@@ -530,8 +553,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
         $this->controller->excludeTables = ['test'];
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*,*_suf'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('pref_*,*_suf'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - pref_tab
    - tab_suf
@@ -554,8 +577,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getRawTableName')->willReturn('test');
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2,test3'));
+        self::assertSame(
             ' > 1 table excluded by the config.
  > Are you sure you want to generate migrations for the following tables?
    - test2
@@ -579,8 +602,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getRawTableName')->willReturn('mig');
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -604,8 +627,8 @@ final class MigrationControllerTest extends TestCase
         $schema->method('getTableIndexes')->willReturn([]);
         $this->db->method('getSchema')->willReturn($schema);
 
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
+        self::assertSame(
             '
  > Generating migration for creating table \'test\' ...ERROR!
  > Table \'test\' does not exists!
@@ -630,13 +653,13 @@ final class MigrationControllerTest extends TestCase
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
             ' > Generating migration for creating table \'test\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test.php\'
 
  Generated 1 file
@@ -662,8 +685,8 @@ final class MigrationControllerTest extends TestCase
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -671,14 +694,14 @@ final class MigrationControllerTest extends TestCase
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  Generated 2 files
@@ -719,8 +742,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $this->controller->arrangerClass = ArrangerStub::class;
-        $this->assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -728,21 +751,21 @@ final class MigrationControllerTest extends TestCase
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_03_create_foreign_keys.php\'
 
  Generated 3 files
@@ -773,14 +796,14 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('createCommand')->willReturn($command);
 
         $this->controller->fixHistory = true;
-        $this->assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
             '
  > Generating migration for creating table \'test\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test.php\'
  > Fixing migration history ...DONE!
 
@@ -823,8 +846,8 @@ final class MigrationControllerTest extends TestCase
 
         GeneratorStub::$throwForKeys = true;
         $this->controller->generatorClass = GeneratorStub::class;
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -832,14 +855,14 @@ final class MigrationControllerTest extends TestCase
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
@@ -862,8 +885,8 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
 
         $this->controller->arrangerClass = ArrangerStub::class;
-        $this->assertSame(ExitCode::DATAERR, $this->controller->actionCreate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::DATAERR, $this->controller->actionCreate('*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -889,8 +912,8 @@ ERROR!
         $this->db->method('getSchema')->willReturn($schema);
 
         $this->controller->migrationPath = ['test'];
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...ERROR!
  > Table \'test\' does not exists!
@@ -916,8 +939,8 @@ ERROR!
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $this->controller->migrationPath = ['test'];
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
@@ -925,7 +948,7 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  Generated 1 file
@@ -957,8 +980,8 @@ ERROR!
 
         $this->controller->fixHistory = true;
         $this->controller->migrationPath = ['test'];
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
@@ -966,7 +989,7 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test.php\'
  > Fixing migration history ...DONE!
 
@@ -994,8 +1017,8 @@ ERROR!
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $this->controller->migrationPath = ['test'];
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1007,14 +1030,14 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  Generated 2 files
@@ -1058,8 +1081,8 @@ ERROR!
 
         $this->controller->migrationPath = ['test'];
         $this->controller->arrangerClass = ArrangerStub::class;
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1071,21 +1094,21 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_03_create_foreign_keys.php\'
 
  Generated 3 files
@@ -1110,8 +1133,8 @@ ERROR!
         $this->controller->migrationPath = ['test'];
         $this->controller->updaterClass = UpdaterStub::class;
         UpdaterStub::$blueprint = new Blueprint();
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...TABLE IS UP-TO-DATE.
 
@@ -1138,8 +1161,8 @@ ERROR!
         $this->controller->updaterClass = UpdaterStub::class;
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$blueprint->addDescription('Stub description');
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...Showing differences:
    - Stub description
@@ -1167,8 +1190,8 @@ ERROR!
         $this->controller->updaterClass = UpdaterStub::class;
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$blueprint->startFromScratch();
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...Showing differences:
    - table needs creating migration
@@ -1195,8 +1218,8 @@ ERROR!
         $this->controller->updaterClass = UpdaterStub::class;
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$throwForPrepare = true;
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...WARNING!
  > Updating table \'test\' requires manual migration!
@@ -1242,8 +1265,8 @@ ERROR!
 
         $this->controller->arrangerClass = ArrangerStub::class;
         $this->controller->migrationPath = ['test'];
-        $this->assertSame(ExitCode::DATAERR, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::DATAERR, $this->controller->actionUpdate('*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1292,8 +1315,8 @@ ERROR!
         $this->controller->migrationPath = ['test'];
         GeneratorStub::$throwForKeys = true;
         $this->controller->generatorClass = GeneratorStub::class;
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1305,14 +1328,14 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_01_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_02_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
@@ -1341,8 +1364,8 @@ ERROR!
         $this->controller->migrationPath = ['test'];
         GeneratorStub::$throwForTable = true;
         $this->controller->generatorClass = GeneratorStub::class;
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        self::assertSame(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1377,8 +1400,8 @@ ERROR!
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$blueprint->addDescription('change');
         $this->controller->updaterClass = UpdaterStub::class;
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
@@ -1386,7 +1409,7 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_test.php\'
 
  Generated 1 file
@@ -1416,8 +1439,8 @@ ERROR!
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$blueprint->addDescription('change');
         $this->controller->updaterClass = UpdaterStub::class;
-        $this->assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::OK, $this->controller->actionUpdate('*'));
+        self::assertStringContainsString(
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
@@ -1429,14 +1452,14 @@ ERROR!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_test.php\'
 
  > Generating migration for updating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_update_table_test2.php\'
 
  Generated 2 files
@@ -1467,8 +1490,8 @@ ERROR!
         UpdaterStub::$blueprint = new Blueprint();
         UpdaterStub::$blueprint->addDescription('change');
         $this->controller->updaterClass = UpdaterStub::class;
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
-        $this->assertSame(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionUpdate('*'));
+        self::assertSame(
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
@@ -1500,7 +1523,7 @@ ERROR!
         $action->id = 'create';
         $controller->beforeAction($action);
 
-        $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
+        self::assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
 
     /**
@@ -1524,7 +1547,7 @@ ERROR!
         $action->id = 'create';
         $controller->beforeAction($action);
 
-        $this->assertDirectoryExists(__DIR__ . '/../../runtime/test');
+        self::assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
 
     /**
@@ -1560,8 +1583,8 @@ ERROR!
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->assertSame(ExitCode::OK, $controller->actionCreate('test'));
-        $this->assertNotEmpty(glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php'));
+        self::assertSame(ExitCode::OK, $controller->actionCreate('test'));
+        self::assertNotEmpty(glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php'));
     }
 
     /**
@@ -1593,13 +1616,13 @@ ERROR!
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        $this->assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
-        $this->assertStringContainsString(
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
+        self::assertStringContainsString(
             ' > Generating migration for creating table \'test\' ...ERROR!
  > file_put_contents(',
             MigrationControllerStoringStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_test.php): failed to open stream: Permission denied',
             MigrationControllerStoringStub::$stdout
         );

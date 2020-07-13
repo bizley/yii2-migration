@@ -49,7 +49,7 @@ final class GeneratorTest extends TestCase
     /** @test */
     public function shouldProperlyReturnCreateTableMigrationTemplate(): void
     {
-        $this->assertSame(
+        self::assertSame(
             Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->generator->getCreateTableMigrationTemplate()
         );
@@ -58,7 +58,7 @@ final class GeneratorTest extends TestCase
     /** @test */
     public function shouldProperlyReturnCreateForeignKeysMigrationTemplate(): void
     {
-        $this->assertSame(
+        self::assertSame(
             Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->generator->getCreateForeignKeysMigrationTemplate()
         );
@@ -85,13 +85,13 @@ final class GeneratorTest extends TestCase
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
         $this->mapper->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
-        $this->view->expects($this->once())->method('renderFile')->with(
-            $this->callback(
+        $this->view->expects(self::once())->method('renderFile')->with(
+            self::callback(
                 static function (string $template) {
                     return is_string($template);
                 }
             ),
-            $this->callback(
+            self::callback(
                 static function (array $params) use ($expected) {
                     return $params['namespace'] === $expected;
                 }
@@ -126,7 +126,7 @@ final class GeneratorTest extends TestCase
         $this->mapper->method('getSchemaType')->willReturn('schema-type');
         $this->mapper->method('getEngineVersion')->willReturn('engine-version');
 
-        $this->renderer->expects($this->once())->method('renderStructureUp')->with(
+        $this->renderer->expects(self::once())->method('renderStructureUp')->with(
             $structure,
             8,
             'schema-type',
@@ -135,20 +135,20 @@ final class GeneratorTest extends TestCase
             'prefix'
         )->willReturn('bodyUp');
 
-        $this->renderer->expects($this->once())->method('renderStructureDown')->with(
+        $this->renderer->expects(self::once())->method('renderStructureDown')->with(
             $structure,
             8,
             false,
             'prefix'
         )->willReturn('bodyDown');
 
-        $this->view->expects($this->once())->method('renderFile')->with(
-            $this->callback(
+        $this->view->expects(self::once())->method('renderFile')->with(
+            self::callback(
                 static function (string $template) {
                     return is_string($template);
                 }
             ),
-            $this->callback(
+            self::callback(
                 static function (array $params) {
                     return $params['namespace'] === 'a\\b\\c'
                         && $params['className'] === 'migration'
@@ -167,27 +167,27 @@ final class GeneratorTest extends TestCase
         $foreignKeyFirst = $this->createMock(ForeignKeyInterface::class);
         $foreignKeySecond = $this->createMock(ForeignKeyInterface::class);
 
-        $this->renderer->expects($this->once())->method('renderForeignKeysUp')->with(
+        $this->renderer->expects(self::once())->method('renderForeignKeysUp')->with(
             [$foreignKeyFirst, $foreignKeySecond],
             8,
             false,
             'prefix'
         )->willReturn('bodyUp');
 
-        $this->renderer->expects($this->once())->method('renderForeignKeysDown')->with(
+        $this->renderer->expects(self::once())->method('renderForeignKeysDown')->with(
             [$foreignKeySecond, $foreignKeyFirst],
             8,
             false,
             'prefix'
         )->willReturn('bodyDown');
 
-        $this->view->expects($this->once())->method('renderFile')->with(
-            $this->callback(
+        $this->view->expects(self::once())->method('renderFile')->with(
+            self::callback(
                 static function (string $template) {
                     return is_string($template);
                 }
             ),
-            $this->callback(
+            self::callback(
                 static function (array $params) {
                     return $params['namespace'] === 'a\\b\\c'
                         && $params['className'] === 'migration'
@@ -210,6 +210,6 @@ final class GeneratorTest extends TestCase
     public function shouldReturnSuppressedForeignKeys(): void
     {
         $this->mapper->method('getSuppressedForeignKeys')->willReturn([]);
-        $this->assertSame([], $this->generator->getSuppressedForeignKeys());
+        self::assertSame([], $this->generator->getSuppressedForeignKeys());
     }
 }

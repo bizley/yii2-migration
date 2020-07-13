@@ -74,8 +74,8 @@ final class ColumnFactoryTest extends TestCase
     public function shouldReturnProperColumn(string $type, string $expected): void
     {
         $column = ColumnFactory::build($type);
-        $this->assertInstanceOf($expected, $column);
-        $this->assertSame($type, $column->getType());
+        self::assertInstanceOf($expected, $column);
+        self::assertSame($type, $column->getType());
     }
 
     /**

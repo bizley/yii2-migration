@@ -28,7 +28,7 @@ final class TimestampColumnTest extends TestCase
      */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('timestamp({renderLength})', $this->column->getDefinition());
+        self::assertSame('timestamp({renderLength})', $this->column->getDefinition());
     }
 
     public function providerForDefaults(): array
@@ -54,9 +54,9 @@ final class TimestampColumnTest extends TestCase
     {
         $this->column->setDefault($defaultToSet);
         if ($expected instanceof Expression) {
-            $this->assertSame($expected->expression, $this->column->getDefault()->expression);
+            self::assertSame($expected->expression, $this->column->getDefault()->expression);
         } else {
-            $this->assertSame($expected, $this->column->getDefault());
+            self::assertSame($expected, $this->column->getDefault());
         }
     }
 
@@ -84,7 +84,7 @@ final class TimestampColumnTest extends TestCase
     public function shouldReturnProperLength(string $schema, ?int $expected, string $engineVersion = null): void
     {
         $this->column->setPrecision(1);
-        $this->assertSame($expected, $this->column->getLength($schema, $engineVersion));
+        self::assertSame($expected, $this->column->getLength($schema, $engineVersion));
     }
 
     public function providerForSettingLength(): array
@@ -116,7 +116,7 @@ final class TimestampColumnTest extends TestCase
         string $engineVersion = null
     ): void {
         $this->column->setLength(1, $schema, $engineVersion);
-        $this->assertSame($expectedSize, $this->column->getSize());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedSize, $this->column->getSize());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }

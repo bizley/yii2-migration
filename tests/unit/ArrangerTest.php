@@ -79,7 +79,7 @@ final class ArrangerTest extends TestCase
 
         $arranger->arrangeTables(array_keys($inputData));
 
-        $this->assertSame($tablesInOrder, $arranger->getTablesInOrder());
-        $this->assertSame($referencesToPostpone, $arranger->getReferencesToPostpone());
+        self::assertSame($tablesInOrder, $arranger->getTablesInOrder());
+        self::assertSame($referencesToPostpone, $arranger->getReferencesToPostpone());
     }
 }

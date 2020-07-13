@@ -27,7 +27,7 @@ final class TimeColumnTest extends TestCase
      */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('time({renderLength})', $this->column->getDefinition());
+        self::assertSame('time({renderLength})', $this->column->getDefinition());
     }
 
     public function providerForGettingLength(): array
@@ -54,7 +54,7 @@ final class TimeColumnTest extends TestCase
     public function shouldReturnProperLength(string $schema, ?int $expected, string $engineVersion = null): void
     {
         $this->column->setPrecision(1);
-        $this->assertSame($expected, $this->column->getLength($schema, $engineVersion));
+        self::assertSame($expected, $this->column->getLength($schema, $engineVersion));
     }
 
     public function providerForSettingLength(): array
@@ -86,7 +86,7 @@ final class TimeColumnTest extends TestCase
         string $engineVersion = null
     ): void {
         $this->column->setLength(1, $schema, $engineVersion);
-        $this->assertSame($expectedSize, $this->column->getSize());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedSize, $this->column->getSize());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }
