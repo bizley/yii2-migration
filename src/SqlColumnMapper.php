@@ -239,10 +239,8 @@ class SqlColumnMapper
     {
         $sentence = substr($sentence, $offset);
 
+        /** @var array<int, string> $sentenceArray */
         $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
-        if ($sentenceArray === false) {
-            $sentenceArray = [];
-        }
 
         switch ($type) {
             case "'":
@@ -315,16 +313,12 @@ class SqlColumnMapper
         $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
-            if (!$collect && $char !== '`' && !preg_match('/[a-z]/i', $char)) {
+            if (!$collect && $char !== '`') {
                 continue;
             }
 
-            if (!$collect && ($char === '`' || preg_match('/[a-z]/i', $char))) {
+            if (!$collect && $char === '`') {
                 $collect = true;
-                if ($char !== '`') {
-                    $part .= $char;
-                    $end = $index + 1;
-                }
                 continue;
             }
 
@@ -398,7 +392,7 @@ class SqlColumnMapper
             }
 
             if ($collect) {
-                if (!is_numeric($char) && $char !== '.') {
+                if (!is_numeric($char) && !preg_match('/[a-fA-F0-9x.]/', $char)) {
                     break;
                 }
                 $part .= $char;
@@ -437,7 +431,7 @@ class SqlColumnMapper
                         array_slice($sentenceArray, $index)
                     );
                     $part .= $parenthesisPart;
-                    $end = $index + $parenthesisPartEnd;
+                    $end = $index + (int)$parenthesisPartEnd;
                     break;
                 }
 

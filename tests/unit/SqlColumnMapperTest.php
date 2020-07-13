@@ -396,6 +396,19 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldDetectCommentWithWrongNumberOfQuotes(): void
+    {
+        self::assertSame(
+            [
+                'comment' => "te''",
+                'type' => 'string',
+                'append' => "st'",
+            ],
+            SqlColumnMapper::map("comment 'te'''st'", [])
+        );
+    }
+
+    /** @test */
     public function shouldDetectStringDefault(): void
     {
         self::assertSame(
@@ -432,6 +445,43 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldDetectHexNumericDefault(): void
+    {
+        self::assertSame(
+            [
+                'default' => '0x01af',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('default 0x01af', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectBinNumericDefault(): void
+    {
+        self::assertSame(
+            [
+                'default' => '0b01',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('default 0b01', [])
+        );
+    }
+
+    /** @test */
+    public function shouldDetectWrongNumericDefault(): void
+    {
+        self::assertSame(
+            [
+                'default' => '1',
+                'type' => 'string',
+                'append' => 's5'
+            ],
+            SqlColumnMapper::map('default 1s5', [])
+        );
+    }
+
+    /** @test */
     public function shouldDetectParenthesizedDefault(): void
     {
         $schema = SqlColumnMapper::map('default (default (value))', []);
@@ -453,6 +503,15 @@ class SqlColumnMapperTest extends TestCase
         $schema = SqlColumnMapper::map('default NOW()', []);
         self::assertSame('string', $schema['type']);
         self::assertSame('NOW()', $schema['default']->expression);
+    }
+
+    /** @test */
+    public function shouldDetectWringExpressionDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default CURRENT _TIMESTAMP', []);
+        self::assertSame('string', $schema['type']);
+        self::assertSame('CURRENT', $schema['default']->expression);
+        self::assertSame('_TIMESTAMP', $schema['append']);
     }
 
     /** @test */
