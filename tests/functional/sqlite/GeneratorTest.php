@@ -39,8 +39,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_standard_columns}}\',
@@ -95,8 +95,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_gs_columns}}\',
@@ -148,8 +148,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_default_size}}\',
@@ -177,8 +177,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%big_primary_key}}\',
@@ -205,8 +205,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%big_primary_key}}\',
@@ -242,8 +242,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%non_gs_columns}}\',
@@ -284,8 +284,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%appendixes}}\',
@@ -324,8 +324,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['composite_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%composite_primary_key}}\',
@@ -363,11 +363,11 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(
+        self::assertEquals(
             ExitCode::UNSPECIFIED_ERROR,
             $this->controller->runAction('create', ['composite_primary_key'])
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             ' > Generating migration for creating table \'composite_primary_key\' ...ERROR!
  > ADD PRIMARY KEY is not supported by SQLite.
 ',
@@ -387,8 +387,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unique']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%unique}}\',
@@ -424,8 +424,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%table12}}\',
@@ -470,11 +470,11 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
 
         $this->controller->generalSchema = false;
-        $this->assertEquals(
+        self::assertEquals(
             ExitCode::UNSPECIFIED_ERROR,
             $this->controller->runAction('create', ['table22'])
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             ' > Generating migration for creating table \'table22\' ...ERROR!
  > ADD FOREIGN KEY is not supported by SQLite.
 ',

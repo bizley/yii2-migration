@@ -33,8 +33,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -44,7 +44,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -58,8 +58,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
         $this->getDb()->createCommand()->dropTable('string_pk')->execute();
         $this->getDb()->createCommand()->createTable('string_pk', ['col' => $this->string()])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'string_pk\' with its migrations ...Showing differences:
    - different \'col\' column property: append (DB: NULL != MIG: "PRIMARY KEY")
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -69,7 +69,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -90,8 +90,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
    - different primary key definition
    - (!) ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually
@@ -99,6 +99,6 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

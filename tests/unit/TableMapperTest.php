@@ -71,12 +71,12 @@ final class TableMapperTest extends TestCase
         $this->prepareSchemaMock();
 
         $structure = $this->mapper->getStructureOf('abcdef');
-        $this->assertSame('abcdef', $structure->getName());
-        $this->assertNull($structure->getPrimaryKey());
-        $this->assertSame([], $structure->getForeignKeys());
-        $this->assertSame([], $structure->getIndexes());
-        $this->assertSame([], $structure->getColumns());
-        $this->assertSame([], $this->mapper->getSuppressedForeignKeys());
+        self::assertSame('abcdef', $structure->getName());
+        self::assertNull($structure->getPrimaryKey());
+        self::assertSame([], $structure->getForeignKeys());
+        self::assertSame([], $structure->getIndexes());
+        self::assertSame([], $structure->getColumns());
+        self::assertSame([], $this->mapper->getSuppressedForeignKeys());
     }
 
     public function providerForPrimaryKey(): array
@@ -105,8 +105,8 @@ final class TableMapperTest extends TestCase
         $this->prepareSchemaMock(true, [], [], $primaryKey);
 
         $structurePrimaryKey = $this->mapper->getStructureOf('abcdef')->getPrimaryKey();
-        $this->assertSame($primaryKey->name, $structurePrimaryKey->getName());
-        $this->assertSame($primaryKey->columnNames, $structurePrimaryKey->getColumns());
+        self::assertSame($primaryKey->name, $structurePrimaryKey->getName());
+        self::assertSame($primaryKey->columnNames, $structurePrimaryKey->getColumns());
     }
 
     public function providerForForeignKeys(): array
@@ -176,13 +176,13 @@ final class TableMapperTest extends TestCase
         foreach ($foreignKeys as $foreignKey) {
             $structureForeignKey = $this->mapper->getStructureOf('abcdef')->getForeignKey($foreignKey->name);
 
-            $this->assertSame('abcdef', $structureForeignKey->getTableName());
-            $this->assertSame($foreignKey->name, $structureForeignKey->getName());
-            $this->assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
-            $this->assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferredTable());
-            $this->assertSame($foreignKey->foreignColumnNames, $structureForeignKey->getReferredColumns());
-            $this->assertSame($foreignKey->onDelete, $structureForeignKey->getOnDelete());
-            $this->assertSame($foreignKey->onUpdate, $structureForeignKey->getOnUpdate());
+            self::assertSame('abcdef', $structureForeignKey->getTableName());
+            self::assertSame($foreignKey->name, $structureForeignKey->getName());
+            self::assertSame($foreignKey->columnNames, $structureForeignKey->getColumns());
+            self::assertSame($foreignKey->foreignTableName, $structureForeignKey->getReferredTable());
+            self::assertSame($foreignKey->foreignColumnNames, $structureForeignKey->getReferredColumns());
+            self::assertSame($foreignKey->onDelete, $structureForeignKey->getOnDelete());
+            self::assertSame($foreignKey->onUpdate, $structureForeignKey->getOnUpdate());
         }
     }
 
@@ -202,10 +202,10 @@ final class TableMapperTest extends TestCase
         );
         $this->prepareSchemaMock(true, [$foreignKey]);
 
-        $this->assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey($foreignKey->name));
+        self::assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey($foreignKey->name));
         $suppressedKeys = $this->mapper->getSuppressedForeignKeys();
-        $this->assertNotEmpty($suppressedKeys);
-        $this->assertSame($suppressedKeys[0]->getName(), $foreignKey->name);
+        self::assertNotEmpty($suppressedKeys);
+        self::assertSame($suppressedKeys[0]->getName(), $foreignKey->name);
     }
 
     public function providerForIndexes(): array
@@ -265,9 +265,9 @@ final class TableMapperTest extends TestCase
         foreach ($indexes as $index) {
             $structureIndex = $this->mapper->getStructureOf('abcdef')->getIndex($index->name);
 
-            $this->assertSame($index->name, $structureIndex->getName());
-            $this->assertSame($index->columnNames, $structureIndex->getColumns());
-            $this->assertSame($index->isUnique, $structureIndex->isUnique());
+            self::assertSame($index->name, $structureIndex->getName());
+            self::assertSame($index->columnNames, $structureIndex->getColumns());
+            self::assertSame($index->isUnique, $structureIndex->isUnique());
         }
     }
 
@@ -283,7 +283,7 @@ final class TableMapperTest extends TestCase
             [new IndexConstraint(['name' => 'aaa', 'isPrimary' => true])]
         );
 
-        $this->assertNull($this->mapper->getStructureOf('abcdef')->getIndex('aaa'));
+        self::assertNull($this->mapper->getStructureOf('abcdef')->getIndex('aaa'));
     }
 
     /**
@@ -312,18 +312,18 @@ final class TableMapperTest extends TestCase
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
-        $this->assertNotNull($structureColumn);
-        $this->assertInstanceOf(CharacterColumn::class, $structureColumn);
-        $this->assertSame('column-name', $structureColumn->getName());
-        $this->assertSame(1, (int)$structureColumn->getSize());
-        $this->assertNull($structureColumn->getPrecision());
-        $this->assertNull($structureColumn->getScale());
-        $this->assertFalse($structureColumn->isNotNull());
-        $this->assertSame('a', $structureColumn->getDefault());
-        $this->assertFalse($structureColumn->isPrimaryKey());
-        $this->assertFalse($structureColumn->isUnsigned());
-        $this->assertSame('comment', $structureColumn->getComment());
-        $this->assertFalse($structureColumn->isUnique());
+        self::assertNotNull($structureColumn);
+        self::assertInstanceOf(CharacterColumn::class, $structureColumn);
+        self::assertSame('column-name', $structureColumn->getName());
+        self::assertSame(1, (int)$structureColumn->getSize());
+        self::assertNull($structureColumn->getPrecision());
+        self::assertNull($structureColumn->getScale());
+        self::assertFalse($structureColumn->isNotNull());
+        self::assertSame('a', $structureColumn->getDefault());
+        self::assertFalse($structureColumn->isPrimaryKey());
+        self::assertFalse($structureColumn->isUnsigned());
+        self::assertSame('comment', $structureColumn->getComment());
+        self::assertFalse($structureColumn->isUnique());
     }
 
     /**
@@ -335,7 +335,7 @@ final class TableMapperTest extends TestCase
         $this->prepareSchemaMock(false);
         $this->db->method('getTableSchema')->willReturn(null);
 
-        $this->assertSame([], $this->mapper->getStructureOf('abcdef')->getColumns());
+        self::assertSame([], $this->mapper->getStructureOf('abcdef')->getColumns());
     }
 
     /**
@@ -372,8 +372,8 @@ final class TableMapperTest extends TestCase
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
-        $this->assertNotNull($structureColumn);
-        $this->assertTrue($structureColumn->isUnique());
+        self::assertNotNull($structureColumn);
+        self::assertTrue($structureColumn->isUnique());
     }
 
     /**
@@ -410,9 +410,9 @@ final class TableMapperTest extends TestCase
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
         $structureColumn = $this->mapper->getStructureOf('abcdef')->getColumn('column-name');
-        $this->assertNotNull($structureColumn);
-        $this->assertFalse($structureColumn->isUnique());
-        $this->assertSame('mysql', $this->mapper->getSchemaType());
+        self::assertNotNull($structureColumn);
+        self::assertFalse($structureColumn->isUnique());
+        self::assertSame('mysql', $this->mapper->getSchemaType());
     }
 
     /**
@@ -424,13 +424,13 @@ final class TableMapperTest extends TestCase
         $this->prepareSchemaMock();
         $this->mapper->getStructureOf('abcdef');
 
-        $this->assertNull($this->mapper->getEngineVersion());
+        self::assertNull($this->mapper->getEngineVersion());
 
         $pdo = $this->createMock(PDO::class);
         $pdo->method('getAttribute')->willReturn('5.7.1');
         $this->db->method('getSlavePdo')->willReturn($pdo);
 
-        $this->assertSame('5.7.1', $this->mapper->getEngineVersion());
+        self::assertSame('5.7.1', $this->mapper->getEngineVersion());
     }
 
     /**
@@ -446,7 +446,7 @@ final class TableMapperTest extends TestCase
         $pdo->method('getAttribute')->willThrowException(new \Exception());
         $this->db->method('getSlavePdo')->willReturn($pdo);
 
-        $this->assertNull($this->mapper->getEngineVersion());
+        self::assertNull($this->mapper->getEngineVersion());
     }
 
     /**
@@ -460,6 +460,6 @@ final class TableMapperTest extends TestCase
 
         $this->db->method('getSlavePdo')->willReturn(null);
 
-        $this->assertNull($this->mapper->getEngineVersion());
+        self::assertNull($this->mapper->getEngineVersion());
     }
 }

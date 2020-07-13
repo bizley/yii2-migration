@@ -44,15 +44,15 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing column \'added\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -65,15 +65,15 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'idx-add\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -86,15 +86,15 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'idx-add-unique\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -107,15 +107,15 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'idx-add-multi\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -133,15 +133,15 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
             true
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'idx-add-multi-unique\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -154,14 +154,14 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     {
         $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - excessive index \'idx-col\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

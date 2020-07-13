@@ -34,8 +34,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - excessive column \'col\'
    - (!) DROP COLUMN is not supported by SQLite: Migration must be created manually
@@ -43,7 +43,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -65,8 +65,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: type (DB: "string" != MIG: "integer")
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -76,7 +76,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -98,8 +98,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col2\' column property: length (DB: "45" != MIG: "255")
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -107,7 +107,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -129,8 +129,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: default (DB: "4" != MIG: NULL)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -138,7 +138,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -160,8 +160,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: unsigned (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -169,7 +169,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -191,15 +191,15 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - missing index \'sqlite_autoindex_updater_base_1\'
 
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -221,8 +221,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
             ]
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - (!) ALTER COLUMN is not supported by SQLite: Migration must be created manually
@@ -230,7 +230,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -254,8 +254,8 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
         )->execute();
         $this->getDb()->createCommand()->createIndex('idx-col', 'updater_base_fk', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'updater_base_fk\' with its migrations ...Showing differences:
    - missing foreign key \'fk-updater_base_fk-col\'
    - (!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually
@@ -265,6 +265,6 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

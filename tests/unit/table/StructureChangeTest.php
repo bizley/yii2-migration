@@ -33,7 +33,7 @@ final class StructureChangeTest extends TestCase
     public function shouldProperlySetTable(): void
     {
         $this->change->setTable('test');
-        $this->assertSame('test', $this->change->getTable());
+        self::assertSame('test', $this->change->getTable());
     }
 
     /** @test */
@@ -42,7 +42,7 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod('unknown');
         $this->change->setData('data');
 
-        $this->assertSame('data', $this->change->getValue());
+        self::assertSame('data', $this->change->getValue());
     }
 
     public function providerForWrongCreateTable(): array
@@ -74,22 +74,22 @@ final class StructureChangeTest extends TestCase
         $this->change->setData(['column' => ['type' => Schema::TYPE_INTEGER]]);
 
         $columns = $this->change->getValue();
-        $this->assertCount(1, $columns);
+        self::assertCount(1, $columns);
         /** @var ColumnInterface $column */
         $column = $columns[0];
-        $this->assertInstanceOf(IntegerColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertNull($column->getLength());
-        $this->assertFalse($column->isNotNull());
-        $this->assertFalse($column->isUnique());
-        $this->assertFalse($column->isAutoIncrement());
-        $this->assertFalse($column->isPrimaryKey());
-        $this->assertNull($column->getDefault());
-        $this->assertNull($column->getAppend());
-        $this->assertFalse($column->isUnsigned());
-        $this->assertNull($column->getComment());
-        $this->assertNull($column->getAfter());
-        $this->assertFalse($column->isFirst());
+        self::assertInstanceOf(IntegerColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertNull($column->getLength());
+        self::assertFalse($column->isNotNull());
+        self::assertFalse($column->isUnique());
+        self::assertFalse($column->isAutoIncrement());
+        self::assertFalse($column->isPrimaryKey());
+        self::assertNull($column->getDefault());
+        self::assertNull($column->getAppend());
+        self::assertFalse($column->isUnsigned());
+        self::assertNull($column->getComment());
+        self::assertNull($column->getAfter());
+        self::assertFalse($column->isFirst());
     }
 
     /** @test */
@@ -116,22 +116,22 @@ final class StructureChangeTest extends TestCase
         );
 
         $columns = $this->change->getValue();
-        $this->assertCount(1, $columns);
+        self::assertCount(1, $columns);
         /** @var ColumnInterface $column */
         $column = $columns[0];
-        $this->assertInstanceOf(CharacterColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertSame(10, $column->getLength());
-        $this->assertTrue($column->isNotNull());
-        $this->assertTrue($column->isUnique());
-        $this->assertTrue($column->isAutoIncrement());
-        $this->assertTrue($column->isPrimaryKey());
-        $this->assertSame('default-value', $column->getDefault());
-        $this->assertSame('append-value', $column->getAppend());
-        $this->assertTrue($column->isUnsigned());
-        $this->assertSame('comment-value', $column->getComment());
-        $this->assertSame('after-column', $column->getAfter());
-        $this->assertTrue($column->isFirst());
+        self::assertInstanceOf(CharacterColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertSame(10, $column->getLength());
+        self::assertTrue($column->isNotNull());
+        self::assertTrue($column->isUnique());
+        self::assertTrue($column->isAutoIncrement());
+        self::assertTrue($column->isPrimaryKey());
+        self::assertSame('default-value', $column->getDefault());
+        self::assertSame('append-value', $column->getAppend());
+        self::assertTrue($column->isUnsigned());
+        self::assertSame('comment-value', $column->getComment());
+        self::assertSame('after-column', $column->getAfter());
+        self::assertTrue($column->isFirst());
     }
 
     public function providerForWrongAddColumn(): array
@@ -170,19 +170,19 @@ final class StructureChangeTest extends TestCase
         );
 
         $column = $this->change->getValue();
-        $this->assertInstanceOf(IntegerColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertNull($column->getLength());
-        $this->assertFalse($column->isNotNull());
-        $this->assertFalse($column->isUnique());
-        $this->assertFalse($column->isAutoIncrement());
-        $this->assertFalse($column->isPrimaryKey());
-        $this->assertNull($column->getDefault());
-        $this->assertNull($column->getAppend());
-        $this->assertFalse($column->isUnsigned());
-        $this->assertNull($column->getComment());
-        $this->assertNull($column->getAfter());
-        $this->assertFalse($column->isFirst());
+        self::assertInstanceOf(IntegerColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertNull($column->getLength());
+        self::assertFalse($column->isNotNull());
+        self::assertFalse($column->isUnique());
+        self::assertFalse($column->isAutoIncrement());
+        self::assertFalse($column->isPrimaryKey());
+        self::assertNull($column->getDefault());
+        self::assertNull($column->getAppend());
+        self::assertFalse($column->isUnsigned());
+        self::assertNull($column->getComment());
+        self::assertNull($column->getAfter());
+        self::assertFalse($column->isFirst());
     }
 
     /** @test */
@@ -210,19 +210,19 @@ final class StructureChangeTest extends TestCase
         );
 
         $column = $this->change->getValue();
-        $this->assertInstanceOf(CharacterColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertSame(10, $column->getLength());
-        $this->assertTrue($column->isNotNull());
-        $this->assertTrue($column->isUnique());
-        $this->assertTrue($column->isAutoIncrement());
-        $this->assertTrue($column->isPrimaryKey());
-        $this->assertSame('default-value', $column->getDefault());
-        $this->assertSame('append-value', $column->getAppend());
-        $this->assertTrue($column->isUnsigned());
-        $this->assertSame('comment-value', $column->getComment());
-        $this->assertSame('after-column', $column->getAfter());
-        $this->assertTrue($column->isFirst());
+        self::assertInstanceOf(CharacterColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertSame(10, $column->getLength());
+        self::assertTrue($column->isNotNull());
+        self::assertTrue($column->isUnique());
+        self::assertTrue($column->isAutoIncrement());
+        self::assertTrue($column->isPrimaryKey());
+        self::assertSame('default-value', $column->getDefault());
+        self::assertSame('append-value', $column->getAppend());
+        self::assertTrue($column->isUnsigned());
+        self::assertSame('comment-value', $column->getComment());
+        self::assertSame('after-column', $column->getAfter());
+        self::assertTrue($column->isFirst());
     }
 
     /**
@@ -251,19 +251,19 @@ final class StructureChangeTest extends TestCase
         );
 
         $column = $this->change->getValue();
-        $this->assertInstanceOf(IntegerColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertNull($column->getLength());
-        $this->assertFalse($column->isNotNull());
-        $this->assertFalse($column->isUnique());
-        $this->assertFalse($column->isAutoIncrement());
-        $this->assertFalse($column->isPrimaryKey());
-        $this->assertNull($column->getDefault());
-        $this->assertNull($column->getAppend());
-        $this->assertFalse($column->isUnsigned());
-        $this->assertNull($column->getComment());
-        $this->assertNull($column->getAfter());
-        $this->assertFalse($column->isFirst());
+        self::assertInstanceOf(IntegerColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertNull($column->getLength());
+        self::assertFalse($column->isNotNull());
+        self::assertFalse($column->isUnique());
+        self::assertFalse($column->isAutoIncrement());
+        self::assertFalse($column->isPrimaryKey());
+        self::assertNull($column->getDefault());
+        self::assertNull($column->getAppend());
+        self::assertFalse($column->isUnsigned());
+        self::assertNull($column->getComment());
+        self::assertNull($column->getAfter());
+        self::assertFalse($column->isFirst());
     }
 
     /** @test */
@@ -291,19 +291,19 @@ final class StructureChangeTest extends TestCase
         );
 
         $column = $this->change->getValue();
-        $this->assertInstanceOf(CharacterColumn::class, $column);
-        $this->assertSame('column', $column->getName());
-        $this->assertSame(10, $column->getLength());
-        $this->assertTrue($column->isNotNull());
-        $this->assertTrue($column->isUnique());
-        $this->assertTrue($column->isAutoIncrement());
-        $this->assertTrue($column->isPrimaryKey());
-        $this->assertSame('default-value', $column->getDefault());
-        $this->assertSame('append-value', $column->getAppend());
-        $this->assertTrue($column->isUnsigned());
-        $this->assertSame('comment-value', $column->getComment());
-        $this->assertSame('after-column', $column->getAfter());
-        $this->assertTrue($column->isFirst());
+        self::assertInstanceOf(CharacterColumn::class, $column);
+        self::assertSame('column', $column->getName());
+        self::assertSame(10, $column->getLength());
+        self::assertTrue($column->isNotNull());
+        self::assertTrue($column->isUnique());
+        self::assertTrue($column->isAutoIncrement());
+        self::assertTrue($column->isPrimaryKey());
+        self::assertSame('default-value', $column->getDefault());
+        self::assertSame('append-value', $column->getAppend());
+        self::assertTrue($column->isUnsigned());
+        self::assertSame('comment-value', $column->getComment());
+        self::assertSame('after-column', $column->getAfter());
+        self::assertTrue($column->isFirst());
     }
 
     public function providerForWrongRenameColumn(): array
@@ -341,7 +341,7 @@ final class StructureChangeTest extends TestCase
             ]
         );
 
-        $this->assertSame(['old' => 'a', 'new' => 'b'], $this->change->getValue());
+        self::assertSame(['old' => 'a', 'new' => 'b'], $this->change->getValue());
     }
 
     public function providerForWrongAddPrimaryKey(): array
@@ -381,9 +381,9 @@ final class StructureChangeTest extends TestCase
 
         /** @var PrimaryKeyInterface $primaryKey */
         $primaryKey = $this->change->getValue();
-        $this->assertInstanceOf(PrimaryKeyInterface::class, $primaryKey);
-        $this->assertSame('pk', $primaryKey->getName());
-        $this->assertSame(['column'], $primaryKey->getColumns());
+        self::assertInstanceOf(PrimaryKeyInterface::class, $primaryKey);
+        self::assertSame('pk', $primaryKey->getName());
+        self::assertSame(['column'], $primaryKey->getColumns());
     }
 
     public function providerForWrongAddForeignKey(): array
@@ -430,14 +430,14 @@ final class StructureChangeTest extends TestCase
 
         /** @var ForeignKeyInterface $foreignKey */
         $foreignKey = $this->change->getValue();
-        $this->assertInstanceOf(ForeignKeyInterface::class, $foreignKey);
-        $this->assertSame('fk', $foreignKey->getName());
-        $this->assertSame(['column'], $foreignKey->getColumns());
-        $this->assertSame('tab', $foreignKey->getReferredTable());
-        $this->assertSame(['column'], $foreignKey->getReferredColumns());
-        $this->assertSame('CASCADE', $foreignKey->getOnDelete());
-        $this->assertSame('RESTRICT', $foreignKey->getOnUpdate());
-        $this->assertSame('test', $foreignKey->getTableName());
+        self::assertInstanceOf(ForeignKeyInterface::class, $foreignKey);
+        self::assertSame('fk', $foreignKey->getName());
+        self::assertSame(['column'], $foreignKey->getColumns());
+        self::assertSame('tab', $foreignKey->getReferredTable());
+        self::assertSame(['column'], $foreignKey->getReferredColumns());
+        self::assertSame('CASCADE', $foreignKey->getOnDelete());
+        self::assertSame('RESTRICT', $foreignKey->getOnUpdate());
+        self::assertSame('test', $foreignKey->getTableName());
     }
 
     public function providerForWrongCreateIndex(): array
@@ -479,10 +479,10 @@ final class StructureChangeTest extends TestCase
 
         /** @var IndexInterface $index */
         $index = $this->change->getValue();
-        $this->assertInstanceOf(IndexInterface::class, $index);
-        $this->assertSame('idx', $index->getName());
-        $this->assertSame(['column'], $index->getColumns());
-        $this->assertTrue($index->isUnique());
+        self::assertInstanceOf(IndexInterface::class, $index);
+        self::assertSame('idx', $index->getName());
+        self::assertSame(['column'], $index->getColumns());
+        self::assertTrue($index->isUnique());
     }
 
     /**
@@ -510,7 +510,7 @@ final class StructureChangeTest extends TestCase
             ]
         );
 
-        $this->assertSame(['column' => 'column', 'comment' => 'comment'], $this->change->getValue());
+        self::assertSame(['column' => 'column', 'comment' => 'comment'], $this->change->getValue());
     }
 
     public function providerForDataReturnMethods(): array
@@ -536,6 +536,6 @@ final class StructureChangeTest extends TestCase
         $this->change->setMethod($method);
         $this->change->setData('data');
 
-        $this->assertSame('data', $this->change->getValue());
+        self::assertSame('data', $this->change->getValue());
     }
 }

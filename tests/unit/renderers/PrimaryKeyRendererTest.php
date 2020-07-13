@@ -66,8 +66,8 @@ final class PrimaryKeyRendererTest extends TestCase
      */
     public function shouldReturnNullWhenNoPrimaryKey(): void
     {
-        $this->assertNull($this->renderer->renderUp(null, 'test'));
-        $this->assertNull($this->renderer->renderDown(null, 'test'));
+        self::assertNull($this->renderer->renderUp(null, 'test'));
+        self::assertNull($this->renderer->renderDown(null, 'test'));
     }
 
     /**
@@ -79,8 +79,8 @@ final class PrimaryKeyRendererTest extends TestCase
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
         $primaryKey->method('isComposite')->willReturn(false);
 
-        $this->assertNull($this->renderer->renderUp($primaryKey, 'test'));
-        $this->assertNull($this->renderer->renderDown($primaryKey, 'test'));
+        self::assertNull($this->renderer->renderUp($primaryKey, 'test'));
+        self::assertNull($this->renderer->renderDown($primaryKey, 'test'));
     }
 
     /**
@@ -94,7 +94,7 @@ final class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('getColumns')->willReturn([]);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->addPrimaryKey(\'pk\', \'test\', []);',
             $this->renderer->renderUp($primaryKey, 'test')
         );
@@ -107,7 +107,7 @@ final class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('isComposite')->willReturn(true);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->assertSame('$this->dropPrimaryKey(\'pk\', \'test\');', $this->renderer->renderDown($primaryKey, 'test'));
+        self::assertSame('$this->dropPrimaryKey(\'pk\', \'test\');', $this->renderer->renderDown($primaryKey, 'test'));
     }
 
     public function providerForRender(): array
@@ -160,7 +160,7 @@ final class PrimaryKeyRendererTest extends TestCase
         $primaryKey->method('getColumns')->willReturn($columns);
         $primaryKey->method('getName')->willReturn('pk');
 
-        $this->assertSame($expectedAdd, $this->renderer->renderUp($primaryKey, 'test', $indent));
-        $this->assertSame($expectedDrop, $this->renderer->renderDown($primaryKey, 'test', $indent));
+        self::assertSame($expectedAdd, $this->renderer->renderUp($primaryKey, 'test', $indent));
+        self::assertSame($expectedDrop, $this->renderer->renderDown($primaryKey, 'test', $indent));
     }
 }

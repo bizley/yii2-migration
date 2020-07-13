@@ -57,7 +57,7 @@ final class UpdaterTest extends TestCase
     /** @test */
     public function shouldProperlyReturnUpdateTableMigrationTemplate(): void
     {
-        $this->assertSame(
+        self::assertSame(
             Yii::getAlias('@bizley/migration/views/migration.php'),
             $this->updater->getUpdateTableMigrationTemplate()
         );
@@ -82,13 +82,13 @@ final class UpdaterTest extends TestCase
      */
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
-        $this->view->expects($this->once())->method('renderFile')->with(
-            $this->callback(
+        $this->view->expects(self::once())->method('renderFile')->with(
+            self::callback(
                 static function (string $template) {
                     return is_string($template);
                 }
             ),
-            $this->callback(
+            self::callback(
                 static function (array $params) use ($expected) {
                     return $params['namespace'] === $expected;
                 }
@@ -133,7 +133,7 @@ final class UpdaterTest extends TestCase
         $this->mapper->method('getSchemaType')->willReturn('schema-type');
         $this->mapper->method('getEngineVersion')->willReturn('engine-version');
 
-        $this->inspector->expects($this->once())->method('prepareBlueprint')->with(
+        $this->inspector->expects(self::once())->method('prepareBlueprint')->with(
             $structure,
             false,
             ['a'],
@@ -155,7 +155,7 @@ final class UpdaterTest extends TestCase
         $this->mapper->method('getSchemaType')->willReturn('schema-type');
         $this->mapper->method('getEngineVersion')->willReturn('engine-version');
 
-        $this->renderer->expects($this->once())->method('renderUp')->with(
+        $this->renderer->expects(self::once())->method('renderUp')->with(
             $blueprint,
             8,
             'schema-type',
@@ -164,7 +164,7 @@ final class UpdaterTest extends TestCase
             'prefix'
         )->willReturn('bodyUp');
 
-        $this->renderer->expects($this->once())->method('renderDown')->with(
+        $this->renderer->expects(self::once())->method('renderDown')->with(
             $blueprint,
             8,
             'schema-type',
@@ -173,13 +173,13 @@ final class UpdaterTest extends TestCase
             'prefix'
         )->willReturn('bodyDown');
 
-        $this->view->expects($this->once())->method('renderFile')->with(
-            $this->callback(
+        $this->view->expects(self::once())->method('renderFile')->with(
+            self::callback(
                 static function (string $template) {
                     return is_string($template);
                 }
             ),
-            $this->callback(
+            self::callback(
                 static function (array $params) {
                     return $params['namespace'] === 'a\\b\\c'
                         && $params['className'] === 'migration'

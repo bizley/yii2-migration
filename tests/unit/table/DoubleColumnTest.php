@@ -27,7 +27,7 @@ final class DoubleColumnTest extends TestCase
      */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('double({renderLength})', $this->column->getDefinition());
+        self::assertSame('double({renderLength})', $this->column->getDefinition());
     }
 
     public function providerForGettingLength(): array
@@ -51,7 +51,7 @@ final class DoubleColumnTest extends TestCase
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setPrecision(1);
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForSettingLength(): array
@@ -75,6 +75,6 @@ final class DoubleColumnTest extends TestCase
     public function shouldSetProperLength(string $schema, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }

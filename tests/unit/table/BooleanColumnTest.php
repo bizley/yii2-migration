@@ -27,7 +27,7 @@ final class BooleanColumnTest extends TestCase
      */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('boolean()', $this->column->getDefinition());
+        self::assertSame('boolean()', $this->column->getDefinition());
     }
 
     public function providerForGettingLength(): array
@@ -51,7 +51,7 @@ final class BooleanColumnTest extends TestCase
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setSize(1);
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForSettingLength(): array
@@ -76,7 +76,7 @@ final class BooleanColumnTest extends TestCase
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
-        $this->assertSame($expectedSize, $this->column->getSize());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedSize, $this->column->getSize());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }

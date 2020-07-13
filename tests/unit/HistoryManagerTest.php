@@ -51,8 +51,8 @@ final class HistoryManagerTest extends TestCase
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
         $command = $this->createMock(Command::class);
-        $command->expects($this->once())->method('insert')->willReturn($command);
-        $this->db->expects($this->once())->method('createCommand')->willReturn($command);
+        $command->expects(self::once())->method('insert')->willReturn($command);
+        $this->db->expects(self::once())->method('createCommand')->willReturn($command);
         $this->manager->addHistory('migration');
     }
 
@@ -65,9 +65,9 @@ final class HistoryManagerTest extends TestCase
     {
         $this->schema->method('getTableSchema')->willReturn(null);
         $command = $this->createMock(Command::class);
-        $command->expects($this->once())->method('createTable')->with(
+        $command->expects(self::once())->method('createTable')->with(
             'table',
-            $this->callback(
+            self::callback(
                 static function (array $structure): bool {
                     return $structure === [
                         'version' => 'varchar(' . MigrateController::MAX_NAME_LENGTH . ') NOT NULL PRIMARY KEY',
@@ -77,10 +77,10 @@ final class HistoryManagerTest extends TestCase
             )
         )->willReturn($command);
         $time = time();
-        $command->expects($this->exactly(2))->method('insert')->withConsecutive(
+        $command->expects(self::exactly(2))->method('insert')->withConsecutive(
             [
                 'table',
-                $this->callback(
+                self::callback(
                     static function (array $structure) use ($time): bool {
                         return $structure['version'] === MigrateController::BASE_MIGRATION
                             && $structure['apply_time'] >= $time - 1
@@ -90,7 +90,7 @@ final class HistoryManagerTest extends TestCase
             ],
             [
                 'table',
-                $this->callback(
+                self::callback(
                     static function (array $structure) use ($time): bool {
                         return $structure['version'] === 'migration'
                             && $structure['apply_time'] >= $time - 1
@@ -100,7 +100,7 @@ final class HistoryManagerTest extends TestCase
             ]
         )->willReturn($command);
 
-        $this->db->expects($this->exactly(3))->method('createCommand')->willReturn($command);
+        $this->db->expects(self::exactly(3))->method('createCommand')->willReturn($command);
         $this->manager->addHistory('migration');
     }
 
@@ -114,9 +114,9 @@ final class HistoryManagerTest extends TestCase
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
         $command = $this->createMock(Command::class);
         $time = time();
-        $command->expects($this->once())->method('insert')->with(
+        $command->expects(self::once())->method('insert')->with(
             'table',
-            $this->callback(
+            self::callback(
                 static function (array $structure) use ($time): bool {
                     return $structure['version'] === 'a\\b\\migration'
                         && $structure['apply_time'] >= $time - 1
@@ -124,7 +124,7 @@ final class HistoryManagerTest extends TestCase
                 }
             )
         )->willReturn($command);
-        $this->db->expects($this->once())->method('createCommand')->willReturn($command);
+        $this->db->expects(self::once())->method('createCommand')->willReturn($command);
         $this->manager->addHistory('migration', 'a\\b');
     }
 
@@ -135,7 +135,7 @@ final class HistoryManagerTest extends TestCase
     public function shouldReturnEmptyHistoryArrayWhenNoTableHistory(): void
     {
         $this->schema->method('getTableSchema')->willReturn(null);
-        $this->assertSame([], $this->manager->fetchHistory());
+        self::assertSame([], $this->manager->fetchHistory());
     }
 
     public function providerForHistory(): array
@@ -210,6 +210,6 @@ final class HistoryManagerTest extends TestCase
         $this->query->method('from')->willReturn($this->query);
         $this->query->method('orderBy')->willReturn($this->query);
         $this->query->method('all')->willReturn($rows);
-        $this->assertSame($expected, $this->manager->fetchHistory());
+        self::assertSame($expected, $this->manager->fetchHistory());
     }
 }

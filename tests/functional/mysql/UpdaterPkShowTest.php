@@ -29,8 +29,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - different primary key definition
@@ -38,7 +38,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -51,8 +51,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     {
         $this->getDb()->createCommand()->dropPrimaryKey('string_pk-primary-key', 'string_pk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'string_pk\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - different \'col\' column property: append (DB: NULL != MIG: "PRIMARY KEY")
@@ -61,7 +61,7 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 
     /**
@@ -74,8 +74,8 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col2'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        self::assertStringContainsString(
             ' > Comparing current table \'no_pk\' with its migrations ...Showing differences:
    - different \'col\' column property: not null (DB: TRUE != MIG: FALSE)
    - different \'col2\' column property: not null (DB: TRUE != MIG: FALSE)
@@ -84,6 +84,6 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
  No files generated.',
             MigrationControllerStub::$stdout
         );
-        $this->assertSame('', MigrationControllerStub::$content);
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

@@ -39,7 +39,7 @@ final class PrimaryKeyTest extends TestCase
     public function shouldProperlyCheckIfKeyIsComposite(array $columns, bool $expected): void
     {
         $this->pk->setColumns($columns);
-        $this->assertSame($expected, $this->pk->isComposite());
+        self::assertSame($expected, $this->pk->isComposite());
     }
 
     public function providerForColumns(): array
@@ -60,6 +60,6 @@ final class PrimaryKeyTest extends TestCase
     {
         $this->pk->setColumns(['old']);
         $this->pk->addColumn($newColumn);
-        $this->assertSame($expectedColumns, $this->pk->getColumns());
+        self::assertSame($expectedColumns, $this->pk->getColumns());
     }
 }

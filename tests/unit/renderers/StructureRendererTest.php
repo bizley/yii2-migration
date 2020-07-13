@@ -68,7 +68,7 @@ final class StructureRendererTest extends TestCase
      */
     public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, string $name, ?string $expected): void
     {
-        $this->assertSame($expected, $this->structureRenderer->renderName($name, $usePrefix, $dbPrefix));
+        self::assertSame($expected, $this->structureRenderer->renderName($name, $usePrefix, $dbPrefix));
     }
 
     /** @test */
@@ -79,7 +79,7 @@ final class StructureRendererTest extends TestCase
         $structure->method('getName')->willReturn('table');
         $this->columnRenderer->method('render')->willReturn('column-render');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
@@ -106,7 +106,7 @@ RENDERED
         $structure->method('getName')->willReturn('table');
         $this->columnRenderer->method('render')->willReturn('column-render');
 
-        $this->assertSame(
+        self::assertSame(
             '$this->dropTable(\'{{%table}}\');',
             $this->structureRenderer->renderStructureDown($structure)
         );
@@ -119,7 +119,7 @@ RENDERED
         $structure->method('getColumns')->willReturn([]);
         $structure->method('getName')->willReturn('table');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
     $tableOptions = null;
     if ($this->db->driverName === 'mysql') {
@@ -146,7 +146,7 @@ RENDERED
         $structure->method('getName')->willReturn('table');
         $this->primaryKeyRenderer->method('renderUp')->willReturn('primary-key-render');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
@@ -177,7 +177,7 @@ RENDERED
         $structure->method('getIndexes')->willReturn([$index, $index]);
         $this->indexRenderer->method('renderUp')->willReturn('index-render');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
@@ -214,7 +214,7 @@ RENDERED
         $structure->method('getForeignKeys')->willReturn([$foreignKey]);
         $this->indexRenderer->method('renderUp')->willReturn('index-render');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
@@ -245,7 +245,7 @@ RENDERED
         $structure->method('getForeignKeys')->willReturn([$foreignKey]);
         $this->foreignKeyRenderer->method('renderUp')->willReturn('foreign-key-render');
 
-        $this->assertSame(
+        self::assertSame(
             <<<'RENDERED'
 $tableOptions = null;
 if ($this->db->driverName === 'mysql') {
@@ -273,6 +273,6 @@ RENDERED
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
         $this->foreignKeyRenderer->method('renderDown')->willReturn('foreign-key-render');
 
-        $this->assertSame('foreign-key-render', $this->structureRenderer->renderForeignKeysDown([$foreignKey]));
+        self::assertSame('foreign-key-render', $this->structureRenderer->renderForeignKeysDown([$foreignKey]));
     }
 }

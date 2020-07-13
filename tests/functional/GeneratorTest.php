@@ -33,9 +33,9 @@ abstract class GeneratorTest extends DbLoaderTestCase
      */
     public function shouldHandleNonExistingTable(): void
     {
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non-existing-table']));
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non-existing-table']));
 
-        $this->assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
+        self::assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
     }
 
     /**
@@ -69,13 +69,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['gs_columns']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['gs_columns']));
+        self::assertStringContainsString(
             '> Generating migration for creating table \'gs_columns\' ...DONE!
  > Saved as \'',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_gs_columns.php\'
 
  Generated 1 file
@@ -83,7 +83,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
 ',
             MigrationControllerStub::$stdout
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '_create_table_gs_columns extends Migration
 {
     public function up()
@@ -137,8 +137,8 @@ abstract class GeneratorTest extends DbLoaderTestCase
     {
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%big_primary_key}}\',
@@ -165,8 +165,8 @@ abstract class GeneratorTest extends DbLoaderTestCase
         $this->createTables(['index' => ['col' => $this->integer()]]);
         $this->getDb()->createCommand()->createIndex('idx-create', 'index', ['col'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%index}}\',
@@ -202,8 +202,8 @@ abstract class GeneratorTest extends DbLoaderTestCase
         );
         $this->getDb()->createCommand()->createIndex('idx_multi', 'index_multi', ['col1', 'col2'])->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index_multi']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index_multi']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%index_multi}}\',
@@ -237,8 +237,8 @@ abstract class GeneratorTest extends DbLoaderTestCase
             ]
         );
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('create', ['pattern_*']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['pattern_*']));
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%pattern_a}}\',
@@ -249,7 +249,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
         );',
             MigrationControllerStub::$content
         );
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             '
         $this->createTable(
             \'{{%pattern_b}}\',

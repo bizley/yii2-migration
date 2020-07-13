@@ -30,7 +30,7 @@ final class IndexRendererTest extends TestCase
         $index->method('getName')->willReturn('pk');
         $index->method('isUnique')->willReturn(false);
 
-        $this->assertSame('$this->createIndex(\'pk\', \'test\', []);', $this->renderer->renderUp($index, 'test'));
+        self::assertSame('$this->createIndex(\'pk\', \'test\', []);', $this->renderer->renderUp($index, 'test'));
     }
 
     /** @test */
@@ -39,7 +39,7 @@ final class IndexRendererTest extends TestCase
         $index = $this->createMock(IndexInterface::class);
         $index->method('getName')->willReturn('pk');
 
-        $this->assertSame('$this->dropIndex(\'pk\', \'test\');', $this->renderer->renderDown($index, 'test'));
+        self::assertSame('$this->dropIndex(\'pk\', \'test\');', $this->renderer->renderDown($index, 'test'));
     }
 
     public function providerForRender(): array
@@ -97,7 +97,7 @@ final class IndexRendererTest extends TestCase
         $index->method('getName')->willReturn('idx');
         $index->method('isUnique')->willReturn($unique);
 
-        $this->assertSame($expectedCreate, $this->renderer->renderUp($index, 'test', $indent));
-        $this->assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
+        self::assertSame($expectedCreate, $this->renderer->renderUp($index, 'test', $indent));
+        self::assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
     }
 }

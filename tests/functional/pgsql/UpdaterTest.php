@@ -26,8 +26,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropColumn(\'{{%updater_base}}\', \'col\');
@@ -51,8 +51,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->string());
@@ -76,8 +76,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col2', $this->string(45))->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->alterColumn(\'{{%updater_base}}\', \'col2\', $this->string(45));
@@ -105,8 +105,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             $this->integer()->defaultValue(4)
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer()->defaultValue(\'4\'));
@@ -130,8 +130,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->notNull())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->notNull()->after(\'col3\'));
@@ -155,8 +155,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer()->notNull());
@@ -180,8 +180,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->createIndex(\'updater_base_col_key\', \'{{%updater_base}}\', [\'col\'], true);
@@ -205,8 +205,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
@@ -244,8 +244,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             'id'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->addForeignKey(
@@ -286,8 +286,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             'CASCADE'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
@@ -338,8 +338,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             'id'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
@@ -392,8 +392,8 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
             'RESTRICT'
         )->execute();
 
-        $this->assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
-        $this->assertStringContainsString(
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
+        self::assertStringContainsString(
             'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');

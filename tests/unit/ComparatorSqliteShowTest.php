@@ -40,15 +40,15 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "excessive column 'col1'",
                 '(!) DROP COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col1'], array_keys($this->blueprint->getDroppedColumns()));
+        self::assertSame(['col1'], array_keys($this->blueprint->getDroppedColumns()));
     }
 
     /**
@@ -68,16 +68,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: type (DB: \"a\" != MIG: \"b\")",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -97,16 +97,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: not null (DB: TRUE != MIG: FALSE)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -126,16 +126,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: length (DB: \"10\" != MIG: \"2\")",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -155,16 +155,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: unique (DB: FALSE != MIG: TRUE)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -184,16 +184,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: unsigned (DB: FALSE != MIG: TRUE)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -213,16 +213,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: default (DB: [\"a\"] != MIG: [\"b\"])",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -242,16 +242,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: comment (DB: \"abc\" != MIG: \"def\")",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -271,16 +271,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"abc\" != MIG: \"def\")",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -302,16 +302,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare(false);
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"PRIMARY KEY\" != MIG: NULL)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -331,16 +331,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare(false);
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"PRIMARY KEY\" != MIG: NULL)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -360,16 +360,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"AUTO_INCREMENT\" != MIG: NULL)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -389,16 +389,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"AUTOINCREMENT\" != MIG: NULL)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -418,16 +418,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different 'col' column property: append (DB: \"IDENTITY PRIMARY KEY\" != MIG: NULL)",
                 '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        $this->assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -442,15 +442,15 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "missing foreign key 'fk'",
                 '(!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
     }
 
     /**
@@ -465,15 +465,15 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "excessive foreign key 'fk'",
                 '(!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -493,16 +493,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different foreign key 'fk' columns (DB: [\"a\",\"b\"] != MIG: [\"a\",\"c\"])",
                 '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -522,16 +522,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different foreign key 'fk' referred columns (DB: [\"a\",\"b\"] != MIG: [\"c\",\"b\"])",
                 '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -551,16 +551,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different foreign key 'fk' referred table (DB: \"a\" != MIG: \"b\")",
                 '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -580,16 +580,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different foreign key 'fk' ON UPDATE constraint (DB: \"CASCADE\" != MIG: \"RESTRICT\")",
                 '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -609,16 +609,16 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 "different foreign key 'fk' ON DELETE constraint (DB: \"CASCADE\" != MIG: \"RESTRICT\")",
                 '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        $this->assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -634,17 +634,17 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 'different primary key definition',
                 '(!) ADD PRIMARY KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
-        $this->assertNull($this->blueprint->getTableOldPrimaryKey());
-        $this->assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
+        self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
+        self::assertNull($this->blueprint->getTableOldPrimaryKey());
+        self::assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
     }
 
     /**
@@ -660,17 +660,17 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 'different primary key definition',
                 '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertNull($this->blueprint->getTableNewPrimaryKey());
-        $this->assertSame($primaryKeyOld, $this->blueprint->getTableOldPrimaryKey());
-        $this->assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
+        self::assertNull($this->blueprint->getTableNewPrimaryKey());
+        self::assertSame($primaryKeyOld, $this->blueprint->getTableOldPrimaryKey());
+        self::assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
     }
 
     /**
@@ -688,18 +688,18 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame(
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
             [
                 'different primary key definition',
                 '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
             ],
             $this->blueprint->getDescriptions()
         );
-        $this->assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
-        $this->assertSame($primaryKeyOld, $this->blueprint->getTableOldPrimaryKey());
-        $this->assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
-        $this->assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
+        self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
+        self::assertSame($primaryKeyOld, $this->blueprint->getTableOldPrimaryKey());
+        self::assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
+        self::assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
     }
 
     /**
@@ -720,9 +720,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 
         $this->compare();
 
-        $this->assertTrue($this->blueprint->isPending());
-        $this->assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
-        $this->assertNull($this->blueprint->getTableOldPrimaryKey());
-        $this->assertNull($this->blueprint->getAddedPrimaryKey());
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
+        self::assertNull($this->blueprint->getTableOldPrimaryKey());
+        self::assertNull($this->blueprint->getAddedPrimaryKey());
     }
 }

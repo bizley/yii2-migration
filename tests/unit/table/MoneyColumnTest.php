@@ -25,7 +25,7 @@ final class MoneyColumnTest extends TestCase
     /** @test */
     public function shouldReturnProperDefinition(): void
     {
-        $this->assertSame('money({renderLength})', $this->column->getDefinition());
+        self::assertSame('money({renderLength})', $this->column->getDefinition());
     }
 
     public function providerForGettingLengthWithoutScale(): array
@@ -49,7 +49,7 @@ final class MoneyColumnTest extends TestCase
     public function shouldReturnProperLengthWithoutScale(string $schema, ?string $expected): void
     {
         $this->column->setPrecision(1);
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForGettingLengthWithScale(): array
@@ -74,7 +74,7 @@ final class MoneyColumnTest extends TestCase
     {
         $this->column->setPrecision(1);
         $this->column->setScale(1);
-        $this->assertSame($expected, $this->column->getLength($schema));
+        self::assertSame($expected, $this->column->getLength($schema));
     }
 
     public function providerForSettingLengthWithoutScale(): array
@@ -102,8 +102,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength([1], $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     public function providerForSettingLengthWithoutScaleAndPrecision(): array
@@ -131,8 +131,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength([], $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -148,8 +148,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength(['1'], $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     public function providerForSettingLengthWithScale(): array
@@ -177,8 +177,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength([1, 1], $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -194,8 +194,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength(['1', '1'], $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -211,8 +211,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength('1', $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -228,8 +228,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength('1,1', $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -245,8 +245,8 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength('1, 1', $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
     /**
@@ -262,7 +262,7 @@ final class MoneyColumnTest extends TestCase
         ?int $expectedScale
     ): void {
         $this->column->setLength('1 , 1', $schema);
-        $this->assertSame($expectedScale, $this->column->getScale());
-        $this->assertSame($expectedPrecision, $this->column->getPrecision());
+        self::assertSame($expectedScale, $this->column->getScale());
+        self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 }
