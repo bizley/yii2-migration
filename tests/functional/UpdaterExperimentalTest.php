@@ -6,7 +6,11 @@ namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
+use yii\base\Exception;
+use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
+use yii\console\Exception as ConsoleException;
+use yii\console\ExitCode;
 use yii\db\Exception as DbException;
 
 abstract class UpdaterExperimentalTest extends DbLoaderTestCase
@@ -28,5 +32,17 @@ abstract class UpdaterExperimentalTest extends DbLoaderTestCase
         MigrationControllerStub::$confirmControl = true;
 
         $this->addExperimentalBase();
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldNotUpdateTableWhenItsNotChanged(): void
+    {
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['exp_updater_base']));
+        self::assertSame('', MigrationControllerStub::$content);
     }
 }

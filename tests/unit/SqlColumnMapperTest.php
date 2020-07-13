@@ -96,7 +96,7 @@ class SqlColumnMapperTest extends TestCase
             ['image', ['type' => 'binary']],
             ['timestamp', ['type' => 'timestamp']],
             ['hierarchyid', ['type' => 'string']],
-            ['uniqueidentifier', ['type' => 'string']],
+            ['uniqueidentifier', ['isUnique' => true, 'type' => 'string', 'append' => 'identifier']],
             ['sql_variant', ['type' => 'string']],
             ['xml', ['type' => 'string']],
             ['table', ['type' => 'string']],
@@ -376,8 +376,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'comment' => 'test',
+                'type' => 'string',
             ],
             SqlColumnMapper::map('comment \'test\'', [])
         );
@@ -388,8 +388,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'comment' => "te''st",
+                'type' => 'string',
             ],
             SqlColumnMapper::map("comment 'te''st'", [])
         );
@@ -400,8 +400,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'default' => "test",
+                'type' => 'string',
             ],
             SqlColumnMapper::map("default 'test'", [])
         );
@@ -412,8 +412,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'default' => '12',
+                'type' => 'string',
             ],
             SqlColumnMapper::map('default 12', [])
         );
@@ -424,8 +424,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'default' => '1.5',
+                'type' => 'string',
             ],
             SqlColumnMapper::map('default 1.5', [])
         );
@@ -460,8 +460,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isFirst' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('first', [])
         );
@@ -472,8 +472,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'after' => 'col',
+                'type' => 'string',
             ],
             SqlColumnMapper::map('after `col`', [])
         );
@@ -484,8 +484,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isNotNull' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('not null', [])
         );
@@ -496,8 +496,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isNotNull' => false,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('null', [])
         );
@@ -508,8 +508,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'autoIncrement' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('AUTOINCREMENT', [])
         );
@@ -520,8 +520,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'autoIncrement' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('AUTO_INCREMENT', [])
         );
@@ -532,8 +532,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isPrimaryKey' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('IDENTITY PRIMARY KEY', [])
         );
@@ -544,8 +544,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isPrimaryKey' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('PRIMARY KEY', [])
         );
@@ -556,8 +556,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isUnsigned' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('unsigned', [])
         );
@@ -568,8 +568,8 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isUnique' => true,
+                'type' => 'string',
             ],
             SqlColumnMapper::map('Unique', [])
         );
@@ -580,10 +580,10 @@ class SqlColumnMapperTest extends TestCase
     {
         self::assertSame(
             [
-                'type' => 'string',
                 'isNotNull' => true,
                 'isPrimaryKey' => true,
-                'append' => 'test'
+                'type' => 'string',
+                'append' => 'test',
             ],
             SqlColumnMapper::map('primary key not null test', [])
         );

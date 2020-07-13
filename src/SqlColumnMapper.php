@@ -437,7 +437,7 @@ class SqlColumnMapper
                         array_slice($sentenceArray, $index)
                     );
                     $part .= $parenthesisPart;
-                    $end = $parenthesisPartEnd;
+                    $end = $index + $parenthesisPartEnd;
                     break;
                 }
 
