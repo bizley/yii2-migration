@@ -46,14 +46,14 @@ use function trim;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.1.0
+ * @version 4.1.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.1.0';
+    private $version = '4.1.1';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
