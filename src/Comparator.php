@@ -15,6 +15,10 @@ use yii\helpers\Json;
 
 use function count;
 use function in_array;
+use function is_string;
+use function preg_match;
+use function strpos;
+use function substr;
 
 final class Comparator implements ComparatorInterface
 {
@@ -134,6 +138,10 @@ final class Comparator implements ComparatorInterface
                     $newProperty = (string)$newProperty;
                 }
                 if ($oldProperty !== $newProperty) {
+                    if ($propertyFetch === 'getLength' && $this->isLengthSame($newProperty, $oldProperty)) {
+                        continue;
+                    }
+
                     if ($propertyFetch === 'getAppend' && $this->isAppendSame($column, $oldColumn)) {
                         continue;
                     }
@@ -735,6 +743,25 @@ final class Comparator implements ComparatorInterface
         }
 
         return $newUnique === $oldUnique;
+    }
+
+    /**
+     * Checks if length has the same value but written differently.
+     * @param mixed $newLength
+     * @param mixed $oldLength
+     * @return bool
+     */
+    private function isLengthSame($newLength, $oldLength): bool
+    {
+        $normalizedNew = $newLength;
+        if (is_string($newLength) && preg_match('/,\s?0$/', $newLength)) {
+            $normalizedNew = substr($newLength, 0, (int)strpos($newLength, ','));
+        }
+        $normalizedOld = $oldLength;
+        if (is_string($oldLength) && preg_match('/,\s?0$/', $oldLength)) {
+            $normalizedOld = substr($oldLength, 0, (int)strpos($oldLength, ','));
+        }
+        return $normalizedNew === $normalizedOld;
     }
 
     /**

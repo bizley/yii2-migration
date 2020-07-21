@@ -142,6 +142,35 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
      * @test
      * @throws NotSupportedException
      */
+    public function shouldAlterColumnForGetLengthDecimal(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setLength('10, 2');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setLength('9, 3');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            [
+                "different 'col' column property: length (DB: \"10, 2\" != MIG: \"9, 3\")",
+                '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
+            ],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldAlterColumnForIsUnique(): void
     {
         $columnNew = $this->getColumn('col');

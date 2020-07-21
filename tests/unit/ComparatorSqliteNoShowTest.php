@@ -107,6 +107,26 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
      * @test
      * @throws NotSupportedException
      */
+    public function shouldAlterColumnForGetLengthDecimal(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $columnNew = $this->getColumn('col');
+        $columnNew->setLength('10, 2');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setLength('9, 3');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldAlterColumnForIsUnique(): void
     {
         $this->expectException(NotSupportedException::class);
