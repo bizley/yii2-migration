@@ -225,7 +225,7 @@ final class TableMapper implements TableMapperInterface
      */
     public function getTableSchema(string $table): ?TableSchema
     {
-        return $this->db->getTableSchema($table);
+        return $this->db->getTableSchema($table, true);
     }
 
     /**

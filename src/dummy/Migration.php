@@ -298,7 +298,7 @@ class Migration extends Component implements MigrationChangesInterface
 
     public function renameTable($table, $newName)
     {
-        $this->addChange($table, 'renameTable', $this->getRawTableName($newName));
+        $this->addChange($newName, 'renameTable', $this->getRawTableName($table));
     }
 
     public function dropTable($table)

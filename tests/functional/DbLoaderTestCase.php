@@ -94,8 +94,7 @@ abstract class DbLoaderTestCase extends DbTestCase
         $this->dropTable('updater_base_fk');
         $this->dropTable('updater_base_fk_target');
         $this->dropTable('updater_base');
-
-        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
+        $this->dropTable('renamed_base');
 
         // Tables are added like this and not through the migration to skip class' autoloading.
         $this->createTable(
@@ -173,8 +172,6 @@ abstract class DbLoaderTestCase extends DbTestCase
         $this->dropTable('string_pk');
         $this->dropTable('no_pk');
 
-        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
-
         // Tables are added like this and not through the migration to skip class' autoloading.
         $this->createTable(
             'no_pk',
@@ -210,8 +207,6 @@ abstract class DbLoaderTestCase extends DbTestCase
 
         $this->createSchema('schema1');
         $this->createSchema('schema2');
-
-        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
 
         // Tables are added like this and not through the migration to skip class' autoloading.
         $this->createTable(
@@ -252,8 +247,6 @@ abstract class DbLoaderTestCase extends DbTestCase
 
         $this->dropTable('exp_updater_base');
 
-        $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
-
         $cols = [
             'id' => 'int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY',
             'col1' => 'VARCHAR(255) COMMENT \'test\'',
@@ -289,8 +282,12 @@ abstract class DbLoaderTestCase extends DbTestCase
     private function createMigrationHistoryTable(): void
     {
         if ($this->getDb()->getSchema()->getTableSchema($this->historyTable) !== null) {
+            $this->getDb()->createCommand()->truncateTable($this->historyTable)->execute();
+            $this->addHistoryEntry(MigrateController::BASE_MIGRATION);
+
             return;
         }
+
         $this->getDb()
             ->createCommand()
             ->createTable(
@@ -304,7 +301,7 @@ abstract class DbLoaderTestCase extends DbTestCase
         $this->addHistoryEntry(MigrateController::BASE_MIGRATION);
     }
 
-    private function addHistoryEntry(string $version): void
+    protected function addHistoryEntry(string $version): void
     {
         $this->getDb()
             ->createCommand()
