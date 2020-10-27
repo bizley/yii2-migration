@@ -261,4 +261,17 @@ abstract class UpdaterTest extends DbLoaderTestCase
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
         self::assertSame('', MigrationControllerStub::$content);
     }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function shouldNotCreateNewTableWhenTableIsRenamed(): void
+    {
+        $this->getDb()->createCommand()->renameTable('updater_base', 'renamed_base')->execute();
+        $this->addHistoryEntry('m20201027_135000_rename_table_updater_base');
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['renamed_base']));
+        self::assertSame('', MigrationControllerStub::$content);
+    }
 }
