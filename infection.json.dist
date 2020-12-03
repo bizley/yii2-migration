@@ -4,12 +4,14 @@
             "src"
         ],
         "excludes": [
-            "dummy\/*"
+            "dummy/Migration.php"
         ]
     },
+    "timeout": 20,
     "logs": {
         "text": "infection.log"
     },
+    "bootstrap": "./vendor/yiisoft/yii2/Yii.php",
     "mutators": {
         "@default": true
     }
