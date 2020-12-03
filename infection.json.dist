@@ -7,7 +7,7 @@
             "dummy/Migration.php"
         ]
     },
-    "timeout": 20,
+    "timeout": 30,
     "logs": {
         "text": "infection.log"
     },
