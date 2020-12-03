@@ -24,6 +24,7 @@ final class SchemaTest extends TestCase
             'oci' => [\yii\db\oci\Schema::class, Schema::OCI],
             'pgsql' => [\yii\db\pgsql\Schema::class, Schema::PGSQL],
             'sqlite' => [\yii\db\sqlite\Schema::class, Schema::SQLITE],
+            'unsupported' => [\stdClass::class, 'unsupported'],
         ];
     }
 
