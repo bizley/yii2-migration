@@ -20,15 +20,16 @@
     }
   ],
   "require": {
-    "php": "^7.2",
+    "php": ">=7.2",
     "ext-mbstring": "*",
     "ext-pdo": "*",
     "yiisoft/yii2": "^2.0.19"
   },
   "require-dev": {
+    "infection/infection": "*",
+    "phpstan/phpstan": "*",
     "phpunit/phpunit": "^8.5",
-    "roave/security-advisories": "dev-master",
-    "phpstan/phpstan": "*"
+    "roave/security-advisories": "dev-master"
   },
   "autoload": {
     "psr-4": {
