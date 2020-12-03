@@ -14,5 +14,7 @@
     "bootstrap": "./vendor/yiisoft/yii2/Yii.php",
     "mutators": {
         "@default": true
-    }
+    },
+    "minMsi": 95,
+    "minCoveredMsi": 95
 }
