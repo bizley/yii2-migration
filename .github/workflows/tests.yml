@@ -6,9 +6,6 @@ on:
     branches:
       - "master"
 
-env:
-  DEFAULT_COMPOSER_FLAGS: "--prefer-dist --no-interaction --no-progress --optimize-autoloader"
-
 jobs:
   PHPStan:
     runs-on: ubuntu-latest
@@ -95,10 +92,10 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies with PHP 8
         if: matrix.php == '8.0'
-        run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader
+        run: composer update --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
       - name: Install dependencies with PHP 7
         if: matrix.php != '8.0'
-        run: composer update $DEFAULT_COMPOSER_FLAGS
+        run: composer update --no-interaction --no-progress --optimize-autoloader
       - name: Prepare DB connections for tests
         run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n\$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
       - name: PHPUnit tests
