@@ -46,6 +46,7 @@ class ComparatorNonSqliteTest extends TestCase
         $column = new CharacterColumn();
         $column->setName($name);
         $column->setType('type');
+        $column->setLength(5);
         return $column;
     }
 

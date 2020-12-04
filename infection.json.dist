@@ -9,12 +9,14 @@
     },
     "timeout": 30,
     "logs": {
-        "text": "infection.log"
+        "text": "infection.log",
+        "badge": {
+            "branch": "master"
+        }
     },
     "bootstrap": "./vendor/yiisoft/yii2/Yii.php",
     "mutators": {
         "@default": true
     },
-    "minMsi": 95,
     "minCoveredMsi": 95
 }

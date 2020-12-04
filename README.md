@@ -5,6 +5,7 @@
 ![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)](https://packagist.org/packages/bizley/migration)
 ![License](https://img.shields.io/packagist/l/bizley/migration.svg)
+[![Infection MSI](https://badge.stryker-mutator.io/github.com/bizley/yii2-migration/master)](https://infection.github.io)
 
 ## Migration Creator And Updater
 
