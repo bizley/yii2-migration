@@ -135,28 +135,31 @@ final class Schema
      */
     public static function identifySchema($schema): string
     {
-        switch (true) {
-            case $schema instanceof \yii\db\mysql\Schema:
-                return self::MYSQL;
-
-            case $schema instanceof \yii\db\pgsql\Schema:
-                return self::PGSQL;
-
-            case $schema instanceof \yii\db\sqlite\Schema:
-                return self::SQLITE;
-
-            case $schema instanceof \yii\db\mssql\Schema:
-                return self::MSSQL;
-
-            case $schema instanceof \yii\db\oci\Schema:
-                return self::OCI;
-
-            case $schema instanceof \yii\db\cubrid\Schema:
-                return self::CUBRID;
-
-            default:
-                return 'unsupported';
+        if ($schema instanceof \yii\db\mysql\Schema) {
+            return self::MYSQL;
         }
+
+        if ($schema instanceof \yii\db\pgsql\Schema) {
+            return self::PGSQL;
+        }
+
+        if ($schema instanceof \yii\db\sqlite\Schema) {
+            return self::SQLITE;
+        }
+
+        if ($schema instanceof \yii\db\mssql\Schema) {
+            return self::MSSQL;
+        }
+
+        if ($schema instanceof \yii\db\oci\Schema) {
+            return self::OCI;
+        }
+
+        if ($schema instanceof \yii\db\cubrid\Schema) {
+            return self::CUBRID;
+        }
+
+        return 'unsupported';
     }
 
     /**

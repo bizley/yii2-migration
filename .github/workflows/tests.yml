@@ -1,9 +1,10 @@
 name: Tests
 
-on: [pull_request]
-
-env:
-  DEFAULT_COMPOSER_FLAGS: "--prefer-dist --no-interaction --no-progress --optimize-autoloader"
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
 
 jobs:
   PHPStan:
@@ -37,13 +38,13 @@ jobs:
       - name: PHPStan tests
         run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php --no-progress src
 
-  PHPUnit:
+  Infection:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['7.2', '7.3', '7.4', '8.0']
     services:
       mysql:
         image: mysql:5.7.29
@@ -74,7 +75,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, intl, mysql, pgsql, sqlite
-          coverage: none
+          coverage: 'pcov'
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           update: true
@@ -89,9 +90,22 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies
-        run: composer update $DEFAULT_COMPOSER_FLAGS
+      - name: Install dependencies with PHP 8
+        if: matrix.php == '8.0'
+        run: composer update --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
+      - name: Install dependencies with PHP 7
+        if: matrix.php != '8.0'
+        run: composer update --no-interaction --no-progress --optimize-autoloader
       - name: Prepare DB connections for tests
         run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n\$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
       - name: PHPUnit tests
+        if: matrix.php != '7.4'
         run: vendor/bin/phpunit --verbose
+      - name: Run Infection with PHPUnit
+        if: matrix.php == '7.4'
+        run: |
+          mkdir -p build/logs
+          vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml
+          vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

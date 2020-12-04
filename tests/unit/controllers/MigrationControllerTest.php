@@ -34,6 +34,7 @@ use function chmod;
 use function glob;
 use function is_dir;
 use function rmdir;
+use function strtolower;
 use function ucfirst;
 use function unlink;
 
@@ -1623,8 +1624,8 @@ ERROR!
             MigrationControllerStoringStub::$stdout
         );
         self::assertStringContainsString(
-            '_create_table_test.php): failed to open stream: Permission denied',
-            MigrationControllerStoringStub::$stdout
+            '_create_table_test.php): failed to open stream: permission denied',
+            strtolower(MigrationControllerStoringStub::$stdout) // PHP 8 changed case in message
         );
 
         chmod(__DIR__ . '/../../runtime', 0777);
