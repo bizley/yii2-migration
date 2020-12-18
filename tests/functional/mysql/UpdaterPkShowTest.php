@@ -7,12 +7,8 @@ namespace bizley\tests\functional\mysql;
 use bizley\tests\stubs\MigrationControllerStub;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
-use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
-use yii\db\Exception as DbException;
-
-use function version_compare;
 
 /** @group mysql */
 final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
@@ -22,28 +18,6 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
 
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
-
-    /**
-     * @throws NotSupportedException
-     * @throws DbException
-     */
-    protected function setUp(): void
-    {
-        $this->controller = new MigrationControllerStub('migration', \Yii::$app);
-        $this->controller->migrationPath = '@bizley/tests/migrations';
-        $this->controller->onlyShow = true;
-        MigrationControllerStub::$stdout = '';
-        MigrationControllerStub::$content = '';
-        MigrationControllerStub::$confirmControl = true;
-
-        $this->addPkBase(
-            version_compare(
-                $this->getDb()->getSlavePdo()->getAttribute(\PDO::ATTR_SERVER_VERSION),
-                '5.7',
-                '>='
-            ) ? null : 191
-        );
-    }
 
     /**
      * @test

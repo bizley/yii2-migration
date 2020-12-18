@@ -86,7 +86,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      * @throws NotSupportedException
      * @throws Exception
      */
-    protected function addBase(int $engineSpecificSize = null): void
+    protected function addBase(): void
     {
         $this->createMigrationHistoryTable();
 
@@ -102,7 +102,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             [
                 'id' => $this->primaryKey(),
                 'col' => $this->integer(),
-                'col2' => $this->string($engineSpecificSize),
+                'col2' => $this->string(),
                 'col3' => $this->timestamp()->defaultValue(null)
             ]
         );
@@ -165,7 +165,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      * @throws NotSupportedException
      * @throws Exception
      */
-    protected function addPkBase(int $engineSpecificSize = null): void
+    protected function addPkBase(): void
     {
         $this->createMigrationHistoryTable();
 
@@ -181,7 +181,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             ]
         );
 
-        $columns = ['col' => $this->string($engineSpecificSize)];
+        $columns = ['col' => $this->string()];
         if (static::$schema === 'sqlite') {
             $columns[] = 'PRIMARY KEY(col)';
         }
