@@ -1,4 +1,4 @@
-name: Tests
+name: Mutation testing
 
 on:
   pull_request:
@@ -7,47 +7,16 @@ on:
       - "master"
 
 jobs:
-  PHPStan:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          extensions: mbstring, intl
-          coverage: none
-        env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          update: true
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Cache composer dependencies
-        uses: actions/cache@v2.1.3
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies
-        run: composer update $DEFAULT_COMPOSER_FLAGS
-      - name: PHPStan tests
-        run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php --no-progress src
-
-  Infection:
-    name: PHP ${{ matrix.php }}
+  Tests:
+    name: PHP ${{ matrix.php }} + Infection
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4', '8.0']
+        php: ['7.4']
     services:
       mysql:
-        image: mysql:5.7.29
+        image: mysql:5.7
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: password
@@ -58,7 +27,7 @@ jobs:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
-        image: postgres:9.6.17
+        image: postgres:9.6
         env:
           POSTGRES_USER: migration
           POSTGRES_PASSWORD: password
@@ -70,6 +39,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -79,30 +49,28 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           update: true
+
       - name: Start MySQL service
         run: sudo /etc/init.d/mysql start
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2.1.3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies with PHP 8
-        if: matrix.php == '8.0'
-        run: composer update --ignore-platform-reqs --no-interaction --no-progress --optimize-autoloader
-      - name: Install dependencies with PHP 7
-        if: matrix.php != '8.0'
-        run: composer update --no-interaction --no-progress --optimize-autoloader
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
       - name: Prepare DB connections for tests
         run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n\$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
-      - name: PHPUnit tests
-        if: matrix.php != '7.4'
-        run: vendor/bin/phpunit --verbose
+
       - name: Run Infection with PHPUnit
-        if: matrix.php == '7.4'
         run: |
           mkdir -p build/logs
           vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml
