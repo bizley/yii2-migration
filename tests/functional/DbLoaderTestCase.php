@@ -86,7 +86,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      * @throws NotSupportedException
      * @throws Exception
      */
-    protected function addBase(): void
+    protected function addBase(int $engineSpecificSize = null): void
     {
         $this->createMigrationHistoryTable();
 
@@ -102,7 +102,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             [
                 'id' => $this->primaryKey(),
                 'col' => $this->integer(),
-                'col2' => $this->string(),
+                'col2' => $this->string($engineSpecificSize),
                 'col3' => $this->timestamp()->defaultValue(null)
             ]
         );
