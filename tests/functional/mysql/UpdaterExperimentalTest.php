@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\functional\mysql;
 
+/** @group mysql */
 final class UpdaterExperimentalTest extends \bizley\tests\functional\UpdaterExperimentalTest
 {
     /** @var string */
