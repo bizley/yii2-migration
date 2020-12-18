@@ -1,4 +1,4 @@
-name: Build with MySQL
+name: Mutation testing
 
 on:
   pull_request:
@@ -8,16 +8,15 @@ on:
 
 jobs:
   Tests:
-    name: PHP ${{ matrix.php }} + MySQL ${{ matrix.mysql }}
+    name: PHP ${{ matrix.php }} + Infection
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4', '8.0']
-        mysql: ['5.7']
+        php: ['7.4']
     services:
       mysql:
-        image: mysql:${{ matrix.mysql }}
+        image: mysql:5.7
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: password
@@ -27,6 +26,15 @@ jobs:
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_USER: migration
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: migration
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
       - name: Checkout
@@ -36,8 +44,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, intl, mysql
-          coverage: none
+          extensions: mbstring, intl, mysql, pgsql, sqlite
+          coverage: 'pcov'
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           update: true
@@ -60,7 +68,12 @@ jobs:
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Prepare DB connections for tests
-        run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n" >> tests/config.local.php;
+        run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
 
-      - name: PHPUnit tests
-        run: vendor/bin/phpunit --exclude-group pgsql,sqlite
+      - name: Run Infection with PHPUnit
+        run: |
+          mkdir -p build/logs
+          vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml
+          vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
