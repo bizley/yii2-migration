@@ -28,7 +28,7 @@
   "require-dev": {
     "infection/infection": "*",
     "phpstan/phpstan": "*",
-    "phpunit/phpunit": "^8.5",
+    "phpunit/phpunit": ">=8.5",
     "roave/security-advisories": "dev-master"
   },
   "autoload": {

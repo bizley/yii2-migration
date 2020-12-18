@@ -165,7 +165,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      * @throws NotSupportedException
      * @throws Exception
      */
-    protected function addPkBase(): void
+    protected function addPkBase(int $engineSpecificSize = null): void
     {
         $this->createMigrationHistoryTable();
 
@@ -181,7 +181,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             ]
         );
 
-        $columns = ['col' => $this->string()];
+        $columns = ['col' => $this->string($engineSpecificSize)];
         if (static::$schema === 'sqlite') {
             $columns[] = 'PRIMARY KEY(col)';
         }

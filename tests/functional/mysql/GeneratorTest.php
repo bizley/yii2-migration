@@ -13,6 +13,7 @@ use yii\console\ExitCode;
 use yii\db\Exception;
 
 use function preg_match_all;
+use function version_compare;
 
 /** @group mysql */
 final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
@@ -22,6 +23,21 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+
+    private $v57plus;
+
+    protected function isV57plus(): bool
+    {
+        if ($this->v57plus === null) {
+            $this->v57plus = version_compare(
+                $this->getDb()->getSlavePdo()->getAttribute(\PDO::ATTR_SERVER_VERSION),
+                '5.7',
+                '>='
+            );
+        }
+
+        return $this->v57plus;
+    }
 
     /**
      * @test
@@ -33,21 +49,21 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateGeneralSchemaTableWithNonStandardColumns(): void
     {
-        $this->createTables(
-            [
-                'non_standard_columns' => [
-                    'col_tiny_int' => $this->tinyInteger(),
-                    'col_date_time' => $this->dateTime(),
-                    'col_float' => $this->float(),
-                    'col_timestamp' => $this->timestamp(),
-                    'col_json' => $this->json(),
-                ]
-            ]
-        );
+        $cols = [
+            'col_tiny_int' => $this->tinyInteger(),
+            'col_date_time' => $this->dateTime(),
+            'col_float' => $this->float(),
+            'col_timestamp' => $this->timestamp(),
+        ];
+        if ($this->isV57plus()) {
+            $cols['col_json'] = $this->json();
+        }
+        $this->createTables(['non_standard_columns' => $cols]);
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
-        self::assertStringContainsString(
-            '
+
+        $expected = $this->isV57plus()
+            ? '
         $this->createTable(
             \'{{%non_standard_columns}}\',
             [
@@ -59,9 +75,19 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-',
-            MigrationControllerStub::$content
+' : '
+        $this->createTable(
+            \'{{%non_standard_columns}}\',
+            [
+                \'col_tiny_int\' => $this->tinyInteger(),
+                \'col_date_time\' => $this->dateTime(),
+                \'col_float\' => $this->float(),
+                \'col_timestamp\' => $this->timestamp()->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+            ],
+            $tableOptions
         );
+';
+        self::assertStringContainsString($expected, MigrationControllerStub::$content);
     }
 
     /**
@@ -74,36 +100,36 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      */
     public function shouldGenerateNonGeneralSchemaTable(): void
     {
-        $this->createTables(
-            [
-                'non_gs_columns' => [
-                    'id' => $this->primaryKey(),
-                    'col_big_int' => $this->bigInteger(),
-                    'col_int' => $this->integer(),
-                    'col_small_int' => $this->smallInteger(),
-                    'col_tiny_int' => $this->tinyInteger(),
-                    'col_bin' => $this->binary(),
-                    'col_bool' => $this->boolean(),
-                    'col_char' => $this->char(),
-                    'col_date' => $this->date(),
-                    'col_date_time' => $this->dateTime(),
-                    'col_decimal' => $this->decimal(),
-                    'col_double' => $this->double(),
-                    'col_float' => $this->float(),
-                    'col_money' => $this->money(),
-                    'col_string' => $this->string(),
-                    'col_text' => $this->text(),
-                    'col_time' => $this->time(),
-                    'col_timestamp' => $this->timestamp(),
-                    'col_json' => $this->json(),
-                ]
-            ]
-        );
+        $cols = [
+            'id' => $this->primaryKey(),
+            'col_big_int' => $this->bigInteger(),
+            'col_int' => $this->integer(),
+            'col_small_int' => $this->smallInteger(),
+            'col_tiny_int' => $this->tinyInteger(),
+            'col_bin' => $this->binary(),
+            'col_bool' => $this->boolean(),
+            'col_char' => $this->char(),
+            'col_date' => $this->date(),
+            'col_date_time' => $this->dateTime(),
+            'col_decimal' => $this->decimal(),
+            'col_double' => $this->double(),
+            'col_float' => $this->float(),
+            'col_money' => $this->money(),
+            'col_string' => $this->string(),
+            'col_text' => $this->text(),
+            'col_time' => $this->time(),
+            'col_timestamp' => $this->timestamp(),
+        ];
+        if ($this->isV57plus()) {
+            $cols['col_json'] = $this->json();
+        }
+        $this->createTables(['non_gs_columns' => $cols]);
 
         $this->controller->generalSchema = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
-        self::assertStringContainsString(
-            '
+
+        $expected = $this->isV57plus()
+            ? '
         $this->createTable(
             \'{{%non_gs_columns}}\',
             [
@@ -129,9 +155,33 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
             ],
             $tableOptions
         );
-',
-            MigrationControllerStub::$content
+' : '
+        $this->createTable(
+            \'{{%non_gs_columns}}\',
+            [
+                \'id\' => $this->integer(11)->notNull()->append(\'AUTO_INCREMENT PRIMARY KEY\'),
+                \'col_big_int\' => $this->bigInteger(20),
+                \'col_int\' => $this->integer(11),
+                \'col_small_int\' => $this->smallInteger(6),
+                \'col_tiny_int\' => $this->tinyInteger(3),
+                \'col_bin\' => $this->binary(),
+                \'col_bool\' => $this->tinyInteger(1),
+                \'col_char\' => $this->char(1),
+                \'col_date\' => $this->date(),
+                \'col_date_time\' => $this->dateTime(0),
+                \'col_decimal\' => $this->decimal(10, 0),
+                \'col_double\' => $this->double(),
+                \'col_float\' => $this->float(),
+                \'col_money\' => $this->decimal(19, 4),
+                \'col_string\' => $this->string(255),
+                \'col_text\' => $this->text(),
+                \'col_time\' => $this->time(0),
+                \'col_timestamp\' => $this->timestamp(0)->notNull()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+            ],
+            $tableOptions
         );
+';
+        self::assertStringContainsString($expected, MigrationControllerStub::$content);
     }
 
     /**
