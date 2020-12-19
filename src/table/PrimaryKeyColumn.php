@@ -7,14 +7,28 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 
 use function in_array;
+use function version_compare;
 
 class PrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [
-        Schema::MYSQL,
-        Schema::OCI,
-    ];
+    private $lengthSchemas = [Schema::OCI];
+
+    /**
+     * Checks if schema supports length for this column.
+     * In case of MySQL the engine version must be lower than 8.0.17.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return bool
+     */
+    private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
+    {
+        if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '8.0.17', '<')) {
+            return true;
+        }
+
+        return in_array($schema, $this->lengthSchemas, true);
+    }
 
     /**
      * Returns length of the column.
@@ -24,7 +38,7 @@ class PrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
      */
     public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
+        return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getSize() : null;
     }
 
     /**
@@ -35,7 +49,7 @@ class PrimaryKeyColumn extends Column implements PrimaryKeyColumnInterface
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (in_array($schema, $this->lengthSchemas, true)) {
+        if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {
             $this->setSize($value);
             $this->setPrecision($value);
         }

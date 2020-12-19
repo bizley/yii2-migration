@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PDO;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
+
+use function version_compare;
 
 /** @group mysql */
 final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
@@ -18,6 +21,21 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
 
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+
+    private $v8;
+
+    public function isV8(): bool
+    {
+        if ($this->v8 === null) {
+            $this->v8 = version_compare(
+                $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
+                '8.0.17',
+                '>='
+            );
+        }
+
+        return $this->v8;
+    }
 
     /**
      * @test
@@ -54,7 +72,12 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+            $this->isV8()
+                ? ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+   - different \'col\' column property: type (DB: "string" != MIG: "integer")
+   - different \'col\' column property: length (DB: "255" != MIG: NULL)
+
+ No files generated.' : ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: type (DB: "string" != MIG: "integer")
    - different \'col\' column property: length (DB: "255" != MIG: "11")
 
@@ -77,7 +100,9 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
+            $this->isV8()
+                ? 'TABLE IS UP-TO-DATE'
+                : ' > Comparing current table \'updater_base\' with its migrations ...Showing differences:
    - different \'col\' column property: length (DB: "8" != MIG: "11")
 
  No files generated.',
