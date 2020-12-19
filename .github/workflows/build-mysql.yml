@@ -27,6 +27,8 @@ jobs:
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        volumes:
+          - tests/docker/scripts:/docker-entrypoint-initdb.d
 
     steps:
       - name: Checkout
@@ -43,7 +45,7 @@ jobs:
           update: true
 
       - name: Start MySQL service
-        run: sudo /etc/init.d/mysql start --default-authentication-plugin=mysql_native_password
+        run: sudo /etc/init.d/mysql start
 
       - name: Get composer cache directory
         id: composer-cache
