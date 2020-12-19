@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PDO;
 use Throwable;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
@@ -13,6 +14,7 @@ use yii\console\ExitCode;
 use yii\db\Exception;
 
 use function preg_match_all;
+use function version_compare;
 
 /** @group mysql */
 final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
@@ -22,6 +24,21 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+
+    private $v8;
+
+    public function isV8(): bool
+    {
+        if ($this->v8 === null) {
+            $this->v8 = version_compare(
+                $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
+                '8.0.17',
+                '>='
+            );
+        }
+
+        return $this->v8;
+    }
 
     /**
      * @test
@@ -47,7 +64,20 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_standard_columns']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%non_standard_columns}}\',
+            [
+                \'col_tiny_int\' => $this->tinyInteger(),
+                \'col_date_time\' => $this->dateTime(),
+                \'col_float\' => $this->float(),
+                \'col_timestamp\' => $this->timestamp(),
+                \'col_json\' => $this->json(),
+            ],
+            $tableOptions
+        );
+' : '
         $this->createTable(
             \'{{%non_standard_columns}}\',
             [
@@ -103,7 +133,34 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->controller->generalSchema = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_gs_columns']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%non_gs_columns}}\',
+            [
+                \'id\' => $this->integer()->notNull()->append(\'AUTO_INCREMENT PRIMARY KEY\'),
+                \'col_big_int\' => $this->bigInteger(),
+                \'col_int\' => $this->integer(),
+                \'col_small_int\' => $this->smallInteger(),
+                \'col_tiny_int\' => $this->tinyInteger(),
+                \'col_bin\' => $this->binary(),
+                \'col_bool\' => $this->tinyInteger(1),
+                \'col_char\' => $this->char(1),
+                \'col_date\' => $this->date(),
+                \'col_date_time\' => $this->dateTime(0),
+                \'col_decimal\' => $this->decimal(10, 0),
+                \'col_double\' => $this->double(),
+                \'col_float\' => $this->float(),
+                \'col_money\' => $this->decimal(19, 4),
+                \'col_string\' => $this->string(255),
+                \'col_text\' => $this->text(),
+                \'col_time\' => $this->time(0),
+                \'col_timestamp\' => $this->timestamp(0),
+                \'col_json\' => $this->json(),
+            ],
+            $tableOptions
+        );
+' : '
         $this->createTable(
             \'{{%non_gs_columns}}\',
             [
@@ -161,7 +218,23 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non_default_size']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%non_default_size}}\',
+            [
+                \'id\' => $this->primaryKey(),
+                \'col_big_int\' => $this->bigInteger(),
+                \'col_int\' => $this->integer(),
+                \'col_small_int\' => $this->smallInteger(),
+                \'col_tiny_int\' => $this->tinyInteger(),
+                \'col_char\' => $this->char(2),
+                \'col_decimal\' => $this->decimal(8, 3),
+                \'col_string\' => $this->string(45),
+            ],
+            $tableOptions
+        );
+' : '
         $this->createTable(
             \'{{%non_default_size}}\',
             [
@@ -196,7 +269,16 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->controller->generalSchema = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['big_primary_key']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%big_primary_key}}\',
+            [
+                \'id\' => $this->bigInteger()->notNull()->append(\'AUTO_INCREMENT PRIMARY KEY\'),
+            ],
+            $tableOptions
+        );
+' : '
         $this->createTable(
             \'{{%big_primary_key}}\',
             [
@@ -319,7 +401,22 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['appendixes']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%appendixes}}\',
+            [
+                \'col1\' => $this->integer()->defaultValue(\'2\'),
+                \'col2\' => $this->integer()->unsigned(),
+                \'col3\' => $this->string()->defaultValue(\'abc\'),
+                \'col4\' => $this->integer()->comment(\'comment\'),
+                \'col5\' => $this->integer()->notNull(),
+                \'col6\' => $this->integer(),
+                \'col7\' => $this->timestamp()->defaultExpression(\'CURRENT_TIMESTAMP\'),
+            ],
+            $tableOptions
+        );
+' : '
         $this->createTable(
             \'{{%appendixes}}\',
             [
@@ -429,7 +526,26 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table12']));
         self::assertStringContainsString(
-            '
+            $this->isV8()
+                ? '
+        $this->createTable(
+            \'{{%table12}}\',
+            [
+                \'col\' => $this->integer(),
+            ],
+            $tableOptions
+        );
+
+        $this->addForeignKey(
+            \'fk-table12\',
+            \'{{%table12}}\',
+            [\'col\'],
+            \'{{%table11}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'NO ACTION\'
+        );
+' : '
         $this->createTable(
             \'{{%table12}}\',
             [
@@ -655,7 +771,29 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_pk']));
         self::assertStringContainsString(
-            'public function up()
+            $this->isV8()
+                ? 'public function up()
+    {
+        $tableOptions = null;
+        if ($this->db->driverName === \'mysql\') {
+            $tableOptions = \'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB\';
+        }
+
+        $this->createTable(
+            \'{{%unsigned_pk}}\',
+            [
+                \'id\' => $this->primaryKey()->unsigned(),
+            ],
+            $tableOptions
+        );
+    }
+
+    public function down()
+    {
+        $this->dropTable(\'{{%unsigned_pk}}\');
+    }
+}
+' : 'public function up()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {

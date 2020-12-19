@@ -7,14 +7,28 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 
 use function in_array;
+use function version_compare;
 
 final class TinyIntegerColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [
-        Schema::MYSQL,
-        Schema::OCI,
-    ];
+    private $lengthSchemas = [Schema::OCI];
+
+    /**
+     * Checks if schema supports length for this column.
+     * In case of MySQL the engine version must be lower than 8.0.17.
+     * @param string|null $schema
+     * @param string|null $engineVersion
+     * @return bool
+     */
+    private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
+    {
+        if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '8.0.17', '<')) {
+            return true;
+        }
+
+        return in_array($schema, $this->lengthSchemas, true);
+    }
 
     /**
      * Returns length of the column.
@@ -24,7 +38,16 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
      */
     public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
+        $size = $this->getSize();
+        if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {
+            return $size;
+        }
+        if ($schema === Schema::MYSQL && (string)$size === '1') {
+            // MySQL 8.0.17+ allows tiny integer to be set with size 1 for boolean columns
+            return $size;
+        }
+
+        return null;
     }
 
     /**
@@ -35,7 +58,10 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (in_array($schema, $this->lengthSchemas, true)) {
+        if (
+            $this->isSchemaLengthSupporting($schema, $engineVersion)
+            || ($schema === Schema::MYSQL && (string)$value === '1')
+        ) {
             $this->setSize($value);
             $this->setPrecision($value);
         }

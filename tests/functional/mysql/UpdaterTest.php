@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PDO;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
+
+use function version_compare;
 
 /** @group mysql */
 final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
@@ -18,6 +21,21 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+
+    private $v8;
+
+    public function isV8(): bool
+    {
+        if ($this->v8 === null) {
+            $this->v8 = version_compare(
+                $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
+                '8.0.17',
+                '>='
+            );
+        }
+
+        return $this->v8;
+    }
 
     /**
      * @test
@@ -81,7 +99,9 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            $this->isV8()
+                ? ''
+                : 'public function up()
     {
         $this->alterColumn(\'{{%updater_base}}\', \'col\', $this->integer(8));
     }
@@ -407,7 +427,25 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         self::assertStringContainsString(
-            'public function up()
+            $this->isV8()
+                ? 'public function up()
+    {
+        $this->addForeignKey(
+            \'fk-added\',
+            \'{{%updater_base_fk}}\',
+            [\'col\'],
+            \'{{%updater_base}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'NO ACTION\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropForeignKey(\'fk-added\', \'{{%updater_base_fk}}\');
+    }'
+                : 'public function up()
     {
         $this->addForeignKey(
             \'fk-added\',
@@ -447,7 +485,36 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         self::assertStringContainsString(
-            'public function up()
+            $this->isV8()
+            ? 'public function up()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'col\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'NO ACTION\',
+            \'NO ACTION\'
+        );
+    }
+
+    public function down()
+    {
+        $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->addForeignKey(
+            \'fk-plus\',
+            \'{{%updater_base_fk}}\',
+            [\'updater_base_id\'],
+            \'{{%updater_base_fk_target}}\',
+            [\'id\'],
+            \'CASCADE\',
+            \'CASCADE\'
+        );
+    }' : 'public function up()
     {
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
 
