@@ -63,7 +63,7 @@ final class Extractor implements ExtractorInterface
             require_once $file;
         }
 
-        $this->subject = new $migration(['db' => clone $this->db, 'experimental' => $this->experimental]);
+        $this->subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
         if ($this->subject instanceof MigrationChangesInterface === false) {
             throw new ErrorException(
                 "Class '{$migration}' must implement bizley\migration\dummy\MigrationChangesInterface."
