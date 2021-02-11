@@ -36,6 +36,7 @@ use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\db\Connection;
 use yii\db\Query;
+use yii\di\Instance;
 
 /**
  * This is the foundation of MigrationController. All services are registered here.
@@ -278,7 +279,9 @@ class BaseMigrationController extends Controller
     public function getExtractor(): ExtractorInterface
     {
         if ($this->extractor === null) {
-            $configuredObject = Yii::createObject($this->extractorClass, [$this->db, $this->experimental]);
+            $db = Instance::ensure($this->db, Connection::class);
+            // cloning connection here to not force reconnecting on each extraction
+            $configuredObject = Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
             if (!$configuredObject instanceof ExtractorInterface) {
                 throw new InvalidConfigException('Extractor must implement bizley\migration\ExtractorInterface.');
             }
