@@ -3,5 +3,6 @@
 /phpstan.sh export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml.dist export-ignore
+/phpunit-no-yii-autoload.xml.dist export-ignore
 /infection.json.dist export-ignore
 /yii2-migration.png export-ignore

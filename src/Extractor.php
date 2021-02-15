@@ -80,6 +80,10 @@ final class Extractor implements ExtractorInterface
      */
     private function setDummyMigrationClass(): void
     {
+        // attempt to register Yii's autoloader in case it's not been done already
+        // registering it second time should be skipped anyway
+        spl_autoload_register(['Yii', 'autoload'], true, true);
+
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');
     }
 
