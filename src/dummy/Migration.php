@@ -186,7 +186,7 @@ class Migration extends Component implements MigrationChangesInterface
 
         if ($columnData instanceof ColumnSchemaBuilder === false) {
             throw new InvalidArgumentException(
-                'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder.'
+                'Column data must be provided as an instance of yii\db\ColumnSchemaBuilder. Do you have column configuration provided as a string while not using experimental mode (--ex)?'
             );
         }
 
