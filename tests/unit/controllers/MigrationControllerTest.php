@@ -88,7 +88,18 @@ final class MigrationControllerTest extends TestCase
     public function providerForOptions(): array
     {
         return [
-            'default' => ['default', ['color', 'interactive', 'help', 'silentExitOnException', 'db']],
+            'default' => [
+                'default',
+                [
+                    'color',
+                    'interactive',
+                    'help',
+                    'silentExitOnException',
+                    'db',
+                    'fileMode',
+                    'fileOwnership',
+                ]
+            ],
             'create' => [
                 'create',
                 [
@@ -97,13 +108,15 @@ final class MigrationControllerTest extends TestCase
                     'help',
                     'silentExitOnException',
                     'db',
+                    'fileMode',
+                    'fileOwnership',
                     'fixHistory',
                     'generalSchema',
                     'migrationNamespace',
                     'migrationPath',
                     'migrationTable',
                     'useTablePrefix',
-                    'excludeTables'
+                    'excludeTables',
                 ]
             ],
             'update' => [
@@ -114,6 +127,8 @@ final class MigrationControllerTest extends TestCase
                     'help',
                     'silentExitOnException',
                     'db',
+                    'fileMode',
+                    'fileOwnership',
                     'fixHistory',
                     'generalSchema',
                     'migrationNamespace',
@@ -123,7 +138,7 @@ final class MigrationControllerTest extends TestCase
                     'excludeTables',
                     'onlyShow',
                     'skipMigrations',
-                    'experimental'
+                    'experimental',
                 ]
             ],
         ];
@@ -154,6 +169,8 @@ final class MigrationControllerTest extends TestCase
                 'mt' => 'migrationTable',
                 'os' => 'onlyShow',
                 'tp' => 'useTablePrefix',
+                'fm' => 'fileMode',
+                'fo' => 'fileOwnership',
             ],
             $this->controller->optionAliases()
         );

@@ -27,7 +27,7 @@ final class MigrationControllerStoringStub extends MigrationController
 
     public function stdout($string) // BC declaration
     {
-        static::$stdout .= $string;
+        self::$stdout .= $string;
     }
 
     public function ansiFormat($string): string // BC declaration
@@ -39,6 +39,6 @@ final class MigrationControllerStoringStub extends MigrationController
     {
         $this->stdout($message);
 
-        return static::$confirmControl;
+        return self::$confirmControl;
     }
 }

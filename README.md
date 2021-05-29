@@ -117,7 +117,9 @@ You can easily generate updating migration for database table by comparing its c
 | `fixHistory`         | `fh`  | Whether to add migration history entry when migration is generated.
 | `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
 | `excludeTables`      |       | List of tables that should be skipped.
-| `experimental`       | `ex`  | **New in 4.1.0** - Whether to run in experimental mode (see [3] below).
+| `experimental`       | `ex`  | Whether to run in experimental mode (see [3] below).
+| `fileMode`           | `fm`  | **New in 4.2.0** - Generated file mode to be changed using `chmod`.
+| `fileOwnership`      | `fo`  | **New in 4.2.0** - Generated file ownership to be changed using `chown`/`chgrp`.
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 
@@ -163,7 +165,7 @@ This extension should work with all database types supported in Yii 2 core:
 
 - CUBRID (9.3.x and higher)
 - MS SQL Server (2008 and above)
-- MySQL (4.1.x and 5.x)
+- MySQL (4.1.x, 5.x, 8.x)
 - Oracle
 - PostgreSQL (9.x and above)
 - SQLite (2/3)
