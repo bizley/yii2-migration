@@ -60,7 +60,9 @@ final class FallbackFileHelperTest extends TestCase
                 }
             }
             closedir($handle);
-            rmdir($dirName);
+            if (substr($dirName, -7) !== 'runtime') {
+                rmdir($dirName);
+            }
         }
     }
 
