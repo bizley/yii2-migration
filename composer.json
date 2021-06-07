@@ -28,8 +28,8 @@
   "require-dev": {
     "infection/infection": "*",
     "phpstan/phpstan": "*",
-    "phpunit/phpunit": "^8.5",
-    "roave/security-advisories": "dev-master"
+    "phpunit/phpunit": "*",
+    "roave/security-advisories": "dev-latest"
   },
   "autoload": {
     "psr-4": {
