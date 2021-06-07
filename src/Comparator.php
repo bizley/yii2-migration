@@ -188,7 +188,6 @@ final class Comparator implements ComparatorInterface
             }
         }
 
-        /** @var ColumnInterface $column */
         foreach ($oldColumns as $name => $column) {
             if (array_key_exists($name, $newColumns) === false) {
                 $blueprint->addDescription("excessive column '$name'");
@@ -224,7 +223,6 @@ final class Comparator implements ComparatorInterface
     ): void {
         $newForeignKeys = $newStructure->getForeignKeys();
         $oldForeignKeys = $oldStructure->getForeignKeys();
-        /** @var ForeignKeyInterface $foreignKey */
         foreach ($newForeignKeys as $name => $foreignKey) {
             if (array_key_exists($name, $oldForeignKeys) === false) {
                 $blueprint->addDescription("missing foreign key '$name'");
@@ -376,7 +374,6 @@ final class Comparator implements ComparatorInterface
             }
         }
 
-        /** @var ForeignKeyInterface $foreignKey */
         foreach ($oldForeignKeys as $name => $foreignKey) {
             if (array_key_exists($name, $newForeignKeys) === false) {
                 $blueprint->addDescription("excessive foreign key '$name'");
@@ -444,13 +441,6 @@ final class Comparator implements ComparatorInterface
 
             $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
             if ($this->shouldPrimaryKeyBeAdded($blueprint, $differentColumns, $newPrimaryKeyColumnsCount, $schema)) {
-                $this->removeExcessivePrimaryKeyStatements(
-                    $blueprint,
-                    $differentColumns,
-                    $newPrimaryKeyColumnsCount,
-                    $schema
-                );
-
                 if ($schema === Schema::SQLITE) {
                     if ($alreadyDropped === false) {
                         $blueprint->addDescription(
@@ -462,6 +452,8 @@ final class Comparator implements ComparatorInterface
                     }
                 }
 
+                $this->removeExcessivePrimaryKeyStatements($blueprint, $schema);
+
                 /** @var PrimaryKeyInterface $newPrimaryKey */
                 $blueprint->addPrimaryKey($newPrimaryKey);
             }
@@ -471,35 +463,18 @@ final class Comparator implements ComparatorInterface
     /**
      * Removes excessive primary key statements from the column in case the primary key will be added separately anyway.
      * @param BlueprintInterface $blueprint
-     * @param array<string> $differentColumns
-     * @param int $newPrimaryKeyColumnsCount
      * @param string|null $schema
      */
-    private function removeExcessivePrimaryKeyStatements(
-        BlueprintInterface $blueprint,
-        array $differentColumns,
-        int $newPrimaryKeyColumnsCount,
-        ?string $schema
-    ): void {
-        if ($newPrimaryKeyColumnsCount > 1) {
-            $addedColumns = $blueprint->getAddedColumns();
-            $alteredColumns = $blueprint->getAlteredColumns();
-            foreach ($differentColumns as $differentColumn) {
-                /** @var ColumnInterface $column */
-                foreach ($addedColumns as $name => $column) {
-                    if ($name === $differentColumn) {
-                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
-                        break;
-                    }
-                }
+    private function removeExcessivePrimaryKeyStatements(BlueprintInterface $blueprint, ?string $schema): void
+    {
+        $addedColumns = $blueprint->getAddedColumns();
+        foreach ($addedColumns as $column) {
+            $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
+        }
 
-                foreach ($alteredColumns as $name => $column) {
-                    if ($name === $differentColumn) {
-                        $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
-                        break;
-                    }
-                }
-            }
+        $alteredColumns = $blueprint->getAlteredColumns();
+        foreach ($alteredColumns as $column) {
+            $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
         }
     }
 
@@ -522,7 +497,6 @@ final class Comparator implements ComparatorInterface
         }
         if ($newColumnsCount === 1 && count($differentColumns) === 1) {
             $addedColumns = $blueprint->getAddedColumns();
-            /** @var ColumnInterface $column */
             foreach ($addedColumns as $name => $column) {
                 if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
@@ -556,7 +530,6 @@ final class Comparator implements ComparatorInterface
         $newIndexes = $newStructure->getIndexes();
         $oldIndexes = $oldStructure->getIndexes();
 
-        /** @var IndexInterface $index */
         foreach ($newIndexes as $name => $index) {
             if (array_key_exists($name, $oldIndexes) === false) {
                 $indexColumns = $index->getColumns();
@@ -573,7 +546,6 @@ final class Comparator implements ComparatorInterface
                 }
 
                 $foreignKeys = $newStructure->getForeignKeys();
-                /** @var ForeignKeyInterface $foreignKey */
                 foreach ($foreignKeys as $foreignKey) {
                     if ($foreignKey->getColumns() === $indexColumns) {
                         // index is created for foreign key with the same columns
@@ -720,7 +692,6 @@ final class Comparator implements ComparatorInterface
     ): bool {
         if ($newUnique) {
             $newIndexes = $newStructure->getIndexes();
-            /** @var IndexInterface $newIndex */
             foreach ($newIndexes as $newIndex) {
                 $indexColumns = $newIndex->getColumns();
                 if ($newIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
@@ -732,7 +703,6 @@ final class Comparator implements ComparatorInterface
 
         if ($oldUnique) {
             $oldIndexes = $oldStructure->getIndexes();
-            /** @var IndexInterface $oldIndex */
             foreach ($oldIndexes as $oldIndex) {
                 $indexColumns = $oldIndex->getColumns();
                 if ($oldIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
