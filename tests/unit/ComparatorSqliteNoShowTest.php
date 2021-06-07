@@ -6,6 +6,7 @@ namespace bizley\tests\unit;
 
 use bizley\migration\Comparator;
 use bizley\migration\Schema;
+use bizley\migration\table\Index;
 use bizley\migration\table\PrimaryKey;
 use yii\base\NotSupportedException;
 
@@ -572,6 +573,37 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
         $primaryKeyNew->setColumns(['col', 'col2']);
         $this->newStructure->method('getPrimaryKey')->willReturn($primaryKeyNew);
         $this->oldStructure->method('getPrimaryKey')->willReturn(null);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     */
+    public function shouldGoThroughAllTheColumnProperties(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAutoIncrement(true);
+        $columnNew->setLength('10,0');
+        $columnNew->setUnique(false);
+        $columnNew->setDefault('NULL');
+
+        $columnOld = $this->getColumn('col');
+        $columnOld->setLength(10);
+        $columnOld->setAppend('AUTOINCREMENT');
+        $columnOld->setUnique(true);
+        $columnOld->setDefault(null);
+
+        $index = new Index();
+        $index->setColumns(['col']);
+        $index->setUnique(true);
+
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getIndexes')->willReturn([]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->oldStructure->expects(self::exactly(8))->method('getColumn')->willReturn($columnOld);
 
         $this->compare();
     }

@@ -760,7 +760,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceForeignKeyWithDifferentReferredTable(): void
     {
@@ -786,7 +785,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceForeignKeyWithDifferentOnUpdateConstraint(): void
     {
@@ -812,7 +810,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceForeignKeyWithDifferentOnDeleteConstraint(): void
     {
@@ -838,7 +835,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplacePrimaryKeyWhenOnlyNewOne(): void
     {
@@ -861,7 +857,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplacePrimaryKeyWhenOnlyOldOne(): void
     {
@@ -884,7 +879,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplacePrimaryKeyWhenDifferentColumns(): void
     {
@@ -910,7 +904,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotReplacePrimaryKeyWhenPKInfoAddedAlready(): void
     {
@@ -934,7 +927,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotReplacePrimaryKeyWhenPKInfoAlteredAlready(): void
     {
@@ -962,7 +954,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplacePrimaryKeyWhenPKInfoAddedAlreadyAndRemoveExcessive(): void
     {
@@ -987,7 +978,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplacePrimaryKeyWhenPKInfoAlteredAlreadyAndRemoveExcessive(): void
     {
@@ -1016,7 +1006,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAddIndex(): void
     {
@@ -1037,7 +1026,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAddIndexWhenItComesFromForeignKey(): void
     {
@@ -1060,7 +1048,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldDropIndex(): void
     {
@@ -1081,7 +1068,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceIndexWhenDifferentUnique(): void
     {
@@ -1109,7 +1095,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceIndexWhenDifferentColumns(): void
     {
