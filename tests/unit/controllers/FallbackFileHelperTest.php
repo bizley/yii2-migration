@@ -38,10 +38,10 @@ final class FallbackFileHelperTest extends TestCase
         foreach ($items as $name => $content) {
             $itemName = $basePath . DIRECTORY_SEPARATOR . $name;
             if (is_array($content)) {
-                mkdir($itemName, 0777, true);
+                @mkdir($itemName, 0777, true);
                 $this->createFileStructure($content, $itemName);
             } else {
-                file_put_contents($itemName, $content);
+                @file_put_contents($itemName, $content);
             }
         }
     }
