@@ -4,7 +4,8 @@
             "src"
         ],
         "excludes": [
-            "dummy/Migration.php"
+            "dummy/Migration.php",
+            "controllers/FallbackFileHelper.php"
         ]
     },
     "timeout": 30,

@@ -58,4 +58,4 @@ jobs:
         run: printf "<?php\n\n\$config['pgsql']['dsn']='pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=postgres';\n" >> tests/config.local.php;
 
       - name: PHPUnit sudo tests
-        run: sudo vendor/bin/phpunit --exclude-group mysql,sqlite,autoloader
+        run: vendor/bin/phpunit --exclude-group mysql,sqlite,autoloader
