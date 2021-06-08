@@ -34,7 +34,6 @@ use function chmod;
 use function glob;
 use function is_dir;
 use function rmdir;
-use function strtolower;
 use function ucfirst;
 use function unlink;
 
@@ -1607,49 +1606,5 @@ ERROR!
 
         self::assertSame(ExitCode::OK, $controller->actionCreate('test'));
         self::assertNotEmpty(glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php'));
-    }
-
-    /**
-     * @test
-     * @group nonsudo
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Exception
-     */
-    public function shouldNotStoreOneMigration(): void
-    {
-        chmod(__DIR__ . '/../../runtime', 0644);
-        MigrationControllerStoringStub::$stdout = '';
-
-        $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
-        $controller->db = $this->db;
-        $controller->view = $this->view;
-        $controller->migrationPath = '@bizley/tests/runtime';
-
-        $action = $this->createMock(Action::class);
-        $action->id = 'create';
-        $controller->beforeAction($action);
-
-        $schema = $this->createMock(MysqlSchema::class);
-        $schema->method('getTableNames')->willReturn(['test']);
-        $schema->method('getRawTableName')->willReturn('mig');
-        $schema->method('getTableForeignKeys')->willReturn([]);
-        $schema->method('getTableIndexes')->willReturn([]);
-        $this->db->method('getSchema')->willReturn($schema);
-        $tableSchema = $this->createMock(TableSchema::class);
-        $this->db->method('getTableSchema')->willReturn($tableSchema);
-
-        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
-        self::assertStringContainsString(
-            ' > Generating migration for creating table \'test\' ...ERROR!
- > file_put_contents(',
-            MigrationControllerStoringStub::$stdout
-        );
-        self::assertStringContainsString(
-            '_create_table_test.php): failed to open stream: permission denied',
-            strtolower(MigrationControllerStoringStub::$stdout) // PHP 8 changed case in message
-        );
-
-        chmod(__DIR__ . '/../../runtime', 0777);
     }
 }

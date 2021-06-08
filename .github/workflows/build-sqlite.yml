@@ -43,11 +43,8 @@ jobs:
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: PHPUnit non-sudo tests
-        run: vendor/bin/phpunit --group nonsudo
-
       - name: PHPUnit autoloader test
         run: vendor/bin/phpunit --configuration phpunit-no-yii-autoload.xml.dist --group autoloader
 
       - name: PHPUnit sudo tests
-        run: sudo vendor/bin/phpunit --exclude-group mysql,pgsql,autoloader,nonsudo
+        run: sudo vendor/bin/phpunit --exclude-group mysql,pgsql,autoloader
