@@ -73,7 +73,7 @@ jobs:
       - name: Run Infection with PHPUnit
         run: |
           mkdir -p build/logs
-          vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml
-          vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress
+          sudo vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml --exclude-group nonsudo
+          sudo vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

@@ -1607,6 +1607,7 @@ ERROR!
 
     /**
      * @test
+     * @group nonsudo
      * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws Exception
