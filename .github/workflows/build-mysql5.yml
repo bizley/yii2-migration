@@ -62,8 +62,8 @@ jobs:
       - name: Prepare DB connections for tests
         run: printf "<?php\n\n\$config['mysql']['dsn']='mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=migration';\n" >> tests/config.local.php;
 
-      - name: PHPUnit sudo tests
-        run: sudo vendor/bin/phpunit --exclude-group pgsql,sqlite,autoloader,nonsudo
-
       - name: PHPUnit non-sudo tests
         run: vendor/bin/phpunit --group nonsudo
+
+      - name: PHPUnit sudo tests
+        run: sudo vendor/bin/phpunit --exclude-group pgsql,sqlite,autoloader,nonsudo
