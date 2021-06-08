@@ -646,26 +646,25 @@ final class Comparator implements ComparatorInterface
         if ($append !== null) {
             if (strpos($append, 'AUTO_INCREMENT') !== false) {
                 $autoIncrement = true;
-                $append = trim(str_replace('AUTO_INCREMENT', '', $append));
+                $append = str_replace('AUTO_INCREMENT', '', $append);
             }
 
             if (strpos($append, 'AUTOINCREMENT') !== false) {
                 $autoIncrement = true;
-                $append = trim(str_replace('AUTOINCREMENT', '', $append));
+                $append = str_replace('AUTOINCREMENT', '', $append);
             }
 
             if (strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
                 $primaryKey = true;
-                $append = trim(str_replace('IDENTITY PRIMARY KEY', '', $append));
+                $append = str_replace('IDENTITY PRIMARY KEY', '', $append);
             }
 
             if (strpos($append, 'PRIMARY KEY') !== false) {
                 $primaryKey = true;
-                $append = trim(str_replace('PRIMARY KEY', '', $append));
+                $append = str_replace('PRIMARY KEY', '', $append);
             }
 
-            /** @var string $append */
-            $append = str_replace(' ', '', $append);
+            $append = trim($append);
             if ($append === '') {
                 $append = null;
             }

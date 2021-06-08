@@ -508,10 +508,50 @@ class ComparatorNonSqliteTest extends TestCase
      */
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppend(): void
     {
-        $columnOld = $this->getColumn('col');
-        $columnOld->setAutoIncrement(true);
         $columnNew = $this->getColumn('col');
         $columnNew->setAppend('AUTOINCREMENT');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAutoIncrement(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppendVariant2(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAutoIncrement(true);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAppend('AUTO_INCREMENT');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppendVariant2(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAppend('AUTO_INCREMENT');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAutoIncrement(true);
         $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
         $this->newStructure->method('getColumn')->willReturn($columnNew);
         $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
@@ -552,6 +592,46 @@ class ComparatorNonSqliteTest extends TestCase
         $columnNew->setPrimaryKey(true);
         $columnOld = $this->getColumn('col');
         $columnOld->setAppend('PRIMARY KEY');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppendVariant2(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setAppend('IDENTITY PRIMARY KEY');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setPrimaryKey(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppendVariant2(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setPrimaryKey(true);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAppend('IDENTITY PRIMARY KEY');
         $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
         $this->newStructure->method('getColumn')->willReturn($columnNew);
         $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
