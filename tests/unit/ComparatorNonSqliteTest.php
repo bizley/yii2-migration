@@ -928,6 +928,28 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @test
      */
+    public function shouldAddPrimaryKeyWhenPKInfoNotAddedAlready(): void
+    {
+        $column = $this->getColumn('col');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $column]);
+        $this->newStructure->method('getColumn')->willReturn($column);
+
+        $primaryKeyNew = new PrimaryKey();
+        $primaryKeyNew->setColumns(['col']);
+        $this->newStructure->method('getPrimaryKey')->willReturn($primaryKeyNew);
+        $this->oldStructure->method('getPrimaryKey')->willReturn(null);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
+        self::assertNull($this->blueprint->getTableOldPrimaryKey());
+        self::assertNotNull($this->blueprint->getAddedPrimaryKey());
+    }
+
+    /**
+     * @test
+     */
     public function shouldNotReplacePrimaryKeyWhenPKInfoAlteredAlready(): void
     {
         $columnNew = $this->getColumn('col');
@@ -950,6 +972,32 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
         self::assertNull($this->blueprint->getTableOldPrimaryKey());
         self::assertNull($this->blueprint->getAddedPrimaryKey());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAddPrimaryKeyWhenPKInfoNotAlteredAlready(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setAppend('abc');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $primaryKeyNew = new PrimaryKey();
+        $primaryKeyNew->setColumns(['col']);
+        $this->newStructure->method('getPrimaryKey')->willReturn($primaryKeyNew);
+        $this->oldStructure->method('getPrimaryKey')->willReturn(null);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
+        self::assertNull($this->blueprint->getTableOldPrimaryKey());
+        self::assertNotNull($this->blueprint->getAddedPrimaryKey());
     }
 
     /**
@@ -1091,6 +1139,42 @@ class ComparatorNonSqliteTest extends TestCase
         );
         self::assertSame(['idx'], array_keys($this->blueprint->getAddedIndexes()));
         self::assertSame(['idx'], array_keys($this->blueprint->getDroppedIndexes()));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldReplaceMoreThanOneIndex(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns(['a']);
+        $indexNew->setUnique(false);
+        $indexNew2 = $this->getIndex('idx2');
+        $indexNew2->setColumns(['b']);
+
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns(['a']);
+        $indexOld->setUnique(true);
+        $indexOld2 = $this->getIndex('idx2');
+        $indexOld2->setColumns(['c']);
+
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew, 'idx2' => $indexNew2]);
+        $this->newStructure->method('getIndex')->willReturnOnConsecutiveCalls($indexNew, $indexNew2);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld, 'idx2' => $indexOld2]);
+        $this->oldStructure->method('getIndex')->willReturnOnConsecutiveCalls($indexOld, $indexOld2);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            [
+                "different index 'idx' definition (DB: unique FALSE != MIG: unique TRUE)",
+                "different index 'idx2' columns (DB: [\"b\"]) != MIG: ([\"c\"]))",
+            ],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['idx', 'idx2'], array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx', 'idx2'], array_keys($this->blueprint->getDroppedIndexes()));
     }
 
     /**

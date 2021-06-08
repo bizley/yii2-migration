@@ -55,7 +55,7 @@ final class FallbackFileHelperTest extends TestCase
                     if (is_dir($item) === true && !is_link($item)) {
                         $this->removeDir($item);
                     } else {
-                        unlink($item);
+                        @unlink($item);
                     }
                 }
             }
