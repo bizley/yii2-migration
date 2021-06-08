@@ -78,6 +78,10 @@ final class MigrationControllerTest extends TestCase
         UpdaterStub::$throwForGenerate = false;
         GeneratorStub::$throwForTable = false;
         GeneratorStub::$throwForKeys = false;
+
+        if (!is_dir(__DIR__ . '/../../runtime')) {
+            mkdir(__DIR__ . '/../../runtime');
+        }
     }
 
     protected function tearDown(): void
