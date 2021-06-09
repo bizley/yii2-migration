@@ -723,12 +723,19 @@ final class Comparator implements ComparatorInterface
     private function isLengthSame($newLength, $oldLength): bool
     {
         $normalizedNew = $newLength;
-        if (is_string($newLength) && preg_match('/,\s?0$/', $newLength)) {
-            $normalizedNew = substr($newLength, 0, (int)strpos($newLength, ','));
+        if (
+            is_string($newLength)
+            && ($commaPosition = strpos($newLength, ',')) !== false
+            && preg_match('/,\s?0$/', $newLength)
+        ) {
+            $normalizedNew = substr($newLength, 0, $commaPosition);
         }
         $normalizedOld = $oldLength;
-        if (is_string($oldLength) && preg_match('/,\s?0$/', $oldLength)) {
-            $normalizedOld = substr($oldLength, 0, (int)strpos($oldLength, ','));
+        if (
+            is_string($oldLength)
+            && ($commaPosition = strpos($oldLength, ',')) !== false
+            && preg_match('/,\s?0$/', $oldLength)) {
+            $normalizedOld = substr($oldLength, 0, $commaPosition);
         }
         return $normalizedNew === $normalizedOld;
     }

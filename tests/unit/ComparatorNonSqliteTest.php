@@ -13,7 +13,6 @@ use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\StructureInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use yii\base\NotSupportedException;
 
 use function array_keys;
 
@@ -67,7 +66,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @param bool $generalSchema
-     * @throws NotSupportedException
      */
     public function compare(bool $generalSchema = true): void
     {
@@ -83,7 +81,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAddColumns(): void
     {
@@ -116,7 +113,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldDropColumn(): void
     {
@@ -133,7 +129,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetType(): void
     {
@@ -159,7 +154,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForIsNotNull(): void
     {
@@ -185,7 +179,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetLength(): void
     {
@@ -211,7 +204,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetLengthDecimal(): void
     {
@@ -237,7 +229,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForDecimalLengthWithoutScaleVariant1(): void
     {
@@ -257,7 +248,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForDecimalLengthWithoutScaleVariant2(): void
     {
@@ -277,7 +267,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForIsUnique(): void
     {
@@ -303,7 +292,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForIsUnique(): void
     {
@@ -330,7 +318,32 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
+     */
+    public function shouldAlterColumnForIsUniqueWhenIndexIsMulticolumn(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setUnique(false);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setUnique(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+        $index = $this->getIndex('idx');
+        $index->setUnique(true);
+        $index->setColumns(['col', 'col2']);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->oldStructure->method('getIndex')->willReturn($index);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->newStructure->method('getIndex')->willReturn($index);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
      */
     public function shouldAlterColumnForIsUnsigned(): void
     {
@@ -356,7 +369,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetDefault(): void
     {
@@ -382,7 +394,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetComment(): void
     {
@@ -408,7 +419,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendNonPK(): void
     {
@@ -434,7 +444,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithPKAndGeneralSchema(): void
     {
@@ -456,7 +465,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithPKAndNonGeneralSchema(): void
     {
@@ -484,7 +492,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppend(): void
     {
@@ -504,7 +511,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppend(): void
     {
@@ -524,7 +530,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppendVariant2(): void
     {
@@ -544,7 +549,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppendVariant2(): void
     {
@@ -564,7 +568,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppend(): void
     {
@@ -584,7 +587,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppend(): void
     {
@@ -604,7 +606,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppendVariant2(): void
     {
@@ -624,7 +625,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppendVariant2(): void
     {
@@ -644,7 +644,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithNotPKAndEmptyOldAppend(): void
     {
@@ -670,7 +669,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant1AndEmptyOldAppend(): void
     {
@@ -696,7 +694,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant2AndEmptyOldAppend(): void
     {
@@ -722,7 +719,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAlterColumnForGetAppendWithNoIdentityAndEmptyOldAppend(): void
     {
@@ -748,7 +744,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldAddForeignKey(): void
     {
@@ -768,7 +763,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldDropForeignKey(): void
     {
@@ -788,7 +782,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceForeignKeyWithDifferentColumns(): void
     {
@@ -814,7 +807,6 @@ class ComparatorNonSqliteTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReplaceForeignKeyWithDifferentReferredColumns(): void
     {

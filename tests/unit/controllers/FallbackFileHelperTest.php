@@ -38,10 +38,10 @@ final class FallbackFileHelperTest extends TestCase
         foreach ($items as $name => $content) {
             $itemName = $basePath . DIRECTORY_SEPARATOR . $name;
             if (is_array($content)) {
-                @mkdir($itemName, 0777, true);
+                mkdir($itemName, 0777, true);
                 $this->createFileStructure($content, $itemName);
             } else {
-                @file_put_contents($itemName, $content);
+                file_put_contents($itemName, $content);
             }
         }
     }
@@ -55,7 +55,7 @@ final class FallbackFileHelperTest extends TestCase
                     if (is_dir($item) === true && !is_link($item)) {
                         $this->removeDir($item);
                     } else {
-                        @unlink($item);
+                        unlink($item);
                     }
                 }
             }
@@ -84,6 +84,8 @@ final class FallbackFileHelperTest extends TestCase
         if (!extension_loaded('posix')) {
             self::markTestSkipped('posix extension is required.');
         }
+
+        chmod($this->basePath, 0777);
 
         $dirName = 'change_ownership_test_dir';
         $fileName = 'file_1.txt';

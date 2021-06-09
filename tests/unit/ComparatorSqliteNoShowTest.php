@@ -140,6 +140,32 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
     /**
      * @test
      */
+    public function shouldAlterColumnForIsUniqueWhenIndexIsMulticolumn(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $columnNew = $this->getColumn('col');
+        $columnNew->setUnique(false);
+        $columnOld = $this->getColumn('col');
+        $columnOld->setUnique(true);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+        $index = $this->getIndex('idx');
+        $index->setUnique(true);
+        $index->setColumns(['col', 'col2']);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->oldStructure->method('getIndex')->willReturn($index);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $index]);
+        $this->newStructure->method('getIndex')->willReturn($index);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     */
     public function shouldAlterColumnForIsUnsigned(): void
     {
         $this->expectException(NotSupportedException::class);
