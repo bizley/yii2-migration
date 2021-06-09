@@ -85,8 +85,6 @@ final class FallbackFileHelperTest extends TestCase
             self::markTestSkipped('posix extension is required.');
         }
 
-        chmod($this->basePath, 0777);
-
         $dirName = 'change_ownership_test_dir';
         $fileName = 'file_1.txt';
         $testFile = $this->basePath . DIRECTORY_SEPARATOR . $dirName . DIRECTORY_SEPARATOR . $fileName;
@@ -129,6 +127,8 @@ final class FallbackFileHelperTest extends TestCase
             substr(decoct(fileperms($testFile)), -4),
             'Expected file mode to be changed.'
         );
+
+        chmod($this->basePath, 0777);
 
         if ($currentUserId !== 0) {
             self::markTestInComplete(
@@ -474,6 +474,8 @@ final class FallbackFileHelperTest extends TestCase
             substr(decoct(fileperms($testFile)), -4),
             'Expected created test file mode to be changed.'
         );
+
+        chmod($this->basePath, 0777);
     }
 
     /**
