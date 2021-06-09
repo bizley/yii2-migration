@@ -307,4 +307,58 @@ final class InspectorTest extends TestCase
         self::assertFalse($blueprint->isPending());
         self::assertSame('test', $blueprint->getTableName());
     }
+
+    /**
+     * @test
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldContinueInspectingOnSomeHistorySkipped(): void
+    {
+        $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1, 'migration2' => 2, 'migration3' => 3]);
+        $this->comparator->expects(self::never())->method('compare');
+        $structure = $this->createMock(StructureInterface::class);
+        $structure->method('getName')->willReturn('table');
+        $this->extractor->expects(self::exactly(2))->method('extract');
+        $this->inspector->prepareBlueprint(
+            $structure,
+            false,
+            ['migration2'],
+            [],
+            null,
+            null
+        );
+    }
+
+    /**
+     * @test
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldAllowToGatherMoreChangesIfMethodsAreNotStoppingIt(): void
+    {
+        $this->historyManager->method('fetchHistory')->willReturn(
+            [
+                'migration1' => 1,
+                'migration2' => 2
+            ]
+        );
+        $structureChange = $this->createMock(StructureChangeInterface::class);
+        $structureChange->method('getMethod')->willReturn('someMethod');
+        $this->extractor->method('getChanges')->willReturn(['test' => [$structureChange]]);
+        $this->extractor->expects(self::exactly(2))->method('extract');
+        $this->comparator->expects(self::once())->method('compare');
+        $structure = $this->createMock(StructureInterface::class);
+        $structure->method('getName')->willReturn('test');
+        $this->inspector->prepareBlueprint(
+            $structure,
+            false,
+            [],
+            [],
+            null,
+            null
+        );
+    }
 }
