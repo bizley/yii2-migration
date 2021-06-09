@@ -135,7 +135,7 @@ final class HistoryManager implements HistoryManagerInterface
                     return strcasecmp($b['version'], $a['version']);
                 }
 
-                return ($a['apply_time'] > $b['apply_time']) ? -1 : 1;
+                return $b['apply_time'] <=> $a['apply_time'];
             }
         );
 
