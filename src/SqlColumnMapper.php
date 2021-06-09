@@ -6,8 +6,8 @@ namespace bizley\migration;
 
 use yii\db\Expression;
 
-use function array_key_exists;
 use function array_slice;
+use function count;
 use function is_numeric;
 use function preg_match;
 use function preg_replace;
@@ -90,10 +90,11 @@ class SqlColumnMapper
                 $this->schema['type'] = $yiiType;
 
                 if (preg_match("/$dbType\\s?(\\(([a-z0-9',\\s]+)\\))?/i", $this->definition, $matches)) {
-                    if ($dbType !== 'enum' && array_key_exists(2, $matches)) {
+                    if ($dbType !== 'enum' && count($matches) >= 3) {
                         $this->schema['length'] = preg_replace('/\s+/', '', $matches[2]);
                     }
 
+                    /** @infection-ignore-all */
                     $this->definition = (string)preg_replace(
                         "/$dbType\\s?(\\(([a-z0-9',\\s]+)\\))?/i",
                         '',
@@ -108,50 +109,44 @@ class SqlColumnMapper
         $this->schema['type'] = 'string';
     }
 
+    private function cutOutDefinition(int $from, int $to): void
+    {
+        /** @infection-ignore-all */
+        $this->definition = substr($this->definition, 0, $from) . substr($this->definition, $to);
+    }
+
     private function detectComment(): void
     {
-        if (preg_match('/COMMENT\s?\'/i', $this->definition, $matches)) {
+        if (preg_match('/COMMENT\s?([\'\"])/i', $this->definition, $matches)) {
+            /** @infection-ignore-all */
             $cutFrom = (int)stripos($this->definition, 'COMMENT');
-            [$cutTo, $sentence] = $this->findPart("'", $this->definition, $cutFrom);
+            [$cutTo, $sentence] = $this->findPart($matches[1], $this->definition, $cutFrom);
             $this->schema['comment'] = $sentence;
-            $definitionFirstPart = substr($this->definition, 0, $cutFrom);
-            $definitionLastPart = substr($this->definition, (int)$cutTo);
-            $this->definition = $definitionFirstPart . $definitionLastPart;
+
+            $this->cutOutDefinition($cutFrom, $cutTo);
         }
     }
 
     private function detectDefault(): void
     {
-        $detected = false;
-        $sentence = null;
-        $cutFrom = $cutTo = 0;
-
-        if (preg_match('/DEFAULT\s?\'/i', $this->definition, $matches)) {
-            $detected = true;
-            $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findPart("'", $this->definition, $cutFrom);
-            $this->schema['default'] = $sentence;
-        } elseif (preg_match('/DEFAULT\s?\(/i', $this->definition, $matches)) {
-            $detected = true;
-            $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findPart('(', $this->definition, $cutFrom);
-            $this->schema['default'] = new Expression((string)$sentence);
-        } elseif (preg_match('/DEFAULT\s?[0-9]/i', $this->definition, $matches)) {
-            $detected = true;
-            $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findPart('1', $this->definition, $cutFrom);
-            $this->schema['default'] = $sentence;
-        } elseif (preg_match('/DEFAULT\s?[a-z]/i', $this->definition, $matches)) {
-            $detected = true;
-            $cutFrom = (int)stripos($this->definition, 'DEFAULT');
-            [$cutTo, $sentence] = $this->findPart('', $this->definition, $cutFrom + 7);
-            $this->schema['default'] = new Expression((string)$sentence);
-        }
-
-        if ($detected) {
-            $definitionFirstPart = substr($this->definition, 0, $cutFrom);
-            $definitionLastPart = substr($this->definition, (int)$cutTo);
-            $this->definition = $definitionFirstPart . $definitionLastPart;
+        if (($cutFrom = stripos($this->definition, 'DEFAULT')) !== false) {
+            if (preg_match('/DEFAULT\s?([\'\"])/i', $this->definition, $matches)) {
+                [$cutTo, $sentence] = $this->findPart($matches[1], $this->definition, $cutFrom);
+                $this->schema['default'] = $sentence;
+                $this->cutOutDefinition($cutFrom, $cutTo);
+            } elseif (preg_match('/DEFAULT\s?\(/i', $this->definition)) {
+                [$cutTo, $sentence] = $this->findPart('(', $this->definition, $cutFrom);
+                $this->schema['default'] = new Expression($sentence);
+                $this->cutOutDefinition($cutFrom, $cutTo);
+            } elseif (preg_match('/DEFAULT\s?[0-9]/i', $this->definition)) {
+                [$cutTo, $sentence] = $this->findPart('1', $this->definition, $cutFrom);
+                $this->schema['default'] = $sentence;
+                $this->cutOutDefinition($cutFrom, $cutTo);
+            } elseif (preg_match('/DEFAULT\s?[a-z]/i', $this->definition)) {
+                [$cutTo, $sentence] = $this->findPart('', $this->definition, $cutFrom + 7);
+                $this->schema['default'] = new Expression($sentence);
+                $this->cutOutDefinition($cutFrom, $cutTo);
+            }
         }
     }
 
@@ -181,13 +176,13 @@ class SqlColumnMapper
 
     private function detectAfter(): void
     {
-        if (preg_match('/AFTER\s?`/i', $this->definition, $matches)) {
+        if (preg_match('/AFTER\s?`/i', $this->definition)) {
+            /** @infection-ignore-all */
             $cutFrom = (int)stripos($this->definition, 'AFTER');
             [$cutTo, $sentence] = $this->findPart('`', $this->definition, $cutFrom + 5);
             $this->schema['after'] = $sentence;
-            $definitionFirstPart = substr($this->definition, 0, $cutFrom);
-            $definitionLastPart = substr($this->definition, (int)$cutTo);
-            $this->definition = $definitionFirstPart . $definitionLastPart;
+
+            $this->cutOutDefinition($cutFrom, $cutTo);
         }
     }
 
@@ -233,7 +228,7 @@ class SqlColumnMapper
      * @param string $type
      * @param string $sentence
      * @param int $offset
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
     private function findPart(string $type, string $sentence, int $offset = 0): array
     {
@@ -244,7 +239,8 @@ class SqlColumnMapper
 
         switch ($type) {
             case "'":
-                [$end, $part] = $this->findSingleQuotedPart($sentenceArray);
+            case '"':
+                [$end, $part] = $this->findQuotedPart($sentenceArray, $type);
                 break;
             case '`':
                 [$end, $part] = $this->findBacktickedPart($sentenceArray);
@@ -259,31 +255,31 @@ class SqlColumnMapper
                 [$end, $part] = $this->findExpressionPart($sentenceArray);
         }
 
-        return [$end ? (int)$end + $offset : 0, $part];
+        return [$end ? $end + $offset : 0, $part];
     }
 
     /**
      * @param string[] $sentenceArray
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
-    private function findSingleQuotedPart(array $sentenceArray): array
+    private function findQuotedPart(array $sentenceArray, string $quote): array
     {
         $part = '';
         $end = 0;
         $collect = false;
         $consecutiveQuotes = 0;
         foreach ($sentenceArray as $index => $char) {
-            if (!$collect && $char !== "'") {
+            if (!$collect && $char !== $quote) {
                 continue;
             }
 
-            if (!$collect && $char === "'") {
+            if (!$collect && $char === $quote) {
                 $collect = true;
                 continue;
             }
 
             if ($collect) {
-                if ($char !== "'") {
+                if ($char !== $quote) {
                     if ($consecutiveQuotes > 0 && $consecutiveQuotes % 2 !== 0) {
                         break;
                     }
@@ -291,7 +287,7 @@ class SqlColumnMapper
                 }
                 $part .= $char;
                 $end = $index + 1;
-                if ($char === "'") {
+                if ($char === $quote) {
                     $consecutiveQuotes++;
                 }
             }
@@ -300,12 +296,12 @@ class SqlColumnMapper
             $part = substr($part, 0, -1);
         }
 
-        return [$end, $part];
+        return [(int)$end, $part];
     }
 
     /**
      * @param string[] $sentenceArray
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
     private function findBacktickedPart(array $sentenceArray): array
     {
@@ -331,12 +327,12 @@ class SqlColumnMapper
             }
         }
 
-        return [$end, $part];
+        return [(int)$end, $part];
     }
 
     /**
      * @param string[] $sentenceArray
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
     private function findParenthesizedPart(array $sentenceArray): array
     {
@@ -367,12 +363,12 @@ class SqlColumnMapper
             }
         }
 
-        return [$end, $part];
+        return [(int)$end, $part];
     }
 
     /**
      * @param string[] $sentenceArray
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
     private function findNumericPart(array $sentenceArray): array
     {
@@ -400,12 +396,12 @@ class SqlColumnMapper
             }
         }
 
-        return [$end, $part];
+        return [(int)$end, $part];
     }
 
     /**
      * @param string[] $sentenceArray
-     * @return array<int|string>
+     * @return array{0: int, 1: string}
      */
     private function findExpressionPart(array $sentenceArray): array
     {
@@ -431,7 +427,7 @@ class SqlColumnMapper
                         array_slice($sentenceArray, $index)
                     );
                     $part .= $parenthesisPart;
-                    $end = $index + (int)$parenthesisPartEnd;
+                    $end = $index + $parenthesisPartEnd;
                     break;
                 }
 
@@ -440,7 +436,7 @@ class SqlColumnMapper
             }
         }
 
-        return [$end, $part];
+        return [(int)$end, $part];
     }
 
     private function prepareAppend(): void

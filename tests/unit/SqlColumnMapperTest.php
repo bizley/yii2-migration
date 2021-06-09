@@ -381,6 +381,14 @@ class SqlColumnMapperTest extends TestCase
             ],
             SqlColumnMapper::map('comment \'test\'', [])
         );
+
+        self::assertSame(
+            [
+                'comment' => 'test',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map(' comment \'test\'', [])
+        );
     }
 
     /** @test */
@@ -487,6 +495,7 @@ class SqlColumnMapperTest extends TestCase
         $schema = SqlColumnMapper::map('default (default (value))', []);
         self::assertSame('string', $schema['type']);
         self::assertSame('(default (value))', $schema['default']->expression);
+        self::assertArrayNotHasKey('append', $schema);
     }
 
     /** @test */
@@ -495,6 +504,7 @@ class SqlColumnMapperTest extends TestCase
         $schema = SqlColumnMapper::map('default CURRENT_TIMESTAMP', []);
         self::assertSame('string', $schema['type']);
         self::assertSame('CURRENT_TIMESTAMP', $schema['default']->expression);
+        self::assertArrayNotHasKey('append', $schema);
     }
 
     /** @test */
@@ -503,10 +513,11 @@ class SqlColumnMapperTest extends TestCase
         $schema = SqlColumnMapper::map('default NOW()', []);
         self::assertSame('string', $schema['type']);
         self::assertSame('NOW()', $schema['default']->expression);
+        self::assertArrayNotHasKey('append', $schema);
     }
 
     /** @test */
-    public function shouldDetectWringExpressionDefault(): void
+    public function shouldDetectWrongExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('default CURRENT _TIMESTAMP', []);
         self::assertSame('string', $schema['type']);
@@ -645,6 +656,25 @@ class SqlColumnMapperTest extends TestCase
                 'append' => 'test',
             ],
             SqlColumnMapper::map('primary key not null test', [])
+        );
+    }
+
+    /** @test */
+    public function shouldMapFullStatement(): void
+    {
+        self::assertSame(
+            [
+                'comment' => 'ekhm',
+                'default' => 'aBc',
+                'after' => 'col',
+                'isNotNull' => true,
+                'type' => 'string',
+                'length' => '255',
+            ],
+            SqlColumnMapper::map(
+                'varchar(255) not null default "aBc" after `col` comment "ekhm"',
+                ['varchar' => 'string']
+            )
         );
     }
 }

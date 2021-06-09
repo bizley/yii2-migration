@@ -148,13 +148,8 @@ final class Comparator implements ComparatorInterface
 
                     if (
                         $propertyFetch === 'isUnique'
-                        && $this->isUniqueSameWithIndexes(
-                            $newStructure,
-                            $oldStructure,
-                            $name,
-                            (bool)$newProperty,
-                            (bool)$oldProperty
-                        )
+                        && $this->getRealUniqueness($newStructure, $name, (bool)$newProperty)
+                            === $this->getRealUniqueness($oldStructure, $name, (bool)$oldProperty)
                     ) {
                         continue;
                     }
@@ -675,43 +670,24 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Checks if columns' uniqueness is the same because of the unique index.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
+     * @param StructureInterface $structure
      * @param string $columnName
-     * @param bool $newUnique
-     * @param bool $oldUnique
+     * @param bool $unique
      * @return bool
      */
-    private function isUniqueSameWithIndexes(
-        StructureInterface $newStructure,
-        StructureInterface $oldStructure,
-        string $columnName,
-        bool $newUnique,
-        bool $oldUnique
-    ): bool {
-        if ($newUnique) {
-            $newIndexes = $newStructure->getIndexes();
-            foreach ($newIndexes as $newIndex) {
-                $indexColumns = $newIndex->getColumns();
-                if ($newIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
-                    $newUnique = false;
-                    break;
+    private function getRealUniqueness(StructureInterface $structure, string $columnName, bool $unique): bool
+    {
+        if ($unique) {
+            $indexes = $structure->getIndexes();
+            foreach ($indexes as $index) {
+                $indexColumns = $index->getColumns();
+                if ($index->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
+                    return false;
                 }
             }
         }
 
-        if ($oldUnique) {
-            $oldIndexes = $oldStructure->getIndexes();
-            foreach ($oldIndexes as $oldIndex) {
-                $indexColumns = $oldIndex->getColumns();
-                if ($oldIndex->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
-                    $oldUnique = false;
-                    break;
-                }
-            }
-        }
-
-        return $newUnique === $oldUnique;
+        return $unique;
     }
 
     /**
