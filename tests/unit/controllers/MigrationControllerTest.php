@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\tests\unit\controllers;
 
+use bizley\migration\controllers\MigrationController;
 use bizley\migration\table\Blueprint;
 use bizley\tests\stubs\ArrangerStub;
 use bizley\tests\stubs\GeneratorStub;
@@ -16,12 +17,12 @@ use stdClass;
 use Yii;
 use yii\base\Action;
 use yii\base\Controller;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\Module;
-use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\console\ExitCode;
+use yii\console\Request;
+use yii\console\Response;
 use yii\db\Command;
 use yii\db\Connection;
 use yii\db\ForeignKeyConstraint;
@@ -31,13 +32,16 @@ use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 
 use function chmod;
+use function fileperms;
 use function glob;
 use function is_dir;
 use function rmdir;
 use function ucfirst;
 use function unlink;
 
-/** @group controller */
+/**
+ * @group controller
+ */
 final class MigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */
@@ -150,15 +154,15 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForOptions
-     * @param string $actionId
-     * @param array $expected
      */
     public function shouldReturnProperOptions(string $actionId, array $expected): void
     {
         self::assertSame($expected, $this->controller->options($actionId));
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function shouldReturnProperOptionAliases(): void
     {
         self::assertSame(
@@ -181,8 +185,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldReturnFalseWhenParentBeforeActionReturnsFalse(): void
     {
@@ -197,8 +199,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldReturnTrueBeforeDefaultAction(): void
     {
@@ -220,9 +220,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldThrowExceptionWhenNeitherPathOrNamespaceGivenInBeforeNonDefaultAction(string $actionId): void
     {
@@ -237,9 +234,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldPrepareSkippedMigrationsInBeforeNonDefaultAction(string $actionId): void
     {
@@ -254,9 +248,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldPrepareSingleMigrationNamespaceInBeforeNonDefaultAction(string $actionId): void
     {
@@ -270,9 +261,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldPrepareSingleMigrationPathInBeforeNonDefaultAction(string $actionId): void
     {
@@ -285,7 +273,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReturnListForNoTables(): void
     {
@@ -314,7 +301,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws NotSupportedException
      */
     public function shouldReturnSortedListForTables(): void
     {
@@ -349,7 +335,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenThereAreNoTables(string $actionId): void
     {
@@ -369,7 +354,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenThereIsNoProvidedTable(string $actionId): void
     {
@@ -390,7 +374,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenProvidedTableIsExcluded(string $actionId): void
     {
@@ -413,7 +396,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenUserCancels(string $actionId): void
     {
@@ -437,7 +419,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenUserCancelsAndOneIsExcluded(string $actionId): void
     {
@@ -463,7 +444,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant1(string $actionId): void
     {
@@ -488,7 +468,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant2(string $actionId): void
     {
@@ -513,7 +492,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant3(string $actionId): void
     {
@@ -538,7 +516,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant4(string $actionId): void
     {
@@ -563,7 +540,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant5(string $actionId): void
     {
@@ -588,7 +564,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenUserCancelsAndOneIsHistory(string $actionId): void
     {
@@ -613,7 +588,6 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForActionIds
-     * @param string $actionId
      */
     public function shouldNotProceedWhenUserCancelsAndAsteriskProvided(string $actionId): void
     {
@@ -636,8 +610,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopCreateWhenTableIsMissing(): void
     {
@@ -660,8 +632,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateOneMigration(): void
     {
@@ -692,8 +662,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateManyMigrations(): void
     {
@@ -734,8 +702,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateManyMigrationsWithPostponedForeignKeys(): void
     {
@@ -798,8 +764,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateOneMigrationAndFixHistory(): void
     {
@@ -837,8 +801,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopCreateManyMigrationsWithPostponedForeignKeysWhenThereIsException(): void
     {
@@ -895,8 +857,6 @@ final class MigrationControllerTest extends TestCase
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopCreateWhenThereArePostponedForeignKeysAndSchemaIsSqlite(): void
     {
@@ -920,8 +880,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopUpdateWhenTableIsMissing(): void
     {
@@ -945,8 +903,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateOneMigrationWhenNoPreviousDataForUpdate(): void
     {
@@ -981,8 +937,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateOneMigrationAndFixHistoryWhenNoPreviousDataForUpdate(): void
     {
@@ -1023,8 +977,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateManyMigrationsWhenNoPreviousDataForUpdate(): void
     {
@@ -1070,8 +1022,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldCreateManyMigrationsWithPostponedForeignKeysWhenNoPreviousDataForUpdate(): void
     {
@@ -1141,8 +1091,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldReturnUpToDate(): void
     {
@@ -1167,8 +1115,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldReturnDifferencesForUpdate(): void
     {
@@ -1196,8 +1142,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldReturnStartFromScratchForUpdate(): void
     {
@@ -1225,8 +1169,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldThrowNotSupportedWarning(): void
     {
@@ -1254,8 +1196,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopUpdateWhenThereArePostponedForeignKeysAndSchemaIsSqlite(): void
     {
@@ -1303,8 +1243,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopUpdateManyMigrationsWithPostponedForeignKeysWhenThereIsException(): void
     {
@@ -1368,8 +1306,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopUpdateManyMigrationsWhenThereIsException(): void
     {
@@ -1403,8 +1339,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldUpdateMigrationWhenUpdateDataIsAvailable(): void
     {
@@ -1442,8 +1376,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldUpdateManyMigrationWhenUpdateDataIsAvailable(): void
     {
@@ -1492,8 +1424,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function shouldStopUpdateWhenUpdateDataIsAvailableButThereIsException(): void
     {
@@ -1525,8 +1455,6 @@ ERROR!
 
     /**
      * @test
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldCreateDirectoryForPath(): void
     {
@@ -1549,8 +1477,6 @@ ERROR!
 
     /**
      * @test
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function shouldCreateDirectoryForPathByNamespace(): void
     {
@@ -1573,9 +1499,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Exception
      */
     public function shouldStoreOneMigration(): void
     {
@@ -1610,9 +1533,6 @@ ERROR!
 
     /**
      * @test
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Exception
      */
     public function shouldNotStoreOneMigration(): void
     {
@@ -1649,5 +1569,64 @@ ERROR!
         );
 
         chmod(__DIR__ . '/../../runtime', 0777);
+    }
+
+    public function providerForFileMode(): array
+    {
+        return [
+            'oct' => [0777],
+            'int' => [511],
+            'oct string' => ['0777'],
+            'int string' => ['511'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForFileMode
+     * @param string|int $mode
+     */
+    public function shouldChangeMigrationPermissions($mode): void
+    {
+        chmod(__DIR__ . '/../../runtime', 0777);
+
+        $potentialFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
+        foreach ($potentialFiles as $potentialFile) {
+            unlink($potentialFile);
+        }
+
+        $controller = new MigrationController(
+            'id',
+            $this->createMock(Module::class),
+            [
+                'request' => Request::class,
+                'response' => Response::class
+            ]
+        );
+        $controller->db = $this->db;
+        $controller->view = $this->view;
+        $controller->fileMode = $mode;
+        $controller->migrationPath = '@bizley/tests/runtime';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'create';
+        $controller->beforeAction($action);
+
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['testFileMode']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        self::assertSame(ExitCode::OK, $controller->actionCreate('testFileMode'));
+
+        $generatedFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
+        self::assertNotEmpty($generatedFiles);
+        foreach ($generatedFiles as $generatedFile) {
+            self::assertSame('0777', substr(sprintf('%o', fileperms($generatedFile)), -4));
+        }
     }
 }

@@ -598,6 +598,7 @@ class MigrationController extends BaseMigrationController
      */
     public function storeFile(string $path, $content): void
     {
+        /** @infection-ignore-all */
         if (file_put_contents($path, $content) === false) {
             throw new RuntimeException('Migration file can not be saved!');
         }
