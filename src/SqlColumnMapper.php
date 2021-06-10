@@ -129,6 +129,7 @@ class SqlColumnMapper
 
     private function detectDefault(): void
     {
+        /** @infection-ignore-all */
         if (($cutFrom = stripos($this->definition, 'DEFAULT')) !== false) {
             if (preg_match('/DEFAULT\s?([\'\"])/i', $this->definition, $matches)) {
                 [$cutTo, $sentence] = $this->findPart($matches[1], $this->definition, $cutFrom);
@@ -179,6 +180,7 @@ class SqlColumnMapper
         if (preg_match('/AFTER\s?`/i', $this->definition)) {
             /** @infection-ignore-all */
             $cutFrom = (int)stripos($this->definition, 'AFTER');
+            /** @infection-ignore-all */
             [$cutTo, $sentence] = $this->findPart('`', $this->definition, $cutFrom + 5);
             $this->schema['after'] = $sentence;
 

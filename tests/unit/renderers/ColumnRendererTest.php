@@ -65,6 +65,17 @@ final class ColumnRendererTest extends TestCase
     }
 
     /** @test */
+    public function shouldRenderProperlyPrimaryKeyColumnWithIsNotNull(): void
+    {
+        $column = $this->createMock(PrimaryKeyColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('isNotNull')->willReturn(true);
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithNoLengthNoPKAndNonGeneralSchema(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
