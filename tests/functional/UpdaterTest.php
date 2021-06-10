@@ -6,22 +6,13 @@ namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
-use yii\base\Exception;
-use yii\base\InvalidRouteException;
-use yii\base\NotSupportedException;
-use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
-use yii\db\Exception as DbException;
 
 abstract class UpdaterTest extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
 
-    /**
-     * @throws NotSupportedException
-     * @throws DbException
-     */
     protected function setUp(): void
     {
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
@@ -35,8 +26,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws InvalidRouteException
-     * @throws ConsoleException
      */
     public function shouldHandleNonExistingTable(): void
     {
@@ -47,9 +36,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldFindMatchingTables(): void
     {
@@ -69,9 +55,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByAddingColumn(): void
     {
@@ -111,9 +94,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByAddingIndex(): void
     {
@@ -136,9 +116,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByAddingUniqueIndex(): void
     {
@@ -161,9 +138,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByAddingMultiIndex(): void
     {
@@ -186,9 +160,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByAddingMultiUniqueIndex(): void
     {
@@ -216,9 +187,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldUpdateTableByDroppingIndex(): void
     {
@@ -241,9 +209,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
-     * @throws Exception
      */
     public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
     {
@@ -253,8 +218,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws ConsoleException
-     * @throws InvalidRouteException
      */
     public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
     {
@@ -264,7 +227,6 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
     /**
      * @test
-     * @throws Exception
      */
     public function shouldNotCreateNewTableWhenTableIsRenamed(): void
     {

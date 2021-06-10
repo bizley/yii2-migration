@@ -33,6 +33,10 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_dir;
+use function is_numeric;
+use function is_string;
+use function method_exists;
+use function octdec;
 use function preg_match;
 use function sort;
 use function sprintf;
@@ -46,14 +50,14 @@ use function trim;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.1.2
+ * @version 4.2.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.1.2';
+    private $version = '4.2.0';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -95,10 +99,32 @@ class MigrationController extends BaseMigrationController
     /** @var array<string> List of database tables that should be skipped for *-all actions. */
     public $excludeTables = [];
 
+    /**
+     * @var string|int the permission to be set for newly generated migration files.
+     * This value will be used by PHP chmod() function. No umask will be applied.
+     * If not set, the permission will be determined by the current environment.
+     * @since 4.2.0
+     */
+    public $fileMode;
+
+    /**
+     * @var string|int|array<int|string, int|string> the user and/or group ownership to be set for newly generated
+     * migration files. If not set, the ownership will be determined by the current environment.
+     * When set as string, the format is 'user:group' where both are optional, e.g.
+     * - 'user' or 'user:' will only change the user,
+     * - ':group' will only change the group,
+     * - 'user:group' will change both.
+     * When set as an indexed array the format is [0 => user, 1 => group], for an associative array it's
+     * ['user' => $myUser, 'group' => $myGroup].
+     * When set as an integer it will be used as user id.
+     * @since 4.2.0
+     */
+    public $fileOwnership;
+
     /** {@inheritdoc} */
     public function options($actionID): array // BC declaration
     {
-        $defaultOptions = array_merge(parent::options($actionID), ['db']);
+        $defaultOptions = array_merge(parent::options($actionID), ['db', 'fileMode', 'fileOwnership']);
 
         $createOptions = [
             'fixHistory',
@@ -137,6 +163,8 @@ class MigrationController extends BaseMigrationController
                 'mt' => 'migrationTable',
                 'os' => 'onlyShow',
                 'tp' => 'useTablePrefix',
+                'fm' => 'fileMode',
+                'fo' => 'fileOwnership',
             ]
         );
     }
@@ -570,13 +598,12 @@ class MigrationController extends BaseMigrationController
      */
     public function storeFile(string $path, $content): void
     {
-        try {
-            if (file_put_contents($path, $content) === false) {
-                throw new RuntimeException('Migration file can not be saved!');
-            }
-        } catch (Throwable $exception) {
-            throw $exception;
+        /** @infection-ignore-all */
+        if (file_put_contents($path, $content) === false) {
+            throw new RuntimeException('Migration file can not be saved!');
         }
+
+        $this->setFileModeAndOwnership($path);
     }
 
     /**
@@ -835,5 +862,41 @@ class MigrationController extends BaseMigrationController
             }
         }
         return $tables;
+    }
+
+    /**
+     * This method uses Yii 2.0.43 FileHelper::changeOwnership() or its code as a fall-back for earlier Yii versions.
+     * Changes the Unix user and/or group ownership of a file or directory, and optionally the mode.
+     * Note: This function will not work on remote files as the file to be examined must be accessible
+     * via the server's filesystem.
+     * Note: On Windows, this function fails silently when applied on a regular file.
+     * @param string $path the path to the file or directory.
+     * @throws \Exception
+     */
+    private function setFileModeAndOwnership(string $path): void
+    {
+        $mode = $this->fileMode;
+        if ($mode !== null) {
+            if (is_numeric($mode)) {
+                if (is_string($mode)) {
+                    if (strpos($mode, '0') === 0) {
+                        $mode = octdec($mode);
+                    }
+                    $mode = (int)$mode;
+                }
+            } else {
+                $mode = null;
+            }
+        }
+
+        /** @infection-ignore-all */
+        if (method_exists(FileHelper::class, 'changeOwnership')) {
+            /** @phpstan-ignore-next-line */
+            FileHelper::changeOwnership($path, $this->fileOwnership, $mode);
+            return;
+        }
+
+        // for Yii < 2.0.43
+        FallbackFileHelper::changeOwnership($path, $this->fileOwnership, $mode);
     }
 }
