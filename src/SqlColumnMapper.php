@@ -89,14 +89,14 @@ class SqlColumnMapper
             if (stripos($this->definition, $dbType) !== false) {
                 $this->schema['type'] = $yiiType;
 
-                if (preg_match("/$dbType\\s?(\\(([a-z0-9',\\s]+)\\))?/i", $this->definition, $matches)) {
+                if (preg_match("/$dbType\\s?(\\(([a-z0-9',\\s_-]+)\\))?/i", $this->definition, $matches)) {
                     if ($dbType !== 'enum' && count($matches) >= 3) {
                         $this->schema['length'] = preg_replace('/\s+/', '', $matches[2]);
                     }
 
                     /** @infection-ignore-all */
                     $this->definition = (string)preg_replace(
-                        "/$dbType\\s?(\\(([a-z0-9',\\s]+)\\))?/i",
+                        "/$dbType\\s?(\\(([a-z0-9',\\s_-]+)\\))?/i",
                         '',
                         $this->definition
                     );
