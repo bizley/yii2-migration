@@ -254,7 +254,7 @@ abstract class DbLoaderTestCase extends DbTestCase
             'col3' => 'timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP',
             'col4' => 'FLOAT',
             'col5' => 'DECIMAL(10, 3)',
-            'col6' => 'ENUM(\'one\', \'two\')'
+            'col6' => 'ENUM(\'one\', \'tw-o\')'
         ];
         if (static::$schema === 'pgsql') {
             $cols['id'] = 'serial NOT NULL PRIMARY KEY';

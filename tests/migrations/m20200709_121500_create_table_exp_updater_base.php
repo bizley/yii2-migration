@@ -19,7 +19,7 @@ class m20200709_121500_create_table_exp_updater_base extends Migration
             'col3' => 'timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP',
             'col4' => 'FLOAT',
             'col5' => 'DECIMAL(10, 3)',
-            'col6' => 'ENUM(\'one\', \'two\')'
+            'col6' => 'ENUM(\'one\', \'tw-o\')'
         ];
         if ($driverName === 'pgsql') {
             $cols['id'] = 'serial NOT NULL PRIMARY KEY';

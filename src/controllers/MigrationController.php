@@ -891,7 +891,6 @@ class MigrationController extends BaseMigrationController
 
         /** @infection-ignore-all */
         if (method_exists(FileHelper::class, 'changeOwnership')) {
-            /** @phpstan-ignore-next-line */
             FileHelper::changeOwnership($path, $this->fileOwnership, $mode);
             return;
         }
