@@ -360,6 +360,17 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldDetectEnumWithHyphenAndUnderscore(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map("enum('on-e', 'tw_o')", ['enum' => 'string'])
+        );
+    }
+
+    /** @test */
     public function shouldDetectTypeWithLengthVariant2(): void
     {
         self::assertSame(
