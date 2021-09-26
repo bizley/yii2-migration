@@ -196,7 +196,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
         foreach ($primaryKey->getColumns() as $columnName) {
             if (array_key_exists($columnName, $columns)) {
-                /** @var ColumnInterface $column */
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
@@ -220,7 +219,6 @@ final class StructureBuilder implements StructureBuilderInterface
             $columns = $structure->getColumns();
 
             foreach ($primaryKey->getColumns() as $columnName) {
-                /** @var ColumnInterface $column */
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (array_key_exists($columnName, $columns) && !empty($columnAppend)) {
@@ -337,11 +335,9 @@ final class StructureBuilder implements StructureBuilderInterface
 
             $foreignKeys = $structure->getForeignKeys();
             $indexes = $structure->getIndexes();
-            /** @var ForeignKeyInterface $foreignKey */
             foreach ($foreignKeys as $foreignKey) {
                 $foreignKeyColumns = $foreignKey->getColumns();
                 $foundIndex = false;
-                /** @var IndexInterface $index */
                 foreach ($indexes as $index) {
                     $indexColumns = $index->getColumns();
                     $intersection = array_intersect($foreignKeyColumns, $indexColumns);

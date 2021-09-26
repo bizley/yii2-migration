@@ -124,6 +124,7 @@ final class MigrationControllerTest extends TestCase
                     'migrationTable',
                     'useTablePrefix',
                     'excludeTables',
+                    'leeway',
                 ]
             ],
             'update' => [
@@ -143,6 +144,7 @@ final class MigrationControllerTest extends TestCase
                     'migrationTable',
                     'useTablePrefix',
                     'excludeTables',
+                    'leeway',
                     'onlyShow',
                     'skipMigrations',
                     'experimental',
@@ -178,6 +180,7 @@ final class MigrationControllerTest extends TestCase
                 'tp' => 'useTablePrefix',
                 'fm' => 'fileMode',
                 'fo' => 'fileOwnership',
+                'lw' => 'leeway',
             ],
             $this->controller->optionAliases()
         );
@@ -684,14 +687,14 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  Generated 2 files
  (!) Remember to verify files before applying migration.
@@ -739,21 +742,21 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_03_create_foreign_keys.php\'
+            '_create_foreign_keys.php\'
 
  Generated 3 files
  (!) Remember to verify files before applying migration.
@@ -839,14 +842,14 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
  > Stub exception
@@ -926,7 +929,7 @@ ERROR!
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  Generated 1 file
  (!) Remember to verify files before applying migration.
@@ -1004,14 +1007,14 @@ ERROR!
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  Generated 2 files
  (!) Remember to verify files before applying migration.
@@ -1066,21 +1069,21 @@ ERROR!
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_03_create_foreign_keys.php\'
+            '_create_foreign_keys.php\'
 
  Generated 3 files
  (!) Remember to verify files before applying migration.
@@ -1288,14 +1291,14 @@ ERROR!
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
  > Stub exception

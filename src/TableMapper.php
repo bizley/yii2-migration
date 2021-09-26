@@ -54,7 +54,7 @@ final class TableMapper implements TableMapperInterface
     {
         $this->suppressedForeignKeys = [];
         $foreignKeys = $this->getForeignKeys($table);
-        /** @var ForeignKeyInterface $foreignKey */
+
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
             if (in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
                 $this->suppressedForeignKeys[] = $foreignKey;

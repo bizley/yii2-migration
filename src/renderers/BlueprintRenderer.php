@@ -156,7 +156,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $columns = $blueprint->getDroppedColumns();
         }
-        /** @var ColumnInterface $column */
+
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderDrop($column, $tableName, $indent);
         }
@@ -191,7 +191,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $columns = $blueprint->getAddedColumns();
             $primaryKey = $blueprint->getTableNewPrimaryKey();
         }
-        /** @var ColumnInterface $column */
+
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAdd(
                 $column,
@@ -233,7 +233,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $columns = $blueprint->getAlteredColumns();
             $primaryKey = $blueprint->getTableNewPrimaryKey();
         }
-        /** @var ColumnInterface $column */
+
         foreach ($columns as $column) {
             $renderedColumns[] = $this->columnRenderer->renderAlter(
                 $column,
@@ -271,7 +271,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $foreignKeys = $blueprint->getDroppedForeignKeys();
         }
-        /** @var ForeignKeyInterface $foreignKey */
+
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent, $schema);
         }
@@ -306,7 +306,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $foreignKeys = $blueprint->getAddedForeignKeys();
         }
-        /** @var ForeignKeyInterface $foreignKey */
+
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
                 $foreignKey,
@@ -341,7 +341,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $indexes = $blueprint->getDroppedIndexes();
         }
-        /** @var IndexInterface $index */
+
         foreach ($indexes as $index) {
             $renderedIndexes[] = $this->indexRenderer->renderDown($index, $tableName, $indent);
         }
@@ -370,7 +370,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         } else {
             $indexes = $blueprint->getAddedIndexes();
         }
-        /** @var IndexInterface $index */
+
         foreach ($indexes as $index) {
             $renderedIndexes[] = $this->indexRenderer->renderUp($index, $tableName, $indent);
         }

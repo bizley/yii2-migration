@@ -25,6 +25,7 @@ use yii\helpers\FileHelper;
 use function array_column;
 use function array_merge;
 use function array_unique;
+use function closedir;
 use function count;
 use function explode;
 use function file_put_contents;
@@ -33,16 +34,20 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_dir;
+use function is_file;
 use function is_numeric;
 use function is_string;
 use function method_exists;
 use function octdec;
+use function opendir;
 use function preg_match;
+use function readdir;
 use function sort;
 use function sprintf;
 use function str_replace;
 use function strlen;
 use function strpos;
+use function time;
 use function trim;
 
 /**
@@ -50,14 +55,14 @@ use function trim;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.2.0
+ * @version 4.3.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.2.0';
+    private $version = '4.3.0';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -121,6 +126,13 @@ class MigrationController extends BaseMigrationController
      */
     public $fileOwnership;
 
+    /**
+     * @var int the leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with
+     * a later date.
+     * @since 4.3.0
+     */
+    public $leeway = 0;
+
     /** {@inheritdoc} */
     public function options($actionID): array // BC declaration
     {
@@ -133,7 +145,8 @@ class MigrationController extends BaseMigrationController
             'migrationPath',
             'migrationTable',
             'useTablePrefix',
-            'excludeTables'
+            'excludeTables',
+            'leeway',
         ];
         $updateOptions = ['onlyShow', 'skipMigrations', 'experimental'];
 
@@ -165,6 +178,7 @@ class MigrationController extends BaseMigrationController
                 'tp' => 'useTablePrefix',
                 'fm' => 'fileMode',
                 'fo' => 'fileOwnership',
+                'lw' => 'leeway',
             ]
         );
     }
@@ -304,9 +318,10 @@ class MigrationController extends BaseMigrationController
         $referencesToPostpone = [];
         $tables = $inputTables;
         if ($countTables > 1) {
-            $this->getArranger()->arrangeTables($inputTables);
-            $tables = $this->getArranger()->getTablesInOrder();
-            $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
+            $arranger = $this->getArranger();
+            $arranger->arrangeTables($inputTables);
+            $tables = $arranger->getTablesInOrder();
+            $referencesToPostpone = $arranger->getReferencesToPostpone();
 
             /** @var Connection $db */
             $db = $this->db;
@@ -321,24 +336,34 @@ class MigrationController extends BaseMigrationController
             }
         }
 
-        $postponedForeignKeys = [];
+        if (
+            $this->hasTimestampsCollision($countTables)
+            && $this->confirm(
+                ' > There are migration files detected that have timestamps colliding with the ones that will be generated. Are you sure you want to proceed?'
+            ) === false
+        ) {
+            $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
-        $counterSize = strlen((string)$countTables) + 1;
+        $postponedForeignKeys = [];
+        $lastUsedTimestamp = time() + $this->leeway;
         $migrationsGenerated = 0;
         foreach ($tables as $tableName) {
             $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
 
             $normalizedTableName = str_replace('.', '_', $tableName);
-            if ($countTables > 1) {
-                $migrationClassName = sprintf(
-                    "m%s_%0{$counterSize}d_create_table_%s",
-                    gmdate('ymd_His'),
-                    $migrationsGenerated + 1,
-                    $normalizedTableName
-                );
+            $timestamp = time();
+            if ($timestamp <= $lastUsedTimestamp) {
+                $timestamp = ++$lastUsedTimestamp;
             } else {
-                $migrationClassName = sprintf('m%s_create_table_%s', gmdate('ymd_His'), $normalizedTableName);
+                $lastUsedTimestamp = $timestamp;
             }
+            $migrationClassName = sprintf(
+                'm%s_create_table_%s',
+                gmdate('ymd_His', $timestamp),
+                $normalizedTableName
+            );
 
             try {
                 $this->generateMigrationForTableCreation($tableName, $migrationClassName, $referencesToPostpone);
@@ -347,7 +372,7 @@ class MigrationController extends BaseMigrationController
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            $migrationsGenerated++;
+            ++$migrationsGenerated;
 
             $this->stdout("\n");
 
@@ -357,20 +382,23 @@ class MigrationController extends BaseMigrationController
             }
         }
 
-        if ($postponedForeignKeys) {
+        if (count($postponedForeignKeys)) {
+            $timestamp = time();
+            if ($timestamp <= $lastUsedTimestamp) {
+                $timestamp = ++$lastUsedTimestamp;
+            }
+
             try {
                 $this->generateMigrationForForeignKeys(
                     $postponedForeignKeys,
-                    sprintf(
-                        "m%s_%0{$counterSize}d_create_foreign_keys",
-                        gmdate('ymd_His'),
-                        ++$migrationsGenerated
-                    )
+                    sprintf("m%s_create_foreign_keys", gmdate('ymd_His', $timestamp))
                 );
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
+
+            ++$migrationsGenerated;
         }
 
         $this->stdout(
@@ -465,9 +493,10 @@ class MigrationController extends BaseMigrationController
         $countTables = count($newTables);
         $referencesToPostpone = [];
         if ($countTables > 1) {
-            $this->getArranger()->arrangeTables($newTables);
-            $newTables = $this->getArranger()->getTablesInOrder();
-            $referencesToPostpone = $this->getArranger()->getReferencesToPostpone();
+            $arranger = $this->getArranger();
+            $arranger->arrangeTables($newTables);
+            $newTables = $arranger->getTablesInOrder();
+            $referencesToPostpone = $arranger->getReferencesToPostpone();
 
             /** @var Connection $db */
             $db = $this->db;
@@ -482,20 +511,34 @@ class MigrationController extends BaseMigrationController
             }
         }
 
-        $postponedForeignKeys = [];
+        if (
+            $this->hasTimestampsCollision($countTables + count($blueprints))
+            && $this->confirm(
+                ' > There are migration files detected that have timestamps colliding with the ones that will be generated. Are you sure you want to proceed?'
+            ) === false
+        ) {
+            $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
-        $counterSize = strlen((string)$countTables) + 1;
+        $postponedForeignKeys = [];
+        $lastUsedTimestamp = time() + $this->leeway;
         $migrationsGenerated = 0;
         foreach ($newTables as $tableName) {
             $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", Console::FG_YELLOW);
 
+            $timestamp = time();
+            if ($timestamp <= $lastUsedTimestamp) {
+                $timestamp = ++$lastUsedTimestamp;
+            } else {
+                $lastUsedTimestamp = $timestamp;
+            }
             try {
                 $this->generateMigrationForTableCreation(
                     $tableName,
                     sprintf(
-                        "m%s_%0{$counterSize}d_create_table_%s",
-                        gmdate('ymd_His'),
-                        $migrationsGenerated + 1,
+                        "m%s_create_table_%s",
+                        gmdate('ymd_His', $timestamp),
                         str_replace('.', '_', $tableName)
                     ),
                     $referencesToPostpone
@@ -505,7 +548,7 @@ class MigrationController extends BaseMigrationController
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            $migrationsGenerated++;
+            ++$migrationsGenerated;
 
             $this->stdout("\n");
 
@@ -516,36 +559,40 @@ class MigrationController extends BaseMigrationController
         }
 
         if ($postponedForeignKeys) {
+            $timestamp = time();
+            if ($timestamp <= $lastUsedTimestamp) {
+                $timestamp = ++$lastUsedTimestamp;
+            } else {
+                $lastUsedTimestamp = $timestamp;
+            }
             try {
                 $this->generateMigrationForForeignKeys(
                     $postponedForeignKeys,
                     sprintf(
-                        "m%s_%0{$counterSize}d_create_foreign_keys",
-                        gmdate('ymd_His'),
-                        ++$migrationsGenerated
+                        "m%s_create_foreign_keys",
+                        gmdate('ymd_His', $timestamp)
                     )
                 );
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n", Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
+
+            ++$migrationsGenerated;
         }
 
-        $countBlueprints = count($blueprints);
         foreach ($blueprints as $tableName => $blueprint) {
             $this->stdout("\n > Generating migration for updating table '{$tableName}' ...", Console::FG_YELLOW);
 
             $normalizedTableName = str_replace('.', '_', $tableName);
-            if ($migrationsGenerated === 0 && $countBlueprints === 1) {
-                $migrationClassName = 'm' . gmdate('ymd_His') . '_update_table_' . $normalizedTableName;
+            $timestamp = time();
+            if ($timestamp <= $lastUsedTimestamp) {
+                $timestamp = ++$lastUsedTimestamp;
             } else {
-                $migrationClassName = sprintf(
-                    "m%s_%0{$counterSize}d_update_table_%s",
-                    gmdate('ymd_His'),
-                    $migrationsGenerated + 1,
-                    $normalizedTableName
-                );
+                $lastUsedTimestamp = $timestamp;
             }
+
+            $migrationClassName = 'm' . gmdate('ymd_His', $timestamp) . '_update_table_' . $normalizedTableName;
 
             try {
                 $this->generateMigrationWithBlueprint($blueprint, $migrationClassName);
@@ -554,7 +601,7 @@ class MigrationController extends BaseMigrationController
                 return ExitCode::UNSPECIFIED_ERROR;
             }
 
-            $migrationsGenerated++;
+            ++$migrationsGenerated;
 
             $this->stdout("\n");
         }
@@ -854,12 +901,11 @@ class MigrationController extends BaseMigrationController
         if ($schemaNames === null || count($schemaNames) < 2) {
             $tables = $db->getSchema()->getTableNames();
         } else {
+            $schemaTables = [];
             foreach ($schemaNames as $schemaName) {
-                $tables = array_merge(
-                    $tables,
-                    array_column($db->getSchema()->getTableSchemas($schemaName), 'fullName')
-                );
+                $schemaTables[] = array_column($db->getSchema()->getTableSchemas($schemaName), 'fullName');
             }
+            $tables = array_merge($tables, ...$schemaTables);
         }
         return $tables;
     }
@@ -897,5 +943,55 @@ class MigrationController extends BaseMigrationController
 
         // for Yii < 2.0.43
         FallbackFileHelper::changeOwnership($path, $this->fileOwnership, $mode);
+    }
+
+    private function hasTimestampsCollision(int $tables): bool
+    {
+        if ($this->onlyShow === false || $tables <= 0) {
+            return false;
+        }
+
+        $now = time() + 5 + $this->leeway; // 5 seconds for response
+        $lastTimestamp = $now + $tables + 1; // +1 for potential foreign keys migration
+
+        $folders = [];
+        if ($this->migrationNamespace !== null) {
+            foreach ($this->migrationNamespace as $namespacedMigration) {
+                $translatedPath = Yii::getAlias('@' . FileHelper::normalizePath($namespacedMigration, '/'));
+                if (is_dir($translatedPath) === true) {
+                    $folders[] = $translatedPath;
+                }
+            }
+        } else {
+            foreach ($this->migrationPath as $pathMigration) {
+                if (is_dir($pathMigration) === true) {
+                    $folders[] = $pathMigration;
+                }
+            }
+        }
+
+        $foundCollision = false;
+        foreach ($folders as $folder) {
+            $handle = opendir($folder);
+            while (($file = readdir($handle)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                $path = $folder . DIRECTORY_SEPARATOR . $file;
+                if (is_file($path) && preg_match('/^(m(\d{6}_?\d{6})\D.*?)\.php$/is', $file, $matches)) {
+                    $time = (int)str_replace('_', '', $matches[2]);
+                    if ($time >= $now && $time <= $lastTimestamp) {
+                        $foundCollision = true;
+                        break;
+                    }
+                }
+            }
+            closedir($handle);
+            if ($foundCollision) {
+                break;
+            }
+        }
+
+        return $foundCollision;
     }
 }

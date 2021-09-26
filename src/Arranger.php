@@ -41,7 +41,7 @@ final class Arranger implements ArrangerInterface
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
             $foreignKeys = $this->mapper->getStructureOf($inputTable)->getForeignKeys();
-            /** @var ForeignKeyInterface $foreignKey */
+
             foreach ($foreignKeys as $foreignKey) {
                 $this->addDependency($inputTable, $foreignKey->getReferredTable());
             }

@@ -169,7 +169,7 @@ final class Schema
      */
     public static function isSQLite($schema): bool
     {
-        return static::identifySchema($schema) === self::SQLITE;
+        return self::identifySchema($schema) === self::SQLITE;
     }
 
     /**
@@ -190,7 +190,7 @@ final class Schema
             $schema = self::MYSQL . '+';
         }
 
-        return static::$defaultLength[$schema][$type] ?? null;
+        return self::$defaultLength[$schema][$type] ?? null;
     }
 
     /**
@@ -206,6 +206,6 @@ final class Schema
             return null;
         }
 
-        return static::$aliases[$schema][$type][$length] ?? null;
+        return self::$aliases[$schema][$type][$length] ?? null;
     }
 }

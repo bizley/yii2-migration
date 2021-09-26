@@ -108,7 +108,7 @@ final class HistoryManager implements HistoryManagerInterface
             ->all($this->db);
 
         $history = [];
-        foreach ($rows as $key => $row) {
+        foreach ($rows as $row) {
             if ($row['version'] === MigrateController::BASE_MIGRATION) {
                 continue;
             }

@@ -59,8 +59,8 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
         if (
-            $this->isSchemaLengthSupporting($schema, $engineVersion)
-            || ($schema === Schema::MYSQL && (string)$value === '1')
+            ($schema === Schema::MYSQL && (string)$value === '1')
+            || $this->isSchemaLengthSupporting($schema, $engineVersion)
         ) {
             $this->setSize($value);
             $this->setPrecision($value);
