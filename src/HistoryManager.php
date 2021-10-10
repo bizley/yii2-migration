@@ -113,7 +113,7 @@ final class HistoryManager implements HistoryManagerInterface
                 continue;
             }
 
-            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?$/is', $row['version'], $matches)) {
+            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?/i', $row['version'], $matches)) {
                 $row['canonicalVersion'] = str_replace('_', '', $matches[1]);
             } else {
                 $row['canonicalVersion'] = $row['version'];

@@ -232,7 +232,7 @@ class SqlColumnMapper
      * @param int $offset
      * @return array{0: int, 1: string}
      */
-    private function findPart(string $type, string $sentence, int $offset = 0): array
+    private function findPart(string $type, string $sentence, int $offset): array
     {
         $sentence = substr($sentence, $offset);
 

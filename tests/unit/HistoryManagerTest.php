@@ -147,6 +147,7 @@ final class HistoryManagerTest extends TestCase
             ],
             [
                 [
+                    ['version' => MigrateController::BASE_MIGRATION, 'apply_time' => 1],
                     ['version' => 'a', 'apply_time' => 1],
                     ['version' => 'b', 'apply_time' => '2'],
                     ['version' => 'c', 'apply_time' => 3],
@@ -173,10 +174,10 @@ final class HistoryManagerTest extends TestCase
                 [
                     ['version' => 'm200328_135959_update_table_a', 'apply_time' => 1],
                     ['version' => 'm200328_140000_update_table_a', 'apply_time' => 1],
-                    ['version' => 'm200328_140001_update_table_a', 'apply_time' => 1],
+                    ['version' => 'M200328_140001_UPDATE_TABLE_A', 'apply_time' => 1],
                 ],
                 [
-                    'm200328_140001_update_table_a' => 1,
+                    'M200328_140001_UPDATE_TABLE_A' => 1,
                     'm200328_140000_update_table_a' => 1,
                     'm200328_135959_update_table_a' => 1,
                 ]
@@ -206,10 +207,13 @@ final class HistoryManagerTest extends TestCase
     public function shouldReturnHistoryInProperOrder(array $rows, array $expected): void
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
-        $this->query->method('select')->willReturn($this->query);
-        $this->query->method('from')->willReturn($this->query);
-        $this->query->method('orderBy')->willReturn($this->query);
-        $this->query->method('all')->willReturn($rows);
+        $this->query->method('select')->with(['version', 'apply_time'])->willReturnSelf();
+        $this->query->method('from')->with('table')->willReturnSelf();
+        $this->query
+            ->method('orderBy')
+            ->with(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
+            ->willReturnSelf();
+        $this->query->method('all')->with($this->db)->willReturn($rows);
         self::assertSame($expected, $this->manager->fetchHistory());
     }
 }
