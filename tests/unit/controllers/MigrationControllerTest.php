@@ -35,6 +35,7 @@ use function chmod;
 use function fileperms;
 use function glob;
 use function is_dir;
+use function preg_match_all;
 use function rmdir;
 use function ucfirst;
 use function unlink;
@@ -701,6 +702,9 @@ final class MigrationControllerTest extends TestCase
 ',
             MigrationControllerStub::$stdout
         );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 
     /**
@@ -763,6 +767,10 @@ final class MigrationControllerTest extends TestCase
 ',
             MigrationControllerStub::$stdout
         );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_/m', MigrationControllerStub::$stdout, $matches);
+        self::assertSame(1, $matches[1][2] - $matches[1][1]);
+        self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 
     /**
