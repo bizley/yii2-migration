@@ -204,6 +204,25 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
     /**
      * @test
      */
+    public function shouldAlterColumnForGetDefaultNULL(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setDefault('NULL');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setDefault(null);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     */
     public function shouldAlterColumnForGetComment(): void
     {
         $this->expectException(NotSupportedException::class);
@@ -339,12 +358,18 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
     /**
      * @test
      */
-    public function shouldAddForeignKey(): void
+    public function shouldAddForeignKeys(): void
     {
         $this->expectException(NotSupportedException::class);
 
         $foreignKey = $this->getForeignKey('fk');
-        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKey]);
+        $foreignKey2 = $this->getForeignKey('fk2');
+        $this->newStructure->method('getForeignKeys')->willReturnOnConsecutiveCalls(
+            [
+                'fk' => $foreignKey,
+                'fk2' => $foreignKey2,
+            ]
+        );
         $this->oldStructure->method('getForeignKeys')->willReturn([]);
 
         $this->compare();
@@ -372,9 +397,28 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
         $this->expectException(NotSupportedException::class);
 
         $foreignKeyNew = $this->getForeignKey('fk');
-        $foreignKeyNew->setColumns(['a', 'b']);
+        $foreignKeyNew->setColumns(['a', 'b', 'd']);
         $foreignKeyOld = $this->getForeignKey('fk');
         $foreignKeyOld->setColumns(['a', 'c']);
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     */
+    public function shouldReplaceForeignKeyWithDifferentColumnsVariant2(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setColumns(['a', 'b']);
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setColumns(['a', 'c', 'd']);
         $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
         $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
         $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);

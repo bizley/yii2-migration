@@ -395,6 +395,31 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @test
      */
+    public function shouldAlterColumnForGetDefaultNULL(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setDefault('NULL');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setDefault(null);
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            ["different 'col' column property: default (DB: \"NULL\" != MIG: NULL)"],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+    }
+
+    /**
+     * @test
+     */
     public function shouldAlterColumnForGetComment(): void
     {
         $columnNew = $this->getColumn('col');
@@ -745,20 +770,29 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @test
      */
-    public function shouldAddForeignKey(): void
+    public function shouldAddForeignKeys(): void
     {
         $foreignKey = $this->getForeignKey('fk');
-        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKey]);
+        $foreignKey2 = $this->getForeignKey('fk2');
+        $this->newStructure->method('getForeignKeys')->willReturnOnConsecutiveCalls(
+            [
+                'fk' => $foreignKey,
+                'fk2' => $foreignKey2,
+            ]
+        );
         $this->oldStructure->method('getForeignKeys')->willReturn([]);
 
         $this->compare();
 
         self::assertTrue($this->blueprint->isPending());
         self::assertSame(
-            ["missing foreign key 'fk'"],
+            [
+                "missing foreign key 'fk'",
+                "missing foreign key 'fk2'",
+            ],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk', 'fk2'], array_keys($this->blueprint->getAddedForeignKeys()));
     }
 
     /**
@@ -786,7 +820,7 @@ class ComparatorNonSqliteTest extends TestCase
     public function shouldReplaceForeignKeyWithDifferentColumns(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
-        $foreignKeyNew->setColumns(['a', 'b']);
+        $foreignKeyNew->setColumns(['a', 'b', 'd']);
         $foreignKeyOld = $this->getForeignKey('fk');
         $foreignKeyOld->setColumns(['a', 'c']);
         $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
@@ -798,7 +832,32 @@ class ComparatorNonSqliteTest extends TestCase
 
         self::assertTrue($this->blueprint->isPending());
         self::assertSame(
-            ["different foreign key 'fk' columns (DB: [\"a\",\"b\"] != MIG: [\"a\",\"c\"])"],
+            ["different foreign key 'fk' columns (DB: [\"a\",\"b\",\"d\"] != MIG: [\"a\",\"c\"])"],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldReplaceForeignKeyWithDifferentColumnsVariant2(): void
+    {
+        $foreignKeyNew = $this->getForeignKey('fk');
+        $foreignKeyNew->setColumns(['a', 'b']);
+        $foreignKeyOld = $this->getForeignKey('fk');
+        $foreignKeyOld->setColumns(['a', 'c', 'd']);
+        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
+        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
+        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
+        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            ["different foreign key 'fk' columns (DB: [\"a\",\"b\"] != MIG: [\"a\",\"c\",\"d\"])"],
             $this->blueprint->getDescriptions()
         );
         self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));

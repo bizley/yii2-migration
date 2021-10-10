@@ -148,8 +148,8 @@ final class Comparator implements ComparatorInterface
 
                     if (
                         $propertyFetch === 'isUnique'
-                        && $this->getRealUniqueness($newStructure, $name, (bool)$newProperty)
-                            === $this->getRealUniqueness($oldStructure, $name, (bool)$oldProperty)
+                        && $this->getRealUniqueness($newStructure, $name, $newProperty)
+                            === $this->getRealUniqueness($oldStructure, $name, $oldProperty)
                     ) {
                         continue;
                     }
@@ -240,15 +240,10 @@ final class Comparator implements ComparatorInterface
             $oldForeignKey = $oldStructure->getForeignKey($name);
             $newForeignKeyColumns = $foreignKey->getColumns();
             $oldForeignKeyColumns = $oldForeignKey->getColumns();
-            $intersection = array_intersect($newForeignKeyColumns, $oldForeignKeyColumns);
 
             if (
-                count(
-                    array_merge(
-                        array_diff($newForeignKeyColumns, $intersection),
-                        array_diff($oldForeignKeyColumns, $intersection)
-                    )
-                )
+                array_diff($newForeignKeyColumns, $oldForeignKeyColumns)
+                    !== array_diff($oldForeignKeyColumns, $newForeignKeyColumns)
             ) {
                 $blueprint->addDescription(
                     "different foreign key '$name' columns ("
@@ -273,15 +268,10 @@ final class Comparator implements ComparatorInterface
 
             $newForeignKeyReferredColumns = $foreignKey->getReferredColumns();
             $oldForeignKeyReferredColumns = $oldForeignKey->getReferredColumns();
-            $intersection = array_intersect($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns);
 
             if (
-                count(
-                    array_merge(
-                        array_diff($newForeignKeyReferredColumns, $intersection),
-                        array_diff($oldForeignKeyReferredColumns, $intersection)
-                    )
-                )
+                array_diff($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns)
+                    !== array_diff($oldForeignKeyReferredColumns, $newForeignKeyReferredColumns)
             ) {
                 $blueprint->addDescription(
                     "different foreign key '$name' referred columns ("
@@ -408,14 +398,9 @@ final class Comparator implements ComparatorInterface
 
         $newPrimaryKeyColumns = $newPrimaryKey ? $newPrimaryKey->getColumns() : [];
         $oldPrimaryKeyColumns = $oldPrimaryKey ? $oldPrimaryKey->getColumns() : [];
-        $intersection = array_intersect($newPrimaryKeyColumns, $oldPrimaryKeyColumns);
+        $differentColumns = array_diff($newPrimaryKeyColumns, $oldPrimaryKeyColumns);
 
-        $differentColumns = array_merge(
-            array_diff($newPrimaryKeyColumns, $intersection),
-            array_diff($oldPrimaryKeyColumns, $intersection)
-        );
-
-        if (count($differentColumns)) {
+        if ($differentColumns !== array_diff($oldPrimaryKeyColumns, $newPrimaryKeyColumns)) {
             $blueprint->addDescription('different primary key definition');
 
             $alreadyDropped = false;
@@ -570,16 +555,8 @@ final class Comparator implements ComparatorInterface
 
             $newIndexColumns = $index->getColumns();
             $oldIndexColumns = $oldIndex->getColumns();
-            $intersection = array_intersect($newIndexColumns, $oldIndexColumns);
 
-            if (
-                count(
-                    array_merge(
-                        array_diff($newIndexColumns, $intersection),
-                        array_diff($oldIndexColumns, $intersection)
-                    )
-                )
-            ) {
+            if (array_diff($newIndexColumns, $oldIndexColumns) !== array_diff($oldIndexColumns, $newIndexColumns)) {
                 $blueprint->addDescription(
                     "different index '$name' columns (DB: "
                     . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
