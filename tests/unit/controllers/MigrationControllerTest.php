@@ -32,11 +32,13 @@ use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 
 use function chmod;
+use function date;
 use function fileperms;
 use function glob;
 use function is_dir;
 use function preg_match_all;
 use function rmdir;
+use function time;
 use function ucfirst;
 use function unlink;
 
@@ -704,6 +706,52 @@ final class MigrationControllerTest extends TestCase
         );
 
         preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        self::assertEqualsWithDelta((int)date('His'), (int)$matches[1][0], 2);
+        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateManyMigrationsWithLeeway(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->leeway = 100;
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        self::assertStringContainsString(
+            '_create_table_test.php\'
+
+ > Generating migration for creating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        self::assertStringContainsString(
+            '_create_table_test2.php\'
+
+ Generated 2 files
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        self::assertEqualsWithDelta((int)date('His', time() + 100), (int)$matches[1][0], 2);
         self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 

@@ -774,7 +774,7 @@ class MigrationController extends BaseMigrationController
      * @return array<string>
      * @throws NotSupportedException
      */
-    private function prepareTableNames($inputTables): array
+    private function prepareTableNames(string $inputTables): array
     {
         if (strpos($inputTables, ',') !== false) {
             $tablesList = explode(',', $inputTables);
@@ -942,6 +942,7 @@ class MigrationController extends BaseMigrationController
         }
 
         // for Yii < 2.0.43
+        /** @infection-ignore-all */
         FallbackFileHelper::changeOwnership($path, $this->fileOwnership, $mode);
     }
 
