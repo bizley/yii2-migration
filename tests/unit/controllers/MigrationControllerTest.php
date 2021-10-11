@@ -74,6 +74,7 @@ final class MigrationControllerTest extends TestCase
         $this->db = $this->createMock(Connection::class);
         $this->controller = new MigrationControllerStub('id', $this->createMock(Module::class));
         $this->controller->db = $this->db;
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
         $this->view = $this->createMock(View::class);
         $this->view->method('renderFile')->willReturn('rendered_file');
         $this->controller->view = $this->view;

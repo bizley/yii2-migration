@@ -27,6 +27,7 @@ use function array_merge;
 use function array_unique;
 use function closedir;
 use function count;
+use function date;
 use function explode;
 use function file_put_contents;
 use function gmdate;
@@ -948,7 +949,7 @@ class MigrationController extends BaseMigrationController
 
     private function hasTimestampsCollision(int $tables): bool
     {
-        if ($this->onlyShow === false || $tables <= 0) {
+        if ($this->onlyShow === true || $tables <= 0) {
             return false;
         }
 
@@ -971,6 +972,8 @@ class MigrationController extends BaseMigrationController
             }
         }
 
+        $nowDate = date('ymdHis', $now);
+        $lastTimestampDate = date('ymdHis', $lastTimestamp);
         $foundCollision = false;
         foreach ($folders as $folder) {
             $handle = opendir($folder);
@@ -979,9 +982,9 @@ class MigrationController extends BaseMigrationController
                     continue;
                 }
                 $path = $folder . DIRECTORY_SEPARATOR . $file;
-                if (is_file($path) && preg_match('/^(m(\d{6}_?\d{6})\D.*?)\.php$/is', $file, $matches)) {
-                    $time = (int)str_replace('_', '', $matches[2]);
-                    if ($time >= $now && $time <= $lastTimestamp) {
+                if (is_file($path) && preg_match('/m(\d{6}_?\d{6})\D.*?/i', $file, $matches)) {
+                    $time = (int)str_replace('_', '', $matches[1]);
+                    if ($time >= $nowDate && $time <= $lastTimestampDate) {
                         $foundCollision = true;
                         break;
                     }
