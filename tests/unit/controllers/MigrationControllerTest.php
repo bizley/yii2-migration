@@ -36,8 +36,10 @@ use function date;
 use function fileperms;
 use function glob;
 use function is_dir;
+use function mktime;
 use function preg_match_all;
 use function rmdir;
+use function substr;
 use function time;
 use function ucfirst;
 use function unlink;
@@ -707,7 +709,12 @@ final class MigrationControllerTest extends TestCase
         );
 
         preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
-        self::assertEqualsWithDelta((int)date('His'), (int)$matches[1][0], 2);
+        $time = $matches[1][0];
+        self::assertEqualsWithDelta(
+            time(),
+            mktime((int)substr($time, 0, 2), (int)substr($time, 2, 2), (int)substr($time, -2)),
+            2
+        );
         self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 

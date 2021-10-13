@@ -392,37 +392,36 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
     /**
      * @test
      */
-    public function shouldReplaceForeignKeyWithDifferentColumns(): void
+    public function shouldReplaceForeignKeysWithDifferentColumns(): void
     {
         $this->expectException(NotSupportedException::class);
 
         $foreignKeyNew = $this->getForeignKey('fk');
         $foreignKeyNew->setColumns(['a', 'b', 'd']);
+        $foreignKeyNew2 = $this->getForeignKey('fk2');
+        $foreignKeyNew2->setColumns(['a', 'b']);
         $foreignKeyOld = $this->getForeignKey('fk');
         $foreignKeyOld->setColumns(['a', 'c']);
-        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
-        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
-        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
-        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
-
-        $this->compare();
-    }
-
-    /**
-     * @test
-     */
-    public function shouldReplaceForeignKeyWithDifferentColumnsVariant2(): void
-    {
-        $this->expectException(NotSupportedException::class);
-
-        $foreignKeyNew = $this->getForeignKey('fk');
-        $foreignKeyNew->setColumns(['a', 'b']);
-        $foreignKeyOld = $this->getForeignKey('fk');
-        $foreignKeyOld->setColumns(['a', 'c', 'd']);
-        $this->newStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyNew]);
-        $this->newStructure->method('getForeignKey')->willReturn($foreignKeyNew);
-        $this->oldStructure->method('getForeignKeys')->willReturn(['fk' => $foreignKeyOld]);
-        $this->oldStructure->method('getForeignKey')->willReturn($foreignKeyOld);
+        $foreignKeyOld2 = $this->getForeignKey('fk2');
+        $foreignKeyOld2->setColumns(['d', 'e']);
+        $this->newStructure->method('getForeignKeys')->willReturn(
+            [
+                'fk' => $foreignKeyNew,
+                'fk2' => $foreignKeyNew2,
+            ]
+        );
+        $this->newStructure
+            ->method('getForeignKey')
+            ->willReturnOnConsecutiveCalls($foreignKeyNew, $foreignKeyNew2);
+        $this->oldStructure->method('getForeignKeys')->willReturn(
+            [
+                'fk' => $foreignKeyOld,
+                'fk2' => $foreignKeyOld2,
+            ]
+        );
+        $this->oldStructure
+            ->method('getForeignKey')
+            ->willReturnOnConsecutiveCalls($foreignKeyOld, $foreignKeyOld2);
 
         $this->compare();
     }
