@@ -800,8 +800,7 @@ final class MigrationControllerTest extends TestCase
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -857,8 +856,7 @@ final class MigrationControllerTest extends TestCase
         self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
         self::assertStringContainsString(
             '
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -993,8 +991,7 @@ ERROR!
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -1032,8 +1029,7 @@ ERROR!
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -1071,8 +1067,7 @@ ERROR!
 
  > Comparing current table \'test2\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -1133,8 +1128,7 @@ ERROR!
 
  > Comparing current table \'test2\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
