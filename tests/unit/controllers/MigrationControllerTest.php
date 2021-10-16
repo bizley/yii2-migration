@@ -33,7 +33,6 @@ use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 
 use function chmod;
-use function date;
 use function fileperms;
 use function glob;
 use function is_dir;
@@ -759,7 +758,11 @@ final class MigrationControllerTest extends TestCase
         );
 
         preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
-        self::assertEqualsWithDelta((int)date('His', time() + 100), (int)$matches[1][0], 5);
+        self::assertEqualsWithDelta(
+            time() + 100,
+            mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2)),
+            5
+        );
         self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 
