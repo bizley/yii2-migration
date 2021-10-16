@@ -30,12 +30,16 @@ use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\Schema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
+use yii\helpers\FileHelper;
 
 use function chmod;
 use function fileperms;
 use function glob;
 use function is_dir;
-use function rmdir;
+use function mktime;
+use function preg_match_all;
+use function substr;
+use function time;
 use function ucfirst;
 use function unlink;
 
@@ -71,6 +75,7 @@ final class MigrationControllerTest extends TestCase
         $this->db = $this->createMock(Connection::class);
         $this->controller = new MigrationControllerStub('id', $this->createMock(Module::class));
         $this->controller->db = $this->db;
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
         $this->view = $this->createMock(View::class);
         $this->view->method('renderFile')->willReturn('rendered_file');
         $this->controller->view = $this->view;
@@ -124,6 +129,7 @@ final class MigrationControllerTest extends TestCase
                     'migrationTable',
                     'useTablePrefix',
                     'excludeTables',
+                    'leeway',
                 ]
             ],
             'update' => [
@@ -143,6 +149,7 @@ final class MigrationControllerTest extends TestCase
                     'migrationTable',
                     'useTablePrefix',
                     'excludeTables',
+                    'leeway',
                     'onlyShow',
                     'skipMigrations',
                     'experimental',
@@ -178,6 +185,7 @@ final class MigrationControllerTest extends TestCase
                 'tp' => 'useTablePrefix',
                 'fm' => 'fileMode',
                 'fo' => 'fileOwnership',
+                'lw' => 'leeway',
             ],
             $this->controller->optionAliases()
         );
@@ -684,20 +692,78 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  Generated 2 files
  (!) Remember to verify files before applying migration.
 ',
             MigrationControllerStub::$stdout
         );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        $time = $matches[1][0];
+        self::assertEqualsWithDelta(
+            time(),
+            mktime((int)substr($time, 0, 2), (int)substr($time, 2, 2), (int)substr($time, -2)),
+            2
+        );
+        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateManyMigrationsWithLeeway(): void
+    {
+        $schema = $this->createMock(MysqlSchema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $this->db->method('getSchema')->willReturn($schema);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $this->db->method('getTableSchema')->willReturn($tableSchema);
+
+        $this->controller->leeway = 100;
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
+        self::assertStringContainsString(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ > Generating migration for creating table \'test\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        self::assertStringContainsString(
+            '_create_table_test.php\'
+
+ > Generating migration for creating table \'test2\' ...DONE!
+ > Saved as \'/m',
+            MigrationControllerStub::$stdout
+        );
+        self::assertStringContainsString(
+            '_create_table_test2.php\'
+
+ Generated 2 files
+ (!) Remember to verify files before applying migration.
+',
+            MigrationControllerStub::$stdout
+        );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        self::assertEqualsWithDelta(
+            time() + 100,
+            mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2)),
+            5
+        );
+        self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
     /**
@@ -734,32 +800,38 @@ final class MigrationControllerTest extends TestCase
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_03_create_foreign_keys.php\'
+            '_create_foreign_keys.php\'
 
  Generated 3 files
  (!) Remember to verify files before applying migration.
 ',
             MigrationControllerStub::$stdout
         );
+
+        preg_match_all('/m\d{6}_(\d{6})_create_/m', MigrationControllerStub::$stdout, $matches);
+        $t1 = mktime((int)substr($matches[1][2], 0, 2), (int)substr($matches[1][2], 2, 2), (int)substr($matches[1][2], -2));
+        $t2 = mktime((int)substr($matches[1][1], 0, 2), (int)substr($matches[1][1], 2, 2), (int)substr($matches[1][1], -2));
+        $t3 = mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2));
+        self::assertTrue($t1 - $t2 >= 1);
+        self::assertTrue($t2 - $t3 >= 1);
     }
 
     /**
@@ -784,8 +856,7 @@ final class MigrationControllerTest extends TestCase
         self::assertSame(ExitCode::OK, $this->controller->actionCreate('*'));
         self::assertStringContainsString(
             '
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -834,19 +905,18 @@ final class MigrationControllerTest extends TestCase
             ' > Are you sure you want to generate migrations for the following tables?
    - test
    - test2
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
  > Stub exception
@@ -921,12 +991,11 @@ ERROR!
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  Generated 1 file
  (!) Remember to verify files before applying migration.
@@ -960,8 +1029,7 @@ ERROR!
             '
  > Comparing current table \'test\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
@@ -999,19 +1067,18 @@ ERROR!
 
  > Comparing current table \'test2\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  Generated 2 files
  (!) Remember to verify files before applying migration.
@@ -1061,26 +1128,25 @@ ERROR!
 
  > Comparing current table \'test2\' with its migrations ...DONE!
 
- > Generating migration for creating table \'test\' ...DONE!
- > Saved as \'/m',
+ > Generating migration for creating table \'test\' ...DONE!',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_03_create_foreign_keys.php\'
+            '_create_foreign_keys.php\'
 
  Generated 3 files
  (!) Remember to verify files before applying migration.
@@ -1288,14 +1354,14 @@ ERROR!
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_01_create_table_test.php\'
+            '_create_table_test.php\'
 
  > Generating migration for creating table \'test2\' ...DONE!
  > Saved as \'/m',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            '_02_create_table_test2.php\'
+            '_create_table_test2.php\'
 
  > Generating migration for creating foreign keys ...ERROR!
  > Stub exception
@@ -1460,9 +1526,7 @@ ERROR!
     {
         chmod(__DIR__ . '/../../runtime', 0777);
 
-        if (is_dir(__DIR__ . '/../../runtime/test')) {
-            rmdir(__DIR__ . '/../../runtime/test');
-        }
+        FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;
@@ -1482,9 +1546,7 @@ ERROR!
     {
         chmod(__DIR__ . '/../../runtime', 0777);
 
-        if (is_dir(__DIR__ . '/../../runtime/test')) {
-            rmdir(__DIR__ . '/../../runtime/test');
-        }
+        FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;

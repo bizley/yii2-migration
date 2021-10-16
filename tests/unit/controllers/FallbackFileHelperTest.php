@@ -38,7 +38,9 @@ final class FallbackFileHelperTest extends TestCase
         foreach ($items as $name => $content) {
             $itemName = $basePath . DIRECTORY_SEPARATOR . $name;
             if (is_array($content)) {
-                mkdir($itemName, 0777, true);
+                if (@mkdir($itemName, 0777, true) === false) {
+                    self::markTestSkipped("Permission denied to create folder $itemName");
+                }
                 $this->createFileStructure($content, $itemName);
             } else {
                 file_put_contents($itemName, $content);

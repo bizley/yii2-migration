@@ -108,12 +108,12 @@ final class HistoryManager implements HistoryManagerInterface
             ->all($this->db);
 
         $history = [];
-        foreach ($rows as $key => $row) {
+        foreach ($rows as $row) {
             if ($row['version'] === MigrateController::BASE_MIGRATION) {
                 continue;
             }
 
-            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?$/is', $row['version'], $matches)) {
+            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?/i', $row['version'], $matches)) {
                 $row['canonicalVersion'] = str_replace('_', '', $matches[1]);
             } else {
                 $row['canonicalVersion'] = $row['version'];

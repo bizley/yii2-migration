@@ -107,6 +107,7 @@ final class InspectorTest extends TestCase
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration\\' => 1]);
         $this->comparator->expects(self::never())->method('compare');
+        $this->extractor->expects(self::never())->method('extract');
         $structure = $this->createMock(StructureInterface::class);
         $structure->method('getName')->willReturn('table');
         $blueprint = $this->inspector->prepareBlueprint(

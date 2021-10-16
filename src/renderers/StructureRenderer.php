@@ -166,7 +166,7 @@ TEMPLATE;
      * @param StructureInterface $structure
      * @param string $tableName
      * @param int $indent
-     * @param string $schema
+     * @param string|null $schema
      * @param string|null $engineVersion
      * @return string
      */
@@ -253,9 +253,8 @@ TEMPLATE;
         $foreignKeys = $structure->getForeignKeys();
 
         $renderedIndexes = [];
-        /** @var IndexInterface $index */
+
         foreach ($indexes as $index) {
-            /** @var ForeignKeyInterface $foreignKey */
             foreach ($foreignKeys as $foreignKey) {
                 if ($foreignKey->getName() === $index->getName()) {
                     continue 2;

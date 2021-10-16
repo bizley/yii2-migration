@@ -64,32 +64,32 @@ The following console command are available (assuming you named the controller `
 - Generate migration to create DB table `table_name`:
 
   ```
-  php yii migration/create table_name
+  php yii migration/create "table_name"
   ```
 
 - Generate migration to update DB table `table_name`:
 
   ```
-  php yii migration/update table_name
+  php yii migration/update "table_name"
   ```
 
 To generate migrations for all the tables in the database at once (except the excluded ones) use asterisk (*):
 
 ```
-php yii migration/create *
-php yii migration/update *
+php yii migration/create "*"
+php yii migration/update "*"
 ```
-In environments that hijack asterisk (like dockerized env) use `"*"`.  
+
 You can generate multiple migrations for many tables at once by separating the names with comma:
 
 ```
-php yii migration/create table_name1,table_name2,table_name3
+php yii migration/create "table_name1,table_name2,table_name3"
 ```
 
 You can provide an asterisk as a part of table name to use all tables matching the pattern:
 
 ```
-php yii migration/update prefix_*
+php yii migration/update "prefix_*"
 ```
 
 Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
@@ -118,8 +118,9 @@ You can easily generate updating migration for database table by comparing its c
 | `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
 | `excludeTables`      |       | List of tables that should be skipped.
 | `experimental`       | `ex`  | Whether to run in experimental mode (see [3] below).
-| `fileMode`           | `fm`  | **New in 4.2.0** - Generated file mode to be changed using `chmod`.
-| `fileOwnership`      | `fo`  | **New in 4.2.0** - Generated file ownership to be changed using `chown`/`chgrp`.
+| `fileMode`           | `fm`  | Generated file mode to be changed using `chmod`.
+| `fileOwnership`      | `fo`  | Generated file ownership to be changed using `chown`/`chgrp`.
+| `leeway`             | `lw`  | **New in 4.3.0** - The leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with a later date
 
 [1] Remember that with different database types general column schemas may be generated with different length.
 

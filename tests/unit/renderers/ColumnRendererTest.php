@@ -60,6 +60,7 @@ final class ColumnRendererTest extends TestCase
         $column = $this->createMock(PrimaryKeyColumnInterface::class);
         $column->method('getName')->willReturn('col');
         $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('isNotNull')->willReturn(true);
 
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }

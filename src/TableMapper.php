@@ -17,6 +17,7 @@ use bizley\migration\table\StructureInterface;
 use PDO;
 use Throwable;
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\cubrid\Schema as CubridSchema;
@@ -54,7 +55,7 @@ final class TableMapper implements TableMapperInterface
     {
         $this->suppressedForeignKeys = [];
         $foreignKeys = $this->getForeignKeys($table);
-        /** @var ForeignKeyInterface $foreignKey */
+
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
             if (in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
                 $this->suppressedForeignKeys[] = $foreignKey;
@@ -171,16 +172,7 @@ final class TableMapper implements TableMapperInterface
         $engineVersion = $this->getEngineVersion();
 
         foreach ($tableSchema->columns as $column) {
-            $isUnique = false;
-
-            /** @var IndexInterface $index */
-            foreach ($indexes as $index) {
-                $indexColumns = $index->getColumns();
-                if ($index->isUnique() && count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
-                    $isUnique = true;
-                    break;
-                }
-            }
+            $isUnique = $this->isUnique($indexes, $column);
 
             $mappedColumn = ColumnFactory::build($column->type);
             $mappedColumn->setName($column->name);
@@ -207,6 +199,23 @@ final class TableMapper implements TableMapperInterface
         }
 
         return $mappedColumns;
+    }
+
+    /**
+     * @param array<IndexInterface> $indexes
+     * @param ColumnSchema $column
+     * @return bool
+     */
+    private function isUnique(array $indexes, ColumnSchema $column): bool
+    {
+        foreach ($indexes as $index) {
+            $indexColumns = $index->getColumns();
+            if ($index->isUnique() && count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

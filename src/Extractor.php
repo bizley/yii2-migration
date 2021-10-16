@@ -37,31 +37,13 @@ final class Extractor implements ExtractorInterface
     /**
      * Extracts migration data structures.
      * @param string $migration
-     * @param array<string> $migrationPaths
+     * @param string[] $migrationPaths
      * @throws ErrorException
      */
     public function extract(string $migration, array $migrationPaths): void
     {
         $this->setDummyMigrationClass();
-
-        if (strpos($migration, '\\') === false) { // not namespaced
-            $fileFound = false;
-            $file = null;
-            foreach ($migrationPaths as $path) {
-                /** @var string $file */
-                $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
-                if (file_exists($file)) {
-                    $fileFound = true;
-                    break;
-                }
-            }
-
-            if (!$fileFound) {
-                throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
-            }
-
-            require_once $file;
-        }
+        $this->loadFile($migration, $migrationPaths);
 
         $this->subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
         if ($this->subject instanceof MigrationChangesInterface === false) {
@@ -74,6 +56,32 @@ final class Extractor implements ExtractorInterface
     }
 
     /**
+     * Loads a non-namespaced file.
+     * @param string $migration
+     * @param string[] $migrationPaths
+     * @throws ErrorException
+     */
+    private function loadFile(string $migration, array $migrationPaths): void
+    {
+        if (strpos($migration, '\\') !== false) {
+            // migration with `\` character is most likely namespaced, so it doesn't require loading
+            return;
+        }
+
+        foreach ($migrationPaths as $path) {
+            /** @var string $file */
+            $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
+            if (file_exists($file)) {
+                require_once $file;
+
+                return;
+            }
+        }
+
+        throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
+    }
+
+    /**
      * Sets the dummy migration file instead the real one to extract the migration structure instead of applying them.
      * It uses Yii's class map autoloaders hack.
      * @throws InvalidArgumentException
@@ -82,6 +90,7 @@ final class Extractor implements ExtractorInterface
     {
         // attempt to register Yii's autoloader in case it's not been done already
         // registering it second time should be skipped anyway
+        /** @infection-ignore-all */
         spl_autoload_register(['Yii', 'autoload'], true, true);
 
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias('@bizley/migration/dummy/Migration.php');

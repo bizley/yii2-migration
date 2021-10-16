@@ -382,36 +382,82 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
-    public function shouldDetectComment(): void
+    public function providerForComments(): array
     {
-        self::assertSame(
-            [
-                'comment' => 'test',
-                'type' => 'string',
+        return [
+            'single quote' => [
+                'comment \'test\'',
+                [
+                    'comment' => 'test',
+                    'type' => 'string',
+                ]
             ],
-            SqlColumnMapper::map('comment \'test\'', [])
-        );
-
-        self::assertSame(
-            [
-                'comment' => 'test',
-                'type' => 'string',
+            'single quote prespaced' => [
+                ' comment \'test\'',
+                [
+                    'comment' => 'test',
+                    'type' => 'string',
+                ],
             ],
-            SqlColumnMapper::map(' comment \'test\'', [])
-        );
+            'single quote no space' => [
+                'comment\'test\' ',
+                [
+                    'comment' => 'test',
+                    'type' => 'string',
+                ],
+            ],
+            'single quotes inside' => [
+                'comment "te\'s\'t"',
+                [
+                    'comment' => 'te\'s\'t',
+                    'type' => 'string',
+                ],
+            ],
+            'double quotes inside' => [
+                "comment 'te''st'",
+                [
+                    'comment' => "te''st",
+                    'type' => 'string',
+                ],
+            ],
+            'not closed single' => [
+                "comment 'test",
+                [
+                    'comment' => 'test',
+                    'type' => 'string',
+                ],
+            ],
+            'not closed double' => [
+                'comment "test',
+                [
+                    'comment' => 'test',
+                    'type' => 'string',
+                ],
+            ],
+            'empty single' => [
+                "comment ''",
+                [
+                    'comment' => '',
+                    'type' => 'string',
+                ],
+            ],
+            'empty double' => [
+                'comment ""',
+                [
+                    'comment' => '',
+                    'type' => 'string',
+                ],
+            ],
+        ];
     }
 
-    /** @test */
-    public function shouldDetectCommentWithQuote(): void
+    /**
+     * @test
+     * @dataProvider providerForComments
+     */
+    public function shouldDetectComment(string $definition, array $expected): void
     {
-        self::assertSame(
-            [
-                'comment' => "te''st",
-                'type' => 'string',
-            ],
-            SqlColumnMapper::map("comment 'te''st'", [])
-        );
+        self::assertSame($expected, SqlColumnMapper::map($definition, []));
     }
 
     /** @test */
@@ -537,6 +583,17 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldProcessEmptyString(): void
+    {
+        self::assertSame(
+            [
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('', [])
+        );
+    }
+
+    /** @test */
     public function shouldDetectFirst(): void
     {
         self::assertSame(
@@ -557,6 +614,30 @@ class SqlColumnMapperTest extends TestCase
                 'type' => 'string',
             ],
             SqlColumnMapper::map('after `col`', [])
+        );
+
+        self::assertSame(
+            [
+                'after' => 'hm',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('after`hm`', [])
+        );
+
+        self::assertSame(
+            [
+                'after' => 'col',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map(' after `col` ', [])
+        );
+
+        self::assertSame(
+            [
+                'after' => 'col',
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('after `col', [])
         );
     }
 

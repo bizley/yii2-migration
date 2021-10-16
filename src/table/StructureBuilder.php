@@ -7,10 +7,8 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 use yii\base\InvalidArgumentException;
 
-use function array_diff;
-use function array_intersect;
+use function array_intersect_assoc;
 use function array_key_exists;
-use function array_merge;
 use function count;
 
 final class StructureBuilder implements StructureBuilderInterface
@@ -196,7 +194,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
         foreach ($primaryKey->getColumns() as $columnName) {
             if (array_key_exists($columnName, $columns)) {
-                /** @var ColumnInterface $column */
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
@@ -220,7 +217,6 @@ final class StructureBuilder implements StructureBuilderInterface
             $columns = $structure->getColumns();
 
             foreach ($primaryKey->getColumns() as $columnName) {
-                /** @var ColumnInterface $column */
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (array_key_exists($columnName, $columns) && !empty($columnAppend)) {
@@ -333,42 +329,27 @@ final class StructureBuilder implements StructureBuilderInterface
         if ($schema === Schema::MYSQL) {
             // MySQL automatically adds index for foreign key when it's not explicitly added
 
-            $indexesToAdd = [];
-
             $foreignKeys = $structure->getForeignKeys();
             $indexes = $structure->getIndexes();
-            /** @var ForeignKeyInterface $foreignKey */
+            $primaryKey = $structure->getPrimaryKey();
+            if ($primaryKey !== null) {
+                // use primary key as a potential index
+                $indexes[] = $primaryKey;
+            }
             foreach ($foreignKeys as $foreignKey) {
                 $foreignKeyColumns = $foreignKey->getColumns();
-                $foundIndex = false;
-                /** @var IndexInterface $index */
+                $foreignKeyColumnsCount = count($foreignKeyColumns);
                 foreach ($indexes as $index) {
                     $indexColumns = $index->getColumns();
-                    $intersection = array_intersect($foreignKeyColumns, $indexColumns);
-                    if (
-                        count(
-                            array_merge(
-                                array_diff($foreignKeyColumns, $intersection),
-                                array_diff($indexColumns, $intersection)
-                            )
-                        ) === 0
-                    ) {
-                        $foundIndex = true;
-                        break;
+                    if ($foreignKeyColumnsCount === count(array_intersect_assoc($foreignKeyColumns, $indexColumns))) {
+                        // any index matching the FK columns as the first columns will do
+                        continue 2;
                     }
                 }
-                if ($foundIndex === false) {
-                    $indexesToAdd[] = [
-                        'name' => $foreignKey->getName(),
-                        'columns' => $foreignKeyColumns
-                    ];
-                }
-            }
 
-            foreach ($indexesToAdd as $indexToAdd) {
                 $index = new Index();
-                $index->setName($indexToAdd['name']);
-                $index->setColumns($indexToAdd['columns']);
+                $index->setName($foreignKey->getName());
+                $index->setColumns($foreignKeyColumns);
 
                 $structure->addIndex($index);
             }
