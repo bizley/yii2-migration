@@ -759,7 +759,7 @@ final class MigrationControllerTest extends TestCase
         );
 
         preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
-        self::assertEqualsWithDelta((int)date('His', time() + 100), (int)$matches[1][0], 2);
+        self::assertEqualsWithDelta((int)date('His', time() + 100), (int)$matches[1][0], 5);
         self::assertSame(1, $matches[1][1] - $matches[1][0]);
     }
 
