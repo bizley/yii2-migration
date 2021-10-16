@@ -30,6 +30,7 @@ use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\Schema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
+use yii\helpers\FileHelper;
 
 use function chmod;
 use function date;
@@ -38,7 +39,6 @@ use function glob;
 use function is_dir;
 use function mktime;
 use function preg_match_all;
-use function rmdir;
 use function substr;
 use function time;
 use function ucfirst;
@@ -1527,9 +1527,7 @@ ERROR!
     {
         chmod(__DIR__ . '/../../runtime', 0777);
 
-        if (is_dir(__DIR__ . '/../../runtime/test')) {
-            rmdir(__DIR__ . '/../../runtime/test');
-        }
+        FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;
@@ -1549,9 +1547,7 @@ ERROR!
     {
         chmod(__DIR__ . '/../../runtime', 0777);
 
-        if (is_dir(__DIR__ . '/../../runtime/test')) {
-            rmdir(__DIR__ . '/../../runtime/test');
-        }
+        FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
         $controller->db = $this->db;

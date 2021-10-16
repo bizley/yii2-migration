@@ -257,7 +257,7 @@ class SqlColumnMapper
                 [$end, $part] = $this->findExpressionPart($sentenceArray);
         }
 
-        return [$end ? $end + $offset : 0, $part];
+        return [$end + $offset, $part];
     }
 
     /**

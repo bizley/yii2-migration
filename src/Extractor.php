@@ -43,25 +43,7 @@ final class Extractor implements ExtractorInterface
     public function extract(string $migration, array $migrationPaths): void
     {
         $this->setDummyMigrationClass();
-
-        if (strpos($migration, '\\') === false) { // not namespaced
-            $fileFound = false;
-            $file = null;
-            foreach ($migrationPaths as $path) {
-                /** @var string $file */
-                $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
-                if (file_exists($file)) {
-                    $fileFound = true;
-                    break;
-                }
-            }
-
-            if (!$fileFound) {
-                throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
-            }
-
-            require_once $file;
-        }
+        $this->loadFile($migration, $migrationPaths);
 
         $this->subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
         if ($this->subject instanceof MigrationChangesInterface === false) {
@@ -71,6 +53,26 @@ final class Extractor implements ExtractorInterface
         }
 
         $this->subject->up();
+    }
+
+    private function loadFile(string $migration, array $migrationPaths): void
+    {
+        if (strpos($migration, '\\') !== false) { // not namespaced
+            // migration with `\` character is most likely namespaced, so it doesn't require loading
+            return;
+        }
+
+        foreach ($migrationPaths as $path) {
+            /** @var string $file */
+            $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
+            if (file_exists($file)) {
+                require_once $file;
+
+                return;
+            }
+        }
+
+        throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
     }
 
     /**

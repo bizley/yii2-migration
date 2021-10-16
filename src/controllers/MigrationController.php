@@ -983,7 +983,7 @@ class MigrationController extends BaseMigrationController
                 }
                 $path = $folder . DIRECTORY_SEPARATOR . $file;
                 if (is_file($path) && preg_match('/m(\d{6}_?\d{6})\D.*?/i', $file, $matches)) {
-                    $time = (int)str_replace('_', '', $matches[1]);
+                    $time = str_replace('_', '', $matches[1]);
                     if ($time >= $nowDate && $time <= $lastTimestampDate) {
                         $foundCollision = true;
                         break;
