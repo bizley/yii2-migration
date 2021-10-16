@@ -825,8 +825,11 @@ final class MigrationControllerTest extends TestCase
         );
 
         preg_match_all('/m\d{6}_(\d{6})_create_/m', MigrationControllerStub::$stdout, $matches);
-        self::assertSame(1, $matches[1][2] - $matches[1][1]);
-        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+        $t1 = mktime((int)substr($matches[1][2], 0, 2), (int)substr($matches[1][2], 2, 2), (int)substr($matches[1][2], -2));
+        $t2 = mktime((int)substr($matches[1][1], 0, 2), (int)substr($matches[1][1], 2, 2), (int)substr($matches[1][1], -2));
+        $t3 = mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2));
+        self::assertSame(1, $t1 - $t2);
+        self::assertSame(1, $t2 - $t3);
     }
 
     /**

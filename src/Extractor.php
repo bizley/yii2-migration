@@ -37,7 +37,7 @@ final class Extractor implements ExtractorInterface
     /**
      * Extracts migration data structures.
      * @param string $migration
-     * @param array<string> $migrationPaths
+     * @param string[] $migrationPaths
      * @throws ErrorException
      */
     public function extract(string $migration, array $migrationPaths): void
@@ -55,9 +55,15 @@ final class Extractor implements ExtractorInterface
         $this->subject->up();
     }
 
+    /**
+     * Loads a non-namespaced file.
+     * @param string $migration
+     * @param string[] $migrationPaths
+     * @throws ErrorException
+     */
     private function loadFile(string $migration, array $migrationPaths): void
     {
-        if (strpos($migration, '\\') !== false) { // not namespaced
+        if (strpos($migration, '\\') !== false) {
             // migration with `\` character is most likely namespaced, so it doesn't require loading
             return;
         }

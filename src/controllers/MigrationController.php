@@ -958,14 +958,15 @@ class MigrationController extends BaseMigrationController
 
         $folders = [];
         if ($this->migrationNamespace !== null) {
-            foreach ($this->migrationNamespace as $namespacedMigration) {
+            foreach ((array)$this->migrationNamespace as $namespacedMigration) {
+                /** @var string $translatedPath */
                 $translatedPath = Yii::getAlias('@' . FileHelper::normalizePath($namespacedMigration, '/'));
                 if (is_dir($translatedPath) === true) {
                     $folders[] = $translatedPath;
                 }
             }
         } else {
-            foreach ($this->migrationPath as $pathMigration) {
+            foreach ((array)$this->migrationPath as $pathMigration) {
                 if (is_dir($pathMigration) === true) {
                     $folders[] = $pathMigration;
                 }
@@ -976,23 +977,24 @@ class MigrationController extends BaseMigrationController
         $lastTimestampDate = date('ymdHis', $lastTimestamp);
         $foundCollision = false;
         foreach ($folders as $folder) {
-            $handle = opendir($folder);
-            while (($file = readdir($handle)) !== false) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-                $path = $folder . DIRECTORY_SEPARATOR . $file;
-                if (is_file($path) && preg_match('/m(\d{6}_?\d{6})\D.*?/i', $file, $matches)) {
-                    $time = str_replace('_', '', $matches[1]);
-                    if ($time >= $nowDate && $time <= $lastTimestampDate) {
-                        $foundCollision = true;
-                        break;
+            if ($handle = opendir($folder)) {
+                while (($file = readdir($handle)) !== false) {
+                    if ($file === '.' || $file === '..') {
+                        continue;
+                    }
+                    $path = $folder . DIRECTORY_SEPARATOR . $file;
+                    if (is_file($path) && preg_match('/m(\d{6}_?\d{6})\D.*?/i', $file, $matches)) {
+                        $time = str_replace('_', '', $matches[1]);
+                        if ($time >= $nowDate && $time <= $lastTimestampDate) {
+                            $foundCollision = true;
+                            break;
+                        }
                     }
                 }
-            }
-            closedir($handle);
-            if ($foundCollision) {
-                break;
+                closedir($handle);
+                if ($foundCollision) {
+                    break;
+                }
             }
         }
 

@@ -148,8 +148,8 @@ final class Comparator implements ComparatorInterface
 
                     if (
                         $propertyFetch === 'isUnique'
-                        && $this->getRealUniqueness($newStructure, $name, $newProperty)
-                            === $this->getRealUniqueness($oldStructure, $name, $oldProperty)
+                        && $this->getRealUniqueness($newStructure, $name, (bool)$newProperty)
+                            === $this->getRealUniqueness($oldStructure, $name, (bool)$oldProperty)
                     ) {
                         continue;
                     }
