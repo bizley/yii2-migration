@@ -763,7 +763,7 @@ final class MigrationControllerTest extends TestCase
             mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2)),
             5
         );
-        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+        self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
     /**
@@ -831,8 +831,8 @@ final class MigrationControllerTest extends TestCase
         $t1 = mktime((int)substr($matches[1][2], 0, 2), (int)substr($matches[1][2], 2, 2), (int)substr($matches[1][2], -2));
         $t2 = mktime((int)substr($matches[1][1], 0, 2), (int)substr($matches[1][1], 2, 2), (int)substr($matches[1][1], -2));
         $t3 = mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2));
-        self::assertSame(1, $t1 - $t2);
-        self::assertSame(1, $t2 - $t3);
+        self::assertTrue($t1 - $t2 >= 1);
+        self::assertTrue($t2 - $t3 >= 1);
     }
 
     /**
