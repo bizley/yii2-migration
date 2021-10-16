@@ -431,7 +431,7 @@ class MigrationController extends BaseMigrationController
         $blueprints = [];
         $newTables = [];
         /** @var array<string> $migrationPaths */
-        $migrationPaths = $this->migrationPath;
+        $migrationPaths = $this->migrationNamespace ?? $this->migrationPath;
         foreach ($inputTables as $tableName) {
             $this->stdout("\n > Comparing current table '{$tableName}' with its migrations ...", Console::FG_YELLOW);
 
