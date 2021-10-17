@@ -629,13 +629,11 @@ final class MigrationControllerTest extends TestCase
         $this->db->method('getSchema')->willReturn($schema);
 
         self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('*'));
-        self::assertSame(
-            '
- > Generating migration for creating table \'test\' ...ERROR!
- > Table \'test\' does not exists!
-',
+        self::assertStringContainsString(
+            ' > Generating migration for creating table \'test\' ...ERROR!',
             MigrationControllerStub::$stdout
         );
+        self::assertStringContainsString(' > Table \'test\' does not exists!', MigrationControllerStub::$stdout);
     }
 
     /**
@@ -714,7 +712,7 @@ final class MigrationControllerTest extends TestCase
             mktime((int)substr($time, 0, 2), (int)substr($time, 2, 2), (int)substr($time, -2)),
             2
         );
-        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+        self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
     /**
