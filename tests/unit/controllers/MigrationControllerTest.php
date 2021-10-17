@@ -714,7 +714,7 @@ final class MigrationControllerTest extends TestCase
             mktime((int)substr($time, 0, 2), (int)substr($time, 2, 2), (int)substr($time, -2)),
             2
         );
-        self::assertSame(1, $matches[1][1] - $matches[1][0]);
+        self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
     /**
