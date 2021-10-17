@@ -35,7 +35,6 @@ use yii\helpers\FileHelper;
 use function chmod;
 use function fileperms;
 use function glob;
-use function is_dir;
 use function mktime;
 use function preg_match_all;
 use function substr;
@@ -87,9 +86,8 @@ final class MigrationControllerTest extends TestCase
         GeneratorStub::$throwForTable = false;
         GeneratorStub::$throwForKeys = false;
 
-        if (!is_dir(__DIR__ . '/../../runtime')) {
-            mkdir(__DIR__ . '/../../runtime');
-        }
+        FileHelper::removeDirectory(__DIR__ . '/../../runtime');
+        FileHelper::createDirectory(__DIR__ . '/../../runtime');
     }
 
     protected function tearDown(): void
