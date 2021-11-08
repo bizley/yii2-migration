@@ -45,13 +45,14 @@ final class Extractor implements ExtractorInterface
         $this->setDummyMigrationClass();
         $this->loadFile($migration, $migrationPaths);
 
-        $this->subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
-        if ($this->subject instanceof MigrationChangesInterface === false) {
+        $subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
+        if ($subject instanceof MigrationChangesInterface === false) {
             throw new ErrorException(
                 "Class '{$migration}' must implement bizley\migration\dummy\MigrationChangesInterface."
             );
         }
 
+        $this->subject = $subject;
         $this->subject->up();
     }
 
