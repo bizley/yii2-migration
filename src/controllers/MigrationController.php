@@ -73,7 +73,7 @@ class MigrationController extends BaseMigrationController
     public $migrationPath = '@app/migrations';
 
     /**
-     * @var string|array<string> Full migration namespace.
+     * @var string|array<string>|null Full migration namespace.
      * If given it's used instead of $migrationPath. Note that backslash (\) symbol is usually considered a special
      * character in the shell, so you need to escape it properly to avoid shell errors or incorrect behavior.
      * Migration namespace should be resolvable as a path alias if prefixed with @, e.g. if you specify the namespace
@@ -106,7 +106,7 @@ class MigrationController extends BaseMigrationController
     public $excludeTables = [];
 
     /**
-     * @var string|int the permission to be set for newly generated migration files.
+     * @var string|int|null the permission to be set for newly generated migration files.
      * This value will be used by PHP chmod() function. No umask will be applied.
      * If not set, the permission will be determined by the current environment.
      * @since 4.2.0
@@ -114,7 +114,7 @@ class MigrationController extends BaseMigrationController
     public $fileMode;
 
     /**
-     * @var string|int|array<int|string, int|string> the user and/or group ownership to be set for newly generated
+     * @var string|int|array<int|string, int|string>|null the user and/or group ownership to be set for newly generated
      * migration files. If not set, the ownership will be determined by the current environment.
      * When set as string, the format is 'user:group' where both are optional, e.g.
      * - 'user' or 'user:' will only change the user,

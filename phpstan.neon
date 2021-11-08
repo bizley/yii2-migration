@@ -1,4 +1,4 @@
 parameters:
-    excludes_analyse:
+    excludePaths:
         - src/dummy/Migration.php
         - src/views/migration.php
