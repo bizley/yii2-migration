@@ -7,12 +7,9 @@ namespace bizley\migration;
 use bizley\migration\dummy\MigrationChangesInterface;
 use bizley\migration\table\StructureChangeInterface;
 use ErrorException;
-use Throwable;
 use Yii;
 use yii\base\InvalidArgumentException;
 use yii\db\Connection;
-
-use yii\db\MigrationInterface;
 
 use function file_exists;
 use function strpos;
