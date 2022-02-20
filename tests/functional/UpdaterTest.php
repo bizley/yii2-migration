@@ -79,12 +79,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->after(\'col3\'));
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropColumn(\'{{%updater_base}}\', \'added\');
     }',
@@ -101,12 +101,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->createIndex(\'idx-add\', \'{{%updater_base}}\', [\'col\']);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropIndex(\'idx-add\', \'{{%updater_base}}\');
     }',
@@ -123,12 +123,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->createIndex(\'idx-add-unique\', \'{{%updater_base}}\', [\'col\'], true);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropIndex(\'idx-add-unique\', \'{{%updater_base}}\');
     }',
@@ -145,12 +145,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->createIndex(\'idx-add-multi\', \'{{%updater_base}}\', [\'col\', \'col2\']);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropIndex(\'idx-add-multi\', \'{{%updater_base}}\');
     }',
@@ -172,12 +172,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->createIndex(\'idx-add-multi-unique\', \'{{%updater_base}}\', [\'col\', \'col2\'], true);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropIndex(\'idx-add-multi-unique\', \'{{%updater_base}}\');
     }',
@@ -194,12 +194,12 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->dropIndex(\'idx-col\', \'{{%updater_base_fk}}\');
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->createIndex(\'idx-col\', \'{{%updater_base_fk}}\', [\'col\']);
     }',

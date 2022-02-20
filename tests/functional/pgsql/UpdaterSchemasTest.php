@@ -137,7 +137,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%test.table}}\');
     }',
@@ -178,12 +178,12 @@ class UpdaterSchemasTest extends DbLoaderTestCase
             MigrationControllerStub::$content
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addColumn(\'{{%schema1.table1}}\', \'added\', $this->integer()->after(\'col2\'));
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropColumn(\'{{%schema1.table1}}\', \'added\');
     }',

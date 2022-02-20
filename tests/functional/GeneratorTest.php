@@ -86,7 +86,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
         self::assertStringContainsString(
             '_create_table_gs_columns extends Migration
 {
-    public function up()
+    public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -115,7 +115,7 @@ abstract class GeneratorTest extends DbLoaderTestCase
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%gs_columns}}\');
     }

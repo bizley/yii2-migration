@@ -473,7 +473,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table21,table22']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -490,14 +490,14 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%table22}}\');
     }',
             MigrationControllerStub::$content
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -524,14 +524,14 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%table21}}\');
     }',
             MigrationControllerStub::$content
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addForeignKey(
             \'fk-table22\',
@@ -544,7 +544,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropForeignKey(\'fk-table22\', \'{{%table22}}\');
     }',

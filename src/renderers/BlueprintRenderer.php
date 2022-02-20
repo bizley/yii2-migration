@@ -61,14 +61,14 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = array_filter(
             [
+                $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion),
-                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema),
                 $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
-                $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent),
             ]
         );
@@ -99,15 +99,15 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = array_filter(
             [
-                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema, true),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema, true),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
-                $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
+                $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema, true),
                 $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema, true),
-                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix, true),
-                $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion, true),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent, true),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema, true),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion, true),
+                $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion, true),
+                $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
+                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix, true),
             ]
         );
 
