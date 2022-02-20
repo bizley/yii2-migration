@@ -28,12 +28,12 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->primaryKey());
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->integer());
     }',
@@ -53,12 +53,12 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['string_pk']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->notNull());
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->alterColumn(\'{{%string_pk}}\', \'col\', $this->string()->append(\'PRIMARY KEY\'));
     }',
@@ -78,7 +78,7 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addPrimaryKey(\'primary-new\', \'{{%no_pk}}\', [\'col\', \'col2\']);
 
@@ -86,7 +86,7 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
         $this->alterColumn(\'{{%no_pk}}\', \'col2\', $this->integer()->notNull());
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropPrimaryKey(\'primary-new\', \'{{%no_pk}}\');
 

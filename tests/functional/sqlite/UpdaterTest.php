@@ -28,12 +28,12 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addColumn(\'{{%updater_base}}\', \'added\', $this->integer()->unsigned()->after(\'col3\'));
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropColumn(\'{{%updater_base}}\', \'added\');
     }',
@@ -62,12 +62,12 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->createIndex(\'sqlite_autoindex_updater_base_1\', \'{{%updater_base}}\', [\'col\'], true);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropIndex(\'sqlite_autoindex_updater_base_1\', \'{{%updater_base}}\');
     }',

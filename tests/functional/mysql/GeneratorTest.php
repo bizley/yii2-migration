@@ -617,7 +617,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table21,table22']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -636,14 +636,14 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         $this->createIndex(\'fk-table22\', \'{{%table22}}\', [\'fk2\']);
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%table22}}\');
     }',
             MigrationControllerStub::$content
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -670,14 +670,14 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%table21}}\');
     }',
             MigrationControllerStub::$content
         );
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $this->addForeignKey(
             \'fk-table22\',
@@ -690,7 +690,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropForeignKey(\'fk-table22\', \'{{%table22}}\');
     }',
@@ -772,7 +772,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_pk']));
         self::assertStringContainsString(
             $this->isV8()
-                ? 'public function up()
+                ? 'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -788,12 +788,12 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%unsigned_pk}}\');
     }
 }
-' : 'public function up()
+' : 'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -809,7 +809,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%unsigned_pk}}\');
     }
@@ -839,7 +839,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['unsigned_big_pk']));
         self::assertStringContainsString(
-            'public function up()
+            'public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === \'mysql\') {
@@ -855,7 +855,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         );
     }
 
-    public function down()
+    public function safeDown()
     {
         $this->dropTable(\'{{%unsigned_big_pk}}\');
     }
