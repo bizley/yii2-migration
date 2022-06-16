@@ -56,14 +56,14 @@ use function trim;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.3.0
+ * @version 4.3.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.3.0';
+    private $version = '4.3.1';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -102,11 +102,11 @@ class MigrationController extends BaseMigrationController
      */
     public $skipMigrations = [];
 
-    /** @var array<string> List of database tables that should be skipped for *-all actions. */
+    /** @var array<string> List of database tables that should be skipped for actions with "*". */
     public $excludeTables = [];
 
     /**
-     * @var string|int|null the permission to be set for newly generated migration files.
+     * @var string|int|null Permission to be set for newly generated migration files.
      * This value will be used by PHP chmod() function. No umask will be applied.
      * If not set, the permission will be determined by the current environment.
      * @since 4.2.0
@@ -114,7 +114,7 @@ class MigrationController extends BaseMigrationController
     public $fileMode;
 
     /**
-     * @var string|int|array<int|string, int|string>|null the user and/or group ownership to be set for newly generated
+     * @var string|int|array<int|string, int|string>|null User and/or group ownership to be set for newly generated
      * migration files. If not set, the ownership will be determined by the current environment.
      * When set as string, the format is 'user:group' where both are optional, e.g.
      * - 'user' or 'user:' will only change the user,
@@ -128,7 +128,7 @@ class MigrationController extends BaseMigrationController
     public $fileOwnership;
 
     /**
-     * @var int the leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with
+     * @var int Leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with
      * a later date.
      * @since 4.3.0
      */
