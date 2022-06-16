@@ -9,7 +9,17 @@
 
 ## Migration Creator And Updater
 
-Generates migration file based on the existing database table and previous migrations.
+In a perfect world you prepare migration files for your database first so you can run it when ready. 
+But since this is not a perfect world, sometimes you start with a database already set - with this package 
+you can easily **create a migration file** based on your DB schema with **one console command**.
+
+Furthermore, when your DB is updated later on you can **generate a migration file updating the schema** to 
+the current state. The package is comparing it with the migration history:
+
+1. History of applied migrations is scanned to gather all modifications made to the table.
+2. Virtual table schema is prepared and compared with the current table schema.
+3. Differences are generated as an update migration.
+4. In case of the migration history not keeping information about the table, a creating migration is generated.
 
 ## Installation
 
@@ -95,15 +105,6 @@ php yii migration/update "prefix_*"
 Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
 When tables are cross-referenced the additional foreign keys migration is generated at the end of default generation.
 
-## Updating migration
-
-You can easily generate updating migration for database table by comparing its current schema with the migration history.
-
-1. History of applied migrations is scanned to gather all modifications made to the table.
-2. Virtual table schema is prepared and compared with the current table schema.
-3. Differences are generated as an update migration.
-4. In case of the migration history not keeping information about the table, a creating migration is generated.
-
 ## Command line parameters
 
 | command              | alias | description                                                             
@@ -146,7 +147,7 @@ this list to prevent them from being run during the extraction process.
 of `['column' => $this->string()]`). Since the generating process in this mode depends on the individual DBMS syntax 
 the results might not be correct. All help improving this mode is more than welcome.
 
-## Renaming
+## Important information about RENAMING tables or columns
 
 When you rename a table or a column, remember to generate appropriate migration manually, otherwise this extension will 
 not generate an updating migration (in case of the table) or will generate a migration with the command to drop the original column 
