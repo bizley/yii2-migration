@@ -46,5 +46,11 @@
       "type": "composer",
       "url": "https://asset-packagist.org"
     }
-  ]
+  ],
+  "config": {
+    "allow-plugins": {
+      "infection/extension-installer": true,
+      "yiisoft/yii2-composer": true
+    }
+  }
 }
