@@ -294,6 +294,8 @@ final class MigrationControllerTest extends TestCase
       to generate creating migration for the specific table.
    migration/update <table>
       to generate updating migration for the specific table.
+   migration/sql <migration>
+      to extract SQL statements of the specific migration.
 
  > <table> can be:
    - * (asterisk) - for all the tables in database (except excluded ones)
@@ -327,6 +329,8 @@ final class MigrationControllerTest extends TestCase
       to generate creating migration for the specific table.
    migration/update <table>
       to generate updating migration for the specific table.
+   migration/sql <migration>
+      to extract SQL statements of the specific migration.
 
  > <table> can be:
    - * (asterisk) - for all the tables in database (except excluded ones)

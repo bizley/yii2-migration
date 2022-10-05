@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace bizley\migration\renderers;
 
-use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
-use bizley\migration\table\IndexInterface;
 use bizley\migration\table\StructureInterface;
 
 use function array_filter;
@@ -162,7 +160,7 @@ TEMPLATE;
     }
 
     /**
-     * Renders the create table statement.
+     * Renders the create-table statement.
      * @param StructureInterface $structure
      * @param string $tableName
      * @param int $indent
@@ -206,7 +204,7 @@ TEMPLATE;
     }
 
     /**
-     * Renders the drop table statement.
+     * Renders the drop-table statement.
      * @param string $tableName
      * @param int $indent
      * @return string
@@ -221,7 +219,7 @@ TEMPLATE;
     }
 
     /**
-     * Renders the add primary key statement.
+     * Renders the add-primary-key statement.
      * @param StructureInterface $structure
      * @param string $tableName
      * @param int $indent

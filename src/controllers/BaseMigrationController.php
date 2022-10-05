@@ -24,6 +24,7 @@ use bizley\migration\renderers\IndexRenderer;
 use bizley\migration\renderers\PrimaryKeyRenderer;
 use bizley\migration\renderers\StructureRenderer;
 use bizley\migration\renderers\StructureRendererInterface;
+use bizley\migration\SqlExtractorInterface;
 use bizley\migration\table\StructureBuilder;
 use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\TableMapper;
@@ -291,6 +292,27 @@ class BaseMigrationController extends Controller
         return $this->extractor;
     }
 
+    /**
+     * Returns the service responsible for extracting the structure and SQL statements from old migrations.
+     * This method will be removed in 5.0 so getExtractor() will return the SqlExtractorInterface implementation.
+     * @return ExtractorInterface
+     * @throws InvalidConfigException
+     */
+    public function getSqlExtractor(): SqlExtractorInterface
+    {
+        if ($this->extractor === null) {
+            $db = Instance::ensure($this->db, Connection::class);
+            // cloning connection here to not force reconnecting on each extraction
+            $configuredObject = Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
+            if (!$configuredObject instanceof SqlExtractorInterface) {
+                throw new InvalidConfigException('Extractor must implement bizley\migration\SqlExtractorInterface.');
+            }
+            $this->extractor = $configuredObject;
+        }
+
+        return $this->extractor;
+    }
+
     /** @var StructureBuilderInterface */
     private $structureBuilder;
 
@@ -352,7 +374,7 @@ class BaseMigrationController extends Controller
                 $this->inspectorClass,
                 [
                     $this->getHistoryManager(),
-                    $this->getExtractor(),
+                    $this->getSqlExtractor(),
                     $this->getStructureBuilder(),
                     $this->getComparator()
                 ]

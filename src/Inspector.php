@@ -88,7 +88,7 @@ final class Inspector implements InspectorInterface
 
                 $this->extractor->extract($migration, $migrationPaths);
 
-                if ($this->gatherChanges($this->extractor->getChanges()) === false) {
+                if (!$this->gatherChanges($this->extractor->getChanges())) {
                     break;
                 }
             }

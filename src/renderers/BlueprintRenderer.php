@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace bizley\migration\renderers;
 
 use bizley\migration\table\BlueprintInterface;
-use bizley\migration\table\ColumnInterface;
-use bizley\migration\table\ForeignKeyInterface;
-use bizley\migration\table\IndexInterface;
 
 use function array_filter;
 use function implode;

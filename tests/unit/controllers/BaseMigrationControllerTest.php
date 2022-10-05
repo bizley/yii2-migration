@@ -104,6 +104,17 @@ final class BaseMigrationControllerTest extends TestCase
      * @test
      * @throws InvalidConfigException
      */
+    public function shouldThrowExceptionWhenWrongSqlExtractor(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->controller->extractorClass = GenericConstructorClass::class;
+        $this->controller->getSqlExtractor();
+    }
+
+    /**
+     * @test
+     * @throws InvalidConfigException
+     */
     public function shouldThrowExceptionWhenWrongStructureBuilder(): void
     {
         $this->expectException(InvalidConfigException::class);
