@@ -47,6 +47,7 @@ use function sort;
 use function sprintf;
 use function str_replace;
 use function strpos;
+use function strtolower;
 use function time;
 use function trim;
 
@@ -617,15 +618,28 @@ class MigrationController extends BaseMigrationController
         return ExitCode::OK;
     }
 
-    public function actionSql(string $migrationName): int
+    public function actionSql(string $migrationName, string $method = 'up'): int
     {
+        $method = strtolower($method);
+        if (!in_array($method, ['up', 'down'], true)) {
+            $method = 'up';
+        }
+
         /** @var array<string> $migrationPaths */
         $migrationPaths = $this->migrationNamespace ?? $this->migrationPath;
 
         $extractor = $this->getSqlExtractor();
-        $extractor->getSql($migrationName, $migrationPaths);
-        $statements = $extractor->getStatements();
-        \var_dump($statements);
+        $extractor->getSql($migrationName, $migrationPaths, $method);
+
+        $migration = $this->ansiFormat($migrationName, Console::FG_YELLOW);
+        $version = $this->ansiFormat(($method === 'up' ? 'UP' : 'DOWN') . ' method', Console::FG_CYAN);
+        $this->stdout(" > SQL statements of the {$migration} file ({$version}):\n\n");
+
+        foreach ($extractor->getStatements() as $statement) {
+            $this->stdout("$statement;\n", Console::FG_YELLOW);
+        }
+
+        $this->stdout("\n (!) Note that the above statements were not executed.\n", Console::FG_RED);
 
         return ExitCode::OK;
     }

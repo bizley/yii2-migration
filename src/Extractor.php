@@ -80,7 +80,7 @@ final class Extractor implements SqlExtractorInterface
             }
         }
 
-        throw new ErrorException("File '{$migration}.php' can not be found! Check migration history table.");
+        throw new ErrorException("File '{$migration}.php' can not be found!");
     }
 
     /**
@@ -106,17 +106,16 @@ final class Extractor implements SqlExtractorInterface
      */
     public function getChanges(): ?array
     {
-        return $this->subject !== null ? $this->subject->getChanges() : null;
+        return $this->subject instanceof MigrationChangesInterface ? $this->subject->getChanges() : null;
     }
 
     /**
      * Extracts migration SQL statements.
-     * @param string $migration
      * @param string[] $migrationPaths
      * @throws ErrorException
      * @since 4.4.0
      */
-    public function getSql(string $migration, array $migrationPaths): void
+    public function getSql(string $migration, array $migrationPaths, string $method): void
     {
         $this->setDummyMigrationClass(true);
         $this->loadFile($migration, $migrationPaths);
@@ -129,7 +128,7 @@ final class Extractor implements SqlExtractorInterface
         }
 
         $this->subject = $subject;
-        $this->subject->up();
+        $this->subject->{$method}();
     }
 
     /**
@@ -139,6 +138,6 @@ final class Extractor implements SqlExtractorInterface
      */
     public function getStatements(): array
     {
-        return $this->subject !== null ? $this->subject->getStatements() : [];
+        return $this->subject instanceof MigrationSqlInterface ? $this->subject->getStatements() : [];
     }
 }

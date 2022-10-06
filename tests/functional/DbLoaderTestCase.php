@@ -36,8 +36,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      */
     protected function createTables(array $tables): void
     {
-        $reverseOrderTables = array_reverse($tables);
-        foreach ($reverseOrderTables as $table => $columns) {
+        foreach (array_reverse($tables) as $table => $columns) {
             $this->dropTable($table);
         }
 

@@ -76,12 +76,12 @@ class Migration extends Component implements MigrationChangesInterface
     }
 
     /** @return mixed|void */
-    public function safeUp(): void
+    public function safeUp()
     {
     }
 
     /** @return mixed|void */
-    public function safeDown(): void
+    public function safeDown()
     {
     }
 

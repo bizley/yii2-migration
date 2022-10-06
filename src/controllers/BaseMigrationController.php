@@ -141,7 +141,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for managing migration history.
-     * @return HistoryManagerInterface
      * @throws InvalidConfigException
      */
     public function getHistoryManager(): HistoryManagerInterface
@@ -171,7 +170,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for mapping the table structure.
-     * @return TableMapperInterface
      * @throws InvalidConfigException
      */
     public function getTableMapper(): TableMapperInterface
@@ -194,7 +192,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for arranging the tables in proper order.
-     * @return ArrangerInterface
      * @throws InvalidConfigException
      */
     public function getArranger(): ArrangerInterface
@@ -215,7 +212,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for rendering the structure data.
-     * @return StructureRendererInterface
      * @throws InvalidConfigException
      */
     public function getStructureRenderer(): StructureRendererInterface
@@ -246,7 +242,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for generating the creating migrations.
-     * @return GeneratorInterface
      * @throws InvalidConfigException
      */
     public function getGenerator(): GeneratorInterface
@@ -269,12 +264,11 @@ class BaseMigrationController extends Controller
         return $this->generator;
     }
 
-    /** @var ExtractorInterface */
+    /** @var ExtractorInterface|SqlExtractorInterface */
     private $extractor;
 
     /**
      * Returns the service responsible for extracting the structure from old migrations.
-     * @return ExtractorInterface
      * @throws InvalidConfigException
      */
     public function getExtractor(): ExtractorInterface
@@ -295,12 +289,11 @@ class BaseMigrationController extends Controller
     /**
      * Returns the service responsible for extracting the structure and SQL statements from old migrations.
      * This method will be removed in 5.0 so getExtractor() will return the SqlExtractorInterface implementation.
-     * @return ExtractorInterface
      * @throws InvalidConfigException
      */
     public function getSqlExtractor(): SqlExtractorInterface
     {
-        if ($this->extractor === null) {
+        if (!$this->extractor instanceof SqlExtractorInterface) {
             $db = Instance::ensure($this->db, Connection::class);
             // cloning connection here to not force reconnecting on each extraction
             $configuredObject = Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
@@ -318,7 +311,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for building the structure based on extracted changes.
-     * @return StructureBuilderInterface
      * @throws InvalidConfigException
      */
     public function getStructureBuilder(): StructureBuilderInterface
@@ -341,7 +333,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for comparing the new and old structures.
-     * @return ComparatorInterface
      * @throws InvalidConfigException
      */
     public function getComparator(): ComparatorInterface
@@ -364,7 +355,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for preparing the update blueprint.
-     * @return InspectorInterface
      * @throws InvalidConfigException
      */
     public function getInspector(): InspectorInterface
@@ -393,7 +383,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for rendering the blueprint data.
-     * @return BlueprintRendererInterface
      * @throws InvalidConfigException
      */
     public function getBlueprintRenderer(): BlueprintRendererInterface
@@ -424,7 +413,6 @@ class BaseMigrationController extends Controller
 
     /**
      * Returns the service responsible for generating the updating migrations.
-     * @return UpdaterInterface
      * @throws InvalidConfigException
      */
     public function getUpdater(): UpdaterInterface

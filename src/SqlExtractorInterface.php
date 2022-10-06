@@ -17,7 +17,7 @@ interface SqlExtractorInterface extends ExtractorInterface
      * @param array<string> $migrationPaths
      * @throws ErrorException
      */
-    public function getSql(string $migration, array $migrationPaths): void;
+    public function getSql(string $migration, array $migrationPaths, string $method): void;
 
     /**
      * Returns the SQL statements extracted from migrations.
