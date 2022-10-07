@@ -66,4 +66,4 @@ jobs:
         run: vendor/bin/phpunit --exclude-group pgsql,sqlite,autoloader,sqlextract
 
       - name: PHPUnit tests
-        run: vendor/bin/phpunit --group sqlextract --exclude-group pgsql,sqlite
+        run: vendor/bin/phpunit --group sqlextract-mysql

@@ -12,6 +12,7 @@ use yii\console\ExitCode;
 /**
  * @group mysql
  * @group sqlextract
+ * @group sqlextract-mysql
  */
 final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
 {

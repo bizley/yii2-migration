@@ -10,8 +10,9 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
 /**
- * @group sqlite
+ * @group pgsql
  * @group sqlextract
+ * @group sqlextract-pgsql
  */
 final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
 {
