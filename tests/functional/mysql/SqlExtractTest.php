@@ -9,7 +9,10 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group mysql */
+/**
+ * @group mysql
+ * @group sqlextract
+ */
 final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
 {
     /** @var string */
