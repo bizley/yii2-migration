@@ -47,4 +47,7 @@ jobs:
         run: vendor/bin/phpunit --configuration phpunit-no-yii-autoload.xml.dist --group autoloader
 
       - name: PHPUnit tests
-        run: vendor/bin/phpunit --exclude-group mysql,pgsql,autoloader
+        run: vendor/bin/phpunit --exclude-group mysql,pgsql,autoloader,sqlextract
+
+      - name: PHPUnit tests
+        run: vendor/bin/phpunit --group sqlextract
