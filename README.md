@@ -105,45 +105,57 @@ The following console command are available (assuming you named the controller `
   php yii migration/update "table_name"
   ```
 
-To generate migrations for all the tables in the database at once (except the excluded ones) use asterisk (*):
+  To generate migrations for all the tables in the database at once (except the excluded ones) use asterisk (*):
 
-```
-php yii migration/create "*"
-php yii migration/update "*"
-```
+  ```
+  php yii migration/create "*"
+  php yii migration/update "*"
+  ```
 
-You can generate multiple migrations for many tables at once by separating the names with comma:
+  You can generate multiple migrations for many tables at once by separating the names with comma:
 
-```
-php yii migration/create "table_name1,table_name2,table_name3"
-```
+  ```
+  php yii migration/create "table_name1,table_name2,table_name3"
+  ```
 
-You can provide an asterisk as a part of table name to use all tables matching the pattern:
+  You can provide an asterisk as a part of table name to use all tables matching the pattern:
 
-```
-php yii migration/update "prefix_*"
-```
+  ```
+  php yii migration/update "prefix_*"
+  ```
 
-Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
-When tables are cross-referenced the additional foreign keys migration is generated at the end of default generation.
+  Creating multiple table migrations at once forces the proper migration order based on the presence of the foreign keys. 
+  When tables are cross-referenced the additional foreign keys migration is generated at the end of default generation.
+
+- Extract SQL statements of migration `migration_name` (UP) **New in 4.4.0**:
+
+  ```
+  php yii migration/sql "migration_name"
+  ```
+
+- Extract SQL statements of migration `migration_name` (DOWN) **New in 4.4.0**:
+
+  ```
+  php yii migration/sql "migration_name" "down"
+  ```
 
 ## Command line parameters
 
-| command              | alias | description                                                             
-|----------------------|:-----:|------------------------------------------------------------------------------------
-| `migrationPath`      | `mp`  | Directory (one or more) storing the migration classes.
-| `migrationNamespace` | `mn`  | Namespace (one or more) in case of generating a namespaced migration.
-| `useTablePrefix`     | `tp`  | Whether the generated table names should consider the `tablePrefix` setting of the DB connection.
-| `migrationTable`     | `mt`  | Name of the table for keeping the applied migration information.
-| `onlyShow`           | `os`  | Whether to only display changes instead of generating an update migration.
-| `generalSchema`      | `gs`  | Whether to use the general column schema instead of the database specific one (see [1] below).
-| `fixHistory`         | `fh`  | Whether to add a migration history entry when the migration is generated.
-| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).
-| `excludeTables`      |       | List of tables that should be skipped.
-| `experimental`       | `ex`  | Whether to run in the experimental mode (see [3] below).
-| `fileMode`           | `fm`  | Generated file mode to be changed using `chmod`.
-| `fileOwnership`      | `fo`  | Generated file ownership to be changed using `chown`/`chgrp`.
-| `leeway`             | `lw`  | **New in 4.3.0** - The leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with a later date
+| command              | alias | description                                                                                                            |
+|----------------------|:-----:|------------------------------------------------------------------------------------------------------------------------|
+| `migrationPath`      | `mp`  | Directory (one or more) storing the migration classes.                                                                 |
+| `migrationNamespace` | `mn`  | Namespace (one or more) in case of generating a namespaced migration.                                                  |
+| `useTablePrefix`     | `tp`  | Whether the generated table names should consider the `tablePrefix` setting of the DB connection.                      |
+| `migrationTable`     | `mt`  | Name of the table for keeping the applied migration information.                                                       |
+| `onlyShow`           | `os`  | Whether to only display changes instead of generating an update migration.                                             |
+| `generalSchema`      | `gs`  | Whether to use the general column schema instead of the database specific one (see [1] below).                         |
+| `fixHistory`         | `fh`  | Whether to add a migration history entry when the migration is generated.                                              |
+| `skipMigrations`     |       | List of migrations from the history table that should be skipped during the update process (see [2] below).            |
+| `excludeTables`      |       | List of tables that should be skipped.                                                                                 |
+| `experimental`       | `ex`  | Whether to run in the experimental mode (see [3] below).                                                               |
+| `fileMode`           | `fm`  | Generated file mode to be changed using `chmod`.                                                                       |
+| `fileOwnership`      | `fo`  | Generated file ownership to be changed using `chown`/`chgrp`.                                                          |
+| `leeway`             | `lw`  | The leeway in seconds to apply to a starting timestamp when generating migration, so it can be saved with a later date |
 
 [1] Remember that with different database types, general column schemas may be generated with different length.
 
@@ -202,6 +214,9 @@ etc.) are not tracked.
 Updating migrations process requires for the methods `createTable()`, `addColumn()`, and `alterColumn()` to provide changes 
 in columns definition in the form of an instance of `yii\db\ColumnSchemaBuilder` (like `$this->string()` instead of `'varchar(255)'`).
 
+The new 4.4.0 feature with extracting SQL statements from the existing migration supports all methods available in
+`yii\db\Migration`.
+
 ## Tests
 
 Tests for MySQL, PostgreSQL, and SQLite are provided. Database configuration is stored in `tests/config.php` (you can 
@@ -213,7 +228,7 @@ Docker Compose file for setting up the databases is stored in `tests/docker`.
 These versions are not developed anymore but still available for all poor souls that are stuck with EOL PHP.
 Some of the newest features may not be available there.
 
-| version constraint | PHP requirements | Yii requirements                                                             
-|:------------------:|:----------------:|:----------------:
-| ^3.6               | >= 7.1           | >= 2.0.15.1
-| ^2.9               | < 7.1            | 2.0.13 to track non-unique indexes, 2.0.14 to handle `TINYINT` and `JSON` type columns.
+| version constraint | PHP requirements |                                    Yii requirements                                     |                                                            
+|:------------------:|:----------------:|:---------------------------------------------------------------------------------------:|
+|        ^3.6        |      >= 7.1      |                                       >= 2.0.15.1                                       |
+|        ^2.9        |      < 7.1       | 2.0.13 to track non-unique indexes, 2.0.14 to handle `TINYINT` and `JSON` type columns. |

@@ -45,7 +45,7 @@ use yii\di\Instance;
  * name, array with configuration, or closure, but the resulting service must implement the chosen service
  * interface. For more information refer to Yii::createObject() method.
  * @see https://www.yiiframework.com/doc/api/2.0/yii-baseyii#createObject()-detail
- * Default implementations require some constructor arguments so you must still add __construct() method in your version
+ * Default implementations require some constructor arguments, so you must still add __construct() method in your version
  * even when you are not using constructor.
  */
 class BaseMigrationController extends Controller

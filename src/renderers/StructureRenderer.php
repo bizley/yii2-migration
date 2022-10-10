@@ -311,7 +311,6 @@ TEMPLATE;
         string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
-        /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderUp(
                 $foreignKey,
@@ -342,7 +341,6 @@ TEMPLATE;
         string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
-        /** @var ForeignKeyInterface $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown(
                 $foreignKey,

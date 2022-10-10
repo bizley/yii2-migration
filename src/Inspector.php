@@ -93,9 +93,7 @@ final class Inspector implements InspectorInterface
                 }
             }
 
-            /** @var int $appliedChanges */
-            $appliedChanges = count($this->appliedChanges);
-            if ($appliedChanges) {
+            if (count($this->appliedChanges)) {
                 $this->comparator->compare(
                     $newStructure,
                     $this->structureBuilder->build(array_reverse($this->appliedChanges), $schema, $engineVersion),
@@ -122,14 +120,12 @@ final class Inspector implements InspectorInterface
      */
     private function gatherChanges(?array $changes): bool
     {
-        if ($changes === null || array_key_exists($this->currentTable, $changes) === false) {
+        if ($changes === null || !array_key_exists($this->currentTable, $changes)) {
             return true;
         }
 
-        $data = array_reverse($changes[$this->currentTable]);
-
         /** @var StructureChangeInterface $change */
-        foreach ($data as $change) {
+        foreach (array_reverse($changes[$this->currentTable]) as $change) {
             $method = $change->getMethod();
 
             if ($method === 'dropTable') {

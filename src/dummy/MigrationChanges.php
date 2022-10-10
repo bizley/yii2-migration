@@ -62,11 +62,7 @@ class Migration extends Component implements MigrationChangesInterface
     /** @return mixed|void */
     public function up()
     {
-        if ($this->safeUp() === false) {
-            return false;
-        }
-
-        return true;
+        return $this->safeUp() !== false;
     }
 
     /** @return mixed|void */

@@ -617,6 +617,7 @@ class MigrationController extends BaseMigrationController
         return ExitCode::OK;
     }
 
+    /** @since 4.4.0 */
     public function actionSql(string $migrationName, string $method = 'up'): int
     {
         $method = strtolower($method);

@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace bizley\migration;
 
-use bizley\migration\table\ForeignKeyInterface;
 use yii\base\NotSupportedException;
 
 use function array_diff;
 use function array_key_exists;
 use function array_merge_recursive;
 use function array_unique;
-use function array_values;
 use function count;
 
 final class Arranger implements ArrangerInterface
@@ -40,9 +38,8 @@ final class Arranger implements ArrangerInterface
 
         foreach ($inputTables as $inputTable) {
             $this->addDependency($inputTable);
-            $foreignKeys = $this->mapper->getStructureOf($inputTable)->getForeignKeys();
 
-            foreach ($foreignKeys as $foreignKey) {
+            foreach ($this->mapper->getStructureOf($inputTable)->getForeignKeys() as $foreignKey) {
                 $this->addDependency($inputTable, $foreignKey->getReferredTable());
             }
         }
@@ -89,9 +86,7 @@ final class Arranger implements ArrangerInterface
     public function getReferencesToPostpone(): array
     {
         $flattenedReferencesToPostpone = [];
-        $referencesToPostponeValues = array_values($this->referencesToPostpone);
-        /** @var array<string> $referencesToPostponeValue */
-        foreach ($referencesToPostponeValues as $referencesToPostponeValue) {
+        foreach ($this->referencesToPostpone as $referencesToPostponeValue) {
             foreach ($referencesToPostponeValue as $reference) {
                 $flattenedReferencesToPostpone[] = $reference;
             }
