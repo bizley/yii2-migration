@@ -46,8 +46,8 @@ use function readdir;
 use function sort;
 use function sprintf;
 use function str_replace;
-use function strlen;
 use function strpos;
+use function strtolower;
 use function time;
 use function trim;
 
@@ -56,14 +56,14 @@ use function trim;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.3.1
+ * @version 4.4.0
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.3.1';
+    private $version = '4.4.0';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -203,15 +203,17 @@ class MigrationController extends BaseMigrationController
             return false;
         }
 
-        if (in_array($action->id, ['create', 'update'], true)) {
+        if (in_array($action->id, ['create', 'update', 'sql'], true)) {
+            $createFolders = $action->id !== 'sql';
             if ($this->migrationNamespace !== null) {
-                if (is_array($this->migrationNamespace) === false) {
+                if (!is_array($this->migrationNamespace)) {
                     $this->migrationNamespace = [$this->migrationNamespace];
                 }
                 foreach ($this->migrationNamespace as &$namespace) {
+                    // normalize each namespace
                     $namespace = FileHelper::normalizePath($namespace, '\\');
 
-                    if ($this->workingPath === null && $this->onlyShow === false) {
+                    if ($createFolders && $this->workingPath === null && $this->onlyShow === false) {
                         $this->workingPath = $this->preparePathDirectory(
                             '@' . FileHelper::normalizePath($namespace, '/')
                         );
@@ -220,11 +222,11 @@ class MigrationController extends BaseMigrationController
                 }
                 unset($namespace);
             } elseif ($this->migrationPath !== null) {
-                if (is_array($this->migrationPath) === false) {
+                if (!is_array($this->migrationPath)) {
                     $this->migrationPath = [$this->migrationPath];
                 }
                 foreach ($this->migrationPath as $path) {
-                    if ($this->workingPath === null && $this->onlyShow === false) {
+                    if ($createFolders && $this->workingPath === null && $this->onlyShow === false) {
                         $this->workingPath = $this->preparePathDirectory($path);
                         break;
                     }
@@ -248,7 +250,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Lists all tables in the database.
-     * @return int
      * @throws NotSupportedException
      */
     public function actionList(): int
@@ -285,6 +286,11 @@ class MigrationController extends BaseMigrationController
         $this->stdout("   $cmd $tab\n");
         $this->stdout("      to generate updating migration for the specific table.\n", Console::FG_GREEN);
 
+        $name = $this->ansiFormat('<migration>', Console::FG_YELLOW);
+        $cmd = $this->ansiFormat('migration/sql', Console::FG_CYAN);
+        $this->stdout("   $cmd $name\n");
+        $this->stdout("      to extract SQL statements of the specific migration.\n", Console::FG_GREEN);
+
         $this->stdout("\n > $tab can be:\n");
         $variant = $this->ansiFormat('* (asterisk)', Console::FG_CYAN);
         $this->stdout("   - $variant - for all the tables in database (except excluded ones)\n");
@@ -304,7 +310,6 @@ class MigrationController extends BaseMigrationController
      * tables in database (except excluded ones) or you can use it as a wildcard for tables with common name part
      * (i.e. 'prefix_*' or 'p1*p2*p3').
      * @param string $inputTable Table name or names separated by commas.
-     * @return int
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
@@ -328,8 +333,7 @@ class MigrationController extends BaseMigrationController
             $db = $this->db;
             if (count($referencesToPostpone) && Schema::isSQLite($db->getSchema())) {
                 $this->stdout(
-                    "\nERROR!\n > Generating migrations for provided tables in batch is not possible "
-                    . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
+                    "\nERROR!\n > Generating migrations for provided tables in batch is not possible because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
                     Console::FG_RED
                 );
 
@@ -339,9 +343,9 @@ class MigrationController extends BaseMigrationController
 
         if (
             $this->hasTimestampsCollision($countTables)
-            && $this->confirm(
+            && !$this->confirm(
                 ' > There are migration files detected that have timestamps colliding with the ones that will be generated. Are you sure you want to proceed?'
-            ) === false
+            )
         ) {
             $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
             return ExitCode::UNSPECIFIED_ERROR;
@@ -377,8 +381,7 @@ class MigrationController extends BaseMigrationController
 
             $this->stdout("\n");
 
-            $suppressedForeignKeys = $this->getGenerator()->getSuppressedForeignKeys();
-            foreach ($suppressedForeignKeys as $suppressedKey) {
+            foreach ($this->getGenerator()->getSuppressedForeignKeys() as $suppressedKey) {
                 $postponedForeignKeys[] = $suppressedKey;
             }
         }
@@ -416,8 +419,6 @@ class MigrationController extends BaseMigrationController
      * For multiple tables separate the names with comma. You can provide the name as '*' to generate migrations for all
      * tables in database (except excluded ones) or you can use it as a wildcard for tables with common name part
      * (i.e. 'prefix_*' or 'p1*p2*p3').
-     * @param string $inputTable
-     * @return int
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
@@ -442,7 +443,7 @@ class MigrationController extends BaseMigrationController
                     $this->skipMigrations,
                     $migrationPaths
                 );
-                if ($blueprint->isPending() === false) {
+                if (!$blueprint->isPending()) {
                     $this->stdout("TABLE IS UP-TO-DATE.\n", Console::FG_GREEN);
 
                     continue;
@@ -458,8 +459,7 @@ class MigrationController extends BaseMigrationController
                     if ($blueprint->needsStartFromScratch()) {
                         $this->stdout("   - table needs creating migration\n", Console::FG_YELLOW);
                     } else {
-                        $differences = $blueprint->getDescriptions();
-                        foreach ($differences as $difference) {
+                        foreach ($blueprint->getDescriptions() as $difference) {
                             $this->stdout(
                                 "   - $difference\n",
                                 strpos($difference, '(!)') !== false ? Console::FG_RED : Console::FG_YELLOW
@@ -477,8 +477,6 @@ class MigrationController extends BaseMigrationController
                     Console::FG_RED
                 );
                 $this->stdout(' > ' . $exception->getMessage() . "\n", Console::FG_RED);
-
-                continue;
             } catch (Throwable $exception) {
                 $this->stdout("ERROR!\n > {$exception->getMessage()}\n", Console::FG_RED);
 
@@ -514,9 +512,9 @@ class MigrationController extends BaseMigrationController
 
         if (
             $this->hasTimestampsCollision($countTables + count($blueprints))
-            && $this->confirm(
+            && !$this->confirm(
                 ' > There are migration files detected that have timestamps colliding with the ones that will be generated. Are you sure you want to proceed?'
-            ) === false
+            )
         ) {
             $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
             return ExitCode::UNSPECIFIED_ERROR;
@@ -553,8 +551,7 @@ class MigrationController extends BaseMigrationController
 
             $this->stdout("\n");
 
-            $suppressedForeignKeys = $this->getGenerator()->getSuppressedForeignKeys();
-            foreach ($suppressedForeignKeys as $suppressedKey) {
+            foreach ($this->getGenerator()->getSuppressedForeignKeys() as $suppressedKey) {
                 $postponedForeignKeys[] = $suppressedKey;
             }
         }
@@ -620,6 +617,33 @@ class MigrationController extends BaseMigrationController
         return ExitCode::OK;
     }
 
+    /** @since 4.4.0 */
+    public function actionSql(string $migrationName, string $method = 'up'): int
+    {
+        $method = strtolower($method);
+        if (!in_array($method, ['up', 'down'], true)) {
+            $method = 'up';
+        }
+
+        /** @var array<string> $migrationPaths */
+        $migrationPaths = $this->migrationNamespace ?? $this->migrationPath;
+
+        $extractor = $this->getSqlExtractor();
+        $extractor->getSql($migrationName, $migrationPaths, $method);
+
+        $migration = $this->ansiFormat($migrationName, Console::FG_YELLOW);
+        $version = $this->ansiFormat(($method === 'up' ? 'UP' : 'DOWN') . ' method', Console::FG_CYAN);
+        $this->stdout(" > SQL statements of the {$migration} file ({$version}):\n\n");
+
+        foreach ($extractor->getStatements() as $statement) {
+            $this->stdout("$statement;\n", Console::FG_YELLOW);
+        }
+
+        $this->stdout("\n (!) Note that the above statements were not executed.\n", Console::FG_RED);
+
+        return ExitCode::OK;
+    }
+
     /**
      * Prepares path directory. If directory doesn't exist it's being created.
      * @param string $path
@@ -631,7 +655,7 @@ class MigrationController extends BaseMigrationController
         /** @var string $translatedPath */
         $translatedPath = Yii::getAlias($path);
 
-        if (is_dir($translatedPath) === false) {
+        if (!is_dir($translatedPath)) {
             FileHelper::createDirectory($translatedPath);
         }
 
@@ -800,8 +824,7 @@ class MigrationController extends BaseMigrationController
             $tables = $this->findMatchingTables(null, $allTables, $excludedTables);
         } else {
             foreach ($tablesList as $inputTable) {
-                $matchedTables = $this->findMatchingTables($inputTable, $allTables, $excludedTables);
-                foreach ($matchedTables as $matchedTable) {
+                foreach ($this->findMatchingTables($inputTable, $allTables, $excludedTables) as $matchedTable) {
                     $tables[] = $matchedTable;
                 }
             }
@@ -828,7 +851,7 @@ class MigrationController extends BaseMigrationController
         $filteredTables = [];
 
         foreach ($allTables as $table) {
-            if (in_array($table, $excludedTables, true) === false) {
+            if (!in_array($table, $excludedTables, true)) {
                 if ($pattern && preg_match('/^' . str_replace('*', '(.+)', $pattern) . '$/', $table) === 0) {
                     continue;
                 }
@@ -871,10 +894,10 @@ class MigrationController extends BaseMigrationController
         }
         if (
             $countTables > 1
-            && $this->confirm(
+            && !$this->confirm(
                 " > Are you sure you want to generate migrations for the following tables?\n   - "
                 . implode("\n   - ", $inputTables)
-            ) === false
+            )
         ) {
             $this->stdout("\n Operation cancelled by user.\n", Console::FG_YELLOW);
             return null;
@@ -961,13 +984,13 @@ class MigrationController extends BaseMigrationController
             foreach ((array)$this->migrationNamespace as $namespacedMigration) {
                 /** @var string $translatedPath */
                 $translatedPath = Yii::getAlias('@' . FileHelper::normalizePath($namespacedMigration, '/'));
-                if (is_dir($translatedPath) === true) {
+                if (is_dir($translatedPath)) {
                     $folders[] = $translatedPath;
                 }
             }
         } else {
             foreach ((array)$this->migrationPath as $pathMigration) {
-                if (is_dir($pathMigration) === true) {
+                if (is_dir($pathMigration)) {
                     $folders[] = $pathMigration;
                 }
             }

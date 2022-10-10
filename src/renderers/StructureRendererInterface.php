@@ -14,7 +14,7 @@ interface StructureRendererInterface
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#up()-detail
      * @param StructureInterface $structure
      * @param int $indent
-     * @param string $schema
+     * @param string|null $schema
      * @param string|null $engineVersion
      * @param bool $usePrefix
      * @param string|null $dbPrefix

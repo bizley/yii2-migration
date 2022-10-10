@@ -224,7 +224,7 @@ final class ColumnRenderer implements ColumnRendererInterface
             } elseif (
                 $column instanceof PrimaryKeyVariantColumnInterface
                 && $primaryKey
-                && $primaryKey->isComposite() === false
+                && !$primaryKey->isComposite()
                 && $column->isColumnInPrimaryKey($primaryKey)
             ) {
                 $this->isPrimaryKeyPossible = false;
@@ -311,7 +311,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         if (
             $this->isPrimaryKeyPossible
             && $primaryKey
-            && $primaryKey->isComposite() === false
+            && !$primaryKey->isComposite()
             && $column->isColumnInPrimaryKey($primaryKey)
         ) {
             $schemaAppend = $column->prepareSchemaAppend(true, $column->isAutoIncrement(), $schema);

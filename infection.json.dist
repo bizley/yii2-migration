@@ -4,7 +4,8 @@
             "src"
         ],
         "excludes": [
-            "dummy/Migration.php",
+            "dummy/MigrationChanges.php",
+            "dummy/MigrationSql.php",
             "controllers/FallbackFileHelper.php"
         ]
     },

@@ -36,13 +36,13 @@ final class MoneyColumn extends Column implements ColumnInterface
             $length = preg_split('/\s*,\s*/', (string)$value);
         }
 
-        if (isset($length[0]) && !empty($length[0])) {
+        if (!empty($length[0])) {
             $this->setPrecision((int)$length[0]);
         } else {
             $this->setPrecision(null);
         }
 
-        if (isset($length[1]) && !empty($length[1])) {
+        if (!empty($length[1])) {
             $this->setScale((int)$length[1]);
         } else {
             $this->setScale(null);

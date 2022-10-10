@@ -86,7 +86,7 @@ final class Comparator implements ComparatorInterface
         /** @var ColumnInterface $column */
         /** @var string $name */
         foreach ($newColumns as $name => $column) {
-            if (array_key_exists($name, $oldColumns) === false) {
+            if (!array_key_exists($name, $oldColumns)) {
                 $blueprint->addDescription("missing column '$name'");
                 if ($previousColumn) {
                     $column->setAfter($previousColumn);
@@ -103,7 +103,7 @@ final class Comparator implements ComparatorInterface
                 $this->generalSchema === false
                 && $newPrimaryKey
                 && $column->getAppend() === null
-                && $newPrimaryKey->isComposite() === false
+                && !$newPrimaryKey->isComposite()
                 && $column->isColumnInPrimaryKey($newPrimaryKey)
             ) {
                 $column->setAppend($column->prepareSchemaAppend(true, $column->isAutoIncrement(), $schema));
@@ -131,10 +131,10 @@ final class Comparator implements ComparatorInterface
                     $oldProperty = $oldColumn->$propertyFetch();
                     $newProperty = $column->$propertyFetch();
                 }
-                if (is_bool($oldProperty) === false && $oldProperty !== null && is_array($oldProperty) === false) {
+                if (!is_bool($oldProperty) && $oldProperty !== null && !is_array($oldProperty)) {
                     $oldProperty = (string)$oldProperty;
                 }
-                if (is_bool($newProperty) === false && $newProperty !== null && is_array($newProperty) === false) {
+                if (!is_bool($newProperty) && $newProperty !== null && !is_array($newProperty)) {
                     $newProperty = (string)$newProperty;
                 }
                 if ($oldProperty !== $newProperty) {
@@ -184,7 +184,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldColumns as $name => $column) {
-            if (array_key_exists($name, $newColumns) === false) {
+            if (!array_key_exists($name, $newColumns)) {
                 $blueprint->addDescription("excessive column '$name'");
                 if ($schema === Schema::SQLITE) {
                     $blueprint->addDescription(
@@ -219,7 +219,7 @@ final class Comparator implements ComparatorInterface
         $newForeignKeys = $newStructure->getForeignKeys();
         $oldForeignKeys = $oldStructure->getForeignKeys();
         foreach ($newForeignKeys as $name => $foreignKey) {
-            if (array_key_exists($name, $oldForeignKeys) === false) {
+            if (!array_key_exists($name, $oldForeignKeys)) {
                 $blueprint->addDescription("missing foreign key '$name'");
 
                 if ($schema === Schema::SQLITE) {
@@ -360,7 +360,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldForeignKeys as $name => $foreignKey) {
-            if (array_key_exists($name, $newForeignKeys) === false) {
+            if (!array_key_exists($name, $newForeignKeys)) {
                 $blueprint->addDescription("excessive foreign key '$name'");
 
                 if ($schema === Schema::SQLITE) {
@@ -447,13 +447,11 @@ final class Comparator implements ComparatorInterface
      */
     private function removeExcessivePrimaryKeyStatements(BlueprintInterface $blueprint, ?string $schema): void
     {
-        $addedColumns = $blueprint->getAddedColumns();
-        foreach ($addedColumns as $column) {
+        foreach ($blueprint->getAddedColumns() as $column) {
             $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
         }
 
-        $alteredColumns = $blueprint->getAlteredColumns();
-        foreach ($alteredColumns as $column) {
+        foreach ($blueprint->getAlteredColumns() as $column) {
             $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
         }
     }
@@ -476,15 +474,13 @@ final class Comparator implements ComparatorInterface
             return false;
         }
         if ($newColumnsCount === 1 && count($differentColumns) === 1) {
-            $addedColumns = $blueprint->getAddedColumns();
-            foreach ($addedColumns as $name => $column) {
+            foreach ($blueprint->getAddedColumns() as $name => $column) {
                 if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
                 }
             }
 
-            $alteredColumns = $blueprint->getAlteredColumns();
-            foreach ($alteredColumns as $name => $column) {
+            foreach ($blueprint->getAlteredColumns() as $name => $column) {
                 if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
                 }
@@ -511,7 +507,7 @@ final class Comparator implements ComparatorInterface
         $oldIndexes = $oldStructure->getIndexes();
 
         foreach ($newIndexes as $name => $index) {
-            if (array_key_exists($name, $oldIndexes) === false) {
+            if (!array_key_exists($name, $oldIndexes)) {
                 $indexColumns = $index->getColumns();
                 if (
                     $index->isUnique()
@@ -525,8 +521,7 @@ final class Comparator implements ComparatorInterface
                     continue;
                 }
 
-                $foreignKeys = $newStructure->getForeignKeys();
-                foreach ($foreignKeys as $foreignKey) {
+                foreach ($newStructure->getForeignKeys() as $foreignKey) {
                     if ($foreignKey->getColumns() === $indexColumns) {
                         // index is created for foreign key with the same columns
                         continue 2;
@@ -568,7 +563,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldIndexes as $name => $index) {
-            if (array_key_exists($name, $newIndexes) === false) {
+            if (!array_key_exists($name, $newIndexes)) {
                 $blueprint->addDescription("excessive index '$name'");
                 $blueprint->dropIndex($index);
             }
@@ -655,8 +650,7 @@ final class Comparator implements ComparatorInterface
     private function getRealUniqueness(StructureInterface $structure, string $columnName, bool $unique): bool
     {
         if ($unique) {
-            $indexes = $structure->getIndexes();
-            foreach ($indexes as $index) {
+            foreach ($structure->getIndexes() as $index) {
                 $indexColumns = $index->getColumns();
                 if ($index->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
                     return false;

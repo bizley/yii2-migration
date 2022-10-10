@@ -43,7 +43,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+        if ($primaryKey === null || !$primaryKey->isComposite()) {
             return null;
         }
 
@@ -89,7 +89,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
         int $indent = 0,
         string $schema = null
     ): ?string {
-        if ($primaryKey === null || $primaryKey->isComposite() === false) {
+        if ($primaryKey === null || !$primaryKey->isComposite()) {
             return null;
         }
 

@@ -86,9 +86,8 @@ final class TableMapper implements TableMapperInterface
         $mappedForeignKeys = [];
         /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
         $schema = $this->db->getSchema();
-        $tableForeignKeys = $schema->getTableForeignKeys($table, true);
 
-        foreach ($tableForeignKeys as $foreignKey) {
+        foreach ($schema->getTableForeignKeys($table, true) as $foreignKey) {
             $mappedForeignKey = new ForeignKey();
             $mappedForeignKey->setTableName($table);
             $mappedForeignKey->setName($foreignKey->name);
@@ -115,9 +114,8 @@ final class TableMapper implements TableMapperInterface
         $mappedIndexes = [];
         /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
         $schema = $this->db->getSchema();
-        $tableIndexes = $schema->getTableIndexes($table, true);
 
-        foreach ($tableIndexes as $index) {
+        foreach ($schema->getTableIndexes($table, true) as $index) {
             if ($index->isPrimary === false) {
                 $mappedIndex = new Index();
                 $mappedIndex->setName($index->name);

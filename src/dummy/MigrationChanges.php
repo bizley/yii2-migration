@@ -7,6 +7,7 @@ use bizley\migration\Schema;
 use bizley\migration\SqlColumnMapper;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
+use Generator;
 use ReflectionClass;
 use ReflectionException;
 use yii\base\Component;
@@ -30,20 +31,22 @@ class Migration extends Component implements MigrationChangesInterface
 {
     use SchemaBuilderTrait;
 
+    /** @var int|null */
     public $maxSqlOutputLength;
+    /** @var bool */
     public $compact = false;
 
-    /** @var array<StructureChangeInterface> List of all migration actions */
+    /** @var array<string, StructureChangeInterface[]> List of all migration actions */
     private $changes = [];
 
-    /** @var Connection|array|string */
+    /** @var Connection */
     public $db;
 
     /** @var bool */
     public $experimental = false;
 
     /** @throws NotSupportedException */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -51,29 +54,29 @@ class Migration extends Component implements MigrationChangesInterface
         $this->db->enableSlaves = false;
     }
 
-    protected function getDb()
+    protected function getDb(): Connection
     {
         return $this->db;
     }
 
+    /** @return mixed|void */
     public function up()
     {
-        if ($this->safeUp() === false) {
-            return false;
-        }
-
-        return null;
+        return $this->safeUp() !== false;
     }
 
+    /** @return mixed|void */
     public function down()
     {
-        return null;
+        return true;
     }
 
+    /** @return mixed|void */
     public function safeUp()
     {
     }
 
+    /** @return mixed|void */
     public function safeDown()
     {
     }
@@ -100,7 +103,7 @@ class Migration extends Component implements MigrationChangesInterface
      * @param string $type
      * @param array<string, string> $keyToDb
      * @param array<string, string> $dbToKey
-     * @return array
+     * @return array<string, mixed>
      */
     private function fillTypeMapProperties(string $type, array $keyToDb, array $dbToKey): array
     {
@@ -177,6 +180,7 @@ class Migration extends Component implements MigrationChangesInterface
                 'string' => 'string',
             ];
         } else {
+            /* @phpstan-ignore-next-line */
             $typeMap = $this->db->schema->typeMap;
         }
 
@@ -217,7 +221,7 @@ class Migration extends Component implements MigrationChangesInterface
             $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
-            if (($value !== null && $value !== []) || array_key_exists($property, $schema) === false) {
+            if (($value !== null && $value !== []) || !array_key_exists($property, $schema)) {
                 $schema[$property] = $value;
             }
         }
@@ -242,7 +246,7 @@ class Migration extends Component implements MigrationChangesInterface
     {
         $table = $this->getRawTableName($table);
 
-        if (array_key_exists($table, $this->changes) === false) {
+        if (!array_key_exists($table, $this->changes)) {
             $this->changes[$table] = [];
         }
 
@@ -254,67 +258,91 @@ class Migration extends Component implements MigrationChangesInterface
         $this->changes[$table][] = $change;
     }
 
-    /** @return array<string, array<StructureChangeInterface>> */
+    /** @return array<string, StructureChangeInterface[]> */
     public function getChanges(): array
     {
         return $this->changes;
     }
 
-    public function execute($sql, $params = [])
+    /** @param string[] $params */
+    public function execute(string $sql, array $params = []): void
     {
         // not supported
     }
 
-    public function insert($table, $columns)
-    {
-        // not supported
-    }
-
-    public function batchInsert($table, $columns, $rows)
-    {
-        // not supported
-    }
-
-    public function update($table, $columns, $condition = '', $params = [])
-    {
-        // not supported
-    }
-
-    public function delete($table, $condition = '', $params = [])
-    {
-        // not supported
-    }
-
-    public function upsert($table, $insertColumns, $updateColumns = true, $params = [])
-    {
-        // not supported
-    }
-
-    /** @throws ReflectionException */
-    public function createTable($table, $columns, $options = null)
-    {
-        $this->addChange($table, 'createTable', $this->extractColumns($columns));
-    }
-
-    public function renameTable($table, $newName)
-    {
-        $this->addChange($newName, 'renameTable', $this->getRawTableName($table));
-    }
-
-    public function dropTable($table)
-    {
-        $this->addChange($table, 'dropTable', null);
-    }
-
-    public function truncateTable($table)
+    /** @param array<string, mixed>|Query $columns */
+    public function insert(string $table, $columns): void
     {
         // not supported
     }
 
     /**
+     * @param string[] $columns
+     * @param array<mixed>|Generator $rows
+     */
+    public function batchInsert(string $table, array $columns, $rows): void
+    {
+        // not supported
+    }
+
+    /**
+     * @param array<string, mixed> $columns
+     * @param string|array<mixed> $condition
+     * @param string[] $params
+     */
+    public function update(string $table, array $columns, $condition = '', array $params = []): void
+    {
+        // not supported
+    }
+
+    /**
+     * @param string|array<mixed> $condition
+     * @param string[] $params
+     */
+    public function delete(string $table, $condition = '', array $params = []): void
+    {
+        // not supported
+    }
+
+    /**
+     * @param array<string, mixed>|Query $insertColumns
+     * @param array<string, mixed>|bool $updateColumns
+     * @param string[] $params
+     */
+    public function upsert(string $table, $insertColumns, $updateColumns = true, array $params = []): void
+    {
+        // not supported
+    }
+
+    /**
+     * @param array<string, string|ColumnSchemaBuilder> $columns
      * @throws ReflectionException
      */
-    public function addColumn($table, $column, $type)
+    public function createTable(string $table, array $columns, string $options = null): void
+    {
+        $this->addChange($table, 'createTable', $this->extractColumns($columns));
+    }
+
+    public function renameTable(string $table, string $newName): void
+    {
+        $this->addChange($newName, 'renameTable', $this->getRawTableName($table));
+    }
+
+    public function dropTable(string $table): void
+    {
+        $this->addChange($table, 'dropTable', null);
+    }
+
+    public function truncateTable(string $table): void
+    {
+        // not supported
+    }
+
+    /**
+     * @param string|ColumnSchemaBuilder $type
+     * @throws ReflectionException
+     */
+    public function addColumn(string $table, string $column, $type): void
     {
         $this->addChange(
             $table,
@@ -326,12 +354,12 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function dropColumn($table, $column)
+    public function dropColumn(string $table, string $column): void
     {
         $this->addChange($table, 'dropColumn', $column);
     }
 
-    public function renameColumn($table, $name, $newName)
+    public function renameColumn(string $table, string $name, string $newName): void
     {
         $this->addChange(
             $table,
@@ -344,9 +372,10 @@ class Migration extends Component implements MigrationChangesInterface
     }
 
     /**
+     * @param string|ColumnSchemaBuilder $type
      * @throws ReflectionException
      */
-    public function alterColumn($table, $column, $type)
+    public function alterColumn(string $table, string $column, $type): void
     {
         $this->addChange(
             $table,
@@ -358,7 +387,8 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function addPrimaryKey($name, $table, $columns)
+    /** @param string|string[] $columns */
+    public function addPrimaryKey(string $name, string $table, $columns): void
     {
         $this->addChange(
             $table,
@@ -370,13 +400,24 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function dropPrimaryKey($name, $table)
+    public function dropPrimaryKey(string $name, string $table): void
     {
         $this->addChange($table, 'dropPrimaryKey', $name);
     }
 
-    public function addForeignKey($name, $table, $columns, $refTable, $refColumns, $delete = null, $update = null)
-    {
+    /**
+     * @param string|string[]$columns
+     * @param string|string[]$refColumns
+     */
+    public function addForeignKey(
+        string $name,
+        string $table,
+        $columns,
+        string $refTable,
+        $refColumns,
+        string $delete = null,
+        string $update = null
+    ): void {
         $columns = is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns);
         $this->addChange(
             $table,
@@ -393,12 +434,13 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function dropForeignKey($name, $table)
+    public function dropForeignKey(string $name, string $table): void
     {
         $this->addChange($table, 'dropForeignKey', $name);
     }
 
-    public function createIndex($name, $table, $columns, $unique = false)
+    /** @param string|string[] $columns */
+    public function createIndex(string $name, string $table, $columns, bool $unique = false): void
     {
         $this->addChange(
             $table,
@@ -411,12 +453,12 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function dropIndex($name, $table)
+    public function dropIndex(string $name, string $table): void
     {
         $this->addChange($table, 'dropIndex', $name);
     }
 
-    public function addCommentOnColumn($table, $column, $comment)
+    public function addCommentOnColumn(string $table, string $column, string $comment): void
     {
         $this->addChange(
             $table,
@@ -428,18 +470,18 @@ class Migration extends Component implements MigrationChangesInterface
         );
     }
 
-    public function addCommentOnTable($table, $comment)
+    public function addCommentOnTable(string $table, string $comment): void
     {
         // not supported
         // Yii is not fetching table's comment when gathering table's info, so we can not compare new with old one
     }
 
-    public function dropCommentFromColumn($table, $column)
+    public function dropCommentFromColumn(string $table, string $column): void
     {
         $this->addChange($table, 'dropCommentFromColumn', $column);
     }
 
-    public function dropCommentFromTable($table)
+    public function dropCommentFromTable(string $table): void
     {
         // not supported
         // Yii is not fetching table's comment when gathering table's info, so we can not compare new with old one

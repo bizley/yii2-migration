@@ -29,7 +29,6 @@ final class StructureBuilder implements StructureBuilderInterface
                 throw new InvalidArgumentException('You must provide array of StructureChangeInterface objects.');
             }
 
-            /** @var StructureChangeInterface $change */
             switch ($change->getMethod()) {
                 case 'createTable':
                     $structure->setName($change->getTable());
