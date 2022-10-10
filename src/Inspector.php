@@ -93,6 +93,7 @@ final class Inspector implements InspectorInterface
                 }
             }
 
+            /* @phpstan-ignore-next-line */
             if (count($this->appliedChanges)) {
                 $this->comparator->compare(
                     $newStructure,
