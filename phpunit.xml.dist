@@ -4,7 +4,8 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         processIsolation="true">
     <testsuites>
         <testsuite name="Yii 2 Migration Test Suite">
             <directory>./tests</directory>

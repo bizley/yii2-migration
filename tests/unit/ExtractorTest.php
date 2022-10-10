@@ -32,24 +32,39 @@ final class ExtractorTest extends TestCase
 
     /**
      * @test
-     * @throws ErrorException
      */
     public function shouldThrowExceptionWhenMigrationIsNotNamespacedAndThereIsNoFile(): void
     {
         $this->expectException(ErrorException::class);
+        $this->expectExceptionMessage("File 'non-existing.php' can not be found!");
 
         $this->extractor->extract('non-existing', []);
     }
 
     /**
      * @test
-     * @throws ErrorException
      */
     public function shouldThrowExceptionWhenSubjectIsNotMigrationChangesInterface(): void
     {
         $this->expectException(ErrorException::class);
+        $this->expectExceptionMessage(
+            "Class 'bizley\\tests\\stubs\\WrongMigration' must implement bizley\migration\dummy\MigrationChangesInterface."
+        );
 
         $this->extractor->extract(WrongMigration::class, []);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldThrowExceptionWhenSubjectIsNotMigrationSqlInterface(): void
+    {
+        $this->expectException(ErrorException::class);
+        $this->expectExceptionMessage(
+            "Class 'bizley\\tests\\stubs\\WrongMigration' must implement bizley\migration\dummy\MigrationSqlInterface."
+        );
+
+        $this->extractor->getSql(WrongMigration::class, [], 'up');
     }
 
     /**

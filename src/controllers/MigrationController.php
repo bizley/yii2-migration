@@ -333,8 +333,7 @@ class MigrationController extends BaseMigrationController
             $db = $this->db;
             if (count($referencesToPostpone) && Schema::isSQLite($db->getSchema())) {
                 $this->stdout(
-                    "\nERROR!\n > Generating migrations for provided tables in batch is not possible "
-                    . "because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
+                    "\nERROR!\n > Generating migrations for provided tables in batch is not possible because 'ADD FOREIGN KEY' is not supported by SQLite!\n",
                     Console::FG_RED
                 );
 

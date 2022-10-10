@@ -10,6 +10,7 @@ use bizley\tests\stubs\ArrangerStub;
 use bizley\tests\stubs\GeneratorStub;
 use bizley\tests\stubs\MigrationControllerStoringStub;
 use bizley\tests\stubs\MigrationControllerStub;
+use bizley\tests\stubs\SqlExtractMigration;
 use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -1690,5 +1691,48 @@ ERROR!
         foreach ($generatedFiles as $generatedFile) {
             self::assertSame('0777', substr(sprintf('%o', fileperms($generatedFile)), -4));
         }
+    }
+
+    public function providerForSqlExtract(): array
+    {
+        return [
+            ['up', 'UP'],
+            ['down', 'DOWN'],
+            ['UP', 'UP'],
+            ['DOWN', 'DOWN'],
+            ['something', 'UP'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSqlExtract
+     * @param string $method
+     */
+    public function shouldExtractSql(string $method, string $methodShown): void
+    {
+        $controller = new MigrationControllerStub(
+            'id',
+            $this->createMock(Module::class),
+            [
+                'request' => Request::class,
+                'response' => Response::class
+            ]
+        );
+        $controller->db = $this->db;
+        $controller->view = $this->view;
+        $controller->migrationPath = '@bizley/tests/stubs';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'sql';
+        $controller->beforeAction($action);
+
+        self::assertSame(ExitCode::OK, $controller->actionSql(SqlExtractMigration::class, $method));
+        self::assertStringContainsString(
+            'SQL statements of the bizley\tests\stubs\SqlExtractMigration file',
+            $controller::$stdout
+        );
+        self::assertStringContainsString($methodShown . ' method', $controller::$stdout);
+        self::assertStringContainsString("sql1;\nsql2;", $controller::$stdout);
     }
 }

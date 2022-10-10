@@ -28,6 +28,7 @@ abstract class DbTestCase extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
+        Yii::$app = null;
         new Application(
             [
                 'id' => 'MigrationTest',
