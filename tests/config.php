@@ -6,13 +6,13 @@
 
 $config = [
     'mysql' => [
-        'dsn' => 'mysql:host=127.0.0.1;dbname=migration',
+        'dsn' => 'mysql:host=127.0.0.1:3406;dbname=migration',
         'username' => 'migration',
         'password' => 'password',
         'charset' => 'utf8mb4',
     ],
     'pgsql' => [
-        'dsn' => 'pgsql:host=127.0.0.1;dbname=migration',
+        'dsn' => 'pgsql:host=127.0.0.1:5532;dbname=migration',
         'username' => 'migration',
         'password' => 'password',
     ],

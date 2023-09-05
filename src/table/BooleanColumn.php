@@ -6,8 +6,6 @@ namespace bizley\migration\table;
 
 use bizley\migration\Schema;
 
-use function in_array;
-
 final class BooleanColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
@@ -24,7 +22,7 @@ final class BooleanColumn extends Column implements ColumnInterface
      */
     public function getLength(string $schema = null, string $engineVersion = null)
     {
-        return in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
+        return \in_array($schema, $this->lengthSchemas, true) ? $this->getSize() : null;
     }
 
     /**
@@ -35,7 +33,7 @@ final class BooleanColumn extends Column implements ColumnInterface
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (in_array($schema, $this->lengthSchemas, true)) {
+        if (\in_array($schema, $this->lengthSchemas, true)) {
             $this->setSize($value);
             $this->setPrecision($value);
         }

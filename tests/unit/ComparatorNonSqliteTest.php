@@ -14,15 +14,13 @@ use bizley\migration\table\StructureInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-use function array_keys;
-
 /** @group comparator */
 class ComparatorNonSqliteTest extends TestCase
 {
-    /** @var StructureInterface|MockObject */
+    /** @var StructureInterface&MockObject */
     public $newStructure;
 
-    /** @var StructureInterface|MockObject */
+    /** @var StructureInterface&MockObject */
     public $oldStructure;
 
     /** @var Blueprint */
@@ -108,7 +106,7 @@ class ComparatorNonSqliteTest extends TestCase
             ],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col1', 'col2'], array_keys($this->blueprint->getAddedColumns()));
+        self::assertSame(['col1', 'col2'], \array_keys($this->blueprint->getAddedColumns()));
     }
 
     /**
@@ -124,7 +122,7 @@ class ComparatorNonSqliteTest extends TestCase
 
         self::assertTrue($this->blueprint->isPending());
         self::assertSame(["excessive column 'col1'"], $this->blueprint->getDescriptions());
-        self::assertSame(['col1'], array_keys($this->blueprint->getDroppedColumns()));
+        self::assertSame(['col1'], \array_keys($this->blueprint->getDroppedColumns()));
     }
 
     /**
@@ -148,8 +146,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: type (DB: \"a\" != MIG: \"b\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -173,8 +171,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: not null (DB: TRUE != MIG: FALSE)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -198,8 +196,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: length (DB: \"10\" != MIG: \"2\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -223,8 +221,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: length (DB: \"10, 2\" != MIG: \"9, 3\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -286,8 +284,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: unique (DB: FALSE != MIG: TRUE)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -363,8 +361,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: unsigned (DB: FALSE != MIG: TRUE)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -388,8 +386,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: default (DB: [\"a\"] != MIG: [\"b\"])"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -413,8 +411,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: default (DB: \"NULL\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -438,8 +436,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: comment (DB: \"abc\" != MIG: \"def\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -463,8 +461,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"abc\" != MIG: \"def\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -511,8 +509,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"PRIMARY KEY\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -688,8 +686,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"PRIMARY KEY\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -713,8 +711,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"AUTO_INCREMENT\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -738,8 +736,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"AUTOINCREMENT\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -763,8 +761,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different 'col' column property: append (DB: \"IDENTITY PRIMARY KEY\" != MIG: NULL)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['col'], array_keys($this->blueprint->getAlteredColumns()));
-        self::assertSame(['col'], array_keys($this->blueprint->getUnalteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getAlteredColumns()));
+        self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
     /**
@@ -792,7 +790,7 @@ class ComparatorNonSqliteTest extends TestCase
             ],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk', 'fk2'], array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk', 'fk2'], \array_keys($this->blueprint->getAddedForeignKeys()));
     }
 
     /**
@@ -811,7 +809,7 @@ class ComparatorNonSqliteTest extends TestCase
             ["excessive foreign key 'fk'"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -856,8 +854,8 @@ class ComparatorNonSqliteTest extends TestCase
             ],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk', 'fk2'], array_keys($this->blueprint->getAddedForeignKeys()));
-        self::assertSame(['fk', 'fk2'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk', 'fk2'], \array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk', 'fk2'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -881,8 +879,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different foreign key 'fk' referred columns (DB: [\"a\",\"b\"] != MIG: [\"c\",\"b\"])"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -906,8 +904,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different foreign key 'fk' referred table (DB: \"a\" != MIG: \"b\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -931,8 +929,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different foreign key 'fk' ON UPDATE constraint (DB: \"CASCADE\" != MIG: \"RESTRICT\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -956,8 +954,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different foreign key 'fk' ON DELETE constraint (DB: \"RESTRICT\" != MIG: \"CASCADE\")"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['fk'], array_keys($this->blueprint->getAddedForeignKeys()));
-        self::assertSame(['fk'], array_keys($this->blueprint->getDroppedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getAddedForeignKeys()));
+        self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
     /**
@@ -1196,7 +1194,7 @@ class ComparatorNonSqliteTest extends TestCase
             ["missing index 'idx'"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['idx'], array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
     }
 
     /**
@@ -1238,7 +1236,7 @@ class ComparatorNonSqliteTest extends TestCase
             ["excessive index 'idx'"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['idx'], array_keys($this->blueprint->getDroppedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
     /**
@@ -1264,8 +1262,8 @@ class ComparatorNonSqliteTest extends TestCase
             ["different index 'idx' definition (DB: unique FALSE != MIG: unique TRUE)"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['idx'], array_keys($this->blueprint->getAddedIndexes()));
-        self::assertSame(['idx'], array_keys($this->blueprint->getDroppedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
     /**
@@ -1300,8 +1298,8 @@ class ComparatorNonSqliteTest extends TestCase
             ],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['idx', 'idx2'], array_keys($this->blueprint->getAddedIndexes()));
-        self::assertSame(['idx', 'idx2'], array_keys($this->blueprint->getDroppedIndexes()));
+        self::assertSame(['idx', 'idx2'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx', 'idx2'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
     /**
@@ -1325,7 +1323,7 @@ class ComparatorNonSqliteTest extends TestCase
             ["different index 'idx' columns (DB: [\"a\"]) != MIG: ([\"b\"]))"],
             $this->blueprint->getDescriptions()
         );
-        self::assertSame(['idx'], array_keys($this->blueprint->getAddedIndexes()));
-        self::assertSame(['idx'], array_keys($this->blueprint->getDroppedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 }

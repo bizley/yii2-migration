@@ -6,9 +6,6 @@ namespace bizley\migration\table;
 
 use bizley\migration\Schema;
 
-use function in_array;
-use function version_compare;
-
 final class TinyIntegerColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
@@ -23,11 +20,11 @@ final class TinyIntegerColumn extends Column implements ColumnInterface
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
-        if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '8.0.17', '<')) {
+        if ($engineVersion && $schema === Schema::MYSQL && \version_compare($engineVersion, '8.0.17', '<')) {
             return true;
         }
 
-        return in_array($schema, $this->lengthSchemas, true);
+        return \in_array($schema, $this->lengthSchemas, true);
     }
 
     /**

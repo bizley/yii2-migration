@@ -15,7 +15,6 @@ use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
 use PDO;
-use Throwable;
 use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
@@ -27,9 +26,6 @@ use yii\db\oci\Schema as OciSchema;
 use yii\db\pgsql\Schema as PgsqlSchema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
-
-use function count;
-use function in_array;
 
 final class TableMapper implements TableMapperInterface
 {
@@ -57,7 +53,7 @@ final class TableMapper implements TableMapperInterface
         $foreignKeys = $this->getForeignKeys($table);
 
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
-            if (in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
+            if (\in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
                 $this->suppressedForeignKeys[] = $foreignKey;
                 unset($foreignKeys[$foreignKeyName]);
             }
@@ -208,7 +204,7 @@ final class TableMapper implements TableMapperInterface
     {
         foreach ($indexes as $index) {
             $indexColumns = $index->getColumns();
-            if ($index->isUnique() && count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
+            if ($index->isUnique() && \count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
                 return true;
             }
         }
@@ -260,7 +256,7 @@ final class TableMapper implements TableMapperInterface
             }
 
             return $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION);
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             return null;
         }
     }

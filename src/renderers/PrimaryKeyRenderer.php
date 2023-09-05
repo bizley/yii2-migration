@@ -8,10 +8,6 @@ use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
 use yii\base\NotSupportedException;
 
-use function implode;
-use function str_repeat;
-use function str_replace;
-
 final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 {
     /** @var string */
@@ -51,7 +47,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             throw new NotSupportedException('ADD PRIMARY KEY is not supported by SQLite.');
         }
 
-        $template = str_repeat(' ', $indent) . $this->addKeyTemplate;
+        $template = \str_repeat(' ', $indent) . $this->addKeyTemplate;
 
         $keyColumns = $primaryKey->getColumns();
         $renderedColumns = [];
@@ -59,7 +55,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             $renderedColumns[] = "'$keyColumn'";
         }
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}',
@@ -68,7 +64,7 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             [
                 $primaryKey->getName(),
                 $tableName,
-                implode(', ', $renderedColumns),
+                \implode(', ', $renderedColumns),
             ],
             $template
         );
@@ -97,9 +93,9 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
             throw new NotSupportedException('DROP PRIMARY KEY is not supported by SQLite.');
         }
 
-        $template = str_repeat(' ', $indent) . $this->dropKeyTemplate;
+        $template = \str_repeat(' ', $indent) . $this->dropKeyTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}'

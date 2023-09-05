@@ -14,15 +14,6 @@ use yii\base\Component;
 use yii\base\InvalidArgumentException;
 use yii\base\NotSupportedException;
 
-use function array_key_exists;
-use function is_array;
-use function is_string;
-use function preg_match;
-use function preg_split;
-use function str_replace;
-use function strpos;
-use function trim;
-
 /**
  * Dummy Migration class.
  * This class is used to gather migration details instead of applying them.
@@ -109,46 +100,46 @@ class Migration extends Component implements MigrationChangesInterface
     {
         $schema = [];
 
-        if (!array_key_exists($type, $keyToDb)) {
+        if (!\array_key_exists($type, $keyToDb)) {
             $schema['type'] = $type;
             return $schema;
         }
 
         $builder = $keyToDb[$type];
 
-        if (strpos($builder, 'NOT NULL') !== false) {
+        if (\strpos($builder, 'NOT NULL') !== false) {
             $schema['isNotNull'] = true;
-            $builder = trim(str_replace('NOT NULL', '', $builder));
+            $builder = \trim(\str_replace('NOT NULL', '', $builder));
         }
 
-        if (strpos($builder, 'AUTO_INCREMENT') !== false) {
+        if (\strpos($builder, 'AUTO_INCREMENT') !== false) {
             $schema['autoIncrement'] = true;
-            $builder = trim(str_replace('AUTO_INCREMENT', '', $builder));
+            $builder = \trim(\str_replace('AUTO_INCREMENT', '', $builder));
         }
 
-        if (strpos($builder, 'AUTOINCREMENT') !== false) {
+        if (\strpos($builder, 'AUTOINCREMENT') !== false) {
             $schema['autoIncrement'] = true;
-            $builder = trim(str_replace('AUTOINCREMENT', '', $builder));
+            $builder = \trim(\str_replace('AUTOINCREMENT', '', $builder));
         }
 
-        if (strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
+        if (\strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
             $schema['isPrimaryKey'] = true;
-            $builder = trim(str_replace('IDENTITY PRIMARY KEY', '', $builder));
+            $builder = \trim(\str_replace('IDENTITY PRIMARY KEY', '', $builder));
         }
 
-        if (strpos($builder, 'PRIMARY KEY') !== false) {
+        if (\strpos($builder, 'PRIMARY KEY') !== false) {
             $schema['isPrimaryKey'] = true;
-            $builder = trim(str_replace('PRIMARY KEY', '', $builder));
+            $builder = \trim(\str_replace('PRIMARY KEY', '', $builder));
         }
 
-        if (strpos($builder, 'UNSIGNED') !== false) {
+        if (\strpos($builder, 'UNSIGNED') !== false) {
             $schema['isUnsigned'] = true;
-            $builder = trim(str_replace('UNSIGNED', '', $builder));
+            $builder = \trim(\str_replace('UNSIGNED', '', $builder));
         }
 
-        preg_match('/^([a-zA-Z ]+)(\(([0-9,]+)\))?$/', $builder, $matches);
+        \preg_match('/^([a-zA-Z ]+)(\(([0-9,]+)\))?$/', $builder, $matches);
 
-        if (array_key_exists($matches[1], $dbToKey)) {
+        if (\array_key_exists($matches[1], $dbToKey)) {
             if (!empty($matches[3])) {
                 $schema['length'] = $matches[3];
             }
@@ -184,7 +175,7 @@ class Migration extends Component implements MigrationChangesInterface
             $typeMap = $this->db->schema->typeMap;
         }
 
-        if ($this->experimental && is_string($columnData)) {
+        if ($this->experimental && \is_string($columnData)) {
             return SqlColumnMapper::map($columnData, $typeMap);
         }
 
@@ -221,7 +212,7 @@ class Migration extends Component implements MigrationChangesInterface
             $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
-            if (($value !== null && $value !== []) || !array_key_exists($property, $schema)) {
+            if (($value !== null && $value !== []) || !\array_key_exists($property, $schema)) {
                 $schema[$property] = $value;
             }
         }
@@ -246,7 +237,7 @@ class Migration extends Component implements MigrationChangesInterface
     {
         $table = $this->getRawTableName($table);
 
-        if (!array_key_exists($table, $this->changes)) {
+        if (!\array_key_exists($table, $this->changes)) {
             $this->changes[$table] = [];
         }
 
@@ -395,7 +386,7 @@ class Migration extends Component implements MigrationChangesInterface
             'addPrimaryKey',
             [
                 'name' => $name,
-                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns)
+                'columns' => \is_array($columns) ? $columns : \preg_split('/\s*,\s*/', $columns)
             ]
         );
     }
@@ -418,7 +409,7 @@ class Migration extends Component implements MigrationChangesInterface
         string $delete = null,
         string $update = null
     ): void {
-        $columns = is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns);
+        $columns = \is_array($columns) ? $columns : \preg_split('/\s*,\s*/', $columns);
         $this->addChange(
             $table,
             'addForeignKey',
@@ -426,7 +417,7 @@ class Migration extends Component implements MigrationChangesInterface
                 'name' => $name,
                 'columns' => $columns,
                 'referredTable' => $this->getRawTableName($refTable),
-                'referredColumns' => is_array($refColumns) ? $refColumns : preg_split('/\s*,\s*/', $refColumns),
+                'referredColumns' => \is_array($refColumns) ? $refColumns : \preg_split('/\s*,\s*/', $refColumns),
                 'onDelete' => $delete,
                 'onUpdate' => $update,
                 'tableName' => $this->getRawTableName($table)
@@ -447,7 +438,7 @@ class Migration extends Component implements MigrationChangesInterface
             'createIndex',
             [
                 'name' => $name,
-                'columns' => is_array($columns) ? $columns : preg_split('/\s*,\s*/', $columns),
+                'columns' => \is_array($columns) ? $columns : \preg_split('/\s*,\s*/', $columns),
                 'unique' => $unique
             ]
         );

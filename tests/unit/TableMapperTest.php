@@ -23,13 +23,13 @@ use yii\db\TableSchema;
 /** @group tablemapper */
 final class TableMapperTest extends TestCase
 {
-    /** @var MockObject|Connection */
+    /** @var MockObject&Connection */
     private $db;
 
     /** @var TableMapper */
     private $mapper;
 
-    /** @var MockObject|Schema */
+    /** @var MockObject&Schema */
     private $schema;
 
     protected function setUp(): void

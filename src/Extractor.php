@@ -12,9 +12,6 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\db\Connection;
 
-use function file_exists;
-use function strpos;
-
 final class Extractor implements SqlExtractorInterface
 {
     /** @var Connection */
@@ -47,7 +44,7 @@ final class Extractor implements SqlExtractorInterface
         $this->loadFile($migration, $migrationPaths);
 
         $subject = new $migration(['db' => $this->db, 'experimental' => $this->experimental]);
-        if ($subject instanceof MigrationChangesInterface === false) {
+        if (!$subject instanceof MigrationChangesInterface) {
             throw new ErrorException(
                 "Class '{$migration}' must implement bizley\migration\dummy\MigrationChangesInterface."
             );
@@ -65,7 +62,7 @@ final class Extractor implements SqlExtractorInterface
      */
     private function loadFile(string $migration, array $migrationPaths): void
     {
-        if (strpos($migration, '\\') !== false) {
+        if (\strpos($migration, '\\') !== false) {
             // migration with `\` character is most likely namespaced, so it doesn't require loading
             return;
         }
@@ -73,7 +70,7 @@ final class Extractor implements SqlExtractorInterface
         foreach ($migrationPaths as $path) {
             /** @var string $file */
             $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
-            if (file_exists($file)) {
+            if (\file_exists($file)) {
                 require_once $file;
 
                 return;
@@ -93,7 +90,7 @@ final class Extractor implements SqlExtractorInterface
         // attempt to register Yii's autoloader in case it's not been done already
         // registering it second time should be skipped anyway
         /** @infection-ignore-all */
-        spl_autoload_register(['Yii', 'autoload'], true, true);
+        \spl_autoload_register(['Yii', 'autoload'], true, true);
 
         Yii::$classMap['yii\db\Migration'] = Yii::getAlias(
             $sqlDummy ? '@bizley/migration/dummy/MigrationSql.php' : '@bizley/migration/dummy/MigrationChanges.php'

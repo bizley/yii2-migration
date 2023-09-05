@@ -27,7 +27,7 @@ final class GeneratorStub implements GeneratorInterface
         string $dbPrefix = '',
         string $namespace = null
     ): string {
-        if (static::$throwForTable) {
+        if (self::$throwForTable) {
             throw new Exception('Stub exception');
         }
         return '';
@@ -40,7 +40,7 @@ final class GeneratorStub implements GeneratorInterface
         string $dbPrefix = '',
         string $namespace = null
     ): string {
-        if (static::$throwForKeys) {
+        if (self::$throwForKeys) {
             throw new Exception('Stub exception');
         }
         return '';

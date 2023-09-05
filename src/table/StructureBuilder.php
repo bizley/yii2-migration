@@ -7,10 +7,6 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 use yii\base\InvalidArgumentException;
 
-use function array_intersect_assoc;
-use function array_key_exists;
-use function count;
-
 final class StructureBuilder implements StructureBuilderInterface
 {
     /**
@@ -192,7 +188,7 @@ final class StructureBuilder implements StructureBuilderInterface
         $columns = $structure->getColumns();
 
         foreach ($primaryKey->getColumns() as $columnName) {
-            if (array_key_exists($columnName, $columns)) {
+            if (\array_key_exists($columnName, $columns)) {
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
                 if (empty($columnAppend)) {
@@ -218,7 +214,7 @@ final class StructureBuilder implements StructureBuilderInterface
             foreach ($primaryKey->getColumns() as $columnName) {
                 $column = $columns[$columnName];
                 $columnAppend = $column->getAppend();
-                if (array_key_exists($columnName, $columns) && !empty($columnAppend)) {
+                if (\array_key_exists($columnName, $columns) && !empty($columnAppend)) {
                     $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                 }
             }
@@ -259,8 +255,8 @@ final class StructureBuilder implements StructureBuilderInterface
         $indexColumns = $index->getColumns();
         if (
             $index->isUnique()
-            && count($indexColumns) === 1
-            && array_key_exists($indexColumns[0], $structure->getColumns())
+            && \count($indexColumns) === 1
+            && \array_key_exists($indexColumns[0], $structure->getColumns())
         ) {
             /** @var ColumnInterface $column */
             $column = $structure->getColumn($indexColumns[0]);
@@ -280,8 +276,8 @@ final class StructureBuilder implements StructureBuilderInterface
             $indexColumns = $index->getColumns();
             if (
                 $index->isUnique()
-                && count($indexColumns) === 1
-                && array_key_exists($indexColumns[0], $structure->getColumns())
+                && \count($indexColumns) === 1
+                && \array_key_exists($indexColumns[0], $structure->getColumns())
                 && ($column = $structure->getColumn($indexColumns[0])) !== null
                 && $column->isUnique()
             ) {
@@ -340,7 +336,7 @@ final class StructureBuilder implements StructureBuilderInterface
                 $foreignKeyColumnsCount = count($foreignKeyColumns);
                 foreach ($indexes as $index) {
                     $indexColumns = $index->getColumns();
-                    if ($foreignKeyColumnsCount === count(array_intersect_assoc($foreignKeyColumns, $indexColumns))) {
+                    if ($foreignKeyColumnsCount === \count(\array_intersect_assoc($foreignKeyColumns, $indexColumns))) {
                         // any index matching the FK columns as the first columns will do
                         continue 2;
                     }

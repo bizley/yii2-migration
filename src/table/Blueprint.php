@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use function count;
-
 final class Blueprint implements BlueprintInterface
 {
     /** @var string */
@@ -112,7 +110,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function isPending(): bool
     {
-        return $this->startFromScratch === true || count($this->description) > 0;
+        return $this->startFromScratch === true || !empty($this->description);
     }
 
     /**

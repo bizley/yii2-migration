@@ -6,7 +6,6 @@ namespace bizley\tests\unit;
 
 use bizley\migration\Schema;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
@@ -53,7 +52,7 @@ final class SchemaTest extends TestCase
     public function shouldCheckIfSchemaIsSqlite(): void
     {
         self::assertTrue(Schema::isSQLite(Yii::createObject(\yii\db\sqlite\Schema::class)));
-        self::assertFalse(Schema::isSQLite(new stdClass()));
+        self::assertFalse(Schema::isSQLite(new \stdClass()));
     }
 
     /** @test */

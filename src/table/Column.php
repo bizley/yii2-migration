@@ -6,13 +6,6 @@ namespace bizley\migration\table;
 
 use bizley\migration\Schema;
 
-use function in_array;
-use function preg_replace;
-use function str_ireplace;
-use function str_replace;
-use function stripos;
-use function trim;
-
 abstract class Column
 {
     /** @var string */
@@ -338,7 +331,7 @@ abstract class Column
      */
     public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool
     {
-        return in_array($this->name, $primaryKey->getColumns(), true);
+        return \in_array($this->name, $primaryKey->getColumns(), true);
     }
 
     /**
@@ -353,8 +346,8 @@ abstract class Column
             return false;
         }
 
-        if (stripos($append, 'PRIMARY KEY') !== false) {
-            return !($schema === Schema::MSSQL && stripos($append, 'IDENTITY') === false);
+        if (\stripos($append, 'PRIMARY KEY') !== false) {
+            return !($schema === Schema::MSSQL && \stripos($append, 'IDENTITY') === false);
         }
 
         return false;
@@ -380,13 +373,13 @@ abstract class Column
                 break;
 
             case Schema::SQLITE:
-                $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
+                $append = \trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
                 break;
 
             case Schema::CUBRID:
             case Schema::MYSQL:
             default:
-                $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
+                $append = \trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
 
         return empty($append) ? null : $append;
@@ -399,7 +392,7 @@ abstract class Column
      */
     public function escapeQuotes(string $value): string
     {
-        return str_replace('\'', '\\\'', $value);
+        return \str_replace('\'', '\\\'', $value);
     }
 
     /**
@@ -415,27 +408,27 @@ abstract class Column
 
         switch ($schema) {
             case Schema::MSSQL:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
                 break;
 
             case Schema::OCI:
             case Schema::PGSQL:
-                $cleanedAppend = str_ireplace('PRIMARY KEY', '', $this->append);
+                $cleanedAppend = \str_ireplace('PRIMARY KEY', '', $this->append);
                 break;
 
             case Schema::SQLITE:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
                 break;
 
             case Schema::CUBRID:
             case Schema::MYSQL:
             default:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }
 
-        $cleanedAppend = preg_replace('/\s+/', ' ', $cleanedAppend);
+        $cleanedAppend = \preg_replace('/\s+/', ' ', $cleanedAppend);
         if ($cleanedAppend !== null) {
-            $cleanedAppend = trim($cleanedAppend);
+            $cleanedAppend = \trim($cleanedAppend);
         }
 
         return !empty($cleanedAppend) ? $cleanedAppend : null;

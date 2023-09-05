@@ -14,7 +14,6 @@ use bizley\tests\stubs\SqlExtractMigration;
 use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use Yii;
 use yii\base\Action;
 use yii\base\Controller;
@@ -33,16 +32,6 @@ use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 
-use function chmod;
-use function fileperms;
-use function glob;
-use function mktime;
-use function preg_match_all;
-use function substr;
-use function time;
-use function ucfirst;
-use function unlink;
-
 /**
  * @group controller
  */
@@ -51,10 +40,10 @@ final class MigrationControllerTest extends TestCase
     /** @var MigrationControllerStub */
     private $controller;
 
-    /** @var MockObject|Connection */
+    /** @var MockObject&Connection */
     private $db;
 
-    /** @var MockObject|View */
+    /** @var MockObject&View */
     private $view;
 
     protected function setUp(): void
@@ -64,7 +53,7 @@ final class MigrationControllerTest extends TestCase
 
             public function __construct()
             {
-                $this->errorHandler = new stdClass();
+                $this->errorHandler = new \stdClass();
             }
 
             public function has(): bool
@@ -708,11 +697,11 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
 
-        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        \preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
         $time = $matches[1][0];
         self::assertEqualsWithDelta(
-            time(),
-            mktime((int)substr($time, 0, 2), (int)substr($time, 2, 2), (int)substr($time, -2)),
+            \time(),
+            \mktime((int)\substr($time, 0, 2), (int)\substr($time, 2, 2), (int)\substr($time, -2)),
             2
         );
         self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
@@ -758,10 +747,10 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
 
-        preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
+        \preg_match_all('/m\d{6}_(\d{6})_create_table/m', MigrationControllerStub::$stdout, $matches);
         self::assertEqualsWithDelta(
-            time() + 100,
-            mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2)),
+            \time() + 100,
+            \mktime((int)\substr($matches[1][0], 0, 2), (int)\substr($matches[1][0], 2, 2), (int)\substr($matches[1][0], -2)),
             5
         );
         self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
@@ -827,10 +816,10 @@ final class MigrationControllerTest extends TestCase
             MigrationControllerStub::$stdout
         );
 
-        preg_match_all('/m\d{6}_(\d{6})_create_/m', MigrationControllerStub::$stdout, $matches);
-        $t1 = mktime((int)substr($matches[1][2], 0, 2), (int)substr($matches[1][2], 2, 2), (int)substr($matches[1][2], -2));
-        $t2 = mktime((int)substr($matches[1][1], 0, 2), (int)substr($matches[1][1], 2, 2), (int)substr($matches[1][1], -2));
-        $t3 = mktime((int)substr($matches[1][0], 0, 2), (int)substr($matches[1][0], 2, 2), (int)substr($matches[1][0], -2));
+        \preg_match_all('/m\d{6}_(\d{6})_create_/m', MigrationControllerStub::$stdout, $matches);
+        $t1 = \mktime((int)\substr($matches[1][2], 0, 2), (int)\substr($matches[1][2], 2, 2), (int)\substr($matches[1][2], -2));
+        $t2 = \mktime((int)\substr($matches[1][1], 0, 2), (int)\substr($matches[1][1], 2, 2), (int)\substr($matches[1][1], -2));
+        $t3 = \mktime((int)\substr($matches[1][0], 0, 2), (int)\substr($matches[1][0], 2, 2), (int)\substr($matches[1][0], -2));
         self::assertTrue($t1 - $t2 >= 1);
         self::assertTrue($t2 - $t3 >= 1);
     }
@@ -1525,7 +1514,7 @@ ERROR!
      */
     public function shouldCreateDirectoryForPath(): void
     {
-        chmod(__DIR__ . '/../../runtime', 0777);
+        \chmod(__DIR__ . '/../../runtime', 0777);
 
         FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
@@ -1545,7 +1534,7 @@ ERROR!
      */
     public function shouldCreateDirectoryForPathByNamespace(): void
     {
-        chmod(__DIR__ . '/../../runtime', 0777);
+        \chmod(__DIR__ . '/../../runtime', 0777);
 
         FileHelper::removeDirectory(__DIR__ . '/../../runtime/test');
 
@@ -1565,11 +1554,11 @@ ERROR!
      */
     public function shouldStoreOneMigration(): void
     {
-        chmod(__DIR__ . '/../../runtime', 0777);
+        \chmod(__DIR__ . '/../../runtime', 0777);
 
-        $potentialFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php');
+        $potentialFiles = \glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php');
         foreach ($potentialFiles as $potentialFile) {
-            unlink($potentialFile);
+            \unlink($potentialFile);
         }
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
@@ -1599,7 +1588,7 @@ ERROR!
      */
     public function shouldNotStoreOneMigration(): void
     {
-        chmod(__DIR__ . '/../../runtime', 0644);
+        \chmod(__DIR__ . '/../../runtime', 0644);
         MigrationControllerStoringStub::$stdout = '';
 
         $controller = new MigrationControllerStoringStub('id', $this->createMock(Module::class));
@@ -1628,10 +1617,10 @@ ERROR!
         );
         self::assertStringContainsString(
             '_create_table_test.php): failed to open stream: permission denied',
-            strtolower(MigrationControllerStoringStub::$stdout) // PHP 8 changed case in message
+            \strtolower(MigrationControllerStoringStub::$stdout) // PHP 8 changed case in message
         );
 
-        chmod(__DIR__ . '/../../runtime', 0777);
+        \chmod(__DIR__ . '/../../runtime', 0777);
     }
 
     public function providerForFileMode(): array
@@ -1651,11 +1640,11 @@ ERROR!
      */
     public function shouldChangeMigrationPermissions($mode): void
     {
-        chmod(__DIR__ . '/../../runtime', 0777);
+        \chmod(__DIR__ . '/../../runtime', 0777);
 
         $potentialFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
         foreach ($potentialFiles as $potentialFile) {
-            unlink($potentialFile);
+            \unlink($potentialFile);
         }
 
         $controller = new MigrationController(
@@ -1686,10 +1675,10 @@ ERROR!
 
         self::assertSame(ExitCode::OK, $controller->actionCreate('testFileMode'));
 
-        $generatedFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
+        $generatedFiles = \glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
         self::assertNotEmpty($generatedFiles);
         foreach ($generatedFiles as $generatedFile) {
-            self::assertSame('0777', substr(sprintf('%o', fileperms($generatedFile)), -4));
+            self::assertSame('0777', \substr(\sprintf('%o', \fileperms($generatedFile)), -4));
         }
     }
 

@@ -20,16 +20,13 @@ use yii\base\NotSupportedException;
 /** @group inspector */
 final class InspectorTest extends TestCase
 {
-    /** @var HistoryManagerInterface|MockObject */
+    /** @var HistoryManagerInterface&MockObject */
     private $historyManager;
 
-    /** @var ExtractorInterface|MockObject */
+    /** @var ExtractorInterface&MockObject */
     private $extractor;
 
-    /** @var StructureBuilderInterface|MockObject */
-    private $builder;
-
-    /** @var ComparatorInterface|MockObject */
+    /** @var ComparatorInterface&MockObject */
     private $comparator;
 
     /** @var Inspector */
@@ -39,12 +36,11 @@ final class InspectorTest extends TestCase
     {
         $this->historyManager = $this->createMock(HistoryManagerInterface::class);
         $this->extractor = $this->createMock(ExtractorInterface::class);
-        $this->builder = $this->createMock(StructureBuilderInterface::class);
         $this->comparator = $this->createMock(ComparatorInterface::class);
         $this->inspector = new Inspector(
             $this->historyManager,
             $this->extractor,
-            $this->builder,
+            $this->createMock(StructureBuilderInterface::class),
             $this->comparator
         );
     }

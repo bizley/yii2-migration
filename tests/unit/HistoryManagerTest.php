@@ -8,6 +8,7 @@ use bizley\migration\HistoryManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
+use yii\console\controllers\BaseMigrateController;
 use yii\console\controllers\MigrateController;
 use yii\db\Command;
 use yii\db\Connection;
@@ -16,21 +17,19 @@ use yii\db\Query;
 use yii\db\Schema;
 use yii\db\TableSchema;
 
-use function time;
-
 /** @group historymanager */
 final class HistoryManagerTest extends TestCase
 {
-    /** @var MockObject|Connection */
+    /** @var MockObject&Connection */
     private $db;
 
     /** @var HistoryManager */
     private $manager;
 
-    /** @var MockObject|Schema */
+    /** @var MockObject&Schema */
     private $schema;
 
-    /** @var MockObject|Query */
+    /** @var MockObject&Query */
     private $query;
 
     protected function setUp(): void
@@ -76,13 +75,13 @@ final class HistoryManagerTest extends TestCase
                 }
             )
         )->willReturn($command);
-        $time = time();
+        $time = \time();
         $command->expects(self::exactly(2))->method('insert')->withConsecutive(
             [
                 'table',
                 self::callback(
                     static function (array $structure) use ($time): bool {
-                        return $structure['version'] === MigrateController::BASE_MIGRATION
+                        return $structure['version'] === BaseMigrateController::BASE_MIGRATION
                             && $structure['apply_time'] >= $time - 1
                             && $structure['apply_time'] <= $time + 1;
                     }
@@ -113,7 +112,7 @@ final class HistoryManagerTest extends TestCase
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
         $command = $this->createMock(Command::class);
-        $time = time();
+        $time = \time();
         $command->expects(self::once())->method('insert')->with(
             'table',
             self::callback(
@@ -142,12 +141,12 @@ final class HistoryManagerTest extends TestCase
     {
         return [
             'only base' => [
-                [['version' => MigrateController::BASE_MIGRATION, 'apply_time' => 1]],
+                [['version' => BaseMigrateController::BASE_MIGRATION, 'apply_time' => 1]],
                 []
             ],
             [
                 [
-                    ['version' => MigrateController::BASE_MIGRATION, 'apply_time' => 1],
+                    ['version' => BaseMigrateController::BASE_MIGRATION, 'apply_time' => 1],
                     ['version' => 'a', 'apply_time' => 1],
                     ['version' => 'b', 'apply_time' => '2'],
                     ['version' => 'c', 'apply_time' => 3],

@@ -186,7 +186,7 @@ final class Schema
             return null;
         }
 
-        if ($engineVersion && $schema === self::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
+        if ($engineVersion && $schema === self::MYSQL && \version_compare($engineVersion, '5.6.4', '>=')) {
             $schema = self::MYSQL . '+';
         }
 

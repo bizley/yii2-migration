@@ -24,13 +24,13 @@ final class StructureRendererTest extends TestCase
 {
     /** @var StructureRenderer */
     private $structureRenderer;
-    /** @var ColumnRendererInterface|MockObject */
+    /** @var ColumnRendererInterface&MockObject */
     private $columnRenderer;
-    /** @var PrimaryKeyRendererInterface|MockObject */
+    /** @var PrimaryKeyRendererInterface&MockObject */
     private $primaryKeyRenderer;
-    /** @var IndexRendererInterface|MockObject */
+    /** @var IndexRendererInterface&MockObject */
     private $indexRenderer;
-    /** @var ForeignKeyRendererInterface|MockObject */
+    /** @var ForeignKeyRendererInterface&MockObject */
     private $foreignKeyRenderer;
 
     protected function setUp(): void

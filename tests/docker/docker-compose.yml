@@ -4,7 +4,7 @@ services:
     restart: "no"
     image: mysql:8.0
     ports:
-      - 3306:3306
+      - "3406:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=migration
@@ -17,7 +17,7 @@ services:
     restart: "no"
     image: postgres:12.5
     ports:
-      - 5432:5432
+      - "5532:5432"
     environment:
       - POSTGRES_DB=migration
       - POSTGRES_USER=migration

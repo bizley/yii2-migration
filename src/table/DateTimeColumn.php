@@ -7,11 +7,6 @@ namespace bizley\migration\table;
 use bizley\migration\Schema;
 use yii\db\Expression;
 
-use function in_array;
-use function is_string;
-use function preg_match;
-use function version_compare;
-
 final class DateTimeColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
@@ -24,7 +19,7 @@ final class DateTimeColumn extends Column implements ColumnInterface
      */
     public function setDefault($default): void
     {
-        if (is_string($default) && preg_match('/^current_timestamp\([0-9]*\)$/i', $default)) {
+        if (\is_string($default) && \preg_match('/^current_timestamp\([0-9]*\)$/i', $default)) {
             // https://github.com/yiisoft/yii2/issues/17744
             $default = new Expression($default);
         }
@@ -64,11 +59,11 @@ final class DateTimeColumn extends Column implements ColumnInterface
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
-        if ($engineVersion && $schema === Schema::MYSQL && version_compare($engineVersion, '5.6.4', '>=')) {
+        if ($engineVersion && $schema === Schema::MYSQL && \version_compare($engineVersion, '5.6.4', '>=')) {
             return true;
         }
 
-        return in_array($schema, $this->lengthSchemas, true);
+        return \in_array($schema, $this->lengthSchemas, true);
     }
 
     /**

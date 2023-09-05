@@ -6,20 +6,6 @@ namespace bizley\migration;
 
 use yii\db\Expression;
 
-use function array_slice;
-use function count;
-use function is_numeric;
-use function preg_match;
-use function preg_replace;
-use function preg_split;
-use function stripos;
-use function strlen;
-use function substr;
-use function trim;
-use function uksort;
-
-use const PREG_SPLIT_NO_EMPTY;
-
 class SqlColumnMapper
 {
     /**
@@ -45,8 +31,8 @@ class SqlColumnMapper
     {
         $this->definition = $definition;
         // make sure longer DB types are first to avoid mismatch in detectType()
-        uksort($typeMap, static function ($a, $b) {
-            return strlen($b) <=> strlen($a);
+        \uksort($typeMap, static function ($a, $b) {
+            return \strlen($b) <=> \strlen($a);
         });
         $this->typeMap = $typeMap;
     }
@@ -86,16 +72,16 @@ class SqlColumnMapper
     private function detectTypeAndLength(): void
     {
         foreach ($this->typeMap as $dbType => $yiiType) {
-            if (stripos($this->definition, $dbType) !== false) {
+            if (\stripos($this->definition, $dbType) !== false) {
                 $this->schema['type'] = $yiiType;
 
-                if (preg_match("/$dbType\\s?(\\(([a-z0-9',\\s_-]+)\\))?/i", $this->definition, $matches)) {
-                    if ($dbType !== 'enum' && count($matches) >= 3) {
-                        $this->schema['length'] = preg_replace('/\s+/', '', $matches[2]);
+                if (\preg_match("/$dbType\\s?(\\(([a-z0-9',\\s_-]+)\\))?/i", $this->definition, $matches)) {
+                    if ($dbType !== 'enum' && \count($matches) >= 3) {
+                        $this->schema['length'] = \preg_replace('/\s+/', '', $matches[2]);
                     }
 
                     /** @infection-ignore-all */
-                    $this->definition = (string)preg_replace(
+                    $this->definition = (string)\preg_replace(
                         "/$dbType\\s?(\\(([a-z0-9',\\s_-]+)\\))?/i",
                         '',
                         $this->definition
@@ -112,14 +98,14 @@ class SqlColumnMapper
     private function cutOutDefinition(int $from, int $to): void
     {
         /** @infection-ignore-all */
-        $this->definition = substr($this->definition, 0, $from) . substr($this->definition, $to);
+        $this->definition = \substr($this->definition, 0, $from) . \substr($this->definition, $to);
     }
 
     private function detectComment(): void
     {
-        if (preg_match('/COMMENT\s?([\'\"])/i', $this->definition, $matches)) {
+        if (\preg_match('/COMMENT\s?([\'\"])/i', $this->definition, $matches)) {
             /** @infection-ignore-all */
-            $cutFrom = (int)stripos($this->definition, 'COMMENT');
+            $cutFrom = (int)\stripos($this->definition, 'COMMENT');
             [$cutTo, $sentence] = $this->findPart($matches[1], $this->definition, $cutFrom);
             $this->schema['comment'] = $sentence;
 
@@ -130,20 +116,20 @@ class SqlColumnMapper
     private function detectDefault(): void
     {
         /** @infection-ignore-all */
-        if (($cutFrom = stripos($this->definition, 'DEFAULT')) !== false) {
-            if (preg_match('/DEFAULT\s?([\'\"])/i', $this->definition, $matches)) {
+        if (($cutFrom = \stripos($this->definition, 'DEFAULT')) !== false) {
+            if (\preg_match('/DEFAULT\s?([\'\"])/i', $this->definition, $matches)) {
                 [$cutTo, $sentence] = $this->findPart($matches[1], $this->definition, $cutFrom);
                 $this->schema['default'] = $sentence;
                 $this->cutOutDefinition($cutFrom, $cutTo);
-            } elseif (preg_match('/DEFAULT\s?\(/i', $this->definition)) {
+            } elseif (\preg_match('/DEFAULT\s?\(/i', $this->definition)) {
                 [$cutTo, $sentence] = $this->findPart('(', $this->definition, $cutFrom);
                 $this->schema['default'] = new Expression($sentence);
                 $this->cutOutDefinition($cutFrom, $cutTo);
-            } elseif (preg_match('/DEFAULT\s?[0-9]/i', $this->definition)) {
+            } elseif (\preg_match('/DEFAULT\s?[0-9]/i', $this->definition)) {
                 [$cutTo, $sentence] = $this->findPart('1', $this->definition, $cutFrom);
                 $this->schema['default'] = $sentence;
                 $this->cutOutDefinition($cutFrom, $cutTo);
-            } elseif (preg_match('/DEFAULT\s?[a-z]/i', $this->definition)) {
+            } elseif (\preg_match('/DEFAULT\s?[a-z]/i', $this->definition)) {
                 [$cutTo, $sentence] = $this->findPart('', $this->definition, $cutFrom + 7);
                 $this->schema['default'] = new Expression($sentence);
                 $this->cutOutDefinition($cutFrom, $cutTo);
@@ -153,33 +139,33 @@ class SqlColumnMapper
 
     private function detectNotNull(): void
     {
-        if (stripos($this->definition, 'NOT NULL') !== false) {
+        if (\stripos($this->definition, 'NOT NULL') !== false) {
             $this->schema['isNotNull'] = true;
-            $this->definition = str_ireplace('NOT NULL', '', $this->definition);
+            $this->definition = \str_ireplace('NOT NULL', '', $this->definition);
         }
     }
 
     private function detectNull(): void
     {
-        if (stripos($this->definition, 'NULL') !== false) {
+        if (\stripos($this->definition, 'NULL') !== false) {
             $this->schema['isNotNull'] = false;
-            $this->definition = str_ireplace('NULL', '', $this->definition);
+            $this->definition = \str_ireplace('NULL', '', $this->definition);
         }
     }
 
     private function detectFirst(): void
     {
-        if (stripos($this->definition, 'FIRST') !== false) {
+        if (\stripos($this->definition, 'FIRST') !== false) {
             $this->schema['isFirst'] = true;
-            $this->definition = str_ireplace('FIRST', '', $this->definition);
+            $this->definition = \str_ireplace('FIRST', '', $this->definition);
         }
     }
 
     private function detectAfter(): void
     {
-        if (preg_match('/AFTER\s?`/i', $this->definition)) {
+        if (\preg_match('/AFTER\s?`/i', $this->definition)) {
             /** @infection-ignore-all */
-            $cutFrom = (int)stripos($this->definition, 'AFTER');
+            $cutFrom = (int)\stripos($this->definition, 'AFTER');
             /** @infection-ignore-all */
             [$cutTo, $sentence] = $this->findPart('`', $this->definition, $cutFrom + 5);
             $this->schema['after'] = $sentence;
@@ -191,38 +177,38 @@ class SqlColumnMapper
     private function detectAutoincrement(): void
     {
         if (
-            stripos($this->definition, 'AUTO_INCREMENT') !== false
-            || stripos($this->definition, 'AUTOINCREMENT') !== false
+            \stripos($this->definition, 'AUTO_INCREMENT') !== false
+            || \stripos($this->definition, 'AUTOINCREMENT') !== false
         ) {
             $this->schema['autoIncrement'] = true;
-            $this->definition = str_ireplace(['AUTO_INCREMENT', 'AUTOINCREMENT'], '', $this->definition);
+            $this->definition = \str_ireplace(['AUTO_INCREMENT', 'AUTOINCREMENT'], '', $this->definition);
         }
     }
 
     private function detectPrimaryKey(): void
     {
         if (
-            stripos($this->definition, 'IDENTITY PRIMARY KEY') !== false
-            || stripos($this->definition, 'PRIMARY KEY') !== false
+            \stripos($this->definition, 'IDENTITY PRIMARY KEY') !== false
+            || \stripos($this->definition, 'PRIMARY KEY') !== false
         ) {
             $this->schema['isPrimaryKey'] = true;
-            $this->definition = str_ireplace(['IDENTITY PRIMARY KEY', 'PRIMARY KEY'], '', $this->definition);
+            $this->definition = \str_ireplace(['IDENTITY PRIMARY KEY', 'PRIMARY KEY'], '', $this->definition);
         }
     }
 
     private function detectUnsigned(): void
     {
-        if (stripos($this->definition, 'UNSIGNED') !== false) {
+        if (\stripos($this->definition, 'UNSIGNED') !== false) {
             $this->schema['isUnsigned'] = true;
-            $this->definition = str_ireplace('UNSIGNED', '', $this->definition);
+            $this->definition = \str_ireplace('UNSIGNED', '', $this->definition);
         }
     }
 
     private function detectUnique(): void
     {
-        if (stripos($this->definition, 'UNIQUE') !== false) {
+        if (\stripos($this->definition, 'UNIQUE') !== false) {
             $this->schema['isUnique'] = true;
-            $this->definition = str_ireplace('UNIQUE', '', $this->definition);
+            $this->definition = \str_ireplace('UNIQUE', '', $this->definition);
         }
     }
 
@@ -234,10 +220,10 @@ class SqlColumnMapper
      */
     private function findPart(string $type, string $sentence, int $offset): array
     {
-        $sentence = substr($sentence, $offset);
+        $sentence = \substr($sentence, $offset);
 
         /** @var array<int, string> $sentenceArray */
-        $sentenceArray = preg_split('//u', $sentence, -1, PREG_SPLIT_NO_EMPTY);
+        $sentenceArray = \preg_split('//u', $sentence, -1, \PREG_SPLIT_NO_EMPTY);
 
         switch ($type) {
             case "'":
@@ -295,7 +281,7 @@ class SqlColumnMapper
             }
         }
         if ($consecutiveQuotes > 0 && $consecutiveQuotes % 2 !== 0) {
-            $part = substr($part, 0, -1);
+            $part = \substr($part, 0, -1);
         }
 
         return [(int)$end, $part];
@@ -321,7 +307,7 @@ class SqlColumnMapper
             }
 
             if ($collect) {
-                if ($char === '`' || preg_match('/\s/', $char)) {
+                if ($char === '`' || \preg_match('/\s/', $char)) {
                     break;
                 }
                 $part .= $char;
@@ -378,11 +364,11 @@ class SqlColumnMapper
         $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
-            if (!$collect && !is_numeric($char) && $char !== '-') {
+            if (!$collect && !\is_numeric($char) && $char !== '-') {
                 continue;
             }
 
-            if (!$collect && (is_numeric($char) || $char === '-')) {
+            if (!$collect && (\is_numeric($char) || $char === '-')) {
                 $collect = true;
                 $part .= $char;
                 $end = $index + 1;
@@ -390,7 +376,7 @@ class SqlColumnMapper
             }
 
             if ($collect) {
-                if (!is_numeric($char) && !preg_match('/[a-fA-F0-9x.]/', $char)) {
+                if (!\is_numeric($char) && !\preg_match('/[a-fA-F0-9x.]/', $char)) {
                     break;
                 }
                 $part .= $char;
@@ -411,22 +397,22 @@ class SqlColumnMapper
         $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
-            if (!$collect && !preg_match('/[a-z]/i', $char)) {
+            if (!$collect && !\preg_match('/[a-z]/i', $char)) {
                 continue;
             }
 
-            if (!$collect && preg_match('/[a-z]/i', $char)) {
+            if (!$collect && \preg_match('/[a-z]/i', $char)) {
                 $collect = true;
             }
 
             if ($collect) {
-                if (preg_match('/\s/', $char)) {
+                if (\preg_match('/\s/', $char)) {
                     break;
                 }
 
                 if ($char === '(') {
                     [$parenthesisPartEnd, $parenthesisPart] = $this->findParenthesizedPart(
-                        array_slice($sentenceArray, $index)
+                        \array_slice($sentenceArray, $index)
                     );
                     $part .= $parenthesisPart;
                     $end = $index + $parenthesisPartEnd;
@@ -443,7 +429,7 @@ class SqlColumnMapper
 
     private function prepareAppend(): void
     {
-        $append = trim($this->definition);
+        $append = \trim($this->definition);
 
         if ($append !== '') {
             $this->schema['append'] = $append;

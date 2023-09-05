@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use function count;
-use function in_array;
-
 final class PrimaryKey implements PrimaryKeyInterface
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
@@ -23,7 +20,7 @@ final class PrimaryKey implements PrimaryKeyInterface
      */
     public function isComposite(): bool
     {
-        return count($this->columns) > 1;
+        return \count($this->columns) > 1;
     }
 
     /**
@@ -70,7 +67,7 @@ final class PrimaryKey implements PrimaryKeyInterface
      */
     public function addColumn(string $name): void
     {
-        if (!in_array($name, $this->columns, true)) {
+        if (!\in_array($name, $this->columns, true)) {
             $this->columns[] = $name;
         }
     }

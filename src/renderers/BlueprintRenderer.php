@@ -6,9 +6,6 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\table\BlueprintInterface;
 
-use function array_filter;
-use function implode;
-
 final class BlueprintRenderer implements BlueprintRendererInterface
 {
     /** @var ColumnRendererInterface */
@@ -56,7 +53,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): string {
         $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
 
-        $renderedBlueprint = array_filter(
+        $renderedBlueprint = \array_filter(
             [
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
@@ -70,7 +67,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             ]
         );
 
-        return implode("\n\n", $renderedBlueprint);
+        return \implode("\n\n", $renderedBlueprint);
     }
 
     /**
@@ -94,7 +91,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     ): string {
         $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
 
-        $renderedBlueprint = array_filter(
+        $renderedBlueprint = \array_filter(
             [
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema, true),
@@ -108,7 +105,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             ]
         );
 
-        return implode("\n\n", $renderedBlueprint);
+        return \implode("\n\n", $renderedBlueprint);
     }
 
     /**
@@ -125,8 +122,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             return $tableName;
         }
 
-        if (!empty($dbPrefix) && strpos($tableName, $dbPrefix) === 0) {
-            $tableName = mb_substr($tableName, mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
+        if (!empty($dbPrefix) && \strpos($tableName, $dbPrefix) === 0) {
+            $tableName = \mb_substr($tableName, \mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
 
         return "{{%$tableName}}";
@@ -158,7 +155,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $renderedColumns[] = $this->columnRenderer->renderDrop($column, $tableName, $indent);
         }
 
-        return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
+        return !empty($renderedColumns) ? \implode("\n", $renderedColumns) : null;
     }
 
     /**
@@ -200,7 +197,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             );
         }
 
-        return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
+        return !empty($renderedColumns) ? \implode("\n", $renderedColumns) : null;
     }
 
     /**
@@ -242,7 +239,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             );
         }
 
-        return count($renderedColumns) ? implode("\n", $renderedColumns) : null;
+        return !empty($renderedColumns) ? \implode("\n", $renderedColumns) : null;
     }
 
     /**
@@ -273,7 +270,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $renderedForeignKeys[] = $this->foreignKeyRenderer->renderDown($foreignKey, $tableName, $indent, $schema);
         }
 
-        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
+        return !empty($renderedForeignKeys) ? \implode("\n", $renderedForeignKeys) : null;
     }
 
     /**
@@ -314,7 +311,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             );
         }
 
-        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
+        return !empty($renderedForeignKeys) ? \implode("\n", $renderedForeignKeys) : null;
     }
 
     /**
@@ -343,7 +340,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $renderedIndexes[] = $this->indexRenderer->renderDown($index, $tableName, $indent);
         }
 
-        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
+        return !empty($renderedIndexes) ? \implode("\n", $renderedIndexes) : null;
     }
 
     /**
@@ -372,7 +369,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             $renderedIndexes[] = $this->indexRenderer->renderUp($index, $tableName, $indent);
         }
 
-        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
+        return !empty($renderedIndexes) ? \implode("\n", $renderedIndexes) : null;
     }
 
     /**

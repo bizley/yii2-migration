@@ -12,8 +12,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
-use function array_keys;
-
 /** @group arranger */
 final class ArrangerTest extends TestCase
 {
@@ -61,7 +59,7 @@ final class ArrangerTest extends TestCase
         $structure = $this->createMock(StructureInterface::class);
 
         $callbacks = [];
-        foreach ($inputData as $tableName => $referencedTables) {
+        foreach ($inputData as $referencedTables) {
             $mockedReferencedTables = [];
             foreach ($referencedTables as $referencedTable) {
                 $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -72,12 +70,12 @@ final class ArrangerTest extends TestCase
         }
 
         $structure->method('getForeignKeys')->willReturnOnConsecutiveCalls(...$callbacks);
-        /** @var TableMapperInterface|MockObject $tableMapper */
+        /** @var TableMapperInterface&MockObject $tableMapper */
         $tableMapper = $this->createMock(TableMapperInterface::class);
         $tableMapper->method('getStructureOf')->willReturn($structure);
         $arranger = new Arranger($tableMapper);
 
-        $arranger->arrangeTables(array_keys($inputData));
+        $arranger->arrangeTables(\array_keys($inputData));
 
         self::assertSame($tablesInOrder, $arranger->getTablesInOrder());
         self::assertSame($referencesToPostpone, $arranger->getReferencesToPostpone());

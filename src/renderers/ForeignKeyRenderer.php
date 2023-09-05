@@ -8,11 +8,6 @@ use bizley\migration\Schema;
 use bizley\migration\table\ForeignKeyInterface;
 use yii\base\NotSupportedException;
 
-use function explode;
-use function implode;
-use function str_repeat;
-use function str_replace;
-
 final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
     /** @var string */
@@ -77,7 +72,7 @@ TEMPLATE;
         $onDelete = $foreignKey->getOnDelete();
         $onUpdate = $foreignKey->getOnUpdate();
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}',
@@ -90,9 +85,9 @@ TEMPLATE;
             [
                 $foreignKey->getName(),
                 $tableName,
-                implode(', ', $renderedKeyColumns),
+                \implode(', ', $renderedKeyColumns),
                 $referencedTableName,
-                implode(', ', $renderedReferencedColumns),
+                \implode(', ', $renderedReferencedColumns),
                 $onDelete ? "'$onDelete'" : 'null',
                 $onUpdate ? "'$onUpdate'" : 'null'
             ],
@@ -121,7 +116,7 @@ TEMPLATE;
 
         $template = $this->applyIndent($indent, $this->dropKeyTemplate);
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}'
@@ -146,13 +141,13 @@ TEMPLATE;
             return $template;
         }
 
-        $rows = explode("\n", $template);
+        $rows = \explode("\n", $template);
         foreach ($rows as &$row) {
             if ($row !== '') {
-                $row = str_repeat(' ', $indent) . $row;
+                $row = \str_repeat(' ', $indent) . $row;
             }
         }
 
-        return implode("\n", $rows);
+        return \implode("\n", $rows);
     }
 }

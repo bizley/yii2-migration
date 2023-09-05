@@ -9,7 +9,6 @@ use bizley\tests\stubs\MigrationControllerStub;
 use bizley\tests\stubs\UpdaterStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use Yii;
 use yii\base\Module;
 use yii\base\View;
@@ -19,11 +18,6 @@ use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 
-use function file_put_contents;
-use function gmdate;
-use function sprintf;
-use function time;
-
 /**
  * @group controller
  */
@@ -32,13 +26,13 @@ final class TimestampMigrationControllerTest extends TestCase
     /** @var MigrationControllerStub */
     private $controller;
 
-    /** @var MockObject|Connection */
+    /** @var MockObject&Connection */
     private $db;
 
-    /** @var MockObject|View */
+    /** @var MockObject&View */
     private $view;
 
-    /** @var MockObject|MysqlSchema */
+    /** @var MockObject&MysqlSchema */
     private $schema;
 
     protected function setUp(): void
@@ -48,7 +42,7 @@ final class TimestampMigrationControllerTest extends TestCase
 
             public function __construct()
             {
-                $this->errorHandler = new stdClass();
+                $this->errorHandler = new \stdClass();
             }
 
             public function has(): bool
@@ -93,13 +87,13 @@ final class TimestampMigrationControllerTest extends TestCase
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
 
-        $now = time();
+        $now = \time();
         $count = 0;
         while ($count < 10) {
-            file_put_contents(
-                __DIR__ . '/../../runtime/test/' . sprintf(
+            \file_put_contents(
+                __DIR__ . '/../../runtime/test/' . \sprintf(
                     'm%s_create_table_tab',
-                    gmdate('ymd_His', $now + $count++)
+                    \gmdate('ymd_His', $now + $count++)
                 ),
                 ''
             );
@@ -122,13 +116,13 @@ final class TimestampMigrationControllerTest extends TestCase
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
 
-        $now = time();
+        $now = \time();
         $count = 0;
         while ($count < 10) {
-            file_put_contents(
-                __DIR__ . '/../../runtime/test/' . sprintf(
+            \file_put_contents(
+                __DIR__ . '/../../runtime/test/' . \sprintf(
                     'm%s_create_table_tab',
-                    gmdate('ymd_His', $now + $count++)
+                    \gmdate('ymd_His', $now + $count++)
                 ),
                 ''
             );
@@ -155,13 +149,13 @@ final class TimestampMigrationControllerTest extends TestCase
     {
         $this->controller->migrationNamespace = ['bizley\\tests\\runtime\\test'];
 
-        $now = time();
+        $now = \time();
         $count = 0;
         while ($count < 10) {
-            file_put_contents(
-                __DIR__ . '/../../runtime/test/' . sprintf(
+            \file_put_contents(
+                __DIR__ . '/../../runtime/test/' . \sprintf(
                     'M%sCreateTableTab',
-                    gmdate('ymdHis', $now + $count++)
+                    \gmdate('ymdHis', $now + $count++)
                 ),
                 ''
             );
@@ -184,13 +178,13 @@ final class TimestampMigrationControllerTest extends TestCase
     {
         $this->controller->migrationNamespace = ['bizley\\tests\\runtime\\test'];
 
-        $now = time();
+        $now = \time();
         $count = 0;
         while ($count < 10) {
-            file_put_contents(
-                __DIR__ . '/../../runtime/test/' . sprintf(
+            \file_put_contents(
+                __DIR__ . '/../../runtime/test/' . \sprintf(
                     'M%sCreateTableTab',
-                    gmdate('ymd_His', $now + $count++)
+                    \gmdate('ymd_His', $now + $count++)
                 ),
                 ''
             );

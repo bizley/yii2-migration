@@ -11,8 +11,6 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-use function version_compare;
-
 /** @group mysql */
 final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
 {
@@ -27,7 +25,7 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     public function isV8(): bool
     {
         if ($this->v8 === null) {
-            $this->v8 = version_compare(
+            $this->v8 = \version_compare(
                 $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
                 '8.0.17',
                 '>='

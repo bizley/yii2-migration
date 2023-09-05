@@ -17,7 +17,7 @@ final class JsonColumn extends Column implements ColumnInterface
      */
     public function setDefault($default): void
     {
-        if (is_array($default)) {
+        if (\is_array($default)) {
             $default = Json::encode($default);
         }
         parent::setDefault($default);

@@ -6,10 +6,6 @@ namespace bizley\migration\renderers;
 
 use bizley\migration\table\IndexInterface;
 
-use function implode;
-use function str_repeat;
-use function str_replace;
-
 final class IndexRenderer implements IndexRendererInterface
 {
     /** @var string */
@@ -27,7 +23,7 @@ final class IndexRenderer implements IndexRendererInterface
      */
     public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
-        $template = str_repeat(' ', $indent) . $this->createIndexTemplate;
+        $template = \str_repeat(' ', $indent) . $this->createIndexTemplate;
 
         $indexColumns = $index->getColumns();
         $renderedColumns = [];
@@ -35,7 +31,7 @@ final class IndexRenderer implements IndexRendererInterface
             $renderedColumns[] = "'$indexColumn'";
         }
 
-        return str_replace(
+        return \str_replace(
             [
                 '{indexName}',
                 '{tableName}',
@@ -45,7 +41,7 @@ final class IndexRenderer implements IndexRendererInterface
             [
                 $index->getName(),
                 $tableName,
-                implode(', ', $renderedColumns),
+                \implode(', ', $renderedColumns),
                 $index->isUnique() ? ', true' : '',
             ],
             $template
@@ -61,9 +57,9 @@ final class IndexRenderer implements IndexRendererInterface
      */
     public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
-        $template = str_repeat(' ', $indent) . $this->dropIndexTemplate;
+        $template = \str_repeat(' ', $indent) . $this->dropIndexTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{indexName}',
                 '{tableName}'

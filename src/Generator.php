@@ -11,8 +11,6 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
-use function array_reverse;
-
 final class Generator implements GeneratorInterface
 {
     /** @var TableMapperInterface */
@@ -147,7 +145,7 @@ final class Generator implements GeneratorInterface
                     $dbPrefix
                 ),
                 'bodyDown' => $this->structureRenderer->renderForeignKeysDown(
-                    array_reverse($foreignKeys),
+                    \array_reverse($foreignKeys),
                     8,
                     $usePrefix,
                     $dbPrefix

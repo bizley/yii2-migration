@@ -7,16 +7,6 @@ namespace bizley\migration\renderers;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\StructureInterface;
 
-use function array_filter;
-use function count;
-use function explode;
-use function implode;
-use function mb_strlen;
-use function mb_substr;
-use function str_repeat;
-use function str_replace;
-use function strpos;
-
 final class StructureRenderer implements StructureRendererInterface
 {
     /** @var string */
@@ -76,8 +66,8 @@ TEMPLATE;
             return $tableName;
         }
 
-        if (!empty($dbPrefix) && strpos($tableName, $dbPrefix) === 0) {
-            $tableName = mb_substr($tableName, mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
+        if (!empty($dbPrefix) && \strpos($tableName, $dbPrefix) === 0) {
+            $tableName = \mb_substr($tableName, \mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
 
         return "{{%$tableName}}";
@@ -88,7 +78,7 @@ TEMPLATE;
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#up()-detail
      * @param StructureInterface $structure
      * @param int $indent
-     * @param string $schema
+     * @param string|null $schema
      * @param string|null $engineVersion
      * @param bool $usePrefix
      * @param string|null $dbPrefix
@@ -104,7 +94,7 @@ TEMPLATE;
     ): string {
         $tableName = $this->renderName($structure->getName(), $usePrefix, $dbPrefix);
 
-        $renderedStructure = array_filter(
+        $renderedStructure = \array_filter(
             [
                 $this->renderStructureTableUp($structure, $tableName, $indent, $schema, $engineVersion),
                 $this->renderStructurePrimaryKeyUp($structure, $tableName, $indent, $schema),
@@ -113,7 +103,7 @@ TEMPLATE;
             ]
         );
 
-        return implode("\n\n", $renderedStructure);
+        return \implode("\n\n", $renderedStructure);
     }
 
     /**
@@ -149,14 +139,14 @@ TEMPLATE;
             return $template;
         }
 
-        $rows = explode("\n", $template);
+        $rows = \explode("\n", $template);
         foreach ($rows as &$row) {
             if ($row !== '') {
-                $row = str_repeat(' ', $indent) . $row;
+                $row = \str_repeat(' ', $indent) . $row;
             }
         }
 
-        return implode("\n", $rows);
+        return \implode("\n", $rows);
     }
 
     /**
@@ -189,14 +179,14 @@ TEMPLATE;
 
         return $this->applyIndent(
             $indent,
-            str_replace(
+            \str_replace(
                 [
                     '{tableName}',
                     '{columns}',
                 ],
                 [
                     $tableName,
-                    implode("\n", $renderedColumns),
+                    \implode("\n", $renderedColumns),
                 ],
                 $this->createTableTemplate
             )
@@ -215,7 +205,7 @@ TEMPLATE;
     ): string {
         $template = $this->applyIndent($indent, $this->dropTableTemplate);
 
-        return str_replace('{tableName}', $tableName, $template);
+        return \str_replace('{tableName}', $tableName, $template);
     }
 
     /**
@@ -266,7 +256,7 @@ TEMPLATE;
             );
         }
 
-        return count($renderedIndexes) ? implode("\n", $renderedIndexes) : null;
+        return !empty($renderedIndexes) ? \implode("\n", $renderedIndexes) : null;
     }
 
     /**
@@ -321,7 +311,7 @@ TEMPLATE;
             );
         }
 
-        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
+        return !empty($renderedForeignKeys) ? \implode("\n", $renderedForeignKeys) : null;
     }
 
     /**
@@ -350,6 +340,6 @@ TEMPLATE;
             );
         }
 
-        return count($renderedForeignKeys) ? implode("\n", $renderedForeignKeys) : null;
+        return !empty($renderedForeignKeys) ? \implode("\n", $renderedForeignKeys) : null;
     }
 }
