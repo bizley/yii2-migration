@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use function is_array;
-use function preg_split;
-
 final class MoneyColumn extends Column implements ColumnInterface
 {
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
@@ -24,16 +19,14 @@ final class MoneyColumn extends Column implements ColumnInterface
     /**
      * Sets length of the column.
      * @param string|int|array<string|int>|null $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $length = $value;
         } else {
             /** @var array<string|int> $length */
-            $length = preg_split('/\s*,\s*/', (string)$value);
+            $length = \preg_split('/\s*,\s*/', (string)$value);
         }
 
         if (!empty($length[0])) {
@@ -51,7 +44,6 @@ final class MoneyColumn extends Column implements ColumnInterface
 
     /**
      * Returns default column definition.
-     * @return string
      */
     public function getDefinition(): string
     {

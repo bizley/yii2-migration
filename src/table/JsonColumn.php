@@ -6,8 +6,6 @@ namespace bizley\migration\table;
 
 use yii\helpers\Json;
 
-use function is_array;
-
 final class JsonColumn extends Column implements ColumnInterface
 {
     /**
@@ -17,7 +15,7 @@ final class JsonColumn extends Column implements ColumnInterface
      */
     public function setDefault($default): void
     {
-        if (is_array($default)) {
+        if (\is_array($default)) {
             $default = Json::encode($default);
         }
         parent::setDefault($default);
@@ -25,9 +23,6 @@ final class JsonColumn extends Column implements ColumnInterface
 
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return int|null
      */
     public function getLength(string $schema = null, string $engineVersion = null): ?int
     {
@@ -37,8 +32,6 @@ final class JsonColumn extends Column implements ColumnInterface
     /**
      * Sets length of the column.
      * @param mixed $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
@@ -46,7 +39,6 @@ final class JsonColumn extends Column implements ColumnInterface
 
     /**
      * Returns default column definition.
-     * @return string
      */
     public function getDefinition(): string
     {

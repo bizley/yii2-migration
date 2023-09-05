@@ -6,9 +6,6 @@ namespace bizley\migration\table;
 
 use InvalidArgumentException;
 
-use function array_key_exists;
-use function is_array;
-
 final class StructureChange implements StructureChangeInterface
 {
     /** @var string */
@@ -22,7 +19,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns table name of the change.
-     * @return string
      */
     public function getTable(): string
     {
@@ -31,7 +27,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Sets table name for the change.
-     * @param string $table
      */
     public function setTable(string $table): void
     {
@@ -40,7 +35,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns method of the change.
-     * @return string
      */
     public function getMethod(): string
     {
@@ -49,7 +43,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Sets method for the change.
-     * @param string $method
      */
     public function setMethod(string $method): void
     {
@@ -76,8 +69,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns value of the change based on the method.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return mixed Change value
      */
     public function getValue(string $schema = null, string $engineVersion = null)
@@ -119,8 +110,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns create table value of the change.
-     * @param string|null $engineName
-     * @param string|null $engineVersion
      * @return array<ColumnInterface>
      */
     private function getValueForCreateTable(string $engineName = null, string $engineVersion = null): array
@@ -128,7 +117,7 @@ final class StructureChange implements StructureChangeInterface
         $columns = [];
 
         $data = $this->getData();
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             throw new InvalidArgumentException('Wrong data for createTable method.');
         }
 
@@ -144,7 +133,7 @@ final class StructureChange implements StructureChangeInterface
             $column->setAppend($schema['append'] ?? null);
             $column->setUnsigned($schema['isUnsigned'] ?? false);
             $column->setComment(
-                (array_key_exists('comment', $schema) && !empty($schema['comment'])) ? $schema['comment'] : null
+                (\array_key_exists('comment', $schema) && !empty($schema['comment'])) ? $schema['comment'] : null
             );
             $column->setAfter($schema['after'] ?? null);
             $column->setFirst($schema['isFirst'] ?? false);
@@ -164,11 +153,11 @@ final class StructureChange implements StructureChangeInterface
         /** @var array<string, string> $data */
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('new', $data)
-            || !array_key_exists('old', $data)
-            || !is_string($data['new'])
-            || !is_string($data['old'])
+            !\is_array($data)
+            || !\array_key_exists('new', $data)
+            || !\array_key_exists('old', $data)
+            || !\is_string($data['new'])
+            || !\is_string($data['old'])
         ) {
             throw new InvalidArgumentException('Wrong data for renameColumn method.');
         }
@@ -178,19 +167,16 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add column value of the change.
-     * @param string|null $engineName
-     * @param string|null $engineVersion
-     * @return ColumnInterface
      */
     private function getValueForAddColumn(string $engineName = null, string $engineVersion = null): ColumnInterface
     {
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('name', $data)
-            || !array_key_exists('schema', $data)
-            || !is_string($data['name'])
-            || !is_array($data['schema'])
+            !\is_array($data)
+            || !\array_key_exists('name', $data)
+            || !\array_key_exists('schema', $data)
+            || !\is_string($data['name'])
+            || !\is_array($data['schema'])
         ) {
             throw new InvalidArgumentException('Wrong data for addColumn method.');
         }
@@ -214,17 +200,16 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add primary key value of the change.
-     * @return PrimaryKeyInterface
      */
     private function getValueForAddPrimaryKey(): PrimaryKeyInterface
     {
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('name', $data)
-            || !array_key_exists('columns', $data)
-            || !is_string($data['name'])
-            || !is_array($data['columns'])
+            !\is_array($data)
+            || !\array_key_exists('name', $data)
+            || !\array_key_exists('columns', $data)
+            || !\is_string($data['name'])
+            || !\is_array($data['columns'])
         ) {
             throw new InvalidArgumentException('Wrong data for addPrimaryKey method.');
         }
@@ -238,27 +223,26 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add foreign key value of the change.
-     * @return ForeignKeyInterface
      */
     private function getValueForAddForeignKey(): ForeignKeyInterface
     {
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('name', $data)
-            || !array_key_exists('columns', $data)
-            || !array_key_exists('referredTable', $data)
-            || !array_key_exists('referredColumns', $data)
-            || !array_key_exists('onDelete', $data)
-            || !array_key_exists('onUpdate', $data)
-            || !array_key_exists('tableName', $data)
-            || !is_string($data['name'])
-            || !is_array($data['columns'])
-            || !is_string($data['referredTable'])
-            || !is_array($data['referredColumns'])
-            || ($data['onDelete'] !== null && !is_string($data['onDelete']))
-            || ($data['onUpdate'] !== null && !is_string($data['onUpdate']))
-            || !is_string($data['tableName'])
+            !\is_array($data)
+            || !\array_key_exists('name', $data)
+            || !\array_key_exists('columns', $data)
+            || !\array_key_exists('referredTable', $data)
+            || !\array_key_exists('referredColumns', $data)
+            || !\array_key_exists('onDelete', $data)
+            || !\array_key_exists('onUpdate', $data)
+            || !\array_key_exists('tableName', $data)
+            || !\is_string($data['name'])
+            || !\is_array($data['columns'])
+            || !\is_string($data['referredTable'])
+            || !\is_array($data['referredColumns'])
+            || ($data['onDelete'] !== null && !\is_string($data['onDelete']))
+            || ($data['onUpdate'] !== null && !\is_string($data['onUpdate']))
+            || !\is_string($data['tableName'])
         ) {
             throw new InvalidArgumentException('Wrong data for addForeignKey method.');
         }
@@ -277,19 +261,18 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns create index value of the change.
-     * @return IndexInterface
      */
     private function getValueForCreateIndex(): IndexInterface
     {
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('name', $data)
-            || !array_key_exists('columns', $data)
-            || !array_key_exists('unique', $data)
-            || !is_string($data['name'])
-            || !is_array($data['columns'])
-            || !is_bool($data['unique'])
+            !\is_array($data)
+            || !\array_key_exists('name', $data)
+            || !\array_key_exists('columns', $data)
+            || !\array_key_exists('unique', $data)
+            || !\is_string($data['name'])
+            || !\is_array($data['columns'])
+            || !\is_bool($data['unique'])
         ) {
             throw new InvalidArgumentException('Wrong data for createIndex method.');
         }
@@ -311,11 +294,11 @@ final class StructureChange implements StructureChangeInterface
         /** @var array<string, string> $data */
         $data = $this->getData();
         if (
-            !is_array($data)
-            || !array_key_exists('column', $data)
-            || !array_key_exists('comment', $data)
-            || !is_string($data['column'])
-            || !is_string($data['comment'])
+            !\is_array($data)
+            || !\array_key_exists('column', $data)
+            || !\array_key_exists('comment', $data)
+            || !\is_string($data['column'])
+            || !\is_string($data['comment'])
         ) {
             throw new InvalidArgumentException('Wrong data for addCommentOnColumn.');
         }

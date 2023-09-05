@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
-use PDO;
-use Throwable;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
-
-use function preg_match_all;
-use function version_compare;
 
 /** @group mysql */
 final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
@@ -30,8 +25,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     public function isV8(): bool
     {
         if ($this->v8 === null) {
-            $this->v8 = version_compare(
-                $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
+            $this->v8 = \version_compare(
+                $this->getDb()->getSlavePdo()->getAttribute(\PDO::ATTR_SERVER_VERSION),
                 '8.0.17',
                 '>='
             );
@@ -514,7 +509,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table12', 'table12')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
         $this->createTables(
             [
@@ -581,7 +576,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table21', 'table21')->execute();
             $this->getDb()->createCommand()->dropForeignKey('fk-table22', 'table22')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
 
         $this->createTables(
@@ -711,7 +706,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table31', 'table31')->execute();
             $this->getDb()->createCommand()->dropForeignKey('fk-table32', 'table32')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
 
         $this->createTables(
@@ -747,7 +742,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         )->execute();
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['table31,table32,table33']));
-        preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
+        \preg_match_all('/create_table_table(\d{2})/', MigrationControllerStub::$content, $matches);
         self::assertSame(['33', '32', '31'], $matches[1]);
     }
 

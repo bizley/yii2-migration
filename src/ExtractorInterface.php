@@ -11,7 +11,6 @@ interface ExtractorInterface
 {
     /**
      * Extracts migration data structures.
-     * @param string $migration
      * @param array<string> $migrationPaths
      * @throws ErrorException
      */

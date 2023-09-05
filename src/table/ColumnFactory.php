@@ -11,8 +11,6 @@ final class ColumnFactory
 {
     /**
      * Builds table column object based on the type.
-     * @param string $type
-     * @return ColumnInterface
      */
     public static function build(string $type): ColumnInterface
     {

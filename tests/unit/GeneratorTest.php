@@ -17,18 +17,16 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\TableSchema;
 
-use function is_string;
-
 /** @group generator */
 final class GeneratorTest extends TestCase
 {
-    /** @var TableMapperInterface|MockObject */
+    /** @var TableMapperInterface&MockObject */
     private $mapper;
 
-    /** @var MockObject|View */
+    /** @var MockObject&View */
     private $view;
 
-    /** @var StructureRendererInterface|MockObject */
+    /** @var StructureRendererInterface&MockObject */
     private $renderer;
 
     /** @var Generator */
@@ -144,8 +142,8 @@ final class GeneratorTest extends TestCase
 
         $this->view->expects(self::once())->method('renderFile')->with(
             self::callback(
-                static function (string $template) {
-                    return is_string($template);
+                static function ($template) {
+                    return \is_string($template);
                 }
             ),
             self::callback(
@@ -183,7 +181,7 @@ final class GeneratorTest extends TestCase
 
         $this->view->expects(self::once())->method('renderFile')->with(
             self::callback(
-                static function (string $template) {
+                static function ($template) {
                     return is_string($template);
                 }
             ),

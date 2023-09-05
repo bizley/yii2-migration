@@ -13,7 +13,6 @@ use bizley\migration\table\StructureBuilder;
 use bizley\migration\table\StructureChangeInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -25,7 +24,7 @@ final class StructureBuilderTest extends TestCase
     /** @var StructureBuilder */
     private $builder;
 
-    /** @var StructureChangeInterface|MockObject */
+    /** @var StructureChangeInterface&MockObject */
     private $change;
 
     protected function setUp(): void
@@ -38,7 +37,7 @@ final class StructureBuilderTest extends TestCase
     public function shouldThrowExceptionWhenNoStructureChange(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->builder->build([new stdClass()], null, null);
+        $this->builder->build([new \stdClass()], null, null);
     }
 
     /** @test */

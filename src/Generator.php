@@ -11,8 +11,6 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\helpers\FileHelper;
 
-use function array_reverse;
-
 final class Generator implements GeneratorInterface
 {
     /** @var TableMapperInterface */
@@ -36,7 +34,6 @@ final class Generator implements GeneratorInterface
 
     /**
      * Returns the translated alias of create table migration template.
-     * @return string
      */
     public function getCreateTableMigrationTemplate(): string
     {
@@ -47,7 +44,6 @@ final class Generator implements GeneratorInterface
 
     /**
      * Returns the translated alias of create foreign keys migration template.
-     * @return string
      */
     public function getCreateForeignKeysMigrationTemplate(): string
     {
@@ -58,8 +54,6 @@ final class Generator implements GeneratorInterface
 
     /**
      * Returns the normalized namespace (in case it uses incorrect slashes).
-     * @param string|null $namespace
-     * @return string|null
      */
     private function getNormalizedNamespace(?string $namespace): ?string
     {
@@ -68,13 +62,7 @@ final class Generator implements GeneratorInterface
 
     /**
      * Generates migration for the table.
-     * @param string $tableName
-     * @param string $migrationName
      * @param array<string> $referencesToPostpone
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      * @throws TableMissingException
      * @throws NotSupportedException
      */
@@ -122,11 +110,6 @@ final class Generator implements GeneratorInterface
     /**
      * Generates the migration for the foreign keys.
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param string $migrationName
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      */
     public function generateForForeignKeys(
         array $foreignKeys,
@@ -147,7 +130,7 @@ final class Generator implements GeneratorInterface
                     $dbPrefix
                 ),
                 'bodyDown' => $this->structureRenderer->renderForeignKeysDown(
-                    array_reverse($foreignKeys),
+                    \array_reverse($foreignKeys),
                     8,
                     $usePrefix,
                     $dbPrefix

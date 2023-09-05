@@ -6,12 +6,6 @@ namespace bizley\migration;
 
 use yii\base\NotSupportedException;
 
-use function array_diff;
-use function array_key_exists;
-use function array_merge_recursive;
-use function array_unique;
-use function count;
-
 final class Arranger implements ArrangerInterface
 {
     /** @var TableMapperInterface */
@@ -49,12 +43,10 @@ final class Arranger implements ArrangerInterface
 
     /**
      * Adds dependency of the table.
-     * @param string $table
-     * @param string|null $dependsOnTable
      */
     private function addDependency(string $table, string $dependsOnTable = null): void
     {
-        if (!array_key_exists($table, $this->dependencies)) {
+        if (!\array_key_exists($table, $this->dependencies)) {
             $this->dependencies[$table] = [];
         }
 
@@ -92,7 +84,7 @@ final class Arranger implements ArrangerInterface
             }
         }
 
-        return array_unique($flattenedReferencesToPostpone);
+        return \array_unique($flattenedReferencesToPostpone);
     }
 
     /**
@@ -104,21 +96,21 @@ final class Arranger implements ArrangerInterface
         $order = [];
         $checkList = [];
 
-        $inputCount = count($input);
+        $inputCount = \count($input);
 
-        while ($inputCount > count($order)) {
+        while ($inputCount > \count($order)) {
             $done = false;
             $lastCheckedName = $lastCheckedDependency = null;
 
             foreach ($input as $name => $dependencies) {
-                if (array_key_exists($name, $checkList)) {
+                if (\array_key_exists($name, $checkList)) {
                     continue;
                 }
 
                 $resolved = true;
 
                 foreach ($dependencies as $dependency) {
-                    if (!array_key_exists($dependency, $checkList)) {
+                    if (!\array_key_exists($dependency, $checkList)) {
                         $resolved = false;
                         $lastCheckedName = $name;
                         $lastCheckedDependency = $dependency;
@@ -135,7 +127,7 @@ final class Arranger implements ArrangerInterface
             }
 
             if ($done === false) {
-                $input[$lastCheckedName] = array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
+                $input[$lastCheckedName] = \array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
 
                 $this->arrangeDependencies($input);
                 $order = $this->getTablesInOrder();

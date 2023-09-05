@@ -26,19 +26,19 @@ final class BlueprintRendererTest extends TestCase
     /** @var BlueprintRenderer */
     private $renderer;
 
-    /** @var ColumnRendererInterface|MockObject */
+    /** @var ColumnRendererInterface&MockObject */
     private $columnRenderer;
 
-    /** @var PrimaryKeyRendererInterface|MockObject */
+    /** @var PrimaryKeyRendererInterface&MockObject */
     private $primaryKeyRenderer;
 
-    /** @var IndexRendererInterface|MockObject */
+    /** @var IndexRendererInterface&MockObject */
     private $indexRenderer;
 
-    /** @var ForeignKeyRendererInterface|MockObject */
+    /** @var ForeignKeyRendererInterface&MockObject */
     private $foreignKeyRenderer;
 
-    /** @var BlueprintInterface|MockObject */
+    /** @var BlueprintInterface&MockObject */
     private $blueprint;
 
     protected function setUp(): void

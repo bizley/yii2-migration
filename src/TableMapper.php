@@ -15,7 +15,6 @@ use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\Structure;
 use bizley\migration\table\StructureInterface;
 use PDO;
-use Throwable;
 use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
@@ -27,9 +26,6 @@ use yii\db\oci\Schema as OciSchema;
 use yii\db\pgsql\Schema as PgsqlSchema;
 use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
-
-use function count;
-use function in_array;
 
 final class TableMapper implements TableMapperInterface
 {
@@ -46,9 +42,7 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a structure of the table.
-     * @param string $table
      * @param array<string> $referencesToPostpone
-     * @return StructureInterface
      * @throws NotSupportedException
      */
     public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface
@@ -57,7 +51,7 @@ final class TableMapper implements TableMapperInterface
         $foreignKeys = $this->getForeignKeys($table);
 
         foreach ($foreignKeys as $foreignKeyName => $foreignKey) {
-            if (in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
+            if (\in_array($foreignKey->getReferredTable(), $referencesToPostpone, true)) {
                 $this->suppressedForeignKeys[] = $foreignKey;
                 unset($foreignKeys[$foreignKeyName]);
             }
@@ -77,7 +71,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the foreign keys of the table.
-     * @param string $table
      * @return array<ForeignKeyInterface>
      * @throws NotSupportedException
      */
@@ -105,7 +98,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the indexes of the table.
-     * @param string $table
      * @return array<IndexInterface>
      * @throws NotSupportedException
      */
@@ -131,7 +123,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a primary key of the table.
-     * @param string $table
      * @return PrimaryKeyInterface|null
      * @throws NotSupportedException
      */
@@ -154,7 +145,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the columns of the table.
-     * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<string, ColumnInterface>
      * @throws NotSupportedException
@@ -201,14 +191,12 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * @param array<IndexInterface> $indexes
-     * @param ColumnSchema $column
-     * @return bool
      */
     private function isUnique(array $indexes, ColumnSchema $column): bool
     {
         foreach ($indexes as $index) {
             $indexColumns = $index->getColumns();
-            if ($index->isUnique() && count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
+            if ($index->isUnique() && \count($indexColumns) === 1 && $indexColumns[0] === $column->name) {
                 return true;
             }
         }
@@ -227,8 +215,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a table schema of the table.
-     * @param string $table
-     * @return TableSchema|null
      */
     public function getTableSchema(string $table): ?TableSchema
     {
@@ -237,7 +223,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a schema type.
-     * @return string
      * @throws NotSupportedException
      */
     public function getSchemaType(): string
@@ -249,7 +234,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a DB engine version.
-     * @return string|null
      */
     public function getEngineVersion(): ?string
     {
@@ -260,7 +244,7 @@ final class TableMapper implements TableMapperInterface
             }
 
             return $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION);
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             return null;
         }
     }

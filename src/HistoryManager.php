@@ -5,17 +5,12 @@ declare(strict_types=1);
 namespace bizley\migration;
 
 use yii\base\NotSupportedException;
+use yii\console\controllers\BaseMigrateController;
 use yii\console\controllers\MigrateController;
 use yii\db\Connection;
 use yii\db\Exception;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
-
-use function preg_match;
-use function str_replace;
-use function strcasecmp;
-use function time;
-use function usort;
 
 final class HistoryManager implements HistoryManagerInterface
 {
@@ -65,8 +60,6 @@ final class HistoryManager implements HistoryManagerInterface
 
     /**
      * Adds migration history entry.
-     * @param string $migrationName
-     * @param string|null $namespace
      * @throws Exception
      * @throws NotSupportedException
      */
@@ -82,7 +75,7 @@ final class HistoryManager implements HistoryManagerInterface
                 $this->historyTable,
                 [
                     'version' => ($namespace ? $namespace . '\\' : '') . $migrationName,
-                    'apply_time' => time(),
+                    'apply_time' => \time(),
                 ]
             )
             ->execute();
@@ -109,12 +102,12 @@ final class HistoryManager implements HistoryManagerInterface
 
         $history = [];
         foreach ($rows as $row) {
-            if ($row['version'] === MigrateController::BASE_MIGRATION) {
+            if ($row['version'] === BaseMigrateController::BASE_MIGRATION) {
                 continue;
             }
 
-            if (preg_match('/m?(\d{6}_?\d{6})(\D.*)?/i', $row['version'], $matches)) {
-                $row['canonicalVersion'] = str_replace('_', '', $matches[1]);
+            if (\preg_match('/m?(\d{6}_?\d{6})(\D.*)?/i', $row['version'], $matches)) {
+                $row['canonicalVersion'] = \str_replace('_', '', $matches[1]);
             } else {
                 $row['canonicalVersion'] = $row['version'];
             }
@@ -124,15 +117,15 @@ final class HistoryManager implements HistoryManagerInterface
             $history[] = $row;
         }
 
-        usort(
+        \usort(
             $history,
             static function ($a, $b) {
                 if ($a['apply_time'] === $b['apply_time']) {
-                    if (($compareResult = strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
+                    if (($compareResult = \strcasecmp($b['canonicalVersion'], $a['canonicalVersion'])) !== 0) {
                         return $compareResult;
                     }
 
-                    return strcasecmp($b['version'], $a['version']);
+                    return \strcasecmp($b['version'], $a['version']);
                 }
 
                 return $b['apply_time'] <=> $a['apply_time'];

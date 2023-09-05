@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace bizley\migration\table;
 
-use function count;
-
 final class Blueprint implements BlueprintInterface
 {
     /** @var string */
@@ -55,7 +53,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns table name of the structure.
-     * @return string
      */
     public function getTableName(): string
     {
@@ -64,7 +61,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Sets table name for the structure.
-     * @param string $tableName
      */
     public function setTableName(string $tableName): void
     {
@@ -81,7 +77,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Checks if blueprint contains no changes because table requires creation migration.
-     * @return bool
      */
     public function needsStartFromScratch(): bool
     {
@@ -90,7 +85,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds single description of the change.
-     * @param string $description
      */
     public function addDescription(string $description): void
     {
@@ -108,16 +102,14 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Checks if blueprint is ready to proceed with the update of table.
-     * @return bool
      */
     public function isPending(): bool
     {
-        return $this->startFromScratch === true || count($this->description) > 0;
+        return $this->startFromScratch === true || !empty($this->description);
     }
 
     /**
      * Adds added column.
-     * @param ColumnInterface $column
      */
     public function addColumn(ColumnInterface $column): void
     {
@@ -126,7 +118,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds altered column.
-     * @param ColumnInterface $column
      */
     public function alterColumn(ColumnInterface $column): void
     {
@@ -135,7 +126,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds unaltered column.
-     * @param ColumnInterface $column
      */
     public function reverseColumn(ColumnInterface $column): void
     {
@@ -144,7 +134,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds dropped column.
-     * @param ColumnInterface $column
      */
     public function dropColumn(ColumnInterface $column): void
     {
@@ -153,7 +142,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds added foreign key.
-     * @param ForeignKeyInterface $foreignKey
      */
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
@@ -162,7 +150,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds dropped foreign key.
-     * @param ForeignKeyInterface $foreignKey
      */
     public function dropForeignKey(ForeignKeyInterface $foreignKey): void
     {
@@ -171,7 +158,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds dropped primary key.
-     * @param PrimaryKeyInterface $primaryKey
      */
     public function dropPrimaryKey(PrimaryKeyInterface $primaryKey): void
     {
@@ -180,7 +166,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds added primary key.
-     * @param PrimaryKeyInterface $primaryKey
      */
     public function addPrimaryKey(PrimaryKeyInterface $primaryKey): void
     {
@@ -189,7 +174,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds added index.
-     * @param IndexInterface $index
      */
     public function addIndex(IndexInterface $index): void
     {
@@ -198,7 +182,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Adds dropped index.
-     * @param IndexInterface $index
      */
     public function dropIndex(IndexInterface $index): void
     {
@@ -261,7 +244,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns dropped primary key.
-     * @return PrimaryKeyInterface|null
      */
     public function getDroppedPrimaryKey(): ?PrimaryKeyInterface
     {
@@ -270,7 +252,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns added primary key.
-     * @return PrimaryKeyInterface|null
      */
     public function getAddedPrimaryKey(): ?PrimaryKeyInterface
     {
@@ -297,7 +278,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns old table's primary key.
-     * @return PrimaryKeyInterface|null
      */
     public function getTableOldPrimaryKey(): ?PrimaryKeyInterface
     {
@@ -306,7 +286,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Sets old table's primary key.
-     * @param PrimaryKeyInterface|null $tableOldPrimaryKey
      */
     public function setTableOldPrimaryKey(?PrimaryKeyInterface $tableOldPrimaryKey): void
     {
@@ -315,7 +294,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Returns new table's primary key.
-     * @return PrimaryKeyInterface|null
      */
     public function getTableNewPrimaryKey(): ?PrimaryKeyInterface
     {
@@ -324,7 +302,6 @@ final class Blueprint implements BlueprintInterface
 
     /**
      * Sets new table's primary key.
-     * @param PrimaryKeyInterface|null $tableNewPrimaryKey
      */
     public function setTableNewPrimaryKey(?PrimaryKeyInterface $tableNewPrimaryKey): void
     {

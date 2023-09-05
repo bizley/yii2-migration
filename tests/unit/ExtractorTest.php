@@ -75,8 +75,8 @@ final class ExtractorTest extends TestCase
     {
         $this->extractor->extract(GoodMigration::class, []);
         $changes = $this->extractor->getChanges();
-        self::assertSame(['table'], array_keys($changes));
-        self::assertInstanceOf(StructureChangeInterface::class, array_values($changes)[0][0]);
+        self::assertSame(['table'], \array_keys($changes));
+        self::assertInstanceOf(StructureChangeInterface::class, \array_values($changes)[0][0]);
 
         self::assertSame(Yii::getAlias('@bizley/migration/dummy/MigrationChanges.php'), Yii::$classMap['yii\db\Migration']);
     }
@@ -89,8 +89,8 @@ final class ExtractorTest extends TestCase
     {
         $this->extractor->extract('good_migration', ['tests/stubs']);
         $changes = $this->extractor->getChanges();
-        self::assertSame(['table'], array_keys($changes));
-        self::assertInstanceOf(StructureChangeInterface::class, array_values($changes)[0][0]);
+        self::assertSame(['table'], \array_keys($changes));
+        self::assertInstanceOf(StructureChangeInterface::class, \array_values($changes)[0][0]);
 
         self::assertSame(Yii::getAlias('@bizley/migration/dummy/MigrationChanges.php'), Yii::$classMap['yii\db\Migration']);
     }

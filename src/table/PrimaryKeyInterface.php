@@ -8,7 +8,6 @@ interface PrimaryKeyInterface
 {
     /**
      * Returns name of the primary key.
-     * @return string
      */
     public function getName(): string;
 
@@ -20,13 +19,11 @@ interface PrimaryKeyInterface
 
     /**
      * Checks whether the primary key is composite.
-     * @return bool
      */
     public function isComposite(): bool;
 
     /**
      * Adds column to the primary key.
-     * @param string $name
      */
     public function addColumn(string $name): void;
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\stubs\MigrationControllerStub;
-use Throwable;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
@@ -389,7 +388,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     {
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table12', 'table12')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
         $this->createTables(
             [
@@ -437,7 +436,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table21', 'table21')->execute();
             $this->getDb()->createCommand()->dropForeignKey('fk-table22', 'table22')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
 
         $this->createTables(
@@ -565,7 +564,7 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
         try {
             $this->getDb()->createCommand()->dropForeignKey('fk-table31', 'table31')->execute();
             $this->getDb()->createCommand()->dropForeignKey('fk-table32', 'table32')->execute();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
         }
 
         $this->createTables(

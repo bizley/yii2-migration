@@ -10,12 +10,6 @@ interface ForeignKeyRendererInterface
 {
     /**
      * Renders the add foreign key statement.
-     * @param ForeignKeyInterface $foreignKey
-     * @param string $tableName
-     * @param string $referencedTableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string
      */
     public function renderUp(
         ForeignKeyInterface $foreignKey,
@@ -27,11 +21,6 @@ interface ForeignKeyRendererInterface
 
     /**
      * Renders the drop foreign key statement.
-     * @param ForeignKeyInterface $foreignKey
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string
      */
     public function renderDown(
         ForeignKeyInterface $foreignKey,

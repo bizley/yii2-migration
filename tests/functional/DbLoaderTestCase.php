@@ -11,9 +11,6 @@ use yii\db\Connection;
 use yii\db\Exception;
 use yii\db\SchemaBuilderTrait;
 
-use function array_reverse;
-use function time;
-
 abstract class DbLoaderTestCase extends DbTestCase
 {
     use SchemaBuilderTrait;
@@ -36,7 +33,7 @@ abstract class DbLoaderTestCase extends DbTestCase
      */
     protected function createTables(array $tables): void
     {
-        foreach (array_reverse($tables) as $table => $columns) {
+        foreach (\array_reverse($tables) as $table => $columns) {
             $this->dropTable($table);
         }
 

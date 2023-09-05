@@ -12,12 +12,6 @@ use bizley\migration\table\PrimaryKeyVariantColumnInterface;
 use yii\db\Expression;
 use yii\helpers\Json;
 
-use function array_unshift;
-use function is_array;
-use function str_repeat;
-use function str_replace;
-use function trim;
-
 final class ColumnRenderer implements ColumnRendererInterface
 {
     /** @var array<string> */
@@ -54,12 +48,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the array part with column definition (name => definition).
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function render(
         ColumnInterface $column,
@@ -68,9 +56,9 @@ final class ColumnRenderer implements ColumnRendererInterface
         string $schema = null,
         string $engineVersion = null
     ): ?string {
-        $template = str_repeat(' ', $indent) . $this->definitionTemplate;
+        $template = \str_repeat(' ', $indent) . $this->definitionTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{columnName}',
                 '{columnDefinition}'
@@ -85,13 +73,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the add column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderAdd(
         ColumnInterface $column,
@@ -101,9 +82,9 @@ final class ColumnRenderer implements ColumnRendererInterface
         string $schema = null,
         string $engineVersion = null
     ): ?string {
-        $template = str_repeat(' ', $indent) . $this->addColumnTemplate;
+        $template = \str_repeat(' ', $indent) . $this->addColumnTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{tableName}',
                 '{columnName}',
@@ -120,13 +101,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the alter column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderAlter(
         ColumnInterface $column,
@@ -136,9 +110,9 @@ final class ColumnRenderer implements ColumnRendererInterface
         string $schema = null,
         string $engineVersion = null
     ): ?string {
-        $template = str_repeat(' ', $indent) . $this->alterColumnTemplate;
+        $template = \str_repeat(' ', $indent) . $this->alterColumnTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{tableName}',
                 '{columnName}',
@@ -155,16 +129,12 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the drop column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param int $indent
-     * @return string|null
      */
     public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string
     {
-        $template = str_repeat(' ', $indent) . $this->dropColumnTemplate;
+        $template = \str_repeat(' ', $indent) . $this->dropColumnTemplate;
 
-        return str_replace(
+        return \str_replace(
             [
                 '{tableName}',
                 '{columnName}'
@@ -179,11 +149,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderDefinition(
         ColumnInterface $column,
@@ -199,15 +164,11 @@ final class ColumnRenderer implements ColumnRendererInterface
         $this->buildColumnDefinition($column, $primaryKey, $schema, $engineVersion);
         $this->buildGeneralDefinition($column, $primaryKey, $schema);
 
-        return implode('->', $this->definition);
+        return \implode('->', $this->definition);
     }
 
     /**
      * Builds the column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     private function buildColumnDefinition(
         ColumnInterface $column,
@@ -238,12 +199,12 @@ final class ColumnRenderer implements ColumnRendererInterface
         if ($this->generalSchema) {
             $alias = Schema::getAlias($schema, $type, (string)$length);
             if ($alias !== null) {
-                $this->definition[] = str_replace('{renderLength}', '', $alias);
+                $this->definition[] = \str_replace('{renderLength}', '', $alias);
                 return;
             }
         }
 
-        $this->definition[] = str_replace(
+        $this->definition[] = \str_replace(
             '{renderLength}',
             $this->getRenderedLength(
                 (string)$length,
@@ -255,9 +216,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the column length.
-     * @param string $length
-     * @param string $defaultLength
-     * @return string|null
      */
     private function getRenderedLength(
         string $length,
@@ -277,16 +235,13 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Builds general methods chain for column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
      */
     private function buildGeneralDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
         string $schema = null
     ): void {
-        array_unshift($this->definition, '$this');
+        \array_unshift($this->definition, '$this');
 
         if ($this->isUnsignedPossible && $column->isUnsigned()) {
             $this->definition[] = 'unsigned()';
@@ -300,7 +255,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         if ($default !== null) {
             if ($default instanceof Expression) {
                 $this->definition[] = "defaultExpression('{$this->escapeQuotes($default->expression)}')";
-            } elseif (is_array($default)) {
+            } elseif (\is_array($default)) {
                 $this->definition[] = "defaultValue('{$this->escapeQuotes(Json::encode($default))}')";
             } else {
                 $this->definition[] = "defaultValue('{$this->escapeQuotes((string)$default)}')";
@@ -318,13 +273,13 @@ final class ColumnRenderer implements ColumnRendererInterface
 
             if ($schemaAppend !== null) {
                 if (!empty($columnAppend)) {
-                    $schemaAppend .= ' ' . trim(str_replace($schemaAppend, '', $columnAppend));
+                    $schemaAppend .= ' ' . \trim(\str_replace($schemaAppend, '', $columnAppend));
                 }
-                $schemaAppend = trim($schemaAppend);
+                $schemaAppend = \trim($schemaAppend);
             }
             $this->definition[] = "append('" . $this->escapeQuotes($schemaAppend) . "')";
         } elseif (!empty($columnAppend)) {
-            $this->definition[] = "append('" . $this->escapeQuotes(trim($columnAppend)) . "')";
+            $this->definition[] = "append('" . $this->escapeQuotes(\trim($columnAppend)) . "')";
         }
 
         $comment = $column->getComment();
@@ -342,8 +297,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Escapes single quotes.
-     * @param string|null $value
-     * @return string|null
      */
     public function escapeQuotes(?string $value): ?string
     {
@@ -351,6 +304,6 @@ final class ColumnRenderer implements ColumnRendererInterface
             return null;
         }
 
-        return str_replace('\'', '\\\'', $value);
+        return \str_replace('\'', '\\\'', $value);
     }
 }

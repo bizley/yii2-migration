@@ -13,13 +13,6 @@ use bizley\migration\table\StructureInterface;
 use yii\base\NotSupportedException;
 use yii\helpers\Json;
 
-use function count;
-use function in_array;
-use function is_string;
-use function preg_match;
-use function strpos;
-use function substr;
-
 final class Comparator implements ComparatorInterface
 {
     /** @var bool */
@@ -32,12 +25,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares migration virtual structure with database structure and gathers required modifications.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
      * @param bool $onlyShow whether changes should be only displayed
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
     public function compare(
@@ -62,12 +50,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the columns between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
     private function compareColumns(
@@ -86,7 +68,7 @@ final class Comparator implements ComparatorInterface
         /** @var ColumnInterface $column */
         /** @var string $name */
         foreach ($newColumns as $name => $column) {
-            if (!array_key_exists($name, $oldColumns)) {
+            if (!\array_key_exists($name, $oldColumns)) {
                 $blueprint->addDescription("missing column '$name'");
                 if ($previousColumn) {
                     $column->setAfter($previousColumn);
@@ -131,10 +113,10 @@ final class Comparator implements ComparatorInterface
                     $oldProperty = $oldColumn->$propertyFetch();
                     $newProperty = $column->$propertyFetch();
                 }
-                if (!is_bool($oldProperty) && $oldProperty !== null && !is_array($oldProperty)) {
+                if (!\is_bool($oldProperty) && $oldProperty !== null && !\is_array($oldProperty)) {
                     $oldProperty = (string)$oldProperty;
                 }
-                if (!is_bool($newProperty) && $newProperty !== null && !is_array($newProperty)) {
+                if (!\is_bool($newProperty) && $newProperty !== null && !\is_array($newProperty)) {
                     $newProperty = (string)$newProperty;
                 }
                 if ($oldProperty !== $newProperty) {
@@ -184,7 +166,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldColumns as $name => $column) {
-            if (!array_key_exists($name, $newColumns)) {
+            if (!\array_key_exists($name, $newColumns)) {
                 $blueprint->addDescription("excessive column '$name'");
                 if ($schema === Schema::SQLITE) {
                     $blueprint->addDescription(
@@ -202,11 +184,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the foreign keys between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function compareForeignKeys(
@@ -219,7 +196,7 @@ final class Comparator implements ComparatorInterface
         $newForeignKeys = $newStructure->getForeignKeys();
         $oldForeignKeys = $oldStructure->getForeignKeys();
         foreach ($newForeignKeys as $name => $foreignKey) {
-            if (!array_key_exists($name, $oldForeignKeys)) {
+            if (!\array_key_exists($name, $oldForeignKeys)) {
                 $blueprint->addDescription("missing foreign key '$name'");
 
                 if ($schema === Schema::SQLITE) {
@@ -242,8 +219,8 @@ final class Comparator implements ComparatorInterface
             $oldForeignKeyColumns = $oldForeignKey->getColumns();
 
             if (
-                array_diff($newForeignKeyColumns, $oldForeignKeyColumns)
-                    !== array_diff($oldForeignKeyColumns, $newForeignKeyColumns)
+                \array_diff($newForeignKeyColumns, $oldForeignKeyColumns)
+                    !== \array_diff($oldForeignKeyColumns, $newForeignKeyColumns)
             ) {
                 $blueprint->addDescription(
                     "different foreign key '$name' columns ("
@@ -270,8 +247,8 @@ final class Comparator implements ComparatorInterface
             $oldForeignKeyReferredColumns = $oldForeignKey->getReferredColumns();
 
             if (
-                array_diff($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns)
-                    !== array_diff($oldForeignKeyReferredColumns, $newForeignKeyReferredColumns)
+                \array_diff($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns)
+                    !== \array_diff($oldForeignKeyReferredColumns, $newForeignKeyReferredColumns)
             ) {
                 $blueprint->addDescription(
                     "different foreign key '$name' referred columns ("
@@ -360,7 +337,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldForeignKeys as $name => $foreignKey) {
-            if (!array_key_exists($name, $newForeignKeys)) {
+            if (!\array_key_exists($name, $newForeignKeys)) {
                 $blueprint->addDescription("excessive foreign key '$name'");
 
                 if ($schema === Schema::SQLITE) {
@@ -379,11 +356,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the primary keys between new and old structure.
-     * @param PrimaryKeyInterface|null $newPrimaryKey
-     * @param PrimaryKeyInterface|null $oldPrimaryKey
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function comparePrimaryKeys(
@@ -398,13 +370,13 @@ final class Comparator implements ComparatorInterface
 
         $newPrimaryKeyColumns = $newPrimaryKey ? $newPrimaryKey->getColumns() : [];
         $oldPrimaryKeyColumns = $oldPrimaryKey ? $oldPrimaryKey->getColumns() : [];
-        $differentColumns = array_diff($newPrimaryKeyColumns, $oldPrimaryKeyColumns);
+        $differentColumns = \array_diff($newPrimaryKeyColumns, $oldPrimaryKeyColumns);
 
-        if ($differentColumns !== array_diff($oldPrimaryKeyColumns, $newPrimaryKeyColumns)) {
+        if ($differentColumns !== \array_diff($oldPrimaryKeyColumns, $newPrimaryKeyColumns)) {
             $blueprint->addDescription('different primary key definition');
 
             $alreadyDropped = false;
-            if (count($oldPrimaryKeyColumns)) {
+            if (!empty($oldPrimaryKeyColumns)) {
                 if ($schema === Schema::SQLITE) {
                     $blueprint->addDescription(
                         '(!) DROP PRIMARY KEY is not supported by SQLite: Migration must be created manually'
@@ -419,7 +391,7 @@ final class Comparator implements ComparatorInterface
                 $blueprint->dropPrimaryKey($oldPrimaryKey);
             }
 
-            $newPrimaryKeyColumnsCount = count($newPrimaryKeyColumns);
+            $newPrimaryKeyColumnsCount = \count($newPrimaryKeyColumns);
             if ($this->shouldPrimaryKeyBeAdded($blueprint, $differentColumns, $newPrimaryKeyColumnsCount, $schema)) {
                 if ($schema === Schema::SQLITE) {
                     if ($alreadyDropped === false) {
@@ -442,8 +414,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Removes excessive primary key statements from the column in case the primary key will be added separately anyway.
-     * @param BlueprintInterface $blueprint
-     * @param string|null $schema
      */
     private function removeExcessivePrimaryKeyStatements(BlueprintInterface $blueprint, ?string $schema): void
     {
@@ -458,11 +428,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Checks whether the separate primary key needs to be added.
-     * @param BlueprintInterface $blueprint
      * @param array<string> $differentColumns
-     * @param int $newColumnsCount
-     * @param string|null $schema
-     * @return bool
      */
     private function shouldPrimaryKeyBeAdded(
         BlueprintInterface $blueprint,
@@ -473,7 +439,7 @@ final class Comparator implements ComparatorInterface
         if ($newColumnsCount === 0) {
             return false;
         }
-        if ($newColumnsCount === 1 && count($differentColumns) === 1) {
+        if ($newColumnsCount === 1 && \count($differentColumns) === 1) {
             foreach ($blueprint->getAddedColumns() as $name => $column) {
                 if ($name === $differentColumns[0] && $column->isPrimaryKeyInfoAppended($schema)) {
                     return false;
@@ -494,9 +460,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the indexes between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
      */
     private function compareIndexes(
         StructureInterface $newStructure,
@@ -507,11 +470,11 @@ final class Comparator implements ComparatorInterface
         $oldIndexes = $oldStructure->getIndexes();
 
         foreach ($newIndexes as $name => $index) {
-            if (!array_key_exists($name, $oldIndexes)) {
+            if (!\array_key_exists($name, $oldIndexes)) {
                 $indexColumns = $index->getColumns();
                 if (
                     $index->isUnique()
-                    && count($indexColumns) === 1
+                    && \count($indexColumns) === 1
                     && ($newIndexColumn = $newStructure->getColumn($indexColumns[0]))
                     && $newIndexColumn->isUnique()
                     && ($oldIndexColumn = $oldStructure->getColumn($indexColumns[0]))
@@ -551,7 +514,7 @@ final class Comparator implements ComparatorInterface
             $newIndexColumns = $index->getColumns();
             $oldIndexColumns = $oldIndex->getColumns();
 
-            if (array_diff($newIndexColumns, $oldIndexColumns) !== array_diff($oldIndexColumns, $newIndexColumns)) {
+            if (\array_diff($newIndexColumns, $oldIndexColumns) !== \array_diff($oldIndexColumns, $newIndexColumns)) {
                 $blueprint->addDescription(
                     "different index '$name' columns (DB: "
                     . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
@@ -563,7 +526,7 @@ final class Comparator implements ComparatorInterface
         }
 
         foreach ($oldIndexes as $name => $index) {
-            if (!array_key_exists($name, $newIndexes)) {
+            if (!\array_key_exists($name, $newIndexes)) {
                 $blueprint->addDescription("excessive index '$name'");
                 $blueprint->dropIndex($index);
             }
@@ -573,9 +536,6 @@ final class Comparator implements ComparatorInterface
     /**
      * Checks if append statements are the same in new and old structure.
      * Compares the actual statements and potential ones.
-     * @param ColumnInterface $newColumn
-     * @param ColumnInterface $oldColumn
-     * @return bool
      */
     private function isAppendSame(ColumnInterface $newColumn, ColumnInterface $oldColumn): bool
     {
@@ -602,7 +562,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Strips append string from primary key and autoincrement constraints.
-     * @param string|null $append
      * @return array<string|bool|null>
      */
     private function stripAppend(?string $append): array
@@ -611,27 +570,27 @@ final class Comparator implements ComparatorInterface
         $primaryKey = false;
 
         if ($append !== null) {
-            if (strpos($append, 'AUTO_INCREMENT') !== false) {
+            if (\strpos($append, 'AUTO_INCREMENT') !== false) {
                 $autoIncrement = true;
-                $append = str_replace('AUTO_INCREMENT', '', $append);
+                $append = \str_replace('AUTO_INCREMENT', '', $append);
             }
 
-            if (strpos($append, 'AUTOINCREMENT') !== false) {
+            if (\strpos($append, 'AUTOINCREMENT') !== false) {
                 $autoIncrement = true;
-                $append = str_replace('AUTOINCREMENT', '', $append);
+                $append = \str_replace('AUTOINCREMENT', '', $append);
             }
 
-            if (strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
+            if (\strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
                 $primaryKey = true;
-                $append = str_replace('IDENTITY PRIMARY KEY', '', $append);
+                $append = \str_replace('IDENTITY PRIMARY KEY', '', $append);
             }
 
-            if (strpos($append, 'PRIMARY KEY') !== false) {
+            if (\strpos($append, 'PRIMARY KEY') !== false) {
                 $primaryKey = true;
-                $append = str_replace('PRIMARY KEY', '', $append);
+                $append = \str_replace('PRIMARY KEY', '', $append);
             }
 
-            $append = trim($append);
+            $append = \trim($append);
             if ($append === '') {
                 $append = null;
             }
@@ -642,17 +601,13 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Checks if columns' uniqueness is the same because of the unique index.
-     * @param StructureInterface $structure
-     * @param string $columnName
-     * @param bool $unique
-     * @return bool
      */
     private function getRealUniqueness(StructureInterface $structure, string $columnName, bool $unique): bool
     {
         if ($unique) {
             foreach ($structure->getIndexes() as $index) {
                 $indexColumns = $index->getColumns();
-                if ($index->isUnique() && count($indexColumns) === 1 && in_array($columnName, $indexColumns, true)) {
+                if ($index->isUnique() && \count($indexColumns) === 1 && \in_array($columnName, $indexColumns, true)) {
                     return false;
                 }
             }
@@ -665,24 +620,23 @@ final class Comparator implements ComparatorInterface
      * Checks if length has the same value but written differently.
      * @param mixed $newLength
      * @param mixed $oldLength
-     * @return bool
      */
     private function isLengthSame($newLength, $oldLength): bool
     {
         $normalizedNew = $newLength;
         if (
-            is_string($newLength)
-            && ($commaPosition = strpos($newLength, ',')) !== false
-            && preg_match('/,\s?0$/', $newLength)
+            \is_string($newLength)
+            && ($commaPosition = \strpos($newLength, ',')) !== false
+            && \preg_match('/,\s?0$/', $newLength)
         ) {
             $normalizedNew = substr($newLength, 0, $commaPosition);
         }
         $normalizedOld = $oldLength;
         if (
-            is_string($oldLength)
-            && ($commaPosition = strpos($oldLength, ',')) !== false
-            && preg_match('/,\s?0$/', $oldLength)) {
-            $normalizedOld = substr($oldLength, 0, $commaPosition);
+            \is_string($oldLength)
+            && ($commaPosition = \strpos($oldLength, ',')) !== false
+            && \preg_match('/,\s?0$/', $oldLength)) {
+            $normalizedOld = \substr($oldLength, 0, $commaPosition);
         }
         return $normalizedNew === $normalizedOld;
     }
@@ -690,7 +644,6 @@ final class Comparator implements ComparatorInterface
     /**
      * Returns values as strings.
      * @param mixed $value
-     * @return string
      */
     private function stringifyValue($value): string
     {
@@ -706,10 +659,10 @@ final class Comparator implements ComparatorInterface
             return 'FALSE';
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return Json::encode($value);
         }
 
-        return '"' . str_replace('"', '\"', $value) . '"';
+        return '"' . \str_replace('"', '\"', $value) . '"';
     }
 }

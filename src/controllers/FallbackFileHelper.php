@@ -4,29 +4,14 @@ declare(strict_types=1);
 
 namespace bizley\migration\controllers;
 
-use Exception;
-use RuntimeException;
 use yii\base\InvalidArgumentException;
 use yii\helpers\ArrayHelper;
-
-use function chgrp;
-use function chmod;
-use function chown;
-use function count;
-use function decoct;
-use function explode;
-use function is_array;
-use function is_int;
-use function is_numeric;
-use function is_string;
 
 class FallbackFileHelper
 {
     /**
-     * @param string $path
      * @param int|string|array<int|string, int|string>|null $ownership
-     * @param int|null $mode
-     * @throws Exception
+     * @throws \Exception
      */
     public static function changeOwnership(string $path, $ownership, ?int $mode): void
     {
@@ -36,15 +21,15 @@ class FallbackFileHelper
 
         $user = $group = null;
         if (!empty($ownership) || $ownership === 0 || $ownership === '0') {
-            if (is_int($ownership)) {
+            if (\is_int($ownership)) {
                 $user = $ownership;
-            } elseif (is_string($ownership)) {
-                $ownerParts = explode(':', $ownership);
+            } elseif (\is_string($ownership)) {
+                $ownerParts = \explode(':', $ownership);
                 $user = $ownerParts[0];
-                if (count($ownerParts) > 1) {
+                if (\count($ownerParts) > 1) {
                     $group = $ownerParts[1];
                 }
-            } elseif (is_array($ownership)) {
+            } elseif (\is_array($ownership)) {
                 $ownershipIsIndexed = ArrayHelper::isIndexed($ownership);
                 $user = ArrayHelper::getValue($ownership, $ownershipIsIndexed ? '0' : 'user');
                 $group = ArrayHelper::getValue($ownership, $ownershipIsIndexed ? '1' : 'group');
@@ -53,31 +38,31 @@ class FallbackFileHelper
             }
         }
 
-        if ($mode !== null && !chmod($path, $mode)) {
-            throw new RuntimeException('Unable to change mode of "' . $path . '" to "0' . decoct($mode) . '".');
+        if ($mode !== null && !\chmod($path, $mode)) {
+            throw new \RuntimeException('Unable to change mode of "' . $path . '" to "0' . \decoct($mode) . '".');
         }
         if ($user !== null && $user !== '') {
-            if (is_numeric($user)) {
+            if (\is_numeric($user)) {
                 $user = (int)$user;
-            } elseif (!is_string($user)) {
+            } elseif (!\is_string($user)) {
                 throw new InvalidArgumentException(
                     'The user part of fileOwnership option must be an integer, string, or null.'
                 );
             }
-            if (!chown($path, $user)) {
-                throw new RuntimeException('Unable to change user ownership of "' . $path . '" to "' . $user . '".');
+            if (!\chown($path, $user)) {
+                throw new \RuntimeException('Unable to change user ownership of "' . $path . '" to "' . $user . '".');
             }
         }
         if ($group !== null && $group !== '') {
-            if (is_numeric($group)) {
+            if (\is_numeric($group)) {
                 $group = (int)$group;
-            } elseif (!is_string($group)) {
+            } elseif (!\is_string($group)) {
                 throw new InvalidArgumentException(
                     'The group part of fileOwnership option must be an integer, string, or null.'
                 );
             }
-            if (!chgrp($path, $group)) {
-                throw new RuntimeException('Unable to change group ownership of "' . $path . '" to "' . $group . '".');
+            if (!\chgrp($path, $group)) {
+                throw new \RuntimeException('Unable to change group ownership of "' . $path . '" to "' . $group . '".');
             }
         }
     }

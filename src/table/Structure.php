@@ -23,7 +23,6 @@ final class Structure implements StructureInterface
 
     /**
      * Returns name of the structure.
-     * @return string
      */
     public function getName(): string
     {
@@ -32,7 +31,6 @@ final class Structure implements StructureInterface
 
     /**
      * Sets name of the structure.
-     * @param string $name
      */
     public function setName(string $name): void
     {
@@ -41,7 +39,6 @@ final class Structure implements StructureInterface
 
     /**
      * Returns primary key of the structure.
-     * @return PrimaryKeyInterface|null
      */
     public function getPrimaryKey(): ?PrimaryKeyInterface
     {
@@ -50,7 +47,6 @@ final class Structure implements StructureInterface
 
     /**
      * Sets primary key of the structure.
-     * @param PrimaryKeyInterface|null $primaryKey
      */
     public function setPrimaryKey(?PrimaryKeyInterface $primaryKey): void
     {
@@ -77,7 +73,6 @@ final class Structure implements StructureInterface
 
     /**
      * Adds column to the structure.
-     * @param ColumnInterface $column
      */
     public function addColumn(ColumnInterface $column): void
     {
@@ -86,7 +81,6 @@ final class Structure implements StructureInterface
 
     /**
      * Removes column from the structure.
-     * @param string $name
      */
     public function removeColumn(string $name): void
     {
@@ -95,8 +89,6 @@ final class Structure implements StructureInterface
 
     /**
      * Returns column of given name of the structure.
-     * @param string $name
-     * @return ColumnInterface|null
      */
     public function getColumn(string $name): ?ColumnInterface
     {
@@ -114,8 +106,6 @@ final class Structure implements StructureInterface
 
     /**
      * Returns index of given name of the structure.
-     * @param string $name
-     * @return IndexInterface|null
      */
     public function getIndex(string $name): ?IndexInterface
     {
@@ -133,7 +123,6 @@ final class Structure implements StructureInterface
 
     /**
      * Adds index to the structure.
-     * @param IndexInterface $index
      */
     public function addIndex(IndexInterface $index): void
     {
@@ -142,7 +131,6 @@ final class Structure implements StructureInterface
 
     /**
      * Removes index from the structure.
-     * @param string $name
      */
     public function removeIndex(string $name): void
     {
@@ -160,8 +148,6 @@ final class Structure implements StructureInterface
 
     /**
      * Returns foreign key of given name of the structure.
-     * @param string $name
-     * @return ForeignKeyInterface|null
      */
     public function getForeignKey(string $name): ?ForeignKeyInterface
     {
@@ -179,7 +165,6 @@ final class Structure implements StructureInterface
 
     /**
      * Adds foreign key to the structure.
-     * @param ForeignKeyInterface $foreignKey
      */
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
@@ -188,7 +173,6 @@ final class Structure implements StructureInterface
 
     /**
      * Removes foreign key from the structure.
-     * @param string $name
      */
     public function removeForeignKey(string $name): void
     {

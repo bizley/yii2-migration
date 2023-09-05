@@ -6,13 +6,6 @@ namespace bizley\migration\table;
 
 use bizley\migration\Schema;
 
-use function in_array;
-use function preg_replace;
-use function str_ireplace;
-use function str_replace;
-use function stripos;
-use function trim;
-
 abstract class Column
 {
     /** @var string */
@@ -62,7 +55,6 @@ abstract class Column
 
     /**
      * Returns name of the column.
-     * @return string
      */
     public function getName(): string
     {
@@ -71,7 +63,6 @@ abstract class Column
 
     /**
      * Sets name for the column.
-     * @param string $name
      */
     public function setName(string $name): void
     {
@@ -80,7 +71,6 @@ abstract class Column
 
     /**
      * Returns type of the column.
-     * @return string
      */
     public function getType(): string
     {
@@ -89,7 +79,6 @@ abstract class Column
 
     /**
      * Sets type for the column.
-     * @param string $type
      */
     public function setType(string $type): void
     {
@@ -98,7 +87,6 @@ abstract class Column
 
     /**
      * Checks whether the column can not be null.
-     * @return bool|null
      */
     public function isNotNull(): ?bool
     {
@@ -107,7 +95,6 @@ abstract class Column
 
     /**
      * Sets the column to not be null.
-     * @param bool|null $notNull
      */
     public function setNotNull(?bool $notNull): void
     {
@@ -171,7 +158,6 @@ abstract class Column
 
     /**
      * Checks whether the column is unique.
-     * @return bool
      */
     public function isUnique(): bool
     {
@@ -180,7 +166,6 @@ abstract class Column
 
     /**
      * Sets the uniqueness of the column.
-     * @param bool $unique
      */
     public function setUnique(bool $unique): void
     {
@@ -189,7 +174,6 @@ abstract class Column
 
     /**
      * Checks whether the column is unsigned.
-     * @return bool
      */
     public function isUnsigned(): bool
     {
@@ -198,7 +182,6 @@ abstract class Column
 
     /**
      * Sets the unsigned flag for the column.
-     * @param bool $unsigned
      */
     public function setUnsigned(bool $unsigned): void
     {
@@ -225,7 +208,6 @@ abstract class Column
 
     /**
      * Checks whether the column is a primary key.
-     * @return bool
      */
     public function isPrimaryKey(): bool
     {
@@ -234,7 +216,6 @@ abstract class Column
 
     /**
      * Sets the primary key flag for the column.
-     * @param bool|null $primaryKey
      */
     public function setPrimaryKey(?bool $primaryKey): void
     {
@@ -243,7 +224,6 @@ abstract class Column
 
     /**
      * Checks whether the column has autoincrement flag.
-     * @return bool
      */
     public function isAutoIncrement(): bool
     {
@@ -252,7 +232,6 @@ abstract class Column
 
     /**
      * Sets the autoincrement flag for the column.
-     * @param bool $autoIncrement
      */
     public function setAutoIncrement(bool $autoIncrement): void
     {
@@ -261,7 +240,6 @@ abstract class Column
 
     /**
      * Returns the value of append statement of the column.
-     * @return string|null
      */
     public function getAppend(): ?string
     {
@@ -270,7 +248,6 @@ abstract class Column
 
     /**
      * Sets the value for append statement for the column.
-     * @param string|null $append
      */
     public function setAppend(?string $append): void
     {
@@ -279,7 +256,6 @@ abstract class Column
 
     /**
      * Returns the value for comment statement for the column.
-     * @return string|null
      */
     public function getComment(): ?string
     {
@@ -288,7 +264,6 @@ abstract class Column
 
     /**
      * Sets the value for comment statement for the column.
-     * @param string|null $comment
      */
     public function setComment(?string $comment): void
     {
@@ -297,7 +272,6 @@ abstract class Column
 
     /**
      * Returns the value for after statement for the column.
-     * @return string|null
      */
     public function getAfter(): ?string
     {
@@ -306,7 +280,6 @@ abstract class Column
 
     /**
      * Sets the value for after statement for the column.
-     * @param string|null $after
      */
     public function setAfter(?string $after): void
     {
@@ -315,7 +288,6 @@ abstract class Column
 
     /**
      * Checks whether the column has first statement.
-     * @return bool
      */
     public function isFirst(): bool
     {
@@ -324,7 +296,6 @@ abstract class Column
 
     /**
      * Sets the column for the first statement.
-     * @param bool $first
      */
     public function setFirst(bool $first): void
     {
@@ -333,18 +304,14 @@ abstract class Column
 
     /**
      * Checks if column is a part of the primary key.
-     * @param PrimaryKeyInterface $primaryKey
-     * @return bool
      */
     public function isColumnInPrimaryKey(PrimaryKeyInterface $primaryKey): bool
     {
-        return in_array($this->name, $primaryKey->getColumns(), true);
+        return \in_array($this->name, $primaryKey->getColumns(), true);
     }
 
     /**
      * Checks if information of primary key is set in append statement.
-     * @param string|null $schema
-     * @return bool
      */
     public function isPrimaryKeyInfoAppended(?string $schema): bool
     {
@@ -353,8 +320,8 @@ abstract class Column
             return false;
         }
 
-        if (stripos($append, 'PRIMARY KEY') !== false) {
-            return !($schema === Schema::MSSQL && stripos($append, 'IDENTITY') === false);
+        if (\stripos($append, 'PRIMARY KEY') !== false) {
+            return !($schema === Schema::MSSQL && \stripos($append, 'IDENTITY') === false);
         }
 
         return false;
@@ -364,8 +331,6 @@ abstract class Column
      * Prepares append statement based on the schema.
      * @param bool $primaryKey whether the column is primary key
      * @param bool $autoIncrement whether the column has autoincrement flag
-     * @param string|null $schema
-     * @return string|null
      */
     public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string
     {
@@ -380,13 +345,13 @@ abstract class Column
                 break;
 
             case Schema::SQLITE:
-                $append = trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
+                $append = \trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
                 break;
 
             case Schema::CUBRID:
             case Schema::MYSQL:
             default:
-                $append = trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
+                $append = \trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
         }
 
         return empty($append) ? null : $append;
@@ -394,18 +359,14 @@ abstract class Column
 
     /**
      * Escapes single quotes.
-     * @param string $value
-     * @return string
      */
     public function escapeQuotes(string $value): string
     {
-        return str_replace('\'', '\\\'', $value);
+        return \str_replace('\'', '\\\'', $value);
     }
 
     /**
      * Removes information of primary key in append statement and returns what is left.
-     * @param string|null $schema
-     * @return null|string
      */
     public function removeAppendedPrimaryKeyInfo(?string $schema): ?string
     {
@@ -415,27 +376,27 @@ abstract class Column
 
         switch ($schema) {
             case Schema::MSSQL:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
                 break;
 
             case Schema::OCI:
             case Schema::PGSQL:
-                $cleanedAppend = str_ireplace('PRIMARY KEY', '', $this->append);
+                $cleanedAppend = \str_ireplace('PRIMARY KEY', '', $this->append);
                 break;
 
             case Schema::SQLITE:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
                 break;
 
             case Schema::CUBRID:
             case Schema::MYSQL:
             default:
-                $cleanedAppend = str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
+                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
         }
 
-        $cleanedAppend = preg_replace('/\s+/', ' ', $cleanedAppend);
+        $cleanedAppend = \preg_replace('/\s+/', ' ', $cleanedAppend);
         if ($cleanedAppend !== null) {
-            $cleanedAppend = trim($cleanedAppend);
+            $cleanedAppend = \trim($cleanedAppend);
         }
 
         return !empty($cleanedAppend) ? $cleanedAppend : null;
@@ -443,8 +404,6 @@ abstract class Column
 
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return string|int|null
      */
     abstract public function getLength(string $schema = null, string $engineVersion = null);
@@ -452,8 +411,6 @@ abstract class Column
     /**
      * Sets length for the column.
      * @param string|int|array<string|int>|null $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     abstract public function setLength($value, string $schema = null, string $engineVersion = null): void;
 }

@@ -8,11 +8,6 @@ use bizley\migration\Schema;
 use bizley\migration\table\ForeignKeyInterface;
 use yii\base\NotSupportedException;
 
-use function explode;
-use function implode;
-use function str_repeat;
-use function str_replace;
-
 final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
     /** @var string */
@@ -41,12 +36,6 @@ TEMPLATE;
 
     /**
      * Renders the add foreign key statement.
-     * @param ForeignKeyInterface $foreignKey
-     * @param string $tableName
-     * @param string $referencedTableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string
      * @throws NotSupportedException
      */
     public function renderUp(
@@ -77,7 +66,7 @@ TEMPLATE;
         $onDelete = $foreignKey->getOnDelete();
         $onUpdate = $foreignKey->getOnUpdate();
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}',
@@ -90,9 +79,9 @@ TEMPLATE;
             [
                 $foreignKey->getName(),
                 $tableName,
-                implode(', ', $renderedKeyColumns),
+                \implode(', ', $renderedKeyColumns),
                 $referencedTableName,
-                implode(', ', $renderedReferencedColumns),
+                \implode(', ', $renderedReferencedColumns),
                 $onDelete ? "'$onDelete'" : 'null',
                 $onUpdate ? "'$onUpdate'" : 'null'
             ],
@@ -102,11 +91,6 @@ TEMPLATE;
 
     /**
      * Renders the drop foreign key statement.
-     * @param ForeignKeyInterface $foreignKey
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string
      * @throws NotSupportedException
      */
     public function renderDown(
@@ -121,7 +105,7 @@ TEMPLATE;
 
         $template = $this->applyIndent($indent, $this->dropKeyTemplate);
 
-        return str_replace(
+        return \str_replace(
             [
                 '{keyName}',
                 '{tableName}'
@@ -136,9 +120,6 @@ TEMPLATE;
 
     /**
      * Applies the indent to every row in the template.
-     * @param int $indent
-     * @param string $template
-     * @return string
      */
     private function applyIndent(int $indent, string $template): string
     {
@@ -146,13 +127,13 @@ TEMPLATE;
             return $template;
         }
 
-        $rows = explode("\n", $template);
+        $rows = \explode("\n", $template);
         foreach ($rows as &$row) {
             if ($row !== '') {
-                $row = str_repeat(' ', $indent) . $row;
+                $row = \str_repeat(' ', $indent) . $row;
             }
         }
 
-        return implode("\n", $rows);
+        return \implode("\n", $rows);
     }
 }

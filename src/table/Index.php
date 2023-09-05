@@ -17,7 +17,6 @@ final class Index implements IndexInterface
 
     /**
      * Return name of the index.
-     * @return string|null
      */
     public function getName(): ?string
     {
@@ -26,7 +25,6 @@ final class Index implements IndexInterface
 
     /**
      * Sets name for the index.
-     * @param string|null $name
      */
     public function setName(?string $name): void
     {
@@ -35,7 +33,6 @@ final class Index implements IndexInterface
 
     /**
      * Checks whether the index is unique.
-     * @return bool
      */
     public function isUnique(): bool
     {
@@ -44,7 +41,6 @@ final class Index implements IndexInterface
 
     /**
      * Sets unique flag for the index.
-     * @param bool $unique
      */
     public function setUnique(bool $unique): void
     {
