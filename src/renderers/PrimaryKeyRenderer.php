@@ -26,11 +26,6 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the add primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string|null
      * @throws NotSupportedException
      */
     public function renderUp(
@@ -72,11 +67,6 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
     /**
      * Renders the drop primary key statement.
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string|null
      * @throws NotSupportedException
      */
     public function renderDown(

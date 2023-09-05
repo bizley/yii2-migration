@@ -14,13 +14,8 @@ interface InspectorInterface
 {
     /**
      * Prepares a blueprint for the upcoming update.
-     * @param StructureInterface $newStructure
-     * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
      * @param array<string> $migrationPaths
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return BlueprintInterface
      * @throws InvalidConfigException
      * @throws ErrorException
      * @throws NotSupportedException

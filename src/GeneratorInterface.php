@@ -11,13 +11,7 @@ interface GeneratorInterface
 {
     /**
      * Generates migration for the table.
-     * @param string $tableName
-     * @param string $migrationName
      * @param array<string> $referencesToPostpone
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      * @throws TableMissingException
      * @throws NotSupportedException
      */
@@ -33,11 +27,6 @@ interface GeneratorInterface
     /**
      * Generates the migration for the foreign keys.
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param string $migrationName
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      */
     public function generateForForeignKeys(
         array $foreignKeys,

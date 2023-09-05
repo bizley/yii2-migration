@@ -42,9 +42,7 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a structure of the table.
-     * @param string $table
      * @param array<string> $referencesToPostpone
-     * @return StructureInterface
      * @throws NotSupportedException
      */
     public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface
@@ -73,7 +71,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the foreign keys of the table.
-     * @param string $table
      * @return array<ForeignKeyInterface>
      * @throws NotSupportedException
      */
@@ -101,7 +98,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the indexes of the table.
-     * @param string $table
      * @return array<IndexInterface>
      * @throws NotSupportedException
      */
@@ -127,7 +123,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a primary key of the table.
-     * @param string $table
      * @return PrimaryKeyInterface|null
      * @throws NotSupportedException
      */
@@ -150,7 +145,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns the columns of the table.
-     * @param string $table
      * @param array<IndexInterface> $indexes
      * @return array<string, ColumnInterface>
      * @throws NotSupportedException
@@ -197,8 +191,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * @param array<IndexInterface> $indexes
-     * @param ColumnSchema $column
-     * @return bool
      */
     private function isUnique(array $indexes, ColumnSchema $column): bool
     {
@@ -223,8 +215,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a table schema of the table.
-     * @param string $table
-     * @return TableSchema|null
      */
     public function getTableSchema(string $table): ?TableSchema
     {
@@ -233,7 +223,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a schema type.
-     * @return string
      * @throws NotSupportedException
      */
     public function getSchemaType(): string
@@ -245,7 +234,6 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a DB engine version.
-     * @return string|null
      */
     public function getEngineVersion(): ?string
     {

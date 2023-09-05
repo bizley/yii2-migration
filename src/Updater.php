@@ -41,7 +41,6 @@ final class Updater implements UpdaterInterface
 
     /**
      * Returns the translated alias of update table migration template.
-     * @return string
      */
     public function getUpdateTableMigrationTemplate(): string
     {
@@ -52,11 +51,8 @@ final class Updater implements UpdaterInterface
 
     /**
      * Prepares a blueprint for update.
-     * @param string $tableName
-     * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
      * @param array<string> $migrationPaths
-     * @return BlueprintInterface
      * @throws TableMissingException
      * @throws ErrorException
      * @throws InvalidConfigException
@@ -89,12 +85,6 @@ final class Updater implements UpdaterInterface
 
     /**
      * Generates migration based on the blueprint.
-     * @param BlueprintInterface $blueprint
-     * @param string $migrationName
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      * @throws NotSupportedException
      */
     public function generateFromBlueprint(

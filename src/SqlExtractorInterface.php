@@ -13,7 +13,6 @@ interface SqlExtractorInterface extends ExtractorInterface
 {
     /**
      * Extracts migration SQL statements.
-     * @param string $migration
      * @param array<string> $migrationPaths
      * @throws ErrorException
      */

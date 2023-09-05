@@ -13,30 +13,24 @@ interface TableMapperInterface
 {
     /**
      * Returns a structure of the table.
-     * @param string $table
      * @param array<string> $referencesToPostpone
-     * @return StructureInterface
      * @throws NotSupportedException
      */
     public function getStructureOf(string $table, array $referencesToPostpone = []): StructureInterface;
 
     /**
      * Returns a table schema of the table.
-     * @param string $table
-     * @return TableSchema|null
      */
     public function getTableSchema(string $table): ?TableSchema;
 
     /**
      * Returns a schema type.
-     * @return string
      * @throws NotSupportedException
      */
     public function getSchemaType(): string;
 
     /**
      * Returns a DB engine version.
-     * @return string|null
      */
     public function getEngineVersion(): ?string;
 

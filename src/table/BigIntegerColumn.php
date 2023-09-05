@@ -14,9 +14,6 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
     /**
      * Checks if schema supports length for this column.
      * In case of MySQL the engine version must be lower than 8.0.17.
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return bool
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
@@ -29,8 +26,6 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
 
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
@@ -41,8 +36,6 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
     /**
      * Sets length of the column.
      * @param string|int|null $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {

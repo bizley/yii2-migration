@@ -29,7 +29,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns name of the foreign key.
-     * @return string
      */
     public function getName(): string
     {
@@ -41,7 +40,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Sets name for the foreign key.
-     * @param string|null $name
      */
     public function setName(?string $name): void
     {
@@ -70,7 +68,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns referred table name of the foreign key.
-     * @return string
      */
     public function getReferredTable(): string
     {
@@ -79,7 +76,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Sets referred table name for the foreign key.
-     * @param string $referredTable
      */
     public function setReferredTable(string $referredTable): void
     {
@@ -106,7 +102,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns ON DELETE statement of the foreign key.
-     * @return string|null
      */
     public function getOnDelete(): ?string
     {
@@ -115,7 +110,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Sets ON DELETE statement for the foreign key.
-     * @param string|null $onDelete
      */
     public function setOnDelete(?string $onDelete): void
     {
@@ -124,7 +118,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns ON UPDATE statement of the foreign key.
-     * @return string|null
      */
     public function getOnUpdate(): ?string
     {
@@ -133,7 +126,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Sets ON UPDATE statement for the foreign key.
-     * @param string|null $onUpdate
      */
     public function setOnUpdate(?string $onUpdate): void
     {
@@ -142,7 +134,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Returns table name of the foreign key.
-     * @return string
      */
     public function getTableName(): string
     {
@@ -151,7 +142,6 @@ final class ForeignKey implements ForeignKeyInterface
 
     /**
      * Sets table name for the foreign key.
-     * @param string $tableName
      */
     public function setTableName(string $tableName): void
     {

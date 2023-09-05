@@ -196,8 +196,8 @@ class Migration extends Component implements MigrationSqlInterface
     }
 
     /**
-     * @param string|string[]$columns
-     * @param string|string[]$refColumns
+     * @param string|string[] $columns
+     * @param string|string[] $refColumns
      */
     public function addForeignKey(
         string $name,

@@ -16,7 +16,6 @@ final class PrimaryKey implements PrimaryKeyInterface
 
     /**
      * Checks whether the primary key is composite.
-     * @return bool
      */
     public function isComposite(): bool
     {
@@ -25,7 +24,6 @@ final class PrimaryKey implements PrimaryKeyInterface
 
     /**
      * Returns name of the primary key.
-     * @return string
      */
     public function getName(): string
     {
@@ -34,7 +32,6 @@ final class PrimaryKey implements PrimaryKeyInterface
 
     /**
      * Sets name for the primary key.
-     * @param string|null $name
      */
     public function setName(?string $name): void
     {
@@ -63,7 +60,6 @@ final class PrimaryKey implements PrimaryKeyInterface
 
     /**
      * Adds column to the primary key.
-     * @param string $name
      */
     public function addColumn(string $name): void
     {

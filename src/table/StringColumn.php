@@ -8,8 +8,6 @@ final class StringColumn extends Column implements ColumnInterface
 {
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
@@ -20,8 +18,6 @@ final class StringColumn extends Column implements ColumnInterface
     /**
      * Sets length of the column.
      * @param string|null $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
@@ -31,7 +27,6 @@ final class StringColumn extends Column implements ColumnInterface
 
     /**
      * Returns default column definition.
-     * @return string
      */
     public function getDefinition(): string
     {

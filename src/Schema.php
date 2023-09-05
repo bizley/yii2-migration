@@ -131,7 +131,6 @@ final class Schema
     /**
      * Returns schema code based on its class name.
      * @param mixed $schema
-     * @return string
      */
     public static function identifySchema($schema): string
     {
@@ -165,7 +164,6 @@ final class Schema
     /**
      * Checks whether the schema is SQLite.
      * @param mixed $schema
-     * @return bool
      */
     public static function isSQLite($schema): bool
     {
@@ -175,10 +173,6 @@ final class Schema
     /**
      * Returns default length based on the schema and column type.
      * For MySQL >= 5.6.4 additional default sizes are available.
-     * @param string|null $schema
-     * @param string $type
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public static function getDefaultLength(?string $schema, string $type, string $engineVersion = null): ?string
     {
@@ -195,10 +189,6 @@ final class Schema
 
     /**
      * Returns alias definition based on the schema, column type, and length.
-     * @param string|null $schema
-     * @param string $type
-     * @param string $length
-     * @return string|null
      */
     public static function getAlias(?string $schema, string $type, string $length): ?string
     {

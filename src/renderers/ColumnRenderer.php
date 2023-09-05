@@ -48,12 +48,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the array part with column definition (name => definition).
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function render(
         ColumnInterface $column,
@@ -79,13 +73,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the add column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderAdd(
         ColumnInterface $column,
@@ -114,13 +101,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the alter column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderAlter(
         ColumnInterface $column,
@@ -149,10 +129,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the drop column statement.
-     * @param ColumnInterface $column
-     * @param string $tableName
-     * @param int $indent
-     * @return string|null
      */
     public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string
     {
@@ -173,11 +149,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string|null
      */
     public function renderDefinition(
         ColumnInterface $column,
@@ -198,10 +169,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Builds the column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     private function buildColumnDefinition(
         ColumnInterface $column,
@@ -249,9 +216,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Renders the column length.
-     * @param string $length
-     * @param string $defaultLength
-     * @return string|null
      */
     private function getRenderedLength(
         string $length,
@@ -271,9 +235,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Builds general methods chain for column definition.
-     * @param ColumnInterface $column
-     * @param PrimaryKeyInterface|null $primaryKey
-     * @param string|null $schema
      */
     private function buildGeneralDefinition(
         ColumnInterface $column,
@@ -336,8 +297,6 @@ final class ColumnRenderer implements ColumnRendererInterface
 
     /**
      * Escapes single quotes.
-     * @param string|null $value
-     * @return string|null
      */
     public function escapeQuotes(?string $value): ?string
     {

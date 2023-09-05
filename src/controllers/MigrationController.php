@@ -25,14 +25,14 @@ use yii\helpers\FileHelper;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.4.0
+ * @version 4.4.1
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.4.0';
+    private $version = '4.4.1';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -615,8 +615,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Prepares path directory. If directory doesn't exist it's being created.
-     * @param string $path
-     * @return string
      * @throws Exception
      */
     private function preparePathDirectory(string $path): string
@@ -633,7 +631,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Stores the content in a file under the given path.
-     * @param string $path
      * @param mixed $content
      * @throws \Throwable
      */
@@ -649,7 +646,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Fixes the migration history with a new entry. If migration history table doesn't exist it's being created first.
-     * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -666,7 +662,6 @@ class MigrationController extends BaseMigrationController
     /**
      * Generates migration for postponed foreign keys.
      * @param array<ForeignKeyInterface> $postponedForeignKeys
-     * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -697,8 +692,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Generates updating migration based on a blueprint.
-     * @param BlueprintInterface $blueprint
-     * @param string $migrationClassName
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -727,8 +720,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Generates creating migration based on a table structure.
-     * @param string $tableName
-     * @param string $migrationClassName
      * @param array<string> $referencesToPostpone
      * @throws DbException
      * @throws InvalidConfigException
@@ -764,7 +755,6 @@ class MigrationController extends BaseMigrationController
     /**
      * Prepares table names based on an input. Resulting names must not be on an excluded list. Migration history table
      * is always on the excluded list by default.
-     * @param string $inputTables
      * @return array<string>
      * @throws NotSupportedException
      */
@@ -807,7 +797,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Finds tables matching the pattern.
-     * @param string|null $pattern
      * @param array<string> $allTables
      * @param array<string> $excludedTables
      * @return array<string>
@@ -835,7 +824,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Prepares table names and adds confirmation for proceeding with generating for the user.
-     * @param string $inputTable
      * @return array<string>|null
      * @throws NotSupportedException
      */
@@ -876,7 +864,6 @@ class MigrationController extends BaseMigrationController
     }
 
     /**
-     * @param Connection $db
      * @return array<string>
      * @throws NotSupportedException
      */

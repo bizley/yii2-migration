@@ -12,9 +12,6 @@ final class StructureBuilder implements StructureBuilderInterface
     /**
      * Builds table structure based on the list of changes from the Inspector.
      * @param array<StructureChangeInterface> $changes
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return StructureInterface
      */
     public function build(array $changes, ?string $schema, ?string $engineVersion): StructureInterface
     {
@@ -95,10 +92,7 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies create table value.
-     * @param StructureInterface $structure
      * @param array<ColumnInterface> $columns
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     private function applyCreateTableValue(
         StructureInterface $structure,
@@ -113,10 +107,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies add column value.
-     * @param StructureInterface $structure
-     * @param ColumnInterface $column
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     private function applyAddColumnValue(
         StructureInterface $structure,
@@ -148,8 +138,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies drop column value.
-     * @param StructureInterface $structure
-     * @param string $columnName
      */
     private function applyDropColumnValue(StructureInterface $structure, string $columnName): void
     {
@@ -158,7 +146,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies rename column value.
-     * @param StructureInterface $structure
      * @param array<string, string> $data
      */
     private function applyRenameColumnValue(StructureInterface $structure, array $data): void
@@ -174,9 +161,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies add primary key value.
-     * @param StructureInterface $structure
-     * @param PrimaryKeyInterface $primaryKey
-     * @param string|null $schema
      */
     private function applyAddPrimaryKeyValue(
         StructureInterface $structure,
@@ -202,8 +186,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies drop primary key value.
-     * @param StructureInterface $structure
-     * @param string|null $schema
      */
     private function applyDropPrimaryKeyValue(StructureInterface $structure, ?string $schema): void
     {
@@ -225,8 +207,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies add foreign key value.
-     * @param StructureInterface $structure
-     * @param ForeignKeyInterface $foreignKey
      */
     private function applyAddForeignKeyValue(StructureInterface $structure, ForeignKeyInterface $foreignKey): void
     {
@@ -235,8 +215,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies drop foreign key value.
-     * @param StructureInterface $structure
-     * @param string $name
      */
     private function applyDropForeignKeyValue(StructureInterface $structure, string $name): void
     {
@@ -245,8 +223,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies create index value.
-     * @param StructureInterface $structure
-     * @param IndexInterface $index
      */
     private function applyCreateIndexValue(StructureInterface $structure, IndexInterface $index): void
     {
@@ -266,8 +242,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies drop index value.
-     * @param StructureInterface $structure
-     * @param string $name
      */
     private function applyDropIndexValue(StructureInterface $structure, string $name): void
     {
@@ -290,7 +264,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies add comment on column value.
-     * @param StructureInterface $structure
      * @param array<string, string> $data
      */
     private function applyAddCommentOnColumnValue(StructureInterface $structure, array $data): void
@@ -303,8 +276,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Applies drop comment from column value.
-     * @param StructureInterface $structure
-     * @param string $columnName
      */
     private function applyDropCommentFromColumnValue(StructureInterface $structure, string $columnName): void
     {
@@ -316,8 +287,6 @@ final class StructureBuilder implements StructureBuilderInterface
 
     /**
      * Adds automatic indexes made by DB engine.
-     * @param StructureInterface $structure
-     * @param string|null $schema
      */
     private function addHiddenIndexes(StructureInterface $structure, ?string $schema): void
     {

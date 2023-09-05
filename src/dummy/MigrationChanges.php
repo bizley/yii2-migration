@@ -91,7 +91,6 @@ class Migration extends Component implements MigrationChangesInterface
 
     /**
      * Updates column properties based on schema type map.
-     * @param string $type
      * @param array<string, string> $keyToDb
      * @param array<string, string> $dbToKey
      * @return array<string, mixed>
@@ -229,8 +228,6 @@ class Migration extends Component implements MigrationChangesInterface
 
     /**
      * Adds method of structure change and its data.
-     * @param string $table
-     * @param string $method
      * @param mixed $data
      */
     private function addChange(string $table, string $method, $data): void
@@ -397,8 +394,8 @@ class Migration extends Component implements MigrationChangesInterface
     }
 
     /**
-     * @param string|string[]$columns
-     * @param string|string[]$refColumns
+     * @param string|string[] $columns
+     * @param string|string[] $refColumns
      */
     public function addForeignKey(
         string $name,

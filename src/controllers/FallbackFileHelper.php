@@ -10,9 +10,7 @@ use yii\helpers\ArrayHelper;
 class FallbackFileHelper
 {
     /**
-     * @param string $path
      * @param int|string|array<int|string, int|string>|null $ownership
-     * @param int|null $mode
      * @throws \Exception
      */
     public static function changeOwnership(string $path, $ownership, ?int $mode): void

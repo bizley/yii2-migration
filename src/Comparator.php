@@ -25,12 +25,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares migration virtual structure with database structure and gathers required modifications.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
      * @param bool $onlyShow whether changes should be only displayed
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
     public function compare(
@@ -55,12 +50,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the columns between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @throws NotSupportedException
      */
     private function compareColumns(
@@ -195,11 +184,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the foreign keys between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function compareForeignKeys(
@@ -372,11 +356,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the primary keys between new and old structure.
-     * @param PrimaryKeyInterface|null $newPrimaryKey
-     * @param PrimaryKeyInterface|null $oldPrimaryKey
-     * @param BlueprintInterface $blueprint
-     * @param bool $onlyShow
-     * @param string|null $schema
      * @throws NotSupportedException
      */
     private function comparePrimaryKeys(
@@ -435,8 +414,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Removes excessive primary key statements from the column in case the primary key will be added separately anyway.
-     * @param BlueprintInterface $blueprint
-     * @param string|null $schema
      */
     private function removeExcessivePrimaryKeyStatements(BlueprintInterface $blueprint, ?string $schema): void
     {
@@ -451,11 +428,7 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Checks whether the separate primary key needs to be added.
-     * @param BlueprintInterface $blueprint
      * @param array<string> $differentColumns
-     * @param int $newColumnsCount
-     * @param string|null $schema
-     * @return bool
      */
     private function shouldPrimaryKeyBeAdded(
         BlueprintInterface $blueprint,
@@ -487,9 +460,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Compares the indexes between new and old structure.
-     * @param StructureInterface $newStructure
-     * @param StructureInterface $oldStructure
-     * @param BlueprintInterface $blueprint
      */
     private function compareIndexes(
         StructureInterface $newStructure,
@@ -566,9 +536,6 @@ final class Comparator implements ComparatorInterface
     /**
      * Checks if append statements are the same in new and old structure.
      * Compares the actual statements and potential ones.
-     * @param ColumnInterface $newColumn
-     * @param ColumnInterface $oldColumn
-     * @return bool
      */
     private function isAppendSame(ColumnInterface $newColumn, ColumnInterface $oldColumn): bool
     {
@@ -595,7 +562,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Strips append string from primary key and autoincrement constraints.
-     * @param string|null $append
      * @return array<string|bool|null>
      */
     private function stripAppend(?string $append): array
@@ -635,10 +601,6 @@ final class Comparator implements ComparatorInterface
 
     /**
      * Checks if columns' uniqueness is the same because of the unique index.
-     * @param StructureInterface $structure
-     * @param string $columnName
-     * @param bool $unique
-     * @return bool
      */
     private function getRealUniqueness(StructureInterface $structure, string $columnName, bool $unique): bool
     {
@@ -658,7 +620,6 @@ final class Comparator implements ComparatorInterface
      * Checks if length has the same value but written differently.
      * @param mixed $newLength
      * @param mixed $oldLength
-     * @return bool
      */
     private function isLengthSame($newLength, $oldLength): bool
     {
@@ -683,7 +644,6 @@ final class Comparator implements ComparatorInterface
     /**
      * Returns values as strings.
      * @param mixed $value
-     * @return string
      */
     private function stringifyValue($value): string
     {

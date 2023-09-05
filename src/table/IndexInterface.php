@@ -8,7 +8,6 @@ interface IndexInterface
 {
     /**
      * Return name of the index.
-     * @return string|null
      */
     public function getName(): ?string;
 
@@ -20,7 +19,6 @@ interface IndexInterface
 
     /**
      * Checks whether the index is unique.
-     * @return bool
      */
     public function isUnique(): bool;
 }

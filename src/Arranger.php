@@ -43,8 +43,6 @@ final class Arranger implements ArrangerInterface
 
     /**
      * Adds dependency of the table.
-     * @param string $table
-     * @param string|null $dependsOnTable
      */
     private function addDependency(string $table, string $dependsOnTable = null): void
     {

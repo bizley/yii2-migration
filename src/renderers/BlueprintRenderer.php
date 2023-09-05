@@ -35,13 +35,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     /**
      * Renders the blueprint for up().
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#up()-detail
-     * @param BlueprintInterface $blueprint
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderUp(
         BlueprintInterface $blueprint,
@@ -73,13 +66,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     /**
      * Renders the blueprint for down().
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#down()-detail
-     * @param BlueprintInterface $blueprint
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderDown(
         BlueprintInterface $blueprint,
@@ -111,10 +97,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     /**
      * Renders table name. Name should be provided without the prefix. If name should be with prefix and it is being
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
-     * @param string $tableName
      * @param bool $usePrefix whether to add prefix structure to the name
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
     {
@@ -131,11 +114,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders drop columns statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderColumnsToDrop(
         BlueprintInterface $blueprint,
@@ -160,13 +138,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders add columns statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderColumnsToAdd(
         BlueprintInterface $blueprint,
@@ -202,13 +173,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders alter columns statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderColumnsToAlter(
         BlueprintInterface $blueprint,
@@ -244,12 +208,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders drop foreign keys statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderForeignKeysToDrop(
         BlueprintInterface $blueprint,
@@ -275,14 +233,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders add foreign keys statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderForeignKeysToAdd(
         BlueprintInterface $blueprint,
@@ -316,11 +266,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders drop indexes statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderIndexesToDrop(
         BlueprintInterface $blueprint,
@@ -345,11 +290,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders add indexes statements.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderIndexesToAdd(
         BlueprintInterface $blueprint,
@@ -374,12 +314,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders drop primary key statement.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderPrimaryKeyToDrop(
         BlueprintInterface $blueprint,
@@ -399,12 +333,6 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders add primary key statement.
-     * @param BlueprintInterface $blueprint
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param bool $inverse
-     * @return string|null
      */
     private function renderPrimaryKeyToAdd(
         BlueprintInterface $blueprint,

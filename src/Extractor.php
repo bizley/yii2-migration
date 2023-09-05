@@ -34,7 +34,6 @@ final class Extractor implements SqlExtractorInterface
 
     /**
      * Extracts migration data structures.
-     * @param string $migration
      * @param string[] $migrationPaths
      * @throws ErrorException
      */
@@ -56,7 +55,6 @@ final class Extractor implements SqlExtractorInterface
 
     /**
      * Loads a non-namespaced file.
-     * @param string $migration
      * @param string[] $migrationPaths
      * @throws ErrorException
      */

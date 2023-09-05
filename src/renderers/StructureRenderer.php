@@ -55,10 +55,6 @@ TEMPLATE;
     /**
      * Renders table name. Name should be provided without the prefix. If name should be with prefix and it is being
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
-     * @param string $tableName
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
     {
@@ -76,13 +72,6 @@ TEMPLATE;
     /**
      * Renders the migration structure for up().
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#up()-detail
-     * @param StructureInterface $structure
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderStructureUp(
         StructureInterface $structure,
@@ -109,11 +98,6 @@ TEMPLATE;
     /**
      * Renders the migration structure for down().
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#down()-detail
-     * @param StructureInterface $structure
-     * @param int $indent
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @return string
      */
     public function renderStructureDown(
         StructureInterface $structure,
@@ -129,9 +113,6 @@ TEMPLATE;
 
     /**
      * Applies the indent to every row in the template.
-     * @param int $indent
-     * @param string $template
-     * @return string
      */
     private function applyIndent(int $indent, string $template): string
     {
@@ -151,12 +132,6 @@ TEMPLATE;
 
     /**
      * Renders the create-table statement.
-     * @param StructureInterface $structure
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return string
      */
     private function renderStructureTableUp(
         StructureInterface $structure,
@@ -195,9 +170,6 @@ TEMPLATE;
 
     /**
      * Renders the drop-table statement.
-     * @param string $tableName
-     * @param int $indent
-     * @return string
      */
     private function renderStructureTableDown(
         string $tableName,
@@ -210,11 +182,6 @@ TEMPLATE;
 
     /**
      * Renders the add-primary-key statement.
-     * @param StructureInterface $structure
-     * @param string $tableName
-     * @param int $indent
-     * @param string|null $schema
-     * @return string|null
      */
     private function renderStructurePrimaryKeyUp(
         StructureInterface $structure,
@@ -227,10 +194,6 @@ TEMPLATE;
 
     /**
      * Renders the add indexes statements.
-     * @param StructureInterface $structure
-     * @param string $tableName
-     * @param int $indent
-     * @return string|null
      */
     private function renderStructureIndexesUp(
         StructureInterface $structure,
@@ -261,12 +224,6 @@ TEMPLATE;
 
     /**
      * Renders the add foreign keys statements (through the structure).
-     * @param StructureInterface $structure
-     * @param int $indent
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @param string|null $schema
-     * @return string|null
      */
     private function renderStructureForeignKeysUp(
         StructureInterface $structure,
@@ -287,11 +244,6 @@ TEMPLATE;
     /**
      * Renders the add foreign keys statements (direct).
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param int $indent
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @param string|null $schema
-     * @return string|null
      */
     public function renderForeignKeysUp(
         array $foreignKeys,
@@ -317,11 +269,6 @@ TEMPLATE;
     /**
      * Renders the drop foreign keys statements.
      * @param array<ForeignKeyInterface> $foreignKeys
-     * @param int $indent
-     * @param bool $usePrefix
-     * @param string|null $dbPrefix
-     * @param string|null $schema
-     * @return string|null
      */
     public function renderForeignKeysDown(
         array $foreignKeys,

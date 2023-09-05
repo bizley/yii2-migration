@@ -24,7 +24,6 @@ class SqlColumnMapper
     private $schema = [];
 
     /**
-     * @param string $definition
      * @param array<string, string> $typeMap
      */
     private function __construct(string $definition, array $typeMap)
@@ -38,7 +37,6 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $definition
      * @param array<string, string> $typeMap
      * @return array<string, mixed>
      */
@@ -213,9 +211,6 @@ class SqlColumnMapper
     }
 
     /**
-     * @param string $type
-     * @param string $sentence
-     * @param int $offset
      * @return array{0: int, 1: string}
      */
     private function findPart(string $type, string $sentence, int $offset): array

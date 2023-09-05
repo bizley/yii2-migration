@@ -13,11 +13,8 @@ interface UpdaterInterface
 {
     /**
      * Prepares a blueprint for update.
-     * @param string $tableName
-     * @param bool $onlyShow
      * @param array<string> $migrationsToSkip
      * @param array<string> $migrationPaths
-     * @return BlueprintInterface
      * @throws TableMissingException
      * @throws ErrorException
      * @throws InvalidConfigException
@@ -32,12 +29,6 @@ interface UpdaterInterface
 
     /**
      * Generates migration based on the blueprint.
-     * @param BlueprintInterface $blueprint
-     * @param string $migrationName
-     * @param bool $usePrefix
-     * @param string $dbPrefix
-     * @param string|null $namespace
-     * @return string
      * @throws NotSupportedException
      */
     public function generateFromBlueprint(

@@ -19,7 +19,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns table name of the change.
-     * @return string
      */
     public function getTable(): string
     {
@@ -28,7 +27,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Sets table name for the change.
-     * @param string $table
      */
     public function setTable(string $table): void
     {
@@ -37,7 +35,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns method of the change.
-     * @return string
      */
     public function getMethod(): string
     {
@@ -46,7 +43,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Sets method for the change.
-     * @param string $method
      */
     public function setMethod(string $method): void
     {
@@ -73,8 +69,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns value of the change based on the method.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return mixed Change value
      */
     public function getValue(string $schema = null, string $engineVersion = null)
@@ -116,8 +110,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns create table value of the change.
-     * @param string|null $engineName
-     * @param string|null $engineVersion
      * @return array<ColumnInterface>
      */
     private function getValueForCreateTable(string $engineName = null, string $engineVersion = null): array
@@ -175,9 +167,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add column value of the change.
-     * @param string|null $engineName
-     * @param string|null $engineVersion
-     * @return ColumnInterface
      */
     private function getValueForAddColumn(string $engineName = null, string $engineVersion = null): ColumnInterface
     {
@@ -211,7 +200,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add primary key value of the change.
-     * @return PrimaryKeyInterface
      */
     private function getValueForAddPrimaryKey(): PrimaryKeyInterface
     {
@@ -235,7 +223,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns add foreign key value of the change.
-     * @return ForeignKeyInterface
      */
     private function getValueForAddForeignKey(): ForeignKeyInterface
     {
@@ -274,7 +261,6 @@ final class StructureChange implements StructureChangeInterface
 
     /**
      * Returns create index value of the change.
-     * @return IndexInterface
      */
     private function getValueForCreateIndex(): IndexInterface
     {

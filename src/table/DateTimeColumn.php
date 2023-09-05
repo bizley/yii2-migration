@@ -28,8 +28,6 @@ final class DateTimeColumn extends Column implements ColumnInterface
 
     /**
      * Returns length of the column.
-     * @param string|null $schema
-     * @param string|null $engineVersion
      * @return int|string|null
      */
     public function getLength(string $schema = null, string $engineVersion = null)
@@ -40,8 +38,6 @@ final class DateTimeColumn extends Column implements ColumnInterface
     /**
      * Sets length of the column.
      * @param string|int|null $value
-     * @param string|null $schema
-     * @param string|null $engineVersion
      */
     public function setLength($value, string $schema = null, string $engineVersion = null): void
     {
@@ -53,9 +49,6 @@ final class DateTimeColumn extends Column implements ColumnInterface
     /**
      * Checks if schema supports length for this column.
      * In case of MySQL the engine version must be 5.6.4 or newer.
-     * @param string|null $schema
-     * @param string|null $engineVersion
-     * @return bool
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
@@ -68,7 +61,6 @@ final class DateTimeColumn extends Column implements ColumnInterface
 
     /**
      * Returns default column definition.
-     * @return string
      */
     public function getDefinition(): string
     {

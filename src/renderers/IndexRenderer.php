@@ -16,10 +16,6 @@ final class IndexRenderer implements IndexRendererInterface
 
     /**
      * Renders the add index statement.
-     * @param IndexInterface $index
-     * @param string $tableName
-     * @param int $indent
-     * @return string|null
      */
     public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {
@@ -50,10 +46,6 @@ final class IndexRenderer implements IndexRendererInterface
 
     /**
      * Renders the drop index statement.
-     * @param IndexInterface $index
-     * @param string $tableName
-     * @param int $indent
-     * @return string|null
      */
     public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): ?string
     {

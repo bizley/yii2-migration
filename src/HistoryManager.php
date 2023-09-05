@@ -60,8 +60,6 @@ final class HistoryManager implements HistoryManagerInterface
 
     /**
      * Adds migration history entry.
-     * @param string $migrationName
-     * @param string|null $namespace
      * @throws Exception
      * @throws NotSupportedException
      */

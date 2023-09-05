@@ -8,13 +8,11 @@ interface ForeignKeyInterface
 {
     /**
      * Returns name of the foreign key.
-     * @return string
      */
     public function getName(): string;
 
     /**
      * Returns table name of the foreign key.
-     * @return string
      */
     public function getTableName(): string;
 
@@ -26,7 +24,6 @@ interface ForeignKeyInterface
 
     /**
      * Returns referred table name of the foreign key.
-     * @return string
      */
     public function getReferredTable(): string;
 
@@ -38,13 +35,11 @@ interface ForeignKeyInterface
 
     /**
      * Returns ON DELETE statement of the foreign key.
-     * @return string|null
      */
     public function getOnDelete(): ?string;
 
     /**
      * Returns ON UPDATE statement of the foreign key.
-     * @return string|null
      */
     public function getOnUpdate(): ?string;
 }
