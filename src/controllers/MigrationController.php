@@ -326,7 +326,12 @@ class MigrationController extends BaseMigrationController
         foreach ($tables as $tableName) {
             $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", BaseConsole::FG_YELLOW);
 
-            $normalizedTableName = \str_replace('.', '_', $tableName);
+            $tableNameWithoutPrefix = $tableName;
+            if ($db->tablePrefix) {
+                $tableNameWithoutPrefix = preg_replace("/^$db->tablePrefix/", '', $tableName);
+            }
+
+            $normalizedTableName = \str_replace('.', '_', $tableNameWithoutPrefix);
             $timestamp = \time();
             if ($timestamp <= $lastUsedTimestamp) {
                 $timestamp = ++$lastUsedTimestamp;
