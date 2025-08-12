@@ -51,7 +51,7 @@ interface ColumnInterface
      * @param bool $primaryKey whether the column is primary key
      * @param bool $autoIncrement whether the column has autoincrement flag
      */
-    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string;
+    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, ?string $schema = null): ?string;
 
     /**
      * Removes information of primary key in append statement and returns what is left.
@@ -150,13 +150,13 @@ interface ColumnInterface
      * Returns length of the column.
      * @return string|int|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null);
+    public function getLength(?string $schema = null, ?string $engineVersion = null);
 
     /**
      * Sets length for the column.
      * @param string|int|array<string|int>|null $value
      */
-    public function setLength($value, string $schema = null, string $engineVersion = null): void;
+    public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void;
 
     /**
      * Returns default column definition.

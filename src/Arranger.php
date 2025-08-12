@@ -44,7 +44,7 @@ final class Arranger implements ArrangerInterface
     /**
      * Adds dependency of the table.
      */
-    private function addDependency(string $table, string $dependsOnTable = null): void
+    private function addDependency(string $table, ?string $dependsOnTable = null): void
     {
         if (!\array_key_exists($table, $this->dependencies)) {
             $this->dependencies[$table] = [];

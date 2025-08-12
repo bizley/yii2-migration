@@ -21,7 +21,7 @@ interface GeneratorInterface
         array $referencesToPostpone = [],
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string;
 
     /**
@@ -33,7 +33,7 @@ interface GeneratorInterface
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string;
 
     /**

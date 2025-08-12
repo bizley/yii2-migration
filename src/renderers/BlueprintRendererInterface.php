@@ -15,10 +15,10 @@ interface BlueprintRendererInterface
     public function renderUp(
         BlueprintInterface $blueprint,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string;
 
     /**
@@ -28,9 +28,9 @@ interface BlueprintRendererInterface
     public function renderDown(
         BlueprintInterface $blueprint,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string;
 }

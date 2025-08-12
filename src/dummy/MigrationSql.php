@@ -122,7 +122,7 @@ class Migration extends Component implements MigrationSqlInterface
     }
 
     /** @param array<string, string|ColumnSchemaBuilder> $columns */
-    public function createTable(string $table, array $columns, string $options = null): void
+    public function createTable(string $table, array $columns, ?string $options = null): void
     {
         $this->statements[] = $this->db->createCommand()->createTable($table, $columns, $options)->getRawSql();
         foreach ($columns as $column => $type) {
@@ -205,8 +205,8 @@ class Migration extends Component implements MigrationSqlInterface
         $columns,
         string $refTable,
         $refColumns,
-        string $delete = null,
-        string $update = null
+        ?string $delete = null,
+        ?string $update = null
     ): void {
         $this->statements[] = $this->db
             ->createCommand()

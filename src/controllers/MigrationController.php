@@ -802,7 +802,7 @@ class MigrationController extends BaseMigrationController
      * @return array<string>
      */
     private function findMatchingTables(
-        string $pattern = null,
+        ?string $pattern = null,
         array $allTables = [],
         array $excludedTables = []
     ): array {

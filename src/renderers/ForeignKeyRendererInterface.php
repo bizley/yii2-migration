@@ -16,7 +16,7 @@ interface ForeignKeyRendererInterface
         string $tableName,
         string $referencedTableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): string;
 
     /**
@@ -26,6 +26,6 @@ interface ForeignKeyRendererInterface
         ForeignKeyInterface $foreignKey,
         string $tableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): string;
 }

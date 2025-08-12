@@ -71,7 +71,7 @@ final class StructureChange implements StructureChangeInterface
      * Returns value of the change based on the method.
      * @return mixed Change value
      */
-    public function getValue(string $schema = null, string $engineVersion = null)
+    public function getValue(?string $schema = null, ?string $engineVersion = null)
     {
         switch ($this->getMethod()) {
             case 'createTable':
@@ -112,7 +112,7 @@ final class StructureChange implements StructureChangeInterface
      * Returns create table value of the change.
      * @return array<ColumnInterface>
      */
-    private function getValueForCreateTable(string $engineName = null, string $engineVersion = null): array
+    private function getValueForCreateTable(?string $engineName = null, ?string $engineVersion = null): array
     {
         $columns = [];
 
@@ -168,7 +168,7 @@ final class StructureChange implements StructureChangeInterface
     /**
      * Returns add column value of the change.
      */
-    private function getValueForAddColumn(string $engineName = null, string $engineVersion = null): ColumnInterface
+    private function getValueForAddColumn(?string $engineName = null, ?string $engineVersion = null): ColumnInterface
     {
         $data = $this->getData();
         if (

@@ -24,7 +24,7 @@ final class JsonColumn extends Column implements ColumnInterface
     /**
      * Returns length of the column.
      */
-    public function getLength(string $schema = null, string $engineVersion = null): ?int
+    public function getLength(?string $schema = null, ?string $engineVersion = null): ?int
     {
         return null;
     }
@@ -33,7 +33,7 @@ final class JsonColumn extends Column implements ColumnInterface
      * Sets length of the column.
      * @param mixed $value
      */
-    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
     {
     }
 

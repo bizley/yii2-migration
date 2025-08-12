@@ -25,7 +25,7 @@ final class GeneratorStub implements GeneratorInterface
         array $referencesToPostpone = [],
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string {
         if (self::$throwForTable) {
             throw new Exception('Stub exception');
@@ -38,7 +38,7 @@ final class GeneratorStub implements GeneratorInterface
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string {
         if (self::$throwForKeys) {
             throw new Exception('Stub exception');

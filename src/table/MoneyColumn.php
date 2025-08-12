@@ -10,7 +10,7 @@ final class MoneyColumn extends Column implements ColumnInterface
      * Returns length of the column.
      * @return int|string|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(?string $schema = null, ?string $engineVersion = null)
     {
         $scale = $this->getScale();
         return $this->getPrecision() . ($scale !== null ? ', ' . $scale : null);
@@ -20,7 +20,7 @@ final class MoneyColumn extends Column implements ColumnInterface
      * Sets length of the column.
      * @param string|int|array<string|int>|null $value
      */
-    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
     {
         if (\is_array($value)) {
             $length = $value;

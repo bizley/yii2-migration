@@ -44,7 +44,7 @@ final class TimestampColumn extends Column implements ColumnInterface
      * Returns length of the column.
      * @return int|string|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(?string $schema = null, ?string $engineVersion = null)
     {
         return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getPrecision() : null;
     }
@@ -53,7 +53,7 @@ final class TimestampColumn extends Column implements ColumnInterface
      * Sets length of the column.
      * @param string|int|null $value
      */
-    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
     {
         if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {
             $this->setPrecision($value);

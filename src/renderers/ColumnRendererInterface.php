@@ -14,10 +14,10 @@ interface ColumnRendererInterface
      */
     public function render(
         ColumnInterface $column,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string;
 
     /**
@@ -25,9 +25,9 @@ interface ColumnRendererInterface
      */
     public function renderDefinition(
         ColumnInterface $column,
-        PrimaryKeyInterface $primaryKey = null,
-        string $schema = null,
-        string $engineVersion = null
+        ?PrimaryKeyInterface $primaryKey = null,
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string;
 
     /**
@@ -36,10 +36,10 @@ interface ColumnRendererInterface
     public function renderAdd(
         ColumnInterface $column,
         string $tableName,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string;
 
     /**
@@ -48,10 +48,10 @@ interface ColumnRendererInterface
     public function renderAlter(
         ColumnInterface $column,
         string $tableName,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string;
 
     /**

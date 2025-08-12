@@ -15,7 +15,7 @@ interface PrimaryKeyRendererInterface
         ?PrimaryKeyInterface $primaryKey,
         string $tableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): ?string;
 
     /**
@@ -25,6 +25,6 @@ interface PrimaryKeyRendererInterface
         ?PrimaryKeyInterface $primaryKey,
         string $tableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): ?string;
 }
