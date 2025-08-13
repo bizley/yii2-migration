@@ -8,9 +8,11 @@ use bizley\migration\Schema;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\TableMissingException;
+use ErrorException;
+use Exception;
 use Yii;
 use yii\base\Action;
-use yii\base\Exception;
+use yii\base\Exception as BaseException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\console\ExitCode;
@@ -163,8 +165,8 @@ class MigrationController extends BaseMigrationController
      * Sets the workingPath and workingNamespace and makes sure DB connection is prepared.
      * @param Action $action the action to be executed.
      * @return bool whether the action should continue to be executed.
+     * @throws BaseException
      * @throws InvalidConfigException
-     * @throws Exception
      */
     public function beforeAction($action): bool // BC declaration
     {
@@ -586,7 +588,14 @@ class MigrationController extends BaseMigrationController
         return ExitCode::OK;
     }
 
-    /** @since 4.4.0 */
+    /**
+     * @since 4.4.0
+     * @param string $migrationName
+     * @param string $method
+     * @return int
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
     public function actionSql(string $migrationName, string $method = 'up'): int
     {
         $method = \strtolower($method);
@@ -615,7 +624,7 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Prepares path directory. If directory doesn't exist it's being created.
-     * @throws Exception
+     * @throws BaseException
      */
     private function preparePathDirectory(string $path): string
     {
@@ -631,8 +640,9 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Stores the content in a file under the given path.
+     * @param string $path
      * @param mixed $content
-     * @throws \Throwable
+     * @throws BaseException
      */
     public function storeFile(string $path, $content): void
     {
@@ -662,6 +672,9 @@ class MigrationController extends BaseMigrationController
     /**
      * Generates migration for postponed foreign keys.
      * @param array<ForeignKeyInterface> $postponedForeignKeys
+     * @param string $migrationClassName
+     * @return void
+     * @throws BaseException
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -692,6 +705,7 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Generates updating migration based on a blueprint.
+     * @throws BaseException
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -721,6 +735,7 @@ class MigrationController extends BaseMigrationController
     /**
      * Generates creating migration based on a table structure.
      * @param array<string> $referencesToPostpone
+     * @throws BaseException
      * @throws DbException
      * @throws InvalidConfigException
      * @throws NotSupportedException
@@ -897,7 +912,8 @@ class MigrationController extends BaseMigrationController
      * via the server's filesystem.
      * Note: On Windows, this function fails silently when applied on a regular file.
      * @param string $path the path to the file or directory.
-     * @throws \Exception
+     * @throws BaseException
+     * @throws Exception
      */
     private function setFileModeAndOwnership(string $path): void
     {
@@ -926,6 +942,10 @@ class MigrationController extends BaseMigrationController
         FallbackFileHelper::changeOwnership($path, $this->fileOwnership, $mode);
     }
 
+    /**
+     * @param int $tables
+     * @return bool
+     */
     private function hasTimestampsCollision(int $tables): bool
     {
         if ($this->onlyShow === true || $tables <= 0) {

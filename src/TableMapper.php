@@ -123,6 +123,7 @@ final class TableMapper implements TableMapperInterface
 
     /**
      * Returns a primary key of the table.
+     * @param string $table
      * @return PrimaryKeyInterface|null
      * @throws NotSupportedException
      */
