@@ -95,7 +95,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     }
 
     /**
-     * Renders table name. Name should be provided without the prefix. If name should be with prefix and it is being
+     * Renders table name. Name should be provided without the prefix. If name should be with prefix, and it is being
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
      * @param bool $usePrefix whether to add prefix structure to the name
      */

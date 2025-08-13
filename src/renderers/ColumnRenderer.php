@@ -55,7 +55,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         int $indent = 0,
         ?string $schema = null,
         ?string $engineVersion = null
-    ): ?string {
+    ): string {
         $template = \str_repeat(' ', $indent) . $this->definitionTemplate;
 
         return \str_replace(
@@ -81,7 +81,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         int $indent = 0,
         ?string $schema = null,
         ?string $engineVersion = null
-    ): ?string {
+    ): string {
         $template = \str_repeat(' ', $indent) . $this->addColumnTemplate;
 
         return \str_replace(
@@ -109,7 +109,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         int $indent = 0,
         ?string $schema = null,
         ?string $engineVersion = null
-    ): ?string {
+    ): string {
         $template = \str_repeat(' ', $indent) . $this->alterColumnTemplate;
 
         return \str_replace(
@@ -130,7 +130,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     /**
      * Renders the drop column statement.
      */
-    public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): ?string
+    public function renderDrop(ColumnInterface $column, string $tableName, int $indent = 0): string
     {
         $template = \str_repeat(' ', $indent) . $this->dropColumnTemplate;
 
@@ -155,7 +155,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         ?PrimaryKeyInterface $primaryKey = null,
         ?string $schema = null,
         ?string $engineVersion = null
-    ): ?string {
+    ): string {
         $this->definition = [];
         $this->isPrimaryKeyPossible = true;
         $this->isNotNullPossible = true;

@@ -17,7 +17,7 @@ final class IndexRenderer implements IndexRendererInterface
     /**
      * Renders the add index statement.
      */
-    public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): ?string
+    public function renderUp(IndexInterface $index, string $tableName, int $indent = 0): string
     {
         $template = \str_repeat(' ', $indent) . $this->createIndexTemplate;
 
@@ -35,7 +35,7 @@ final class IndexRenderer implements IndexRendererInterface
                 '{unique}',
             ],
             [
-                $index->getName(),
+                $index->getName() ?? '',
                 $tableName,
                 \implode(', ', $renderedColumns),
                 $index->isUnique() ? ', true' : '',
@@ -47,7 +47,7 @@ final class IndexRenderer implements IndexRendererInterface
     /**
      * Renders the drop index statement.
      */
-    public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): ?string
+    public function renderDown(IndexInterface $index, string $tableName, int $indent = 0): string
     {
         $template = \str_repeat(' ', $indent) . $this->dropIndexTemplate;
 
@@ -57,7 +57,7 @@ final class IndexRenderer implements IndexRendererInterface
                 '{tableName}'
             ],
             [
-                $index->getName(),
+                $index->getName() ?? '',
                 $tableName
             ],
             $template
