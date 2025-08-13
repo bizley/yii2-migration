@@ -56,7 +56,7 @@ TEMPLATE;
      * Renders table name. Name should be provided without the prefix. If name should be with prefix and it is being
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
      */
-    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
+    public function renderName(string $tableName, bool $usePrefix, ?string $dbPrefix = null): string
     {
         if ($usePrefix === false) {
             return $tableName;
@@ -76,10 +76,10 @@ TEMPLATE;
     public function renderStructureUp(
         StructureInterface $structure,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string {
         $tableName = $this->renderName($structure->getName(), $usePrefix, $dbPrefix);
 
@@ -103,7 +103,7 @@ TEMPLATE;
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string {
         return $this->renderStructureTableDown(
             $this->renderName($structure->getName(), $usePrefix, $dbPrefix),
@@ -137,8 +137,8 @@ TEMPLATE;
         StructureInterface $structure,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): string {
         $columns = $structure->getColumns();
         $renderedColumns = [];
@@ -187,7 +187,7 @@ TEMPLATE;
         StructureInterface $structure,
         string $tableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): ?string {
         return $this->primaryKeyRenderer->renderUp($structure->getPrimaryKey(), $tableName, $indent, $schema);
     }
@@ -229,8 +229,8 @@ TEMPLATE;
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null,
-        string $schema = null
+        ?string $dbPrefix = null,
+        ?string $schema = null
     ): ?string {
         return $this->renderForeignKeysUp(
             $structure->getForeignKeys(),
@@ -249,8 +249,8 @@ TEMPLATE;
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null,
-        string $schema = null
+        ?string $dbPrefix = null,
+        ?string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
         foreach ($foreignKeys as $foreignKey) {
@@ -274,8 +274,8 @@ TEMPLATE;
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null,
-        string $schema = null
+        ?string $dbPrefix = null,
+        ?string $schema = null
     ): ?string {
         $renderedForeignKeys = [];
         foreach ($foreignKeys as $foreignKey) {

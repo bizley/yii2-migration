@@ -332,7 +332,7 @@ abstract class Column
      * @param bool $primaryKey whether the column is primary key
      * @param bool $autoIncrement whether the column has autoincrement flag
      */
-    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, string $schema = null): ?string
+    public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, ?string $schema = null): ?string
     {
         switch ($schema) {
             case Schema::MSSQL:
@@ -406,11 +406,11 @@ abstract class Column
      * Returns length of the column.
      * @return string|int|null
      */
-    abstract public function getLength(string $schema = null, string $engineVersion = null);
+    abstract public function getLength(?string $schema = null, ?string $engineVersion = null);
 
     /**
      * Sets length for the column.
      * @param string|int|array<string|int>|null $value
      */
-    abstract public function setLength($value, string $schema = null, string $engineVersion = null): void;
+    abstract public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void;
 }

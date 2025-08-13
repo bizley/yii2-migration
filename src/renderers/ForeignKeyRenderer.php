@@ -43,7 +43,7 @@ TEMPLATE;
         string $tableName,
         string $referencedTableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): string {
         if ($schema === Schema::SQLITE && $this->generalSchema === false) {
             throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
@@ -97,7 +97,7 @@ TEMPLATE;
         ForeignKeyInterface $foreignKey,
         string $tableName,
         int $indent = 0,
-        string $schema = null
+        ?string $schema = null
     ): string {
         if ($schema === Schema::SQLITE && $this->generalSchema === false) {
             throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');

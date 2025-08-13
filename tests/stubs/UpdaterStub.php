@@ -41,7 +41,7 @@ final class UpdaterStub implements UpdaterInterface
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string {
         if (self::$throwForGenerate) {
             throw new NotSupportedException('Stub Exception');

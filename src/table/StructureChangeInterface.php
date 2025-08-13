@@ -20,5 +20,5 @@ interface StructureChangeInterface
      * Returns value of the change based on the method.
      * @return mixed Change value
      */
-    public function getValue(string $schema = null, string $engineVersion = null);
+    public function getValue(?string $schema = null, ?string $engineVersion = null);
 }

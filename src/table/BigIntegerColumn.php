@@ -28,7 +28,7 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
      * Returns length of the column.
      * @return int|string|null
      */
-    public function getLength(string $schema = null, string $engineVersion = null)
+    public function getLength(?string $schema = null, ?string $engineVersion = null)
     {
         return $this->isSchemaLengthSupporting($schema, $engineVersion) ? $this->getSize() : null;
     }
@@ -37,7 +37,7 @@ final class BigIntegerColumn extends Column implements PrimaryKeyVariantColumnIn
      * Sets length of the column.
      * @param string|int|null $value
      */
-    public function setLength($value, string $schema = null, string $engineVersion = null): void
+    public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
     {
         if ($this->isSchemaLengthSupporting($schema, $engineVersion)) {
             $this->setSize($value);

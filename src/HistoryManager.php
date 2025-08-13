@@ -63,7 +63,7 @@ final class HistoryManager implements HistoryManagerInterface
      * @throws Exception
      * @throws NotSupportedException
      */
-    public function addHistory(string $migrationName, string $namespace = null): void
+    public function addHistory(string $migrationName, ?string $namespace = null): void
     {
         if ($this->db->getSchema()->getTableSchema($this->historyTable, true) === null) {
             $this->createTable();

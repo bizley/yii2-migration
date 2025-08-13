@@ -306,7 +306,7 @@ class Migration extends Component implements MigrationChangesInterface
      * @param array<string, string|ColumnSchemaBuilder> $columns
      * @throws ReflectionException
      */
-    public function createTable(string $table, array $columns, string $options = null): void
+    public function createTable(string $table, array $columns, ?string $options = null): void
     {
         $this->addChange($table, 'createTable', $this->extractColumns($columns));
     }
@@ -403,8 +403,8 @@ class Migration extends Component implements MigrationChangesInterface
         $columns,
         string $refTable,
         $refColumns,
-        string $delete = null,
-        string $update = null
+        ?string $delete = null,
+        ?string $update = null
     ): void {
         $columns = \is_array($columns) ? $columns : \preg_split('/\s*,\s*/', $columns);
         $this->addChange(

@@ -174,7 +174,7 @@ final class Schema
      * Returns default length based on the schema and column type.
      * For MySQL >= 5.6.4 additional default sizes are available.
      */
-    public static function getDefaultLength(?string $schema, string $type, string $engineVersion = null): ?string
+    public static function getDefaultLength(?string $schema, string $type, ?string $engineVersion = null): ?string
     {
         if ($schema === null) {
             return null;

@@ -39,10 +39,10 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     public function renderUp(
         BlueprintInterface $blueprint,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string {
         $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
 
@@ -70,10 +70,10 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     public function renderDown(
         BlueprintInterface $blueprint,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string {
         $tableName = $this->renderName($blueprint->getTableName(), $usePrefix, $dbPrefix);
 
@@ -99,7 +99,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
      * @param bool $usePrefix whether to add prefix structure to the name
      */
-    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string
+    public function renderName(string $tableName, bool $usePrefix, ?string $dbPrefix = null): string
     {
         if ($usePrefix === false) {
             return $tableName;
@@ -143,8 +143,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $inverse = false
     ): ?string {
         $renderedColumns = [];
@@ -178,8 +178,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $inverse = false
     ): ?string {
         $renderedColumns = [];
@@ -213,7 +213,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
+        ?string $schema = null,
         bool $inverse = false
     ): ?string {
         $renderedForeignKeys = [];
@@ -238,9 +238,9 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
+        ?string $schema = null,
         bool $usePrefix = true,
-        string $dbPrefix = null,
+        ?string $dbPrefix = null,
         bool $inverse = false
     ): ?string {
         $renderedForeignKeys = [];
@@ -319,7 +319,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
+        ?string $schema = null,
         bool $inverse = false
     ): ?string {
         if ($inverse) {
@@ -338,7 +338,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
         BlueprintInterface $blueprint,
         string $tableName,
         int $indent = 0,
-        string $schema = null,
+        ?string $schema = null,
         bool $inverse = false
     ): ?string {
         if ($inverse) {

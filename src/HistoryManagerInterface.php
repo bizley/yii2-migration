@@ -14,7 +14,7 @@ interface HistoryManagerInterface
      * @throws Exception
      * @throws NotSupportedException
      */
-    public function addHistory(string $migrationName, string $namespace = null): void;
+    public function addHistory(string $migrationName, ?string $namespace = null): void;
 
     /**
      * Returns the migration history.

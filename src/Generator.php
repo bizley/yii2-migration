@@ -72,7 +72,7 @@ final class Generator implements GeneratorInterface
         array $referencesToPostpone = [],
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string {
         if ($this->tableMapper->getTableSchema($tableName) === null) {
             throw new TableMissingException("Table '$tableName' does not exists!");
@@ -116,7 +116,7 @@ final class Generator implements GeneratorInterface
         string $migrationName,
         bool $usePrefix = true,
         string $dbPrefix = '',
-        string $namespace = null
+        ?string $namespace = null
     ): string {
         return $this->view->renderFile(
             $this->getCreateForeignKeysMigrationTemplate(),

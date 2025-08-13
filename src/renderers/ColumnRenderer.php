@@ -51,10 +51,10 @@ final class ColumnRenderer implements ColumnRendererInterface
      */
     public function render(
         ColumnInterface $column,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string {
         $template = \str_repeat(' ', $indent) . $this->definitionTemplate;
 
@@ -77,10 +77,10 @@ final class ColumnRenderer implements ColumnRendererInterface
     public function renderAdd(
         ColumnInterface $column,
         string $tableName,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string {
         $template = \str_repeat(' ', $indent) . $this->addColumnTemplate;
 
@@ -105,10 +105,10 @@ final class ColumnRenderer implements ColumnRendererInterface
     public function renderAlter(
         ColumnInterface $column,
         string $tableName,
-        PrimaryKeyInterface $primaryKey = null,
+        ?PrimaryKeyInterface $primaryKey = null,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string {
         $template = \str_repeat(' ', $indent) . $this->alterColumnTemplate;
 
@@ -152,9 +152,9 @@ final class ColumnRenderer implements ColumnRendererInterface
      */
     public function renderDefinition(
         ColumnInterface $column,
-        PrimaryKeyInterface $primaryKey = null,
-        string $schema = null,
-        string $engineVersion = null
+        ?PrimaryKeyInterface $primaryKey = null,
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): ?string {
         $this->definition = [];
         $this->isPrimaryKeyPossible = true;
@@ -173,8 +173,8 @@ final class ColumnRenderer implements ColumnRendererInterface
     private function buildColumnDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
-        string $schema = null,
-        string $engineVersion = null
+        ?string $schema = null,
+        ?string $engineVersion = null
     ): void {
         $definition = $column->getDefinition();
 
@@ -239,7 +239,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     private function buildGeneralDefinition(
         ColumnInterface $column,
         ?PrimaryKeyInterface $primaryKey,
-        string $schema = null
+        ?string $schema = null
     ): void {
         \array_unshift($this->definition, '$this');
 

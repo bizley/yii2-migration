@@ -16,10 +16,10 @@ interface StructureRendererInterface
     public function renderStructureUp(
         StructureInterface $structure,
         int $indent = 0,
-        string $schema = null,
-        string $engineVersion = null,
+        ?string $schema = null,
+        ?string $engineVersion = null,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string;
 
     /**
@@ -30,14 +30,14 @@ interface StructureRendererInterface
         StructureInterface $structure,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): string;
 
     /**
      * Renders table name. Name should be provided without the prefix. If name should be with prefix and it is being
      * detected, prefix is removed from the name and replaced by a prefix structure ({{%}}).
      */
-    public function renderName(string $tableName, bool $usePrefix, string $dbPrefix = null): string;
+    public function renderName(string $tableName, bool $usePrefix, ?string $dbPrefix = null): string;
 
     /**
      * Renders the add foreign keys statements (direct).
@@ -47,8 +47,8 @@ interface StructureRendererInterface
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null,
-        string $schema = null
+        ?string $dbPrefix = null,
+        ?string $schema = null
     ): ?string;
 
     /**
@@ -59,6 +59,6 @@ interface StructureRendererInterface
         array $foreignKeys,
         int $indent = 0,
         bool $usePrefix = true,
-        string $dbPrefix = null
+        ?string $dbPrefix = null
     ): ?string;
 }
