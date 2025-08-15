@@ -22,12 +22,12 @@ final class GenericColumnTest extends TestCase
     protected function setUp(): void
     {
         $this->column = new class extends Column implements ColumnInterface {
-            public function getLength(string $schema = null, string $engineVersion = null)
+            public function getLength(?string $schema = null, ?string $engineVersion = null)
             {
                 return null;
             }
 
-            public function setLength($value, string $schema = null, string $engineVersion = null): void
+            public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
             {
             }
 

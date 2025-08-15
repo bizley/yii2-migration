@@ -94,7 +94,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForCubrid(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForCubrid(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::CUBRID, $type));
     }
@@ -132,7 +132,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForMSSQL(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForMSSQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MSSQL, $type));
     }
@@ -170,7 +170,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForMySQL(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForMySQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type));
     }
@@ -208,7 +208,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForMySQLPlus(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForMySQLPlus(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type, '5.6.4'));
     }
@@ -246,7 +246,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForOCI(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForOCI(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::OCI, $type));
     }
@@ -284,7 +284,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForPgSQL(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForPgSQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::PGSQL, $type));
     }
@@ -322,7 +322,7 @@ final class SchemaTest extends TestCase
      * @param string|null $expected
      * @param string $type
      */
-    public function shouldReturnProperDefaultLengthForSQLite(string $type, string $expected = null): void
+    public function shouldReturnProperDefaultLengthForSQLite(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::SQLITE, $type));
     }
@@ -351,7 +351,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForCubrid(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForCubrid(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::CUBRID, $type, $length));
     }
@@ -374,7 +374,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForMSSQL(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForMSSQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::MSSQL, $type, $length));
     }
@@ -397,7 +397,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForMySQL(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForMySQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::MYSQL, $type, $length));
     }
@@ -423,7 +423,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForOCI(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForOCI(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::OCI, $type, $length));
     }
@@ -444,7 +444,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForPgSQL(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForPgSQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
     }
@@ -465,7 +465,7 @@ final class SchemaTest extends TestCase
      * @param string $length
      * @param string|null $expected
      */
-    public function shouldReturnProperAliasForSQLite(string $type, string $length, string $expected = null): void
+    public function shouldReturnProperAliasForSQLite(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
     }

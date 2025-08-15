@@ -81,7 +81,7 @@ final class DateTimeColumnTest extends TestCase
      * @param int|null $expected
      * @param string|null $engineVersion
      */
-    public function shouldReturnProperLength(string $schema, ?int $expected, string $engineVersion = null): void
+    public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion = null): void
     {
         $this->column->setPrecision(1);
         self::assertSame($expected, $this->column->getLength($schema, $engineVersion));
@@ -113,7 +113,7 @@ final class DateTimeColumnTest extends TestCase
         string $schema,
         ?int $expectedSize,
         ?int $expectedPrecision,
-        string $engineVersion = null
+        ?string $engineVersion = null
     ): void {
         $this->column->setLength(1, $schema, $engineVersion);
         self::assertSame($expectedSize, $this->column->getSize());
