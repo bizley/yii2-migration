@@ -150,7 +150,6 @@ final class StructureChange implements StructureChangeInterface
      */
     private function getValueForRenameColumn(): array
     {
-        /** @var array<string, string> $data */
         $data = $this->getData();
         if (
             !\is_array($data)
@@ -291,7 +290,6 @@ final class StructureChange implements StructureChangeInterface
      */
     private function getValueForAddCommentOnColumn(): array
     {
-        /** @var array<string, string> $data */
         $data = $this->getData();
         if (
             !\is_array($data)

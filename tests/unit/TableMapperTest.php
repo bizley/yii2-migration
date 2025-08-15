@@ -50,7 +50,7 @@ final class TableMapperTest extends TestCase
         bool $mockTableSchema = true,
         array $foreignKeys = [],
         array $indexes = [],
-        Constraint $primaryKey = null
+        ?Constraint $primaryKey = null
     ): void {
         $this->schema->method('getTableForeignKeys')->willReturn($foreignKeys);
         $this->schema->method('getTableIndexes')->willReturn($indexes);

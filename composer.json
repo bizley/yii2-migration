@@ -7,7 +7,7 @@
   "authors": [
     {
       "name": "Paweł Bizley Brzozowski",
-      "email": "pawel@positive.codes"
+      "email": "pawel.bizley@gmail.com"
     }
   ],
   "support": {
@@ -20,7 +20,7 @@
     }
   ],
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.3",
     "ext-mbstring": "*",
     "ext-pdo": "*",
     "yiisoft/yii2": "^2.0.19"

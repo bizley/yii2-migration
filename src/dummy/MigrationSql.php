@@ -17,14 +17,15 @@ class Migration extends Component implements MigrationSqlInterface
 
     /** @var int|null */
     public $maxSqlOutputLength;
+
     /** @var bool */
     public $compact = false;
 
-    /** @var string[] List of all migration SQL statements */
-    private $statements = [];
-
     /** @var Connection */
     public $db;
+
+    /** @var string[] List of all migration SQL statements */
+    private $statements = [];
 
     /** @throws NotSupportedException */
     public function init(): void

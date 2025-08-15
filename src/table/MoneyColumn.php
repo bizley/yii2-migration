@@ -8,9 +8,8 @@ final class MoneyColumn extends Column implements ColumnInterface
 {
     /**
      * Returns length of the column.
-     * @return int|string|null
      */
-    public function getLength(?string $schema = null, ?string $engineVersion = null)
+    public function getLength(?string $schema = null, ?string $engineVersion = null): string
     {
         $scale = $this->getScale();
         return $this->getPrecision() . ($scale !== null ? ', ' . $scale : null);
@@ -26,7 +25,7 @@ final class MoneyColumn extends Column implements ColumnInterface
             $length = $value;
         } else {
             /** @var array<string|int> $length */
-            $length = \preg_split('/\s*,\s*/', (string)$value);
+            $length = \preg_split('/\s*,\s*/', (string)$value); // @phpstan-ignore varTag.nativeType
         }
 
         if (!empty($length[0])) {

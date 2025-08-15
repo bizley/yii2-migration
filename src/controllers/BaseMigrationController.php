@@ -31,7 +31,6 @@ use bizley\migration\TableMapper;
 use bizley\migration\TableMapperInterface;
 use bizley\migration\Updater;
 use bizley\migration\UpdaterInterface;
-use Closure;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\console\Controller;
@@ -91,49 +90,49 @@ class BaseMigrationController extends Controller
      */
     public $experimental = false;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $historyManagerClass = HistoryManager::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $tableMapperClass = TableMapper::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $arrangerClass = Arranger::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $generatorClass = Generator::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $structureRendererClass = StructureRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $columnRendererClass = ColumnRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $primaryKeyRendererClass = PrimaryKeyRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $indexRendererClass = IndexRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $foreignKeyRendererClass = ForeignKeyRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $updaterClass = Updater::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $inspectorClass = Inspector::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $blueprintRendererClass = BlueprintRenderer::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $extractorClass = Extractor::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $structureBuilderClass = StructureBuilder::class;
 
-    /** @var string|array<string, mixed>|Closure */
+    /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $comparatorClass = Comparator::class;
 
     /** @var HistoryManagerInterface */

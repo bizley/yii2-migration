@@ -68,7 +68,7 @@ final class Extractor implements SqlExtractorInterface
         foreach ($migrationPaths as $path) {
             /** @var string $file */
             $file = Yii::getAlias($path . DIRECTORY_SEPARATOR . $migration . '.php');
-            if (\file_exists($file)) {
+            if (\is_file($file)) {
                 require_once $file;
 
                 return;
