@@ -19,7 +19,7 @@ final class DecimalColumn extends Column implements ColumnInterface
 
     /**
      * Returns length of the column.
-     * @return int|string|null
+     * @return string|null
      */
     public function getLength(?string $schema = null, ?string $engineVersion = null)
     {
@@ -42,7 +42,7 @@ final class DecimalColumn extends Column implements ColumnInterface
                 $length = $value;
             } else {
                 /** @var array<string|int> $length */
-                $length = \preg_split('/\s*,\s*/', (string)$value);
+                $length = \preg_split('/\s*,\s*/', (string)$value); // @phpstan-ignore varTag.nativeType
             }
 
             if (!empty($length[0])) {

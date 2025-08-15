@@ -24,17 +24,18 @@ class Migration extends Component implements MigrationChangesInterface
 
     /** @var int|null */
     public $maxSqlOutputLength;
+
     /** @var bool */
     public $compact = false;
-
-    /** @var array<string, StructureChangeInterface[]> List of all migration actions */
-    private $changes = [];
 
     /** @var Connection */
     public $db;
 
     /** @var bool */
     public $experimental = false;
+
+    /** @var array<string, StructureChangeInterface[]> List of all migration actions */
+    private $changes = [];
 
     /** @throws NotSupportedException */
     public function init(): void

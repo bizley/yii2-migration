@@ -11,7 +11,7 @@ final class StructureBuilder implements StructureBuilderInterface
 {
     /**
      * Builds table structure based on the list of changes from the Inspector.
-     * @param array<StructureChangeInterface> $changes
+     * @param array<StructureChangeInterface|mixed> $changes
      */
     public function build(array $changes, ?string $schema, ?string $engineVersion): StructureInterface
     {

@@ -218,7 +218,7 @@ class SqlColumnMapper
         $sentence = \substr($sentence, $offset);
 
         /** @var array<int, string> $sentenceArray */
-        $sentenceArray = \preg_split('//u', $sentence, -1, \PREG_SPLIT_NO_EMPTY);
+        $sentenceArray = \preg_split('//u', $sentence, -1, \PREG_SPLIT_NO_EMPTY); // @phpstan-ignore varTag.nativeType
 
         switch ($type) {
             case "'":

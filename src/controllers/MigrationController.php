@@ -27,14 +27,14 @@ use yii\helpers\FileHelper;
  * Generates migration files based on the existing database table and previous migrations.
  *
  * @author Paweł Bizley Brzozowski
- * @version 4.4.1
+ * @version 4.4.2
  * @license Apache 2.0
  * https://github.com/bizley/yii2-migration
  */
 class MigrationController extends BaseMigrationController
 {
     /** @var string */
-    private $version = '4.4.1';
+    private $version = '4.4.2';
 
     /**
      * @var string|array<string> Directory storing the migration classes.
@@ -163,7 +163,7 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Sets the workingPath and workingNamespace and makes sure DB connection is prepared.
-     * @param Action $action the action to be executed.
+     * @param Action<self> $action the action to be executed.
      * @return bool whether the action should continue to be executed.
      * @throws BaseException
      * @throws InvalidConfigException
@@ -932,7 +932,7 @@ class MigrationController extends BaseMigrationController
         }
 
         /** @infection-ignore-all */
-        if (\method_exists(FileHelper::class, 'changeOwnership')) {
+        if (\method_exists(FileHelper::class, 'changeOwnership')) { // @phpstan-ignore function.alreadyNarrowedType
             FileHelper::changeOwnership($path, $this->fileOwnership, $mode);
             return;
         }
