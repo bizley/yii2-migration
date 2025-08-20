@@ -590,9 +590,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * @since 4.4.0
-     * @param string $migrationName
-     * @param string $method
-     * @return int
      * @throws ErrorException
      * @throws InvalidConfigException
      */
