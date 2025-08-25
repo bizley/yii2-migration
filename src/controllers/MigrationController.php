@@ -637,7 +637,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Stores the content in a file under the given path.
-     * @param string $path
      * @param mixed $content
      * @throws BaseException
      */
@@ -669,8 +668,6 @@ class MigrationController extends BaseMigrationController
     /**
      * Generates migration for postponed foreign keys.
      * @param array<ForeignKeyInterface> $postponedForeignKeys
-     * @param string $migrationClassName
-     * @return void
      * @throws BaseException
      * @throws DbException
      * @throws InvalidConfigException
@@ -939,10 +936,6 @@ class MigrationController extends BaseMigrationController
         FallbackFileHelper::changeOwnership($path, $this->fileOwnership, $mode);
     }
 
-    /**
-     * @param int $tables
-     * @return bool
-     */
     private function hasTimestampsCollision(int $tables): bool
     {
         if ($this->onlyShow === true || $tables <= 0) {
