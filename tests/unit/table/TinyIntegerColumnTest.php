@@ -44,8 +44,6 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
      */
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
@@ -70,9 +68,6 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLengthForMySQL
-     * @param int $size
-     * @param int|null $expected
-     * @param string|null $engineVersion
      */
     public function shouldReturnProperLengthForMySQL(int $size, ?int $expected, ?string $engineVersion): void
     {
@@ -94,9 +89,6 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLength
-     * @param string $schema
-     * @param int|null $expectedSize
-     * @param int|null $expectedPrecision
      */
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {
@@ -122,10 +114,6 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthForMySQL
-     * @param int $length
-     * @param int|null $expectedSize
-     * @param int|null $expectedPrecision
-     * @param string|null $engineVersion
      */
     public function shouldSetProperLengthForMySQL(
         int $length,

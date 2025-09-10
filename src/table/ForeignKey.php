@@ -113,7 +113,7 @@ final class ForeignKey implements ForeignKeyInterface
      */
     public function setOnDelete(?string $onDelete): void
     {
-        $this->onDelete = $onDelete;
+        $this->onDelete = $this->normalizeConstraint($onDelete);
     }
 
     /**
@@ -129,7 +129,7 @@ final class ForeignKey implements ForeignKeyInterface
      */
     public function setOnUpdate(?string $onUpdate): void
     {
-        $this->onUpdate = $onUpdate;
+        $this->onUpdate = $this->normalizeConstraint($onUpdate);
     }
 
     /**
@@ -146,5 +146,28 @@ final class ForeignKey implements ForeignKeyInterface
     public function setTableName(string $tableName): void
     {
         $this->tableName = $tableName;
+    }
+
+    /**
+     * Normalizes values to fix potential changes done by Yii.
+     * @see https://github.com/bizley/yii2-migration/issues/197
+     */
+    private function normalizeConstraint(?string $constraint): ?string
+    {
+        $normalized = $constraint;
+        if ($normalized === null) {
+            return null;
+        }
+
+        switch (\strtoupper($normalized)) {
+            case 'NOACTION':
+                return 'NO_ACTION';
+            case 'SETNULL':
+                return 'SET_NULL';
+            case 'SETDEFAULT':
+                return 'SET_DEFAULT';
+            default:
+                return $normalized;
+        }
     }
 }

@@ -47,9 +47,6 @@ final class TimeColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
-     * @param string|null $engineVersion
      */
     public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion = null): void
     {
@@ -74,10 +71,6 @@ final class TimeColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLength
-     * @param string $schema
-     * @param int|null $expectedSize
-     * @param int|null $expectedPrecision
-     * @param string|null $engineVersion
      */
     public function shouldSetProperLength(
         string $schema,

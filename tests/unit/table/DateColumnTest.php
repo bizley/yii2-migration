@@ -45,8 +45,6 @@ final class DateColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
      */
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
@@ -69,9 +67,6 @@ final class DateColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLength
-     * @param string $schema
-     * @param int|null $expectedSize
-     * @param int|null $expectedPrecision
      */
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {

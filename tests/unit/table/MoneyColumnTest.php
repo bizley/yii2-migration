@@ -43,8 +43,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLengthWithoutScale
-     * @param string $schema
-     * @param string|null $expected
      */
     public function shouldReturnProperLengthWithoutScale(string $schema, ?string $expected): void
     {
@@ -67,8 +65,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLengthWithScale
-     * @param string $schema
-     * @param string|null $expected
      */
     public function shouldReturnProperLengthWithScale(string $schema, ?string $expected): void
     {
@@ -92,9 +88,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithoutScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith1IntElementArray(
         string $schema,
@@ -121,9 +114,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithoutScaleAndPrecision
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith0ElementArray(
         string $schema,
@@ -138,9 +128,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithoutScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith1StringElementArray(
         string $schema,
@@ -167,9 +154,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith2IntElementsArray(
         string $schema,
@@ -184,9 +168,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith2StringElementsArray(
         string $schema,
@@ -201,9 +182,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithoutScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith1StringElement(
         string $schema,
@@ -218,9 +196,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith2StringElementsVariant1(
         string $schema,
@@ -235,9 +210,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith2StringElementsVariant2(
         string $schema,
@@ -252,9 +224,6 @@ final class MoneyColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLengthWithScale
-     * @param string $schema
-     * @param int|null $expectedPrecision
-     * @param int|null $expectedScale
      */
     public function shouldSetProperLengthWith2StringElementsVariant3(
         string $schema,

@@ -45,8 +45,6 @@ final class FloatColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
      */
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
