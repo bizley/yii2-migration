@@ -47,8 +47,8 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForDefaults
-     * @param $defaultToSet
-     * @param $expected
+     * @param string|int|Expression $defaultToSet
+     * @param string|int|Expression $expected
      */
     public function shouldReturnProperDefault($defaultToSet, $expected): void
     {
@@ -77,9 +77,6 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
-     * @param string|null $engineVersion
      */
     public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion = null): void
     {
@@ -104,10 +101,6 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLength
-     * @param string $schema
-     * @param int|null $expectedSize
-     * @param int|null $expectedPrecision
-     * @param string|null $engineVersion
      */
     public function shouldSetProperLength(
         string $schema,

@@ -68,8 +68,6 @@ final class ColumnFactoryTest extends TestCase
     /**
      * @test
      * @dataProvider providerForTypes
-     * @param string $type
-     * @param string $expected
      */
     public function shouldReturnProperColumn(string $type, string $expected): void
     {

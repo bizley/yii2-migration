@@ -33,8 +33,6 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @test
      * @dataProvider providerForComposite
-     * @param array $columns
-     * @param bool $expected
      */
     public function shouldProperlyCheckIfKeyIsComposite(array $columns, bool $expected): void
     {
@@ -53,8 +51,6 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @test
      * @dataProvider providerForColumns
-     * @param string $newColumn
-     * @param array $expectedColumns
      */
     public function shouldProperlyAddColumn(string $newColumn, array $expectedColumns): void
     {

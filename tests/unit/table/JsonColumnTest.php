@@ -44,10 +44,9 @@ final class JsonColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForDefaults
-     * @param $defaultToSet
-     * @param $expected
+     * @param string|null|array $defaultToSet
      */
-    public function shouldReturnProperDefault($defaultToSet, $expected): void
+    public function shouldReturnProperDefault($defaultToSet, ?string $expected): void
     {
         $this->column->setDefault($defaultToSet);
         self::assertSame($expected, $this->column->getDefault());
@@ -68,8 +67,6 @@ final class JsonColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForGettingLength
-     * @param string $schema
-     * @param int|null $expected
      */
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
@@ -91,8 +88,6 @@ final class JsonColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSettingLength
-     * @param string $schema
-     * @param int|null $expectedPrecision
      */
     public function shouldSetProperLength(string $schema, ?int $expectedPrecision): void
     {

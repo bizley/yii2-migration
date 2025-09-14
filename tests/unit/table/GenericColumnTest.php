@@ -50,9 +50,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForColumnInPrimaryKey
-     * @param string $name
-     * @param array $columns
-     * @param bool $expected
      */
     public function shouldCheckIfColumnIsPartOfPrimaryKey(string $name, array $columns, bool $expected): void
     {
@@ -78,9 +75,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForPrimaryKeyInfoAppended
-     * @param string $append
-     * @param string $schema
-     * @param bool $expected
      */
     public function shouldCheckIfPrimaryKeyInfoIsAppended(string $append, string $schema, bool $expected): void
     {
@@ -121,10 +115,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForPrepareSchemaAppend
-     * @param string $schema
-     * @param bool $primaryKey
-     * @param bool $autoIncrement
-     * @param string|null $expected
      */
     public function shouldPrepareSchemaAppend(
         string $schema,
@@ -146,8 +136,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForEscapingQuotes
-     * @param string $value
-     * @param string $expected
      */
     public function shouldEscapeQuotes(string $value, string $expected): void
     {
@@ -198,9 +186,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForRemovingPrimaryKeyInfo
-     * @param string $schema
-     * @param string $append
-     * @param string|null $expected
      */
     public function shouldRemoveAppendedPrimaryKeyInfo(string $schema, string $append, ?string $expected): void
     {
@@ -227,8 +212,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSizePrecisionScale
-     * @param int|string|null $size
-     * @param int|string|null $expected
      */
     public function shouldProperlySetSize($size, $expected): void
     {
@@ -239,8 +222,6 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSizePrecisionScale
-     * @param int|string|null $precision
-     * @param int|string|null $expected
      */
     public function shouldProperlySetPrecision($precision, $expected): void
     {
