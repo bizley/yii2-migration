@@ -161,11 +161,14 @@ final class ForeignKey implements ForeignKeyInterface
 
         switch (\strtoupper($normalized)) {
             case 'NOACTION':
-                return 'NO_ACTION';
+            case 'NO_ACTION':
+                return 'NO ACTION';
             case 'SETNULL':
-                return 'SET_NULL';
+            case 'SET_NULL':
+                return 'SET NULL';
             case 'SETDEFAULT':
-                return 'SET_DEFAULT';
+            case 'SET_DEFAULT':
+                return 'SET DEFAULT';
             default:
                 return $normalized;
         }
