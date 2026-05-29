@@ -13,6 +13,7 @@ use ReflectionException;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 use yii\base\NotSupportedException;
+use yii\di\Instance;
 
 /**
  * Dummy Migration class.
@@ -42,6 +43,7 @@ class Migration extends Component implements MigrationChangesInterface
     {
         parent::init();
 
+        $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
     }

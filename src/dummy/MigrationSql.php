@@ -6,6 +6,7 @@ use bizley\migration\dummy\MigrationSqlInterface;
 use Generator;
 use yii\base\Component;
 use yii\base\NotSupportedException;
+use yii\di\Instance;
 
 /**
  * Dummy Migration class.
@@ -32,6 +33,7 @@ class Migration extends Component implements MigrationSqlInterface
     {
         parent::init();
 
+        $this->db = Instance::ensure($this->db, Connection::class);
         $this->db->getSchema()->refresh();
         $this->db->enableSlaves = false;
     }
