@@ -139,7 +139,7 @@ class Migration extends Component implements MigrationChangesInterface
 
         \preg_match('/^([a-zA-Z ]+)(\(([0-9,]+)\))?$/', $builder, $matches);
 
-        if (\array_key_exists($matches[1], $dbToKey)) {
+        if (isset($matches[1]) && \array_key_exists($matches[1], $dbToKey)) {
             if (!empty($matches[3])) {
                 $schema['length'] = $matches[3];
             }
