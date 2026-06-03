@@ -127,12 +127,12 @@ final class Arranger implements ArrangerInterface
             }
 
             if ($done === false) {
-                $input[$lastCheckedName] = \array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
+                $input[$lastCheckedName] = \array_diff($input[$lastCheckedName], [$lastCheckedDependency]); // @phpstan-ignore offsetAccess.invalidOffset,offsetAccess.invalidOffset
 
                 $this->arrangeDependencies($input);
                 $order = $this->getTablesInOrder();
                 $postLinkMerged = array_merge_recursive(
-                    [$lastCheckedName => [$lastCheckedDependency]],
+                    [$lastCheckedName => [$lastCheckedDependency]], // @phpstan-ignore array.invalidKey
                     $this->referencesToPostpone
                 );
                 $filteredDependencies = [];

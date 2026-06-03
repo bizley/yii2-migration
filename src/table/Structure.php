@@ -126,7 +126,7 @@ final class Structure implements StructureInterface
      */
     public function addIndex(IndexInterface $index): void
     {
-        $this->indexes[$index->getName()] = $index;
+        $this->indexes[$index->getName()] = $index; // @phpstan-ignore offsetAccess.invalidOffset
     }
 
     /**

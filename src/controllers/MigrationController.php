@@ -163,7 +163,7 @@ class MigrationController extends BaseMigrationController
 
     /**
      * Sets the workingPath and workingNamespace and makes sure DB connection is prepared.
-     * @param Action<self> $action the action to be executed.
+     * @param Action<static> $action the action to be executed.
      * @return bool whether the action should continue to be executed.
      * @throws BaseException
      * @throws InvalidConfigException
