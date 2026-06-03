@@ -177,7 +177,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function addIndex(IndexInterface $index): void
     {
-        $this->indexesToAdd[$index->getName()] = $index; // @phpstan-ignore offsetAccess.invalidOffset
+        $this->indexesToAdd[$index->getName()] = $index;
     }
 
     /**
@@ -185,7 +185,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropIndex(IndexInterface $index): void
     {
-        $this->indexesToDrop[$index->getName()] = $index; // @phpstan-ignore offsetAccess.invalidOffset
+        $this->indexesToDrop[$index->getName()] = $index;
     }
 
     /**

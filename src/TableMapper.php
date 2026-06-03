@@ -114,7 +114,7 @@ final class TableMapper implements TableMapperInterface
                 $mappedIndex->setUnique($index->isUnique);
                 $mappedIndex->setColumns($index->columnNames);
 
-                $mappedIndexes[$index->name] = $mappedIndex; // @phpstan-ignore offsetAccess.invalidOffset
+                $mappedIndexes[$index->name] = $mappedIndex;
             }
         }
 
