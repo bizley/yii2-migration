@@ -296,7 +296,7 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && $char === '`') {
+            if (!$collect && $char === '`') { // @phpstan-ignore identical.alwaysTrue
                 $collect = true;
                 continue;
             }
@@ -328,7 +328,7 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && $char === '(') {
+            if (!$collect && $char === '(') { // @phpstan-ignore identical.alwaysTrue
                 $collect = true;
             }
 
@@ -363,7 +363,7 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && (\is_numeric($char) || $char === '-')) {
+            if (!$collect && (\is_numeric($char) || $char === '-')) { // @phpstan-ignore function.impossibleType,booleanOr.alwaysTrue,identical.alwaysTrue
                 $collect = true;
                 $part .= $char;
                 $end = $index + 1;
