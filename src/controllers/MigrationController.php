@@ -769,10 +769,14 @@ class MigrationController extends BaseMigrationController
      */
     private function prepareTableNames(string $inputTables): array
     {
-        if (\strpos($inputTables, ',') !== false) {
-            $tablesList = \explode(',', $inputTables);
-        } else {
-            $tablesList = [$inputTables];
+        $tablesList = \array_filter(
+            \array_map('trim', \explode(',', $inputTables)),
+            static function (string $table): bool {
+                return $table !== '';
+            }
+        );
+        if (empty($tablesList)) {
+            return [];
         }
 
         /** @var Connection $db */
@@ -798,7 +802,7 @@ class MigrationController extends BaseMigrationController
             }
         }
 
-        return $tables;
+        return \array_values(\array_unique($tables));
     }
 
     /** @var array<string> */
@@ -819,7 +823,10 @@ class MigrationController extends BaseMigrationController
 
         foreach ($allTables as $table) {
             if (!\in_array($table, $excludedTables, true)) {
-                if ($pattern && \preg_match('/^' . \str_replace('*', '(.+)', $pattern) . '$/', $table) === 0) {
+                if (
+                    $pattern !== null
+                    && \preg_match('/^' . \str_replace('\\*', '.+', \preg_quote($pattern, '/')) . '$/', $table) === 0
+                ) {
                     continue;
                 }
                 $filteredTables[] = $table;

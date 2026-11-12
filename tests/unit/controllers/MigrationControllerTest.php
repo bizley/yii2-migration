@@ -455,6 +455,49 @@ final class MigrationControllerTest extends TestCase
     }
 
     /**
+     * @return array<string, array{array<string>, string, array<string>}>
+     */
+    public function providerForTablePatterns(): array
+    {
+        return [
+            'dot is literal' => [
+                ['schema.tab1', 'schema.tab2', 'schemaXtab1'],
+                'schema.tab*',
+                ['schema.tab1', 'schema.tab2'],
+            ],
+            'regex special characters are literal' => [['tab$1', 'tab$2', 'tab1'], 'tab$*', ['tab$1', 'tab$2']],
+            'slash does not break the pattern' => [['a/b1', 'a/b2', 'ab1'], 'a/b*', ['a/b1', 'a/b2']],
+            'spaces around commas are ignored' => [['test', 'test2', 'test3'], 'test, test2', ['test', 'test2']],
+            'empty names are ignored' => [['test', 'test2', 'test3'], 'test,,test2,', ['test', 'test2']],
+            'overlapping patterns give unique tables' => [['test', 'test2'], 'test*,test,test2', ['test2', 'test']],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForTablePatterns
+     * @param array<string> $tables
+     * @param array<string> $expected
+     */
+    public function shouldMatchTablesByPattern(array $tables, string $input, array $expected): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn($tables);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+
+        self::assertSame(ExitCode::OK, $this->controller->actionCreate($input));
+        self::assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - ' . \implode("\n   - ", $expected) . '
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
      * @test
      * @dataProvider providerForActionIds
      */
