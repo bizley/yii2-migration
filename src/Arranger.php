@@ -34,7 +34,13 @@ final class Arranger implements ArrangerInterface
             $this->addDependency($inputTable);
 
             foreach ($this->mapper->getStructureOf($inputTable)->getForeignKeys() as $foreignKey) {
-                $this->addDependency($inputTable, $foreignKey->getReferredTable());
+                $referredTable = $foreignKey->getReferredTable();
+                if ($referredTable === $inputTable) {
+                    // self-referencing foreign key is added in the same migration right after creating the table
+                    continue;
+                }
+
+                $this->addDependency($inputTable, $referredTable);
             }
         }
 

@@ -43,6 +43,9 @@ final class ArrangerTest extends TestCase
                 ['C', 'B', 'A'],
                 ['A', 'B'],
             ],
+            'self reference' => [['A' => ['A'], 'B' => []], ['A', 'B'], []],
+            'self reference and other' => [['A' => ['A', 'B'], 'B' => []], ['B', 'A'], []],
+            'self reference in cycle' => [['A' => ['B'], 'B' => ['B', 'A']], ['B', 'A'], ['A']],
         ];
     }
 
