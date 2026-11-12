@@ -19,6 +19,7 @@ use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Constraint;
+use yii\db\Expression;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\cubrid\Schema as CubridSchema;
@@ -57,6 +58,9 @@ final class TableMapper implements TableMapperInterface
 
     /** @var array<string, array<string, array{int, int}>> */
     private array $mssqlNumericLengths = [];
+
+    /** @var array<string, array<string, string>> */
+    private array $pgsqlRawDefaults = [];
 
     /**
      * Returns a structure of the table.
@@ -190,6 +194,9 @@ final class TableMapper implements TableMapperInterface
             if ($schema === Schema::MSSQL) {
                 $this->fillMssqlNumericLength($table, $tableSchema, $column);
             }
+            if ($schema === Schema::PGSQL) {
+                $this->fillPgsqlDefaultExpression($table, $tableSchema, $column);
+            }
 
             $mappedColumn = ColumnFactory::build($column->type);
             $mappedColumn->setName($column->name);
@@ -266,6 +273,64 @@ SQL,
         }
 
         return $lengths;
+    }
+
+    /**
+     * Yii parses PostgreSQL column defaults with regular expressions and returns anything that is not a plain literal
+     * (a function call like gen_random_uuid(), an operation, a cast expression) as a mangled string, which would be
+     * rendered as a string literal. The raw default is read from pg_attrdef and used as an expression in such case.
+     */
+    private function fillPgsqlDefaultExpression(string $table, TableSchema $tableSchema, ColumnSchema $column): void
+    {
+        if ($column->isPrimaryKey || $column->defaultValue === null) {
+            return;
+        }
+
+        if (!\array_key_exists($table, $this->pgsqlRawDefaults)) {
+            $this->pgsqlRawDefaults[$table] = $this->fetchPgsqlRawDefaults($tableSchema);
+        }
+
+        $rawDefault = $this->pgsqlRawDefaults[$table][$column->name] ?? null;
+        if ($rawDefault !== null && !$this->isPgsqlLiteral($rawDefault)) {
+            $column->defaultValue = new Expression($rawDefault);
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function fetchPgsqlRawDefaults(TableSchema $tableSchema): array
+    {
+        $rows = $this->db->createCommand(
+            <<<'SQL'
+SELECT "a"."attname" AS "column_name", pg_get_expr("ad"."adbin", "ad"."adrelid") AS "column_default"
+FROM "pg_attrdef" AS "ad"
+INNER JOIN "pg_attribute" AS "a" ON "a"."attrelid" = "ad"."adrelid" AND "a"."attnum" = "ad"."adnum"
+INNER JOIN "pg_class" AS "c" ON "c"."oid" = "ad"."adrelid"
+INNER JOIN "pg_namespace" AS "n" ON "n"."oid" = "c"."relnamespace"
+WHERE "n"."nspname" = :schema AND "c"."relname" = :table
+SQL,
+            [':schema' => $tableSchema->schemaName, ':table' => $tableSchema->name]
+        )->queryAll();
+
+        $defaults = [];
+        foreach ($rows as $row) {
+            $defaults[$row['column_name']] = (string)$row['column_default'];
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * Checks if the PostgreSQL default (as returned by pg_get_expr) is a plain literal: a quoted value with optional
+     * type casts, a number, a boolean, or NULL.
+     */
+    private function isPgsqlLiteral(string $default): bool
+    {
+        $value = '(?:B?\'(?:[^\']|\'\')*\'|-?\d+(?:\.\d+)?|true|false|NULL)';
+        $cast = '(?:::[a-z_"][a-z0-9_" ]*(?:\(\d+(?:,\s*\d+)?\))?(?:\[\])*)*';
+
+        return \preg_match('/^' . $value . $cast . '$/i', $default) === 1;
     }
 
     /**
