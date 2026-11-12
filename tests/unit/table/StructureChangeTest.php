@@ -499,6 +499,7 @@ final class StructureChangeTest extends TestCase
         self::assertSame(['column'], $index->getColumns());
         self::assertTrue($index->isUnique());
         self::assertNull($index->getMethod());
+        self::assertNull($index->getDefinition());
     }
 
     /** @test */
@@ -518,6 +519,37 @@ final class StructureChangeTest extends TestCase
         self::assertInstanceOf(IndexInterface::class, $index);
         self::assertFalse($index->isUnique());
         self::assertSame('hash', $index->getMethod());
+    }
+
+    /** @test */
+    public function shouldProperlyReturnValueForCreateIndexWithDefinition(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(
+            [
+                'name' => 'idx',
+                'columns' => [],
+                'unique' => true,
+                'definition' => 'USING btree (a) WHERE (a > 0)',
+            ]
+        );
+
+        $index = $this->change->getValue();
+        self::assertInstanceOf(IndexInterface::class, $index);
+        self::assertTrue($index->isUnique());
+        self::assertSame([], $index->getColumns());
+        self::assertNull($index->getMethod());
+        self::assertSame('USING btree (a) WHERE (a > 0)', $index->getDefinition());
+    }
+
+    /** @test */
+    public function shouldThrowExceptionForCreateIndexWithWrongDefinition(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(['name' => 'idx', 'columns' => [], 'unique' => false, 'definition' => 1]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->change->getValue();
     }
 
     /** @test */

@@ -133,4 +133,66 @@ final class IndexRendererTest extends TestCase
             $this->renderer->renderUp($index, 'test')
         );
     }
+
+    /** @test */
+    public function shouldRenderIndexWithDefinition(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn([]);
+        $index->method('getName')->willReturn('idx');
+        $index->method('isUnique')->willReturn(false);
+        $index->method('getDefinition')->willReturn('USING gin (name gin_trgm_ops)');
+
+        self::assertSame(
+            '    $this->execute(\'CREATE INDEX [[idx]] ON {{%test}} USING gin (name gin_trgm_ops)\');',
+            $this->renderer->renderUp($index, '{{%test}}', 4)
+        );
+    }
+
+    /** @test */
+    public function shouldRenderUniqueIndexWithDefinitionAsValidPhp(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn([]);
+        $index->method('getName')->willReturn('idx');
+        $index->method('isUnique')->willReturn(true);
+        $index->method('getDefinition')->willReturn("USING btree (a) WHERE ((a)::text <> 'it''s C:\\dir'::text)");
+
+        $rendered = $this->renderer->renderUp($index, 'test');
+        self::assertSame(
+            '$this->execute(\'CREATE UNIQUE INDEX [[idx]] ON test USING btree (a) '
+            . 'WHERE ((a)::text <> \\\'it\\\'\\\'s C:\\\\dir\\\'::text)\');',
+            $rendered
+        );
+        self::assertSame(
+            "CREATE UNIQUE INDEX [[idx]] ON test USING btree (a) WHERE ((a)::text <> 'it''s C:\\dir'::text)",
+            eval('return ' . \substr($rendered, \strlen('$this->execute('), -2) . ';')
+        );
+    }
+
+    /** @test */
+    public function shouldRenderDropForIndexWithDefinition(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getName')->willReturn('idx');
+        $index->method('getDefinition')->willReturn('USING gin (a)');
+
+        self::assertSame('$this->dropIndex(\'idx\', \'test\');', $this->renderer->renderDown($index, 'test'));
+    }
+
+    /** @test */
+    public function shouldRenderIndexWithDefinitionAndUnusualNamesAsValidPhpAndSql(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn([]);
+        $index->method('getName')->willReturn('i\'dx "{tableName}"\\');
+        $index->method('isUnique')->willReturn(false);
+        $index->method('getDefinition')->willReturn('USING gin (a)');
+
+        $rendered = $this->renderer->renderUp($index, 't\'ab');
+        self::assertSame(
+            'CREATE INDEX "i\'dx ""{tableName}""\\" ON t\'ab USING gin (a)',
+            eval('return ' . \substr($rendered, \strlen('$this->execute('), -2) . ';')
+        );
+    }
 }

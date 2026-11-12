@@ -1266,6 +1266,77 @@ class ComparatorNonSqliteTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string|null, string|null, string}>
+     */
+    public function providerForDifferentDefinitions(): array
+    {
+        return [
+            'different' => [
+                'USING gin (a gin_trgm_ops)',
+                'USING gin (a)',
+                "different index 'idx' definition (DB: USING gin (a gin_trgm_ops) != MIG: USING gin (a))",
+            ],
+            'only DB' => [
+                'USING btree (a) WHERE (a > 0)',
+                null,
+                "different index 'idx' definition (DB: USING btree (a) WHERE (a > 0) != MIG: (a))",
+            ],
+            'only MIG' => [
+                null,
+                'USING btree (a) WHERE (a > 0)',
+                "different index 'idx' definition (DB: (a) != MIG: USING btree (a) WHERE (a > 0))",
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForDifferentDefinitions
+     */
+    public function shouldReplaceIndexWhenDifferentDefinition(
+        ?string $newDefinition,
+        ?string $oldDefinition,
+        string $description
+    ): void {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns($newDefinition === null ? ['a'] : []);
+        $indexNew->setDefinition($newDefinition);
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns($oldDefinition === null ? ['a'] : []);
+        $indexOld->setDefinition($oldDefinition);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame([$description], $this->blueprint->getDescriptions());
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotReplaceIndexWhenSameDefinition(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setDefinition('USING gin (a gin_trgm_ops)');
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setDefinition('USING gin (a gin_trgm_ops)');
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
      * @test
      */
     public function shouldNotReplaceIndexWhenSameMethod(): void
