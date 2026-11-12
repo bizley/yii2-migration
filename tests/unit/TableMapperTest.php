@@ -12,10 +12,13 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
+use yii\db\Command;
 use yii\db\Connection;
 use yii\db\Constraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
+use yii\db\mssql\Schema as MssqlSchema;
+use yii\db\mssql\TableSchema as MssqlTableSchema;
 use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\QueryBuilder;
 use yii\db\TableSchema;
@@ -508,5 +511,151 @@ final class TableMapperTest extends TestCase
         self::assertNotNull($first->getForeignKey('fk'));
         self::assertNull($second->getForeignKey('fk'));
         self::assertCount(1, $this->mapper->getSuppressedForeignKeys());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReadDecimalPrecisionAndScaleForMssql(): void
+    {
+        $schema = $this->createMock(MssqlSchema::class);
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $schema->method('getTablePrimaryKey')->willReturn(null);
+        $db = $this->createMock(Connection::class);
+        $db->method('getSchema')->willReturn($schema);
+
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->name = 'bill';
+        $tableSchema->schemaName = 'dbo';
+        $tableSchema->columns = [
+            new ColumnSchema([
+                'type' => 'decimal',
+                'dbType' => 'decimal',
+                'name' => 'Amount',
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+            ]),
+            new ColumnSchema([
+                'type' => 'decimal',
+                'dbType' => 'numeric',
+                'name' => 'Rate',
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+            ]),
+        ];
+        $db->method('getTableSchema')->willReturn($tableSchema);
+
+        $command = $this->createMock(Command::class);
+        $command->expects(self::once())->method('queryAll')->willReturn([
+            ['column_name' => 'Amount', 'numeric_precision' => '18', 'numeric_scale' => '2'],
+            ['column_name' => 'Rate', 'numeric_precision' => 10, 'numeric_scale' => 0],
+        ]);
+        $db->expects(self::once())
+            ->method('createCommand')
+            ->with(self::stringContains('INFORMATION_SCHEMA'), [':schema' => 'dbo', ':table' => 'bill'])
+            ->willReturn($command);
+
+        $mapper = new TableMapper($db);
+        $structure = $mapper->getStructureOf('bill');
+        $mapper->getStructureOf('bill');
+
+        $amount = $structure->getColumn('Amount');
+        self::assertNotNull($amount);
+        self::assertSame(18, $amount->getPrecision());
+        self::assertSame(18, $amount->getSize());
+        self::assertSame(2, $amount->getScale());
+        self::assertSame('18, 2', $amount->getLength(Schema::MSSQL));
+
+        $rate = $structure->getColumn('Rate');
+        self::assertNotNull($rate);
+        self::assertSame(10, $rate->getPrecision());
+        self::assertSame(0, $rate->getScale());
+        self::assertSame('10, 0', $rate->getLength(Schema::MSSQL));
+    }
+
+    /**
+     * @return MockObject&Connection
+     */
+    private function prepareMssqlConnection(TableSchema $tableSchema): Connection
+    {
+        $schema = $this->createMock(MssqlSchema::class);
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $schema->method('getTablePrimaryKey')->willReturn(null);
+        $db = $this->createMock(Connection::class);
+        $db->method('getSchema')->willReturn($schema);
+        $db->method('getTableSchema')->willReturn($tableSchema);
+
+        return $db;
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldQueryMssqlInformationSchemaOfTheTableCatalog(): void
+    {
+        $tableSchema = $this->createMock(MssqlTableSchema::class);
+        $tableSchema->name = 'bill';
+        $tableSchema->schemaName = 'dbo';
+        $tableSchema->catalogName = 'shop';
+        $tableSchema->columns = [
+            new ColumnSchema(
+                ['type' => 'decimal', 'dbType' => 'DECIMAL', 'name' => 'Amount', 'isPrimaryKey' => false, 'unsigned' => false]
+            ),
+        ];
+        $db = $this->prepareMssqlConnection($tableSchema);
+
+        $command = $this->createMock(Command::class);
+        $command->method('queryAll')->willReturn(
+            [['column_name' => 'Amount', 'numeric_precision' => 12, 'numeric_scale' => 4]]
+        );
+        $db->expects(self::once())
+            ->method('createCommand')
+            ->with(self::stringContains('FROM [shop].[INFORMATION_SCHEMA].[COLUMNS]'))
+            ->willReturn($command);
+
+        $amount = (new TableMapper($db))->getStructureOf('bill')->getColumn('Amount');
+        self::assertNotNull($amount);
+        self::assertSame('12, 4', $amount->getLength(Schema::MSSQL));
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotQueryMssqlInformationSchemaWhenNotNeeded(): void
+    {
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->name = 'bill';
+        $tableSchema->columns = [
+            new ColumnSchema([
+                'type' => 'decimal',
+                'dbType' => 'decimal',
+                'name' => 'Amount',
+                'precision' => 9,
+                'scale' => 3,
+                'isPrimaryKey' => false,
+                'unsigned' => false,
+            ]),
+            new ColumnSchema(
+                [
+                    'type' => 'string',
+                    'dbType' => 'varchar(20)',
+                    'name' => 'Code',
+                    'size' => 20,
+                    'isPrimaryKey' => false,
+                    'unsigned' => false,
+                ]
+            ),
+        ];
+        $db = $this->prepareMssqlConnection($tableSchema);
+        $db->expects(self::never())->method('createCommand');
+
+        $amount = (new TableMapper($db))->getStructureOf('bill')->getColumn('Amount');
+        self::assertNotNull($amount);
+        self::assertSame('9, 3', $amount->getLength(Schema::MSSQL));
     }
 }

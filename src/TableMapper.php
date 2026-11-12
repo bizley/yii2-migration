@@ -23,6 +23,7 @@ use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\cubrid\Schema as CubridSchema;
 use yii\db\mssql\Schema as MssqlSchema;
+use yii\db\mssql\TableSchema as MssqlTableSchema;
 use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\oci\Schema as OciSchema;
 use yii\db\pgsql\Schema as PgsqlSchema;
@@ -53,6 +54,9 @@ final class TableMapper implements TableMapperInterface
 
     /** @var array<string, Constraint|null> */
     private array $primaryKeyConstraints = [];
+
+    /** @var array<string, array<string, array{int, int}>> */
+    private array $mssqlNumericLengths = [];
 
     /**
      * Returns a structure of the table.
@@ -183,6 +187,9 @@ final class TableMapper implements TableMapperInterface
 
         foreach ($tableSchema->columns as $column) {
             $isUnique = $this->isUnique($indexes, $column);
+            if ($schema === Schema::MSSQL) {
+                $this->fillMssqlNumericLength($table, $tableSchema, $column);
+            }
 
             $mappedColumn = ColumnFactory::build($column->type);
             $mappedColumn->setName($column->name);
@@ -209,6 +216,56 @@ final class TableMapper implements TableMapperInterface
         }
 
         return $mappedColumns;
+    }
+
+    /**
+     * Yii does not read the precision and scale of MSSQL decimal and numeric columns (only the bare type name is
+     * fetched), so they are taken from INFORMATION_SCHEMA to avoid falling back to the default length.
+     */
+    private function fillMssqlNumericLength(string $table, TableSchema $tableSchema, ColumnSchema $column): void
+    {
+        if (
+            $column->precision !== null
+            || !\in_array(\strtolower((string)$column->dbType), ['decimal', 'numeric'], true)
+        ) {
+            return;
+        }
+
+        if (!\array_key_exists($table, $this->mssqlNumericLengths)) {
+            $this->mssqlNumericLengths[$table] = $this->fetchMssqlNumericLengths($tableSchema);
+        }
+
+        if (\array_key_exists($column->name, $this->mssqlNumericLengths[$table])) {
+            [$column->precision, $column->scale] = $this->mssqlNumericLengths[$table][$column->name];
+            $column->size = $column->precision;
+        }
+    }
+
+    /**
+     * @return array<string, array{int, int}>
+     */
+    private function fetchMssqlNumericLengths(TableSchema $tableSchema): array
+    {
+        $informationSchema = '[INFORMATION_SCHEMA].[COLUMNS]';
+        if ($tableSchema instanceof MssqlTableSchema && !empty($tableSchema->catalogName)) {
+            $informationSchema = '[' . $tableSchema->catalogName . '].' . $informationSchema;
+        }
+
+        $rows = $this->db->createCommand(
+            <<<SQL
+SELECT [COLUMN_NAME] AS [column_name], [NUMERIC_PRECISION] AS [numeric_precision], [NUMERIC_SCALE] AS [numeric_scale]
+FROM $informationSchema
+WHERE [TABLE_SCHEMA] = :schema AND [TABLE_NAME] = :table AND [DATA_TYPE] IN ('decimal', 'numeric')
+SQL,
+            [':schema' => $tableSchema->schemaName, ':table' => $tableSchema->name]
+        )->queryAll();
+
+        $lengths = [];
+        foreach ($rows as $row) {
+            $lengths[$row['column_name']] = [(int)$row['numeric_precision'], (int)$row['numeric_scale']];
+        }
+
+        return $lengths;
     }
 
     /**
