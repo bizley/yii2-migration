@@ -1141,22 +1141,25 @@ ERROR!
         $schema = $this->createMock(MysqlSchema::class);
         $schema->method('getTableNames')->willReturn(['test', 'test2']);
         $schema->method('getRawTableName')->willReturn('mig');
-        $schema->method('getTableForeignKeys')->willReturnOnConsecutiveCalls(
-            [],
-            [],
-            [],
-            [
-                new ForeignKeyConstraint(
-                    [
-                        'name' => 'fk',
-                        'columnNames' => ['col1'],
-                        'foreignTableName' => 'test',
-                        'foreignColumnNames' => ['col2'],
-                        'onDelete' => null,
-                        'onUpdate' => null,
-                    ]
-                )
-            ]
+        $schema->method('getTableForeignKeys')->willReturnCallback(
+            static function (string $table): array {
+                if ($table !== 'test2') {
+                    return [];
+                }
+
+                return [
+                    new ForeignKeyConstraint(
+                        [
+                            'name' => 'fk',
+                            'columnNames' => ['col1'],
+                            'foreignTableName' => 'test',
+                            'foreignColumnNames' => ['col2'],
+                            'onDelete' => null,
+                            'onUpdate' => null,
+                        ]
+                    )
+                ];
+            }
         );
         $schema->method('getTableIndexes')->willReturn([]);
         $this->db->method('getSchema')->willReturn($schema);

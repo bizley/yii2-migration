@@ -19,6 +19,8 @@ use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\Connection;
 use yii\db\Constraint;
+use yii\db\ForeignKeyConstraint;
+use yii\db\IndexConstraint;
 use yii\db\cubrid\Schema as CubridSchema;
 use yii\db\mssql\Schema as MssqlSchema;
 use yii\db\mysql\Schema as MysqlSchema;
@@ -39,6 +41,22 @@ final class TableMapper implements TableMapperInterface
 
     /** @var array<ForeignKeyInterface> */
     private $suppressedForeignKeys = [];
+
+    /**
+     * Table metadata read from the database, indexed by table name. The table is read only once per mapper instance,
+     * while the structure objects are built anew on every call because they can be modified later.
+     * @var array<string, TableSchema|null>
+     */
+    private $tableSchemas = [];
+
+    /** @var array<string, array<ForeignKeyConstraint>> */
+    private $foreignKeyConstraints = [];
+
+    /** @var array<string, array<IndexConstraint>> */
+    private $indexConstraints = [];
+
+    /** @var array<string, Constraint|null> */
+    private $primaryKeyConstraints = [];
 
     /**
      * Returns a structure of the table.
@@ -77,10 +95,13 @@ final class TableMapper implements TableMapperInterface
     private function getForeignKeys(string $table): array
     {
         $mappedForeignKeys = [];
-        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
-        $schema = $this->db->getSchema();
+        if (!\array_key_exists($table, $this->foreignKeyConstraints)) {
+            /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+            $schema = $this->db->getSchema();
+            $this->foreignKeyConstraints[$table] = $schema->getTableForeignKeys($table, true);
+        }
 
-        foreach ($schema->getTableForeignKeys($table, true) as $foreignKey) {
+        foreach ($this->foreignKeyConstraints[$table] as $foreignKey) {
             $mappedForeignKey = new ForeignKey();
             $mappedForeignKey->setTableName($table);
             $mappedForeignKey->setName($foreignKey->name);
@@ -104,10 +125,13 @@ final class TableMapper implements TableMapperInterface
     private function getIndexes(string $table): array
     {
         $mappedIndexes = [];
-        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
-        $schema = $this->db->getSchema();
+        if (!\array_key_exists($table, $this->indexConstraints)) {
+            /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+            $schema = $this->db->getSchema();
+            $this->indexConstraints[$table] = $schema->getTableIndexes($table, true);
+        }
 
-        foreach ($schema->getTableIndexes($table, true) as $index) {
+        foreach ($this->indexConstraints[$table] as $index) {
             if ($index->isPrimary === false && $index->name !== null) {
                 $mappedIndex = new Index();
                 $mappedIndex->setName($index->name);
@@ -129,10 +153,13 @@ final class TableMapper implements TableMapperInterface
     {
         $primaryKey = null;
 
-        /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
-        $schema = $this->db->getSchema();
-        /** @var Constraint|null $tablePrimaryKey */
-        $tablePrimaryKey = $schema->getTablePrimaryKey($table, true);
+        if (!\array_key_exists($table, $this->primaryKeyConstraints)) {
+            /** @var CubridSchema|MssqlSchema|MysqlSchema|OciSchema|PgsqlSchema|SqliteSchema $schema */
+            $schema = $this->db->getSchema();
+            $this->primaryKeyConstraints[$table] = $schema->getTablePrimaryKey($table, true);
+        }
+
+        $tablePrimaryKey = $this->primaryKeyConstraints[$table];
         if ($tablePrimaryKey) {
             $primaryKey = new PrimaryKey();
             $primaryKey->setName($tablePrimaryKey->name);
@@ -217,7 +244,11 @@ final class TableMapper implements TableMapperInterface
      */
     public function getTableSchema(string $table): ?TableSchema
     {
-        return $this->db->getTableSchema($table, true);
+        if (!\array_key_exists($table, $this->tableSchemas)) {
+            $this->tableSchemas[$table] = $this->db->getTableSchema($table, true);
+        }
+
+        return $this->tableSchemas[$table];
     }
 
     /**
