@@ -126,7 +126,9 @@ final class Structure implements StructureInterface
      */
     public function addIndex(IndexInterface $index): void
     {
-        $this->indexes[$index->getName()] = $index;
+        if ($index->getName() !== null) {
+            $this->indexes[$index->getName()] = $index;
+        }
     }
 
     /**

@@ -126,7 +126,7 @@ final class Arranger implements ArrangerInterface
                 }
             }
 
-            if ($done === false) {
+            if ($done === false && $lastCheckedName !== null) {
                 $input[$lastCheckedName] = \array_diff($input[$lastCheckedName], [$lastCheckedDependency]);
 
                 $this->arrangeDependencies($input);
