@@ -1326,4 +1326,48 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
+
+    /**
+     * @test
+     */
+    public function shouldReplaceIndexWhenDifferentColumnsOrder(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns(['a', 'b']);
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns(['b', 'a']);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            ["different index 'idx' columns (DB: [\"a\",\"b\"]) != MIG: ([\"b\",\"a\"]))"],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotReplaceIndexWhenOnlyColumnsKeysAreDifferent(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns(['a', 'b']);
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns([1 => 'a', 2 => 'b']);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
 }

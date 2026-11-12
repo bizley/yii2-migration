@@ -514,7 +514,8 @@ final class Comparator implements ComparatorInterface
             $newIndexColumns = $index->getColumns();
             $oldIndexColumns = $oldIndex->getColumns();
 
-            if (\array_diff($newIndexColumns, $oldIndexColumns) !== \array_diff($oldIndexColumns, $newIndexColumns)) {
+            // order of columns matters for the index
+            if (\array_values($newIndexColumns) !== \array_values($oldIndexColumns)) {
                 $blueprint->addDescription(
                     "different index '$name' columns (DB: "
                     . $this->stringifyValue($newIndexColumns) . ') != MIG: ('
