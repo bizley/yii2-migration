@@ -474,4 +474,39 @@ final class TableMapperTest extends TestCase
 
         self::assertNull($this->mapper->getEngineVersion());
     }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReadTableMetadataOnlyOnceAndBuildNewStructureEachTime(): void
+    {
+        $foreignKey = new ForeignKeyConstraint(
+            [
+                'name' => 'fk',
+                'columnNames' => ['column-name'],
+                'foreignTableName' => 'tab',
+                'foreignColumnNames' => ['id'],
+            ]
+        );
+        $this->schema->expects(self::once())->method('getTableForeignKeys')->willReturn([$foreignKey]);
+        $this->schema->expects(self::once())->method('getTableIndexes')->willReturn([]);
+        $this->schema->expects(self::once())->method('getTablePrimaryKey')->willReturn(null);
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->columns = [new ColumnSchema(
+            ['type' => 'char', 'name' => 'column-name', 'size' => 1, 'isPrimaryKey' => false, 'unsigned' => false]
+        )];
+        $this->db->expects(self::once())->method('getTableSchema')->willReturn($tableSchema);
+
+        self::assertSame($tableSchema, $this->mapper->getTableSchema('abcdef'));
+        $first = $this->mapper->getStructureOf('abcdef');
+        self::assertSame([], $this->mapper->getSuppressedForeignKeys());
+        $second = $this->mapper->getStructureOf('abcdef', ['tab']);
+
+        self::assertNotSame($first, $second);
+        self::assertNotSame($first->getColumn('column-name'), $second->getColumn('column-name'));
+        self::assertNotNull($first->getForeignKey('fk'));
+        self::assertNull($second->getForeignKey('fk'));
+        self::assertCount(1, $this->mapper->getSuppressedForeignKeys());
+    }
 }
