@@ -156,7 +156,63 @@ final class StructureBuilder implements StructureBuilderInterface
             $newColumn->setName($data['new']);
             $structure->addColumn($newColumn);
             $structure->removeColumn($data['old']);
+
+            $this->renameColumnInConstraints($structure, $data['old'], $data['new']);
         }
+    }
+
+    /**
+     * Replaces the old column name with the new one in primary key, indexes, and foreign keys.
+     */
+    private function renameColumnInConstraints(StructureInterface $structure, string $oldName, string $newName): void
+    {
+        $primaryKey = $structure->getPrimaryKey();
+        if ($primaryKey !== null && \in_array($oldName, $primaryKey->getColumns(), true)) {
+            $renamedPrimaryKey = new PrimaryKey();
+            $renamedPrimaryKey->setName($primaryKey->getName());
+            $renamedPrimaryKey->setColumns($this->renameInList($primaryKey->getColumns(), $oldName, $newName));
+            $structure->setPrimaryKey($renamedPrimaryKey);
+        }
+
+        foreach ($structure->getIndexes() as $index) {
+            if (\in_array($oldName, $index->getColumns(), true)) {
+                $renamedIndex = new Index();
+                $renamedIndex->setName($index->getName());
+                $renamedIndex->setUnique($index->isUnique());
+                $renamedIndex->setColumns($this->renameInList($index->getColumns(), $oldName, $newName));
+                $structure->addIndex($renamedIndex);
+            }
+        }
+
+        foreach ($structure->getForeignKeys() as $foreignKey) {
+            if (\in_array($oldName, $foreignKey->getColumns(), true)) {
+                $renamedForeignKey = new ForeignKey();
+                $renamedForeignKey->setName($foreignKey->getName());
+                $renamedForeignKey->setTableName($foreignKey->getTableName());
+                $renamedForeignKey->setColumns($this->renameInList($foreignKey->getColumns(), $oldName, $newName));
+                $renamedForeignKey->setReferredTable($foreignKey->getReferredTable());
+                $renamedForeignKey->setReferredColumns($foreignKey->getReferredColumns());
+                $renamedForeignKey->setOnDelete($foreignKey->getOnDelete());
+                $renamedForeignKey->setOnUpdate($foreignKey->getOnUpdate());
+                $structure->addForeignKey($renamedForeignKey);
+            }
+        }
+    }
+
+    /**
+     * Returns the list of column names with the old name replaced by the new one.
+     * @param array<string> $columns
+     * @return array<string>
+     */
+    private function renameInList(array $columns, string $oldName, string $newName): array
+    {
+        foreach ($columns as $key => $column) {
+            if ($column === $oldName) {
+                $columns[$key] = $newName;
+            }
+        }
+
+        return $columns;
     }
 
     /**
@@ -194,9 +250,12 @@ final class StructureBuilder implements StructureBuilderInterface
             $columns = $structure->getColumns();
 
             foreach ($primaryKey->getColumns() as $columnName) {
+                if (!\array_key_exists($columnName, $columns)) {
+                    continue;
+                }
+
                 $column = $columns[$columnName];
-                $columnAppend = $column->getAppend();
-                if (\array_key_exists($columnName, $columns) && !empty($columnAppend)) {
+                if (!empty($column->getAppend())) {
                     $column->setAppend($column->removeAppendedPrimaryKeyInfo($schema));
                 }
             }
