@@ -1789,4 +1789,31 @@ ERROR!
         self::assertStringContainsString($methodShown . ' method', $controller::$stdout);
         self::assertStringContainsString("sql1;\nsql2;", $controller::$stdout);
     }
+
+    /** @test */
+    public function shouldShowErrorWhenSqlCanNotBeExtracted(): void
+    {
+        $controller = new MigrationControllerStub(
+            'id',
+            $this->createMock(Module::class),
+            [
+                'request' => Request::class,
+                'response' => Response::class
+            ]
+        );
+        $controller->db = $this->db;
+        $controller->view = $this->view;
+        $controller->migrationPath = '@bizley/tests/stubs';
+
+        $action = $this->createMock(Action::class);
+        $action->id = 'sql';
+        $controller->beforeAction($action);
+        $controller::$stdout = '';
+
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionSql('m000000_000000_missing'));
+        self::assertSame(
+            "\nERROR!\n > File 'm000000_000000_missing.php' can not be found!\n",
+            $controller::$stdout
+        );
+    }
 }
