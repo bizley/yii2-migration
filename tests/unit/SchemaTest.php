@@ -511,4 +511,41 @@ final class SchemaTest extends TestCase
     {
         self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
     }
+
+    /**
+     * @return array<string, array{string|null, string|null, bool}>
+     */
+    public function providerForFractionalSeconds(): array
+    {
+        return [
+            'no schema' => [null, '8.0.30', false],
+            'pgsql' => [Schema::PGSQL, '15.0', false],
+            'mysql no version' => [Schema::MYSQL, null, false],
+            'mysql old' => [Schema::MYSQL, '5.6.3', false],
+            'mysql 5.6.4' => [Schema::MYSQL, '5.6.4', true],
+            'mysql 8' => [Schema::MYSQL, '8.0.30', true],
+            'mariadb 10 with compatibility prefix' => [Schema::MYSQL, '5.5.5-10.6.12-MariaDB', true],
+            'mariadb 11' => [Schema::MYSQL, '11.4.2-MariaDB', true],
+            'mariadb lowercase' => [Schema::MYSQL, '5.5.5-10.11.6-mariadb-1:10.11.6+maria~ubu2204', true],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForFractionalSeconds
+     */
+    public function shouldCheckIfFractionalSecondsAreSupported(
+        ?string $schema,
+        ?string $engineVersion,
+        bool $expected
+    ): void {
+        self::assertSame($expected, Schema::isFractionalSecondsSupported($schema, $engineVersion));
+    }
+
+    /** @test */
+    public function shouldReturnFractionalSecondsDefaultLengthForMariaDB(): void
+    {
+        self::assertSame('0', Schema::getDefaultLength(Schema::MYSQL, 'datetime', '5.5.5-10.6.12-MariaDB'));
+        self::assertNull(Schema::getDefaultLength(Schema::MYSQL, 'datetime', '5.5.5'));
+    }
 }

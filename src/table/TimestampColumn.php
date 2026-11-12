@@ -28,11 +28,11 @@ final class TimestampColumn extends Column implements ColumnInterface
 
     /**
      * Checks if schema supports length for this column.
-     * In case of MySQL the engine version must be 5.6.4 or newer.
+     * In case of MySQL the engine version must be 5.6.4 or newer (or the engine must be MariaDB).
      */
     private function isSchemaLengthSupporting(?string $schema, ?string $engineVersion): bool
     {
-        if ($engineVersion && $schema === Schema::MYSQL && \version_compare($engineVersion, '5.6.4', '>=')) {
+        if (Schema::isFractionalSecondsSupported($schema, $engineVersion)) {
             return true;
         }
 
