@@ -58,6 +58,9 @@ final class TableMapper implements TableMapperInterface
     /** @var array<string, array<string, array{int, int}>> */
     private array $mssqlNumericLengths = [];
 
+    /** @var array<string, array<string, string>> */
+    private array $pgsqlIndexMethods = [];
+
     /**
      * Returns a structure of the table.
      * @param array<string> $referencesToPostpone
@@ -142,7 +145,61 @@ final class TableMapper implements TableMapperInterface
             }
         }
 
+        if ($mappedIndexes !== [] && $this->getSchemaType() === Schema::PGSQL) {
+            $methods = $this->getPgsqlIndexMethods($table);
+            foreach ($mappedIndexes as $name => $mappedIndex) {
+                $mappedIndex->setMethod($methods[$name] ?? null);
+            }
+        }
+
         return $mappedIndexes;
+    }
+
+    /**
+     * Yii does not read the PostgreSQL index method, so it is taken from pg_am. Only the methods of indexes that can
+     * be recreated with createIndex() are returned (index without predicate, expressions, and non-default operator
+     * classes) - for others the method alone would not be enough (e.g. GIN index on a varchar column requires
+     * the operator class) and the generated migration would fail.
+     * @return array<string, string> non-B-tree index methods indexed by index names
+     */
+    private function getPgsqlIndexMethods(string $table): array
+    {
+        if (!\array_key_exists($table, $this->pgsqlIndexMethods)) {
+            $this->pgsqlIndexMethods[$table] = [];
+
+            $tableSchema = $this->getTableSchema($table);
+            if ($tableSchema !== null) {
+                $rows = $this->db->createCommand(
+                    <<<'SQL'
+SELECT
+    "ic"."relname" AS "name",
+    "am"."amname" AS "method",
+    (
+        "i"."indpred" IS NULL
+        AND "i"."indexprs" IS NULL
+        AND NOT EXISTS (
+            SELECT 1 FROM "pg_opclass" AS "o" WHERE "o"."oid" = ANY("i"."indclass"::oid[]) AND NOT "o"."opcdefault"
+        )
+    ) AS "is_plain"
+FROM "pg_index" AS "i"
+INNER JOIN "pg_class" AS "ic" ON "ic"."oid" = "i"."indexrelid"
+INNER JOIN "pg_am" AS "am" ON "am"."oid" = "ic"."relam"
+INNER JOIN "pg_class" AS "tc" ON "tc"."oid" = "i"."indrelid"
+INNER JOIN "pg_namespace" AS "n" ON "n"."oid" = "tc"."relnamespace"
+WHERE "n"."nspname" = :schema AND "tc"."relname" = :table AND "am"."amname" <> 'btree'
+SQL,
+                    [':schema' => $tableSchema->schemaName, ':table' => $tableSchema->name]
+                )->queryAll();
+
+                foreach ($rows as $row) {
+                    if (\in_array($row['is_plain'], [true, 1, '1', 't'], true)) {
+                        $this->pgsqlIndexMethods[$table][$row['name']] = $row['method'];
+                    }
+                }
+            }
+        }
+
+        return $this->pgsqlIndexMethods[$table];
     }
 
     /**

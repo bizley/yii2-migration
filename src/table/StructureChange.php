@@ -246,6 +246,7 @@ final class StructureChange implements StructureChangeInterface
             || !\is_string($data['name'])
             || !\is_array($data['columns'])
             || !\is_bool($data['unique'])
+            || (isset($data['method']) && !\is_string($data['method']))
         ) {
             throw new InvalidArgumentException('Wrong data for createIndex method.');
         }
@@ -254,6 +255,7 @@ final class StructureChange implements StructureChangeInterface
         $index->setName($data['name']);
         $index->setColumns($data['columns']);
         $index->setUnique($data['unique']);
+        $index->setMethod($data['method'] ?? null);
 
         return $index;
     }

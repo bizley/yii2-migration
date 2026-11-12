@@ -1242,6 +1242,53 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @test
      */
+    public function shouldReplaceIndexWhenDifferentMethod(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns(['a']);
+        $indexNew->setMethod('hash');
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns(['a']);
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertTrue($this->blueprint->isPending());
+        self::assertSame(
+            ["different index 'idx' definition (DB: method hash != MIG: method default)"],
+            $this->blueprint->getDescriptions()
+        );
+        self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
+        self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldNotReplaceIndexWhenSameMethod(): void
+    {
+        $indexNew = $this->getIndex('idx');
+        $indexNew->setColumns(['a']);
+        $indexNew->setMethod('gin');
+        $indexOld = $this->getIndex('idx');
+        $indexOld->setColumns(['a']);
+        $indexOld->setMethod('gin');
+        $this->newStructure->method('getIndexes')->willReturn(['idx' => $indexNew]);
+        $this->newStructure->method('getIndex')->willReturn($indexNew);
+        $this->oldStructure->method('getIndexes')->willReturn(['idx' => $indexOld]);
+        $this->oldStructure->method('getIndex')->willReturn($indexOld);
+
+        $this->compare();
+
+        self::assertFalse($this->blueprint->isPending());
+    }
+
+    /**
+     * @test
+     */
     public function shouldReplaceIndexWhenDifferentUnique(): void
     {
         $indexNew = $this->getIndex('idx');

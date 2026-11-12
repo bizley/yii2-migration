@@ -153,6 +153,11 @@ abstract class DbLoaderTestCase extends DbTestCase
                 'CASCADE'
             )->execute();
         }
+        if (static::$schema === 'pgsql') {
+            $this->getDb()
+                ->createCommand('CREATE INDEX "idx-amount-hash" ON "updater_base_fk_with_idx" USING hash ("amount")')
+                ->execute();
+        }
 
         $this->addHistoryEntry('m20200406_124200_create_table_updater_base');
     }

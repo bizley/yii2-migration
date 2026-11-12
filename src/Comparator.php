@@ -480,6 +480,18 @@ final class Comparator implements ComparatorInterface
                 continue;
             }
 
+            if ($oldIndex->getMethod() !== $index->getMethod()) {
+                $blueprint->addDescription(
+                    "different index '$name' definition (DB: method "
+                    . ($index->getMethod() ?? 'default')
+                    . ' != MIG: method ' . ($oldIndex->getMethod() ?? 'default') . ')'
+                );
+                $blueprint->dropIndex($oldIndex);
+                $blueprint->addIndex($index);
+
+                continue;
+            }
+
             $newIndexColumns = $index->getColumns();
             $oldIndexColumns = $oldIndex->getColumns();
 

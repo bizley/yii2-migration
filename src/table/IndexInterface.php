@@ -21,4 +21,9 @@ interface IndexInterface
      * Checks whether the index is unique.
      */
     public function isUnique(): bool;
+
+    /**
+     * Returns the index method (like "hash" or "gin" in PostgreSQL) or null for the default one.
+     */
+    public function getMethod(): ?string;
 }

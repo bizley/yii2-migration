@@ -20,6 +20,7 @@ use yii\db\IndexConstraint;
 use yii\db\mssql\Schema as MssqlSchema;
 use yii\db\mssql\TableSchema as MssqlTableSchema;
 use yii\db\mysql\Schema as MysqlSchema;
+use yii\db\pgsql\Schema as PgsqlSchema;
 use yii\db\QueryBuilder;
 use yii\db\TableSchema;
 
@@ -657,5 +658,98 @@ final class TableMapperTest extends TestCase
         $amount = (new TableMapper($db))->getStructureOf('bill')->getColumn('Amount');
         self::assertNotNull($amount);
         self::assertSame('9, 3', $amount->getLength(Schema::MSSQL));
+    }
+
+    private function plainIndex(string $name, string $column): IndexConstraint
+    {
+        return new IndexConstraint(
+            ['name' => $name, 'columnNames' => [$column], 'isPrimary' => false, 'isUnique' => false]
+        );
+    }
+
+    /**
+     * @param array<IndexConstraint> $indexes
+     * @return MockObject&Connection
+     */
+    private function preparePgsqlIndexConnection(array $indexes): Connection
+    {
+        $schema = $this->createMock(PgsqlSchema::class);
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn($indexes);
+        $schema->method('getTablePrimaryKey')->willReturn(null);
+        $db = $this->createMock(Connection::class);
+        $db->method('getSchema')->willReturn($schema);
+
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->name = 'tab';
+        $tableSchema->schemaName = 'public';
+        $tableSchema->columns = [];
+        $db->method('getTableSchema')->willReturn($tableSchema);
+
+        return $db;
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReadPgsqlIndexMethods(): void
+    {
+        $db = $this->preparePgsqlIndexConnection([
+            new IndexConstraint(['name' => 'pk', 'columnNames' => ['id'], 'isPrimary' => true, 'isUnique' => true]),
+            $this->plainIndex('idx-hash', 'a'),
+            $this->plainIndex('idx-btree', 'b'),
+            $this->plainIndex('idx-gin', 'c'),
+            $this->plainIndex('idx-opclass', 'd'),
+        ]);
+        $command = $this->createMock(Command::class);
+        $command->expects(self::once())->method('queryAll')->willReturn([
+            ['name' => 'idx-hash', 'method' => 'hash', 'is_plain' => true],
+            ['name' => 'idx-gin', 'method' => 'gin', 'is_plain' => 't'],
+            ['name' => 'idx-opclass', 'method' => 'gin', 'is_plain' => 'f'],
+        ]);
+        $db->expects(self::once())
+            ->method('createCommand')
+            ->with(self::stringContains('pg_am'), [':schema' => 'public', ':table' => 'tab'])
+            ->willReturn($command);
+
+        $mapper = new TableMapper($db);
+        $structure = $mapper->getStructureOf('tab');
+        $mapper->getStructureOf('tab');
+
+        self::assertSame('hash', $structure->getIndex('idx-hash')?->getMethod());
+        self::assertNull($structure->getIndex('idx-btree')?->getMethod());
+        self::assertSame('gin', $structure->getIndex('idx-gin')?->getMethod());
+        self::assertNull($structure->getIndex('idx-opclass')?->getMethod());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotReadPgsqlIndexMethodsWhenThereAreNoIndexes(): void
+    {
+        $db = $this->preparePgsqlIndexConnection([
+            new IndexConstraint(['name' => 'pk', 'columnNames' => ['id'], 'isPrimary' => true, 'isUnique' => true]),
+        ]);
+        $db->expects(self::never())->method('createCommand');
+
+        (new TableMapper($db))->getStructureOf('tab');
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotReadIndexMethodsForNonPgsql(): void
+    {
+        $this->prepareSchemaMock(
+            true,
+            [],
+            [$this->plainIndex('idx', 'a')]
+        );
+        $this->db->expects(self::never())->method('createCommand');
+
+        self::assertNull($this->mapper->getStructureOf('tab')->getIndex('idx')?->getMethod());
     }
 }

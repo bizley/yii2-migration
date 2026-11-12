@@ -428,16 +428,29 @@ class Migration extends Component implements MigrationChangesInterface
         $this->addChange($table, 'dropForeignKey', $name);
     }
 
-    /** @param string|string[] $columns */
-    public function createIndex(string $name, string $table, $columns, bool $unique = false): void
+    /**
+     * @param string|string[] $columns
+     * @param bool|string $unique whether the index is unique; in PostgreSQL it can be also the index method (like
+     * "hash") or "unique", same as in yii\db\pgsql\QueryBuilder::createIndex()
+     */
+    public function createIndex(string $name, string $table, $columns, bool|string $unique = false): void
     {
+        $method = null;
+        if (\is_string($unique) && Schema::identifySchema($this->db->schema) === Schema::PGSQL) {
+            if ($unique !== 'unique' && $unique !== '') {
+                $method = \strtolower($unique) === 'btree' ? null : $unique;
+            }
+            $unique = $unique === 'unique';
+        }
+
         $this->addChange(
             $table,
             'createIndex',
             [
                 'name' => $name,
                 'columns' => \is_array($columns) ? $columns : \preg_split('/\s*,\s*/', $columns),
-                'unique' => $unique
+                'unique' => (bool)$unique,
+                'method' => $method,
             ]
         );
     }

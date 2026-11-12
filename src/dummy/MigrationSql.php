@@ -222,10 +222,25 @@ class Migration extends Component implements MigrationSqlInterface
         $this->statements[] = $this->db->createCommand()->dropForeignKey($name, $table)->getRawSql();
     }
 
-    /** @param string|string[] $columns */
-    public function createIndex(string $name, string $table, $columns, bool $unique = false): void
+    /**
+     * @param string|string[] $columns
+     * @param bool|string $unique whether the index is unique; in PostgreSQL it can be also the index method
+     */
+    public function createIndex(string $name, string $table, $columns, bool|string $unique = false): void
     {
-        $this->statements[] = $this->db->createCommand()->createIndex($name, $table, $columns, $unique)->getRawSql();
+        $queryBuilder = $this->db->getQueryBuilder();
+        if ($queryBuilder instanceof \yii\db\pgsql\QueryBuilder) {
+            $this->statements[] = $this->db->createCommand(
+                $queryBuilder->createIndex($name, $table, $columns, $unique)
+            )->getRawSql();
+        } else {
+            $this->statements[] = $this->db->createCommand()->createIndex(
+                $name,
+                $table,
+                $columns,
+                (bool)$unique
+            )->getRawSql();
+        }
     }
 
     public function dropIndex(string $name, string $table): void

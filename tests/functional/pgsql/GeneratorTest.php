@@ -359,6 +359,63 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    public function shouldGenerateIndexesWithMethods(): void
+    {
+        $this->createTables(
+            [
+                'index_methods' => [
+                    'col1' => $this->integer(),
+                    'col2' => 'integer[]',
+                    'col3' => $this->integer(),
+                    'col4' => $this->string(),
+                    'col5' => $this->integer(),
+                ]
+            ]
+        );
+        $db = $this->getDb();
+        $db->createCommand('CREATE INDEX "idx-hash" ON "index_methods" USING hash ("col1")')->execute();
+        $db->createCommand('CREATE INDEX "idx-gin" ON "index_methods" USING gin ("col2")')->execute();
+        $db->createCommand('CREATE INDEX "idx-btree" ON "index_methods" USING btree ("col3")')->execute();
+        $db->createCommand(
+            'CREATE INDEX "idx-opclass" ON "index_methods" USING btree ("col4" text_pattern_ops)'
+        )->execute();
+        $db->createCommand(
+            'CREATE INDEX "idx-partial-hash" ON "index_methods" USING hash ("col5") WHERE "col5" > 0'
+        )->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index_methods']));
+        $content = MigrationControllerStub::$content;
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-hash\', \'{{%index_methods}}\', [\'col1\'], \'hash\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-gin\', \'{{%index_methods}}\', [\'col2\'], \'gin\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-btree\', \'{{%index_methods}}\', [\'col3\']);',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-opclass\', \'{{%index_methods}}\', [\'col4\']);',
+            $content
+        );
+        // partial index cannot be recreated with createIndex() so the method is not used for it
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-partial-hash\', \'{{%index_methods}}\', [\'col5\']);',
+            $content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
     public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
     {
         $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);

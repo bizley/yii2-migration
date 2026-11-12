@@ -25,7 +25,7 @@ final class IndexRenderer implements IndexRendererInterface
                 '{indexName}' => QuoteEscaper::escape($index->getName() ?? ''),
                 '{tableName}' => QuoteEscaper::escape($tableName),
                 '{indexColumns}' => QuoteEscaper::renderList($index->getColumns()),
-                '{unique}' => $index->isUnique() ? ', true' : '',
+                '{unique}' => $this->renderType($index),
             ]
         );
     }
@@ -44,5 +44,20 @@ final class IndexRenderer implements IndexRendererInterface
                 '{tableName}' => QuoteEscaper::escape($tableName),
             ]
         );
+    }
+
+    /**
+     * Renders the fourth argument of createIndex(): the unique flag or the index method.
+     * Only B-tree indexes can be unique in PostgreSQL, so both are never needed at the same time.
+     */
+    private function renderType(IndexInterface $index): string
+    {
+        if ($index->isUnique()) {
+            return ', true';
+        }
+
+        $method = $index->getMethod();
+
+        return $method !== null ? ", '" . QuoteEscaper::escape($method) . "'" : '';
     }
 }
