@@ -21,6 +21,9 @@ final class PrimaryKeyTest extends TestCase
         $this->pk = new PrimaryKey();
     }
 
+    /**
+     * @return array<string, array{list<string>, bool}>
+     */
     public function providerForComposite(): array
     {
         return [
@@ -33,6 +36,7 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @test
      * @dataProvider providerForComposite
+     * @param list<string> $columns
      */
     public function shouldProperlyCheckIfKeyIsComposite(array $columns, bool $expected): void
     {
@@ -40,6 +44,9 @@ final class PrimaryKeyTest extends TestCase
         self::assertSame($expected, $this->pk->isComposite());
     }
 
+    /**
+     * @return array<string, array{string, list<string>}>
+     */
     public function providerForColumns(): array
     {
         return [
@@ -51,6 +58,7 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @test
      * @dataProvider providerForColumns
+     * @param list<string> $expectedColumns
      */
     public function shouldProperlyAddColumn(string $newColumn, array $expectedColumns): void
     {

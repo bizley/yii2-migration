@@ -43,4 +43,4 @@ jobs:
         run: composer update $DEFAULT_COMPOSER_FLAGS
 
       - name: PHPStan tests
-        run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php --no-progress src
+        run: vendor/bin/phpstan --no-progress

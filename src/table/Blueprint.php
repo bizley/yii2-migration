@@ -113,9 +113,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function addColumn(ColumnInterface $column): void
     {
-        if ($column->getName() !== null) {
-            $this->columnsToAdd[$column->getName()] = $column;
-        }
+        $this->columnsToAdd[$column->getName()] = $column;
     }
 
     /**
@@ -123,9 +121,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function alterColumn(ColumnInterface $column): void
     {
-        if ($column->getName() !== null) {
-            $this->columnsToAlter[$column->getName()] = $column;
-        }
+        $this->columnsToAlter[$column->getName()] = $column;
     }
 
     /**
@@ -133,9 +129,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function reverseColumn(ColumnInterface $column): void
     {
-        if ($column->getName() !== null) {
-            $this->columnsToUnalter[$column->getName()] = $column;
-        }
+        $this->columnsToUnalter[$column->getName()] = $column;
     }
 
     /**
@@ -143,9 +137,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropColumn(ColumnInterface $column): void
     {
-        if ($column->getName() !== null) {
-            $this->columnsToDrop[$column->getName()] = $column;
-        }
+        $this->columnsToDrop[$column->getName()] = $column;
     }
 
     /**
@@ -153,9 +145,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        if ($foreignKey->getName() !== null) {
-            $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
-        }
+        $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
     }
 
     /**
@@ -163,9 +153,7 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        if ($foreignKey->getName() !== null) {
-            $this->foreignKeysToDrop[$foreignKey->getName()] = $foreignKey;
-        }
+        $this->foreignKeysToDrop[$foreignKey->getName()] = $foreignKey;
     }
 
     /**

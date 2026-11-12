@@ -1,4 +1,41 @@
-#parameters:
-#    excludePaths:
-#        - src/dummy/Migration.php
-#        - src/views/migration.php
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/mspirkov/yii2-phpstan/extension.neon
+
+parameters:
+    level: 8
+
+    paths:
+        - src
+        - tests
+
+    excludePaths:
+        - tests/stubs/Yii.php
+
+    bootstrapFiles:
+        - vendor/yiisoft/yii2/Yii.php
+
+    mspirkovYii2:
+        enableAllRules: false
+        enableValidationRules: true
+        yiiAppTypes:
+            -
+                paths:
+                    - tests/functional
+                type: yii\console\Application
+                nullable: false
+
+    # TODO: remove after updating Yii2 to 2.0.56.
+    ignoreErrors:
+        -
+            message: '#^Parameter \#3 \$type of method yii\\db\\Command::(addColumn|alterColumn)\(\) expects string, yii\\db\\ColumnSchemaBuilder given\.$#'
+            identifier: argument.type
+        -
+            message: '#^Object option "(request|response)" for bizley\\migration\\controllers\\(Base)?MigrationController must be yii\\console\\(Request|Response), string given\.$#'
+            identifier: mspirkovYii2.baseObjectInstantiationValidation
+        -
+            message: '#^Cannot access property \$driverName on array\|string\|yii\\db\\Connection\.$#'
+            identifier: property.nonObject
+        -
+            message: '#^Object option "(precision|scale)" for yii\\db\\ColumnSchema must be int, null given\.$#'
+            identifier: mspirkovYii2.baseObjectInstantiationValidation

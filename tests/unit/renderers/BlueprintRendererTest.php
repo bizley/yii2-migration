@@ -57,6 +57,9 @@ final class BlueprintRendererTest extends TestCase
         $this->blueprint->method('getTableName')->willReturn('table');
     }
 
+    /**
+     * @return array<string, array{bool, string|null, string, string|null}>
+     */
     public function providerForName(): array
     {
         return [

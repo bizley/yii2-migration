@@ -15,6 +15,9 @@ use yii\db\sqlite\Schema as SqliteSchema;
 /** @group sqlcolumnmapper */
 class SqlColumnMapperTest extends TestCase
 {
+    /**
+     * @return list<array{string, array<string, string>}>
+     */
     public function providerForCubrid(): array
     {
         return [
@@ -57,13 +60,16 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForCubrid
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string> $schema
      */
     public function shouldDetectCubridTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new CubridSchema())->typeMap));
     }
 
+    /**
+     * @return list<array{string, array<string, string|bool>}>
+     */
     public function providerForMSSql(): array
     {
         return [
@@ -108,13 +114,16 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForMSSql
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string|bool> $schema
      */
     public function shouldDetectMSSqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new MSSqlSchema())->typeMap));
     }
 
+    /**
+     * @return list<array{string, array<string, string>}>
+     */
     public function providerForMySql(): array
     {
         return [
@@ -155,13 +164,16 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForMySql
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string> $schema
      */
     public function shouldDetectMySqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new MySqlSchema())->typeMap));
     }
 
+    /**
+     * @return list<array{string, array<string, string>}>
+     */
     public function providerForOracle(): array
     {
         return [
@@ -181,7 +193,7 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForOracle
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string> $schema
      */
     public function shouldDetectOracleTypes(string $definition, array $schema): void
     {
@@ -203,6 +215,9 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array{string, array<string, string>}>
+     */
     public function providerForPostgreSql(): array
     {
         return [
@@ -277,13 +292,16 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForPostgreSql
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string> $schema
      */
     public function shouldDetectPostgreSqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new PostgreSqlSchema())->typeMap));
     }
 
+    /**
+     * @return list<array{string, array<string, string>}>
+     */
     public function providerForSqlite(): array
     {
         return [
@@ -323,7 +341,7 @@ class SqlColumnMapperTest extends TestCase
      * @test
      * @dataProvider providerForSqlite
      * @param string $definition
-     * @param array $schema
+     * @param array<string, string> $schema
      */
     public function shouldDetectSqliteTypes(string $definition, array $schema): void
     {
@@ -382,6 +400,9 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{string, array<string, string>}>
+     */
     public function providerForComments(): array
     {
         return [
@@ -454,6 +475,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @test
      * @dataProvider providerForComments
+     * @param array<string, string> $expected
      */
     public function shouldDetectComment(string $definition, array $expected): void
     {

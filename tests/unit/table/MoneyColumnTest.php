@@ -28,6 +28,9 @@ final class MoneyColumnTest extends TestCase
         self::assertSame('money({renderLength})', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string, string|null}>
+     */
     public function providerForGettingLengthWithoutScale(): array
     {
         return [
@@ -50,6 +53,9 @@ final class MoneyColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema));
     }
 
+    /**
+     * @return array<string, array{string, string|null}>
+     */
     public function providerForGettingLengthWithScale(): array
     {
         return [
@@ -73,6 +79,9 @@ final class MoneyColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema));
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null}>
+     */
     public function providerForSettingLengthWithoutScale(): array
     {
         return [
@@ -99,6 +108,9 @@ final class MoneyColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null}>
+     */
     public function providerForSettingLengthWithoutScaleAndPrecision(): array
     {
         return [
@@ -139,6 +151,9 @@ final class MoneyColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null}>
+     */
     public function providerForSettingLengthWithScale(): array
     {
         return [

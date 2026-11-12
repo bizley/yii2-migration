@@ -296,18 +296,16 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && $char === '`') {
+            if (!$collect) {
                 $collect = true;
                 continue;
             }
 
-            if ($collect) {
-                if ($char === '`' || \preg_match('/\s/', $char)) {
-                    break;
-                }
-                $part .= $char;
-                $end = $index + 2;
+            if ($char === '`' || \preg_match('/\s/', $char)) {
+                break;
             }
+            $part .= $char;
+            $end = $index + 2;
         }
 
         return [(int)$end, $part];
@@ -328,20 +326,15 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && $char === '(') {
-                $collect = true;
-            }
-
-            if ($collect) {
-                $part .= $char;
-                $end = $index + 1;
-                if ($char === '(') {
-                    $openedParenthesis++;
-                } elseif ($char === ')') {
-                    $openedParenthesis--;
-                    if ($openedParenthesis === 0) {
-                        break;
-                    }
+            $collect = true;
+            $part .= $char;
+            $end = $index + 1;
+            if ($char === '(') {
+                $openedParenthesis++;
+            } elseif ($char === ')') {
+                $openedParenthesis--;
+                if ($openedParenthesis === 0) {
+                    break;
                 }
             }
         }

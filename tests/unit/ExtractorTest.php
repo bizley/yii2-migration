@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\unit;
 
 use bizley\migration\Extractor;
-use bizley\migration\table\StructureChangeInterface;
+use bizley\migration\table\StructureChange;
 use bizley\tests\stubs\GoodMigration;
 use bizley\tests\stubs\WrongMigration;
 use ErrorException;
@@ -75,8 +75,9 @@ final class ExtractorTest extends TestCase
     {
         $this->extractor->extract(GoodMigration::class, []);
         $changes = $this->extractor->getChanges();
+        self::assertNotNull($changes);
         self::assertSame(['table'], \array_keys($changes));
-        self::assertInstanceOf(StructureChangeInterface::class, \array_values($changes)[0][0]);
+        self::assertEquals([new StructureChange()], $changes['table']);
 
         self::assertSame(Yii::getAlias('@bizley/migration/dummy/MigrationChanges.php'), Yii::$classMap['yii\db\Migration']);
     }
@@ -89,8 +90,9 @@ final class ExtractorTest extends TestCase
     {
         $this->extractor->extract('good_migration', ['tests/stubs']);
         $changes = $this->extractor->getChanges();
+        self::assertNotNull($changes);
         self::assertSame(['table'], \array_keys($changes));
-        self::assertInstanceOf(StructureChangeInterface::class, \array_values($changes)[0][0]);
+        self::assertEquals([new StructureChange()], $changes['table']);
 
         self::assertSame(Yii::getAlias('@bizley/migration/dummy/MigrationChanges.php'), Yii::$classMap['yii\db\Migration']);
     }

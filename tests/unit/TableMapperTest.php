@@ -29,7 +29,7 @@ final class TableMapperTest extends TestCase
     /** @var TableMapper */
     private $mapper;
 
-    /** @var MockObject&Schema */
+    /** @var MockObject&MysqlSchema */
     private $schema;
 
     protected function setUp(): void
@@ -79,6 +79,9 @@ final class TableMapperTest extends TestCase
         self::assertSame([], $this->mapper->getSuppressedForeignKeys());
     }
 
+    /**
+     * @return array<string, array{string, list<string>}>
+     */
     public function providerForPrimaryKey(): array
     {
         return [
@@ -92,7 +95,7 @@ final class TableMapperTest extends TestCase
      * @test
      * @dataProvider providerForPrimaryKey
      * @param string $primaryKeyName
-     * @param array $primaryKeyColumns
+     * @param list<string> $primaryKeyColumns
      * @throws NotSupportedException
      */
     public function shouldSetProperPrimaryKey(string $primaryKeyName, array $primaryKeyColumns): void
@@ -105,10 +108,14 @@ final class TableMapperTest extends TestCase
         $this->prepareSchemaMock(true, [], [], $primaryKey);
 
         $structurePrimaryKey = $this->mapper->getStructureOf('abcdef')->getPrimaryKey();
+        self::assertNotNull($structurePrimaryKey);
         self::assertSame($primaryKey->name, $structurePrimaryKey->getName());
         self::assertSame($primaryKey->columnNames, $structurePrimaryKey->getColumns());
     }
 
+    /**
+     * @return array<string, array{list<array<string, string|list<string>|null>>}>
+     */
     public function providerForForeignKeys(): array
     {
         return [
@@ -160,7 +167,7 @@ final class TableMapperTest extends TestCase
     /**
      * @test
      * @dataProvider providerForForeignKeys
-     * @param array $foreignKeyData
+     * @param list<array<string, string|list<string>|null>> $foreignKeyData
      * @throws NotSupportedException
      */
     public function shouldSetProperForeignKeys(array $foreignKeyData): void
@@ -172,9 +179,10 @@ final class TableMapperTest extends TestCase
 
         $this->prepareSchemaMock(true, $foreignKeys);
 
-        /** @var ForeignKeyConstraint $foreignKey */
         foreach ($foreignKeys as $foreignKey) {
+            self::assertNotNull($foreignKey->name);
             $structureForeignKey = $this->mapper->getStructureOf('abcdef')->getForeignKey($foreignKey->name);
+            self::assertNotNull($structureForeignKey);
 
             self::assertSame('abcdef', $structureForeignKey->getTableName());
             self::assertSame($foreignKey->name, $structureForeignKey->getName());
@@ -202,12 +210,15 @@ final class TableMapperTest extends TestCase
         );
         $this->prepareSchemaMock(true, [$foreignKey]);
 
-        self::assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey($foreignKey->name));
+        self::assertNull($this->mapper->getStructureOf('abcdef', ['tab'])->getForeignKey('suppressed'));
         $suppressedKeys = $this->mapper->getSuppressedForeignKeys();
         self::assertNotEmpty($suppressedKeys);
         self::assertSame($suppressedKeys[0]->getName(), $foreignKey->name);
     }
 
+    /**
+     * @return array<string, array{list<array<string, string|list<string>|bool>>}>
+     */
     public function providerForIndexes(): array
     {
         return [
@@ -249,7 +260,7 @@ final class TableMapperTest extends TestCase
     /**
      * @test
      * @dataProvider providerForIndexes
-     * @param array $indexData
+     * @param list<array<string, string|list<string>|bool>> $indexData
      * @throws NotSupportedException
      */
     public function shouldSetProperIndexes(array $indexData): void
@@ -261,9 +272,10 @@ final class TableMapperTest extends TestCase
 
         $this->prepareSchemaMock(true, [], $indexes);
 
-        /** @var IndexConstraint $index */
         foreach ($indexes as $index) {
+            self::assertNotNull($index->name);
             $structureIndex = $this->mapper->getStructureOf('abcdef')->getIndex($index->name);
+            self::assertNotNull($structureIndex);
 
             self::assertSame($index->name, $structureIndex->getName());
             self::assertSame($index->columnNames, $structureIndex->getColumns());

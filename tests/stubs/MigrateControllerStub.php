@@ -11,8 +11,14 @@ final class MigrateControllerStub extends MigrateController
     /** @var string */
     public static $stdout = '';
 
+    /**
+     * @param string $string
+     * @return int
+     */
     public function stdout($string) // BC declaration
     {
         self::$stdout .= $string;
+
+        return \strlen($string);
     }
 }

@@ -17,7 +17,7 @@ abstract class DbTestCase extends TestCase
     /** @var string */
     public static $schema;
 
-    /** @var Connection */
+    /** @var Connection|null */
     protected static $db;
 
     /**

@@ -108,7 +108,7 @@ final class TableMapper implements TableMapperInterface
         $schema = $this->db->getSchema();
 
         foreach ($schema->getTableIndexes($table, true) as $index) {
-            if ($index->isPrimary === false) {
+            if ($index->isPrimary === false && $index->name !== null) {
                 $mappedIndex = new Index();
                 $mappedIndex->setName($index->name);
                 $mappedIndex->setUnique($index->isUnique);

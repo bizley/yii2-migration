@@ -30,6 +30,9 @@ final class CharacterColumnTest extends TestCase
         self::assertSame('char({renderLength})', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string, int|null}>
+     */
     public function providerForGettingLength(): array
     {
         return [
@@ -52,6 +55,9 @@ final class CharacterColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema));
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null}>
+     */
     public function providerForSettingLength(): array
     {
         return [

@@ -19,15 +19,21 @@ final class MigrationControllerStub extends MigrationController
     /** @var string */
     public static $content = '';
 
-    /** @var Request|array|string */
+    /** @var Request|array<string, mixed>|string */
     public $request = Request::class;
 
-    /** @var Response|array|string */
+    /** @var Response|array<string, mixed>|string */
     public $response = Response::class;
 
+    /**
+     * @param string $string
+     * @return int
+     */
     public function stdout($string) // BC declaration
     {
         self::$stdout .= $string;
+
+        return \strlen($string);
     }
 
     public function ansiFormat($string): string // BC declaration

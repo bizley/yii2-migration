@@ -110,6 +110,9 @@ final class PrimaryKeyRendererTest extends TestCase
         self::assertSame('$this->dropPrimaryKey(\'pk\', \'test\');', $this->renderer->renderDown($primaryKey, 'test'));
     }
 
+    /**
+     * @return array<string, array{int, list<string>, string, string}>
+     */
     public function providerForRender(): array
     {
         return [
@@ -144,7 +147,7 @@ final class PrimaryKeyRendererTest extends TestCase
      * @test
      * @dataProvider providerForRender
      * @param int $indent
-     * @param array $columns
+     * @param list<string> $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
      * @throws NotSupportedException

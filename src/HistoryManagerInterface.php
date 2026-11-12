@@ -18,7 +18,7 @@ interface HistoryManagerInterface
 
     /**
      * Returns the migration history.
-     * @return array<string, string> the migration history
+     * @return array<string, int> the migration history
      * @throws NotSupportedException
      */
     public function fetchHistory(): array;

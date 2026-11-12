@@ -30,6 +30,9 @@ final class SmallIntegerColumnTest extends TestCase
         self::assertSame('smallInteger({renderLength})', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string, int|null, string|null}>
+     */
     public function providerForGettingLength(): array
     {
         return [
@@ -55,6 +58,9 @@ final class SmallIntegerColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema, $engineVersion));
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null, string|null}>
+     */
     public function providerForSettingLength(): array
     {
         return [

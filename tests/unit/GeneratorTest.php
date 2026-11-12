@@ -62,6 +62,9 @@ final class GeneratorTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array{string|null, string|null}>
+     */
     public function providerForNamespaces(): array
     {
         return [
@@ -84,11 +87,7 @@ final class GeneratorTest extends TestCase
     {
         $this->mapper->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
         $this->view->expects(self::once())->method('renderFile')->with(
-            self::callback(
-                static function (string $template) {
-                    return is_string($template);
-                }
-            ),
+            self::isType('string'),
             self::callback(
                 static function (array $params) use ($expected) {
                     return $params['namespace'] === $expected;

@@ -240,7 +240,9 @@ final class StructureBuilderTest extends TestCase
         $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         self::assertCount(1, $structure->getColumns());
-        self::assertSame('PRIMARY KEY', $structure->getColumn('column')->getAppend());
+        $structureColumn = $structure->getColumn('column');
+        self::assertNotNull($structureColumn);
+        self::assertSame('PRIMARY KEY', $structureColumn->getAppend());
     }
 
     /** @test */
@@ -264,7 +266,9 @@ final class StructureBuilderTest extends TestCase
         $structure = $this->builder->build([$changeAdd, $this->change], null, null);
 
         self::assertCount(1, $structure->getColumns());
-        self::assertSame('appended PRIMARY KEY', $structure->getColumn('column')->getAppend());
+        $structureColumn = $structure->getColumn('column');
+        self::assertNotNull($structureColumn);
+        self::assertSame('appended PRIMARY KEY', $structureColumn->getAppend());
     }
 
     /** @test */
@@ -305,7 +309,9 @@ final class StructureBuilderTest extends TestCase
         $structure = $this->builder->build([$changeAdd, $changeAddPK, $this->change], null, null);
 
         self::assertNull($structure->getPrimaryKey());
-        self::assertSame('appended', $structure->getColumn('column')->getAppend());
+        $structureColumn = $structure->getColumn('column');
+        self::assertNotNull($structureColumn);
+        self::assertSame('appended', $structureColumn->getAppend());
     }
 
     /** @test */
@@ -381,7 +387,9 @@ final class StructureBuilderTest extends TestCase
 
         self::assertCount(1, $structure->getIndexes());
         self::assertNotNull($structure->getIndex('idx'));
-        self::assertTrue($structure->getColumn('idx-column')->isUnique());
+        $structureColumn = $structure->getColumn('idx-column');
+        self::assertNotNull($structureColumn);
+        self::assertTrue($structureColumn->isUnique());
     }
 
     /** @test */
@@ -431,7 +439,9 @@ final class StructureBuilderTest extends TestCase
 
         self::assertCount(0, $structure->getIndexes());
         self::assertNull($structure->getIndex('idx'));
-        self::assertFalse($structure->getColumn('idx-column')->isUnique());
+        $structureColumn = $structure->getColumn('idx-column');
+        self::assertNotNull($structureColumn);
+        self::assertFalse($structureColumn->isUnique());
     }
 
     /** @test */
@@ -455,7 +465,9 @@ final class StructureBuilderTest extends TestCase
 
         $structure = $this->builder->build([$changeAddColumn, $this->change], null, null);
 
-        self::assertSame('comment-to-add', $structure->getColumn('column')->getComment());
+        $structureColumn = $structure->getColumn('column');
+        self::assertNotNull($structureColumn);
+        self::assertSame('comment-to-add', $structureColumn->getComment());
     }
 
     /** @test */
@@ -475,6 +487,8 @@ final class StructureBuilderTest extends TestCase
 
         $structure = $this->builder->build([$changeAddColumn, $this->change], null, null);
 
-        self::assertNull($structure->getColumn('column')->getComment());
+        $structureColumn = $structure->getColumn('column');
+        self::assertNotNull($structureColumn);
+        self::assertNull($structureColumn->getComment());
     }
 }

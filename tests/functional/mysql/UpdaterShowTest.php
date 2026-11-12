@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
-use PDO;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
@@ -20,13 +19,14 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     /** @var string */
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
 
+    /** @var bool|null */
     private $v8;
 
     public function isV8(): bool
     {
         if ($this->v8 === null) {
             $this->v8 = \version_compare(
-                $this->getDb()->getSlavePdo()->getAttribute(PDO::ATTR_SERVER_VERSION),
+                $this->getDb()->getServerVersion(),
                 '8.0.17',
                 '>='
             );

@@ -106,6 +106,7 @@ final class Inspector implements InspectorInterface
      * @param array<string, array<StructureChangeInterface>>|null $changes
      * @return bool true if more data can be analysed or false if this must be last one
      * @throws InvalidConfigException
+     * @phpstan-impure
      */
     private function gatherChanges(?array $changes): bool
     {

@@ -15,6 +15,9 @@ use yii\base\NotSupportedException;
 /** @group arranger */
 final class ArrangerTest extends TestCase
 {
+    /**
+     * @return array<string, array{array<string, list<string>>, list<string>, list<string>}>
+     */
     public function providerForArrange(): array
     {
         return [
@@ -46,9 +49,9 @@ final class ArrangerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForArrange
-     * @param array $inputData
-     * @param array $tablesInOrder
-     * @param array $referencesToPostpone
+     * @param array<string, list<string>> $inputData
+     * @param list<string> $tablesInOrder
+     * @param list<string> $referencesToPostpone
      * @throws NotSupportedException
      */
     public function shouldArrangeTables(

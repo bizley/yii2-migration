@@ -28,6 +28,9 @@ final class JsonColumnTest extends TestCase
         self::assertSame('json()', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string|array<array-key, int|string>|null, string|null}>
+     */
     public function providerForDefaults(): array
     {
         return [
@@ -44,7 +47,7 @@ final class JsonColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForDefaults
-     * @param string|null|array $defaultToSet
+     * @param string|array<array-key, int|string>|null $defaultToSet
      */
     public function shouldReturnProperDefault($defaultToSet, ?string $expected): void
     {
@@ -52,6 +55,9 @@ final class JsonColumnTest extends TestCase
         self::assertSame($expected, $this->column->getDefault());
     }
 
+    /**
+     * @return array<string, array{string, int|null}>
+     */
     public function providerForGettingLength(): array
     {
         return [
@@ -73,6 +79,9 @@ final class JsonColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema));
     }
 
+    /**
+     * @return array<string, array{string, int|null}>
+     */
     public function providerForSettingLength(): array
     {
         return [
