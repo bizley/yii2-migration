@@ -627,6 +627,8 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
         $columnNew->setLength('10,0');
         $columnNew->setUnique(false);
         $columnNew->setDefault('NULL');
+        // only the last compared property is different so all the previous ones must be skipped to reach it
+        $columnNew->setComment('new comment');
 
         $columnOld = $this->getColumn('col');
         $columnOld->setLength(10);
@@ -643,7 +645,10 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
         $this->newStructure->method('getColumn')->willReturn($columnNew);
         $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
         $this->oldStructure->method('getIndexes')->willReturn(['idx' => $index]);
-        $this->oldStructure->expects(self::exactly(8))->method('getColumn')->willReturn($columnOld);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('ALTER COLUMN is not supported by SQLite.');
 
         $this->compare();
     }

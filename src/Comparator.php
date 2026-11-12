@@ -92,6 +92,8 @@ final class Comparator implements ComparatorInterface
             }
 
             $previousColumn = $name;
+            /** @var ColumnInterface $oldColumn */
+            $oldColumn = $oldStructure->getColumn($name);
             foreach (
                 [
                     'getType' => 'type',
@@ -104,8 +106,6 @@ final class Comparator implements ComparatorInterface
                     'getComment' => 'comment',
                 ] as $propertyFetch => $propertyName
             ) {
-                /** @var ColumnInterface $oldColumn */
-                $oldColumn = $oldStructure->getColumn($name);
                 if ($propertyFetch === 'getLength') {
                     $oldProperty = $oldColumn->getLength($schema, $engineVersion);
                     $newProperty = $column->getLength($schema, $engineVersion);
