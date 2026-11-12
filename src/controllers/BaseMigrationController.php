@@ -218,12 +218,7 @@ class BaseMigrationController extends Controller
         if ($this->structureRenderer === null) {
             $configuredObject = Yii::createObject(
                 $this->structureRendererClass,
-                [
-                    Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->primaryKeyRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass, [$this->generalSchema])
-                ]
+                $this->createPartRenderers()
             );
             if (!$configuredObject instanceof StructureRendererInterface) {
                 throw new InvalidConfigException(
@@ -234,6 +229,21 @@ class BaseMigrationController extends Controller
         }
 
         return $this->structureRenderer;
+    }
+
+    /**
+     * Creates new column, primary key, index, and foreign key renderers (renderers keep state, so they're not shared).
+     * @return array<object>
+     * @throws InvalidConfigException
+     */
+    private function createPartRenderers(): array
+    {
+        return [
+            Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
+            Yii::createObject($this->primaryKeyRendererClass, [$this->generalSchema]),
+            Yii::createObject($this->indexRendererClass),
+            Yii::createObject($this->foreignKeyRendererClass, [$this->generalSchema]),
+        ];
     }
 
     /** @var GeneratorInterface */
@@ -273,9 +283,7 @@ class BaseMigrationController extends Controller
     public function getExtractor(): ExtractorInterface
     {
         if ($this->extractor === null) {
-            $db = Instance::ensure($this->db, Connection::class);
-            // cloning connection here to not force reconnecting on each extraction
-            $configuredObject = Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
+            $configuredObject = $this->createExtractor();
             if (!$configuredObject instanceof ExtractorInterface) {
                 throw new InvalidConfigException('Extractor must implement bizley\migration\ExtractorInterface.');
             }
@@ -293,9 +301,7 @@ class BaseMigrationController extends Controller
     public function getSqlExtractor(): SqlExtractorInterface
     {
         if (!$this->extractor instanceof SqlExtractorInterface) {
-            $db = Instance::ensure($this->db, Connection::class);
-            // cloning connection here to not force reconnecting on each extraction
-            $configuredObject = Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
+            $configuredObject = $this->createExtractor();
             if (!$configuredObject instanceof SqlExtractorInterface) {
                 throw new InvalidConfigException('Extractor must implement bizley\migration\SqlExtractorInterface.');
             }
@@ -303,6 +309,14 @@ class BaseMigrationController extends Controller
         }
 
         return $this->extractor;
+    }
+
+    /** @throws InvalidConfigException */
+    private function createExtractor(): object
+    {
+        $db = Instance::ensure($this->db, Connection::class);
+        // cloning connection here to not force reconnecting on each extraction
+        return Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
     }
 
     /** @var StructureBuilderInterface */
@@ -389,12 +403,7 @@ class BaseMigrationController extends Controller
         if ($this->blueprintRenderer === null) {
             $configuredObject = Yii::createObject(
                 $this->blueprintRendererClass,
-                [
-                    Yii::createObject($this->columnRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->primaryKeyRendererClass, [$this->generalSchema]),
-                    Yii::createObject($this->indexRendererClass),
-                    Yii::createObject($this->foreignKeyRendererClass, [$this->generalSchema])
-                ]
+                $this->createPartRenderers()
             );
             if (!$configuredObject instanceof BlueprintRendererInterface) {
                 throw new InvalidConfigException(
