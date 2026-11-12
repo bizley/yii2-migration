@@ -358,11 +358,11 @@ abstract class Column
     }
 
     /**
-     * Escapes single quotes.
+     * Escapes backslashes and single quotes so the value can be safely placed in a single-quoted PHP string.
      */
     public function escapeQuotes(string $value): string
     {
-        return \str_replace('\'', '\\\'', $value);
+        return \str_replace(['\\', '\''], ['\\\\', '\\\''], $value);
     }
 
     /**

@@ -143,6 +143,8 @@ final class GenericColumnTest extends TestCase
         return [
             ['abc', 'abc'],
             ["'abc'", '\\\'abc\\\''],
+            ['C:\\dir\\', 'C:\\\\dir\\\\'],
+            ['it\'s a\\\\b', 'it\\\'s a\\\\\\\\b'],
         ];
     }
 
