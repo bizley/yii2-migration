@@ -22,6 +22,64 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
+    public function shouldUpdateTableByAddingIndexWithMethod(): void
+    {
+        $this->getDb()->createCommand('CREATE INDEX "idx-add" ON "updater_base" USING hash ("col")')->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
+            'public function safeUp()
+    {
+        $this->createIndex(\'idx-add\', \'{{%updater_base}}\', [\'col\'], \'hash\');
+    }
+
+    public function safeDown()
+    {
+        $this->dropIndex(\'idx-add\', \'{{%updater_base}}\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldUpdateTableByChangingIndexMethod(): void
+    {
+        $this->getDb()->createCommand()->dropIndex('idx-amount-hash', 'updater_base_fk_with_idx')->execute();
+        $this->getDb()
+            ->createCommand()
+            ->createIndex('idx-amount-hash', 'updater_base_fk_with_idx', 'amount')
+            ->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
+        self::assertStringContainsString(
+            'public function safeUp()
+    {
+        $this->dropIndex(\'idx-amount-hash\', \'{{%updater_base_fk_with_idx}}\');
+
+        $this->createIndex(\'idx-amount-hash\', \'{{%updater_base_fk_with_idx}}\', [\'amount\']);
+    }
+
+    public function safeDown()
+    {
+        $this->dropIndex(\'idx-amount-hash\', \'{{%updater_base_fk_with_idx}}\');
+
+        $this->createIndex(\'idx-amount-hash\', \'{{%updater_base_fk_with_idx}}\', [\'amount\'], \'hash\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
     public function shouldUpdateTableByDroppingColumn(): void
     {
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();

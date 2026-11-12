@@ -66,6 +66,9 @@ class m20200406_124200_create_table_updater_base extends Migration
             $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE',
             $driverName === 'sqlite' ? 'NO ACTION' : 'CASCADE'
         );
+        if ($driverName === 'pgsql') {
+            $this->createIndex('idx-amount-hash', 'updater_base_fk_with_idx', 'amount', 'hash');
+        }
     }
 
     public function down()

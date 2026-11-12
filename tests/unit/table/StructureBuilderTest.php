@@ -513,7 +513,10 @@ final class StructureBuilderTest extends TestCase
             [
                 $this->createChange('createTable', ['a' => ['type' => 'integer'], 'x' => ['type' => 'string']]),
                 $this->createChange('addPrimaryKey', ['name' => 'pk', 'columns' => ['a', 'x']]),
-                $this->createChange('createIndex', ['name' => 'idx', 'columns' => ['a', 'x'], 'unique' => false]),
+                $this->createChange(
+                    'createIndex',
+                    ['name' => 'idx', 'columns' => ['a', 'x'], 'unique' => false, 'method' => 'hash']
+                ),
                 $this->createChange('createIndex', ['name' => 'idx-x', 'columns' => ['x'], 'unique' => true]),
                 $this->createChange(
                     'addForeignKey',
@@ -545,11 +548,13 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($index);
         self::assertSame(['b', 'x'], $index->getColumns());
         self::assertFalse($index->isUnique());
+        self::assertSame('hash', $index->getMethod());
 
         $untouchedIndex = $structure->getIndex('idx-x');
         self::assertNotNull($untouchedIndex);
         self::assertSame(['x'], $untouchedIndex->getColumns());
         self::assertTrue($untouchedIndex->isUnique());
+        self::assertNull($untouchedIndex->getMethod());
 
         $foreignKey = $structure->getForeignKey('fk');
         self::assertNotNull($foreignKey);

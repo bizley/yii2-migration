@@ -36,7 +36,7 @@ final class IndexRenderer implements IndexRendererInterface
                 $index->getName() ?? '',
                 $tableName,
                 \implode(', ', $renderedColumns),
-                $index->isUnique() ? ', true' : '',
+                $this->renderType($index),
             ],
             $template
         );
@@ -60,5 +60,20 @@ final class IndexRenderer implements IndexRendererInterface
             ],
             $template
         );
+    }
+
+    /**
+     * Renders the fourth argument of createIndex(): the unique flag or the index method.
+     * Only B-tree indexes can be unique in PostgreSQL, so both are never needed at the same time.
+     */
+    private function renderType(IndexInterface $index): string
+    {
+        if ($index->isUnique()) {
+            return ', true';
+        }
+
+        $method = $index->getMethod();
+
+        return $method !== null ? ", '$method'" : '';
     }
 }

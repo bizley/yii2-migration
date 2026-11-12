@@ -103,4 +103,19 @@ final class IndexRendererTest extends TestCase
         self::assertSame($expectedCreate, $this->renderer->renderUp($index, 'test', $indent));
         self::assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
     }
+
+    /** @test */
+    public function shouldRenderIndexMethod(): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn(['aaa']);
+        $index->method('getName')->willReturn('idx');
+        $index->method('isUnique')->willReturn(false);
+        $index->method('getMethod')->willReturn('hash');
+
+        self::assertSame(
+            '$this->createIndex(\'idx\', \'test\', [\'aaa\'], \'hash\');',
+            $this->renderer->renderUp($index, 'test')
+        );
+    }
 }

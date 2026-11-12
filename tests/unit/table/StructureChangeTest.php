@@ -498,6 +498,36 @@ final class StructureChangeTest extends TestCase
         self::assertSame('idx', $index->getName());
         self::assertSame(['column'], $index->getColumns());
         self::assertTrue($index->isUnique());
+        self::assertNull($index->getMethod());
+    }
+
+    /** @test */
+    public function shouldProperlyReturnValueForCreateIndexWithMethod(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(
+            [
+                'name' => 'idx',
+                'columns' => ['column'],
+                'unique' => false,
+                'method' => 'hash',
+            ]
+        );
+
+        $index = $this->change->getValue();
+        self::assertInstanceOf(IndexInterface::class, $index);
+        self::assertFalse($index->isUnique());
+        self::assertSame('hash', $index->getMethod());
+    }
+
+    /** @test */
+    public function shouldThrowExceptionForCreateIndexWithWrongMethod(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(['name' => 'idx', 'columns' => ['column'], 'unique' => false, 'method' => 1]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->change->getValue();
     }
 
     /**
