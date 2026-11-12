@@ -48,8 +48,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
         MigrationControllerStub::$confirmControl = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
- > Are you sure you want to generate migrations for the following tables?
+            ' > Are you sure you want to generate migrations for the following tables?
    - schema1.table1
    - schema2.table1
  Operation cancelled by user.
@@ -73,8 +72,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
         MigrationControllerStub::$confirmControl = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema*']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
- > Are you sure you want to generate migrations for the following tables?
+            ' > Are you sure you want to generate migrations for the following tables?
    - schematable
    - schema1.table1
    - schema2.table1
@@ -105,8 +103,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['test.table']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
-
+            '
  > Comparing current table \'test.table\' with its migrations ...DONE!
 
  > Generating migration for creating table \'test.table\' ...DONE!
@@ -157,8 +154,7 @@ class UpdaterSchemasTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['schema1.table1']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
-
+            '
  > Comparing current table \'schema1.table1\' with its migrations ...DONE!
 
  > Generating migration for updating table \'schema1.table1\' ...DONE!

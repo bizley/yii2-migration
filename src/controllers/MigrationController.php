@@ -799,18 +799,17 @@ class MigrationController extends BaseMigrationController
         array $excludedTables = []
     ): array {
         $filteredTables = [];
+        $regex = $pattern !== null ? '/^' . \str_replace('\\*', '.+', \preg_quote($pattern, '/')) . '$/' : null;
 
         foreach ($allTables as $table) {
-            if (!\in_array($table, $excludedTables, true)) {
-                if (
-                    $pattern !== null
-                    && \preg_match('/^' . \str_replace('\\*', '.+', \preg_quote($pattern, '/')) . '$/', $table) === 0
-                ) {
-                    continue;
-                }
-                $filteredTables[] = $table;
-            } else {
+            if ($regex !== null && \preg_match($regex, $table) === 0) {
+                continue;
+            }
+
+            if (\in_array($table, $excludedTables, true)) {
                 $this->foundExcluded[] = $table;
+            } else {
+                $filteredTables[] = $table;
             }
         }
 
