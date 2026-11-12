@@ -46,6 +46,13 @@ final class Inspector implements InspectorInterface
     private $currentTable;
 
     /**
+     * Changes extracted from migrations, indexed by migration name. Migration classes can be loaded only once per
+     * process, so extracting the same migration again would always give the same result.
+     * @var array<string, array<string, array<StructureChangeInterface>>|null>
+     */
+    private $extractedChanges = [];
+
+    /**
      * Prepares a blueprint for the upcoming update.
      * @param array<string> $migrationsToSkip
      * @param array<string> $migrationPaths
@@ -75,9 +82,7 @@ final class Inspector implements InspectorInterface
                     continue;
                 }
 
-                $this->extractor->extract($migration, $migrationPaths);
-
-                if (!$this->gatherChanges($this->extractor->getChanges())) {
+                if (!$this->gatherChanges($this->extractChanges($migration, $migrationPaths))) {
                     break;
                 }
             }
@@ -99,6 +104,22 @@ final class Inspector implements InspectorInterface
         }
 
         return $blueprint;
+    }
+
+    /**
+     * Returns the changes of the migration, extracting them only on the first call for the given migration.
+     * @param array<string> $migrationPaths
+     * @return array<string, array<StructureChangeInterface>>|null
+     * @throws ErrorException
+     */
+    private function extractChanges(string $migration, array $migrationPaths): ?array
+    {
+        if (!\array_key_exists($migration, $this->extractedChanges)) {
+            $this->extractor->extract($migration, $migrationPaths);
+            $this->extractedChanges[$migration] = $this->extractor->getChanges();
+        }
+
+        return $this->extractedChanges[$migration];
     }
 
     /**

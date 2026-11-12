@@ -358,4 +358,60 @@ final class InspectorTest extends TestCase
             null
         );
     }
+
+    /**
+     * @test
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function shouldExtractEachMigrationOnlyOnceForMultipleTables(): void
+    {
+        $this->historyManager->method('fetchHistory')->willReturn(['m2' => 2, 'm1' => 1]);
+
+        $createA = $this->createMock(StructureChangeInterface::class);
+        $createA->method('getMethod')->willReturn('createTable');
+        $addColumnA = $this->createMock(StructureChangeInterface::class);
+        $addColumnA->method('getMethod')->willReturn('addColumn');
+        $createB = $this->createMock(StructureChangeInterface::class);
+        $createB->method('getMethod')->willReturn('createTable');
+        $addColumnB = $this->createMock(StructureChangeInterface::class);
+        $addColumnB->method('getMethod')->willReturn('addColumn');
+        $changes = [
+            'm2' => ['a' => [$addColumnA], 'b' => [$addColumnB]],
+            'm1' => ['a' => [$createA], 'b' => [$createB]],
+        ];
+
+        $extracted = '';
+        $this->extractor->expects(self::exactly(2))->method('extract')->willReturnCallback(
+            static function (string $migration) use (&$extracted): void {
+                $extracted = $migration;
+            }
+        );
+        $this->extractor->method('getChanges')->willReturnCallback(
+            static function () use (&$extracted, $changes): array {
+                return $changes[$extracted] ?? [];
+            }
+        );
+
+        $builtChanges = [];
+        $structureBuilder = $this->createMock(StructureBuilderInterface::class);
+        $structureBuilder->method('build')->willReturnCallback(
+            function (array $changes) use (&$builtChanges): StructureInterface {
+                $builtChanges[] = $changes;
+                return $this->createMock(StructureInterface::class);
+            }
+        );
+        $this->comparator->expects(self::exactly(2))->method('compare');
+
+        $inspector = new Inspector($this->historyManager, $this->extractor, $structureBuilder, $this->comparator);
+
+        foreach (['a', 'b'] as $tableName) {
+            $structure = $this->createMock(StructureInterface::class);
+            $structure->method('getName')->willReturn($tableName);
+            $inspector->prepareBlueprint($structure, false, [], [], null, null);
+        }
+
+        self::assertSame([[$createA, $addColumnA], [$createB, $addColumnB]], $builtChanges);
+    }
 }
