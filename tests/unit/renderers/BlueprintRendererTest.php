@@ -327,4 +327,81 @@ final class BlueprintRendererTest extends TestCase
         $this->blueprint->method('getDroppedPrimaryKey')->willReturn($primaryKey);
         self::assertSame('add-pk', $this->renderer->renderDown($this->blueprint));
     }
+
+    private function prepareBlueprintWithAllChanges(): void
+    {
+        $this->columnRenderer->method('renderDrop')->willReturn('drop-column');
+        $this->columnRenderer->method('renderAdd')->willReturn('add-column');
+        $this->columnRenderer->method('renderAlter')->willReturn('alter-column');
+        $this->primaryKeyRenderer->method('renderDown')->willReturn('drop-pk');
+        $this->primaryKeyRenderer->method('renderUp')->willReturn('add-pk');
+        $this->indexRenderer->method('renderDown')->willReturn('drop-idx');
+        $this->indexRenderer->method('renderUp')->willReturn('create-idx');
+        $this->foreignKeyRenderer->method('renderDown')->willReturn('drop-fk');
+        $this->foreignKeyRenderer->method('renderUp')->willReturn('add-fk');
+
+        $column = $this->createMock(ColumnInterface::class);
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $index = $this->createMock(IndexInterface::class);
+        $foreignKey = $this->createMock(ForeignKeyInterface::class);
+        $foreignKey->method('getReferredTable')->willReturn('ref');
+        $this->blueprint->method('getDroppedColumns')->willReturn(['c1' => $column]);
+        $this->blueprint->method('getAddedColumns')->willReturn(['c2' => $column]);
+        $this->blueprint->method('getAlteredColumns')->willReturn(['c3' => $column]);
+        $this->blueprint->method('getUnalteredColumns')->willReturn(['c3' => $column]);
+        $this->blueprint->method('getDroppedPrimaryKey')->willReturn($primaryKey);
+        $this->blueprint->method('getAddedPrimaryKey')->willReturn($primaryKey);
+        $this->blueprint->method('getDroppedIndexes')->willReturn(['i1' => $index]);
+        $this->blueprint->method('getAddedIndexes')->willReturn(['i2' => $index]);
+        $this->blueprint->method('getDroppedForeignKeys')->willReturn(['f1' => $foreignKey]);
+        $this->blueprint->method('getAddedForeignKeys')->willReturn(['f2' => $foreignKey]);
+    }
+
+    /** @test */
+    public function shouldRenderUpInOrderSafeForDependencies(): void
+    {
+        $this->prepareBlueprintWithAllChanges();
+
+        self::assertSame(
+            \implode(
+                "\n\n",
+                [
+                    'drop-fk',
+                    'drop-idx',
+                    'drop-pk',
+                    'drop-column',
+                    'add-column',
+                    'alter-column',
+                    'add-pk',
+                    'create-idx',
+                    'add-fk',
+                ]
+            ),
+            $this->renderer->renderUp($this->blueprint)
+        );
+    }
+
+    /** @test */
+    public function shouldRenderDownInOrderSafeForDependencies(): void
+    {
+        $this->prepareBlueprintWithAllChanges();
+
+        self::assertSame(
+            \implode(
+                "\n\n",
+                [
+                    'drop-fk',
+                    'drop-idx',
+                    'drop-pk',
+                    'drop-column',
+                    'add-column',
+                    'alter-column',
+                    'add-pk',
+                    'create-idx',
+                    'add-fk',
+                ]
+            ),
+            $this->renderer->renderDown($this->blueprint)
+        );
+    }
 }

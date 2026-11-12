@@ -34,6 +34,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
     /**
      * Renders the blueprint for up().
+     * Foreign keys are dropped first and added last because they may depend on indexes, primary key, and columns.
+     * Primary key is added after the columns, so it can include the new or altered ones.
      * @see https://www.yiiframework.com/doc/api/2.0/yii-db-migration#up()-detail
      */
     public function renderUp(
@@ -48,15 +50,15 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = \array_filter(
             [
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema),
-                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion),
-                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent),
+                $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix),
             ]
         );
 
@@ -79,13 +81,13 @@ final class BlueprintRenderer implements BlueprintRendererInterface
 
         $renderedBlueprint = \array_filter(
             [
+                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema, true),
                 $this->renderIndexesToDrop($blueprint, $tableName, $indent, true),
                 $this->renderPrimaryKeyToDrop($blueprint, $tableName, $indent, $schema, true),
-                $this->renderForeignKeysToDrop($blueprint, $tableName, $indent, $schema, true),
                 $this->renderColumnsToDrop($blueprint, $tableName, $indent, true),
-                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema, true),
                 $this->renderColumnsToAdd($blueprint, $tableName, $indent, $schema, $engineVersion, true),
                 $this->renderColumnsToAlter($blueprint, $tableName, $indent, $schema, $engineVersion, true),
+                $this->renderPrimaryKeyToAdd($blueprint, $tableName, $indent, $schema, true),
                 $this->renderIndexesToAdd($blueprint, $tableName, $indent, true),
                 $this->renderForeignKeysToAdd($blueprint, $tableName, $indent, $schema, $usePrefix, $dbPrefix, true),
             ]

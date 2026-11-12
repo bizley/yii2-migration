@@ -83,10 +83,10 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
         self::assertStringContainsString(
             'public function safeUp()
     {
-        $this->addPrimaryKey(\'PRIMARYKEY\', \'{{%no_pk}}\', [\'col\', \'col2\']);
-
         $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->integer()->notNull());
         $this->alterColumn(\'{{%no_pk}}\', \'col2\', $this->integer()->notNull());
+
+        $this->addPrimaryKey(\'PRIMARYKEY\', \'{{%no_pk}}\', [\'col\', \'col2\']);
     }
 
     public function safeDown()

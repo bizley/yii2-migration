@@ -80,10 +80,10 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
         self::assertStringContainsString(
             'public function safeUp()
     {
-        $this->addPrimaryKey(\'primary-new\', \'{{%no_pk}}\', [\'col\', \'col2\']);
-
         $this->alterColumn(\'{{%no_pk}}\', \'col\', $this->integer()->notNull());
         $this->alterColumn(\'{{%no_pk}}\', \'col2\', $this->integer()->notNull());
+
+        $this->addPrimaryKey(\'primary-new\', \'{{%no_pk}}\', [\'col\', \'col2\']);
     }
 
     public function safeDown()
@@ -95,5 +95,25 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
     }',
             MigrationControllerStub::$content
         );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
+    public function shouldAddNewColumnBeforeAddingCompositePrimaryKeyWithIt(): void
+    {
+        $this->getDb()->createCommand()->addColumn('no_pk', 'col3', $this->integer()->notNull())->execute();
+        $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col3'])->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['no_pk']));
+        $content = MigrationControllerStub::$content;
+        $addColumn = \strpos($content, '$this->addColumn(\'{{%no_pk}}\', \'col3\'');
+        $addPrimaryKey = \strpos($content, '$this->addPrimaryKey(\'primary-new\'');
+        self::assertNotFalse($addColumn);
+        self::assertNotFalse($addPrimaryKey);
+        self::assertLessThan($addPrimaryKey, $addColumn);
     }
 }
