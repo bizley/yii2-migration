@@ -151,6 +151,35 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
      * @throws InvalidRouteException
      * @throws Exception
      */
+    public function shouldUpdateTableByAddingBooleanColumnWithDefault(): void
+    {
+        $this->getDb()->createCommand()->addColumn(
+            'updater_base',
+            'added',
+            $this->boolean()->defaultValue(false)
+        )->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
+        self::assertStringContainsString(
+            'public function safeUp()
+    {
+        $this->addColumn(\'{{%updater_base}}\', \'added\', $this->boolean()->defaultValue(false)->after(\'col3\'));
+    }
+
+    public function safeDown()
+    {
+        $this->dropColumn(\'{{%updater_base}}\', \'added\');
+    }',
+            MigrationControllerStub::$content
+        );
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws InvalidRouteException
+     * @throws Exception
+     */
     public function shouldUpdateTableByAlteringColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
