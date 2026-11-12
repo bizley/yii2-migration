@@ -198,16 +198,7 @@ final class Comparator implements ComparatorInterface
         foreach ($newForeignKeys as $name => $foreignKey) {
             if (!\array_key_exists($name, $oldForeignKeys)) {
                 $blueprint->addDescription("missing foreign key '$name'");
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('ADD FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
+                $this->checkSqliteSupport($blueprint, $onlyShow, $schema, 'ADD FOREIGN KEY');
                 $blueprint->addForeignKey($foreignKey);
 
                 continue;
@@ -218,138 +209,120 @@ final class Comparator implements ComparatorInterface
             $newForeignKeyColumns = $foreignKey->getColumns();
             $oldForeignKeyColumns = $oldForeignKey->getColumns();
 
-            if (
-                \array_diff($newForeignKeyColumns, $oldForeignKeyColumns)
-                    !== \array_diff($oldForeignKeyColumns, $newForeignKeyColumns)
-            ) {
-                $blueprint->addDescription(
+            if ($this->areColumnSetsDifferent($newForeignKeyColumns, $oldForeignKeyColumns)) {
+                $this->replaceForeignKey(
+                    $blueprint,
+                    $foreignKey,
+                    $oldForeignKey,
                     "different foreign key '$name' columns ("
                     . 'DB: ' . $this->stringifyValue($newForeignKeyColumns) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyColumns) . ')'
+                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyColumns) . ')',
+                    $onlyShow,
+                    $schema
                 );
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
-                $blueprint->dropForeignKey($oldForeignKey);
-                $blueprint->addForeignKey($foreignKey);
 
                 continue;
             }
 
-            $newForeignKeyReferredColumns = $foreignKey->getReferredColumns();
-            $oldForeignKeyReferredColumns = $oldForeignKey->getReferredColumns();
-
-            if (
-                \array_diff($newForeignKeyReferredColumns, $oldForeignKeyReferredColumns)
-                    !== \array_diff($oldForeignKeyReferredColumns, $newForeignKeyReferredColumns)
+            $newReferredColumns = $foreignKey->getReferredColumns();
+            $oldReferredColumns = $oldForeignKey->getReferredColumns();
+            foreach (
+                [
+                    [
+                        'referred columns',
+                        $newReferredColumns,
+                        $oldReferredColumns,
+                        $this->areColumnSetsDifferent($newReferredColumns, $oldReferredColumns),
+                    ],
+                    [
+                        'referred table',
+                        $foreignKey->getReferredTable(),
+                        $oldForeignKey->getReferredTable(),
+                        $foreignKey->getReferredTable() !== $oldForeignKey->getReferredTable(),
+                    ],
+                    [
+                        'ON UPDATE constraint',
+                        $foreignKey->getOnUpdate(),
+                        $oldForeignKey->getOnUpdate(),
+                        $foreignKey->getOnUpdate() !== $oldForeignKey->getOnUpdate(),
+                    ],
+                    [
+                        'ON DELETE constraint',
+                        $foreignKey->getOnDelete(),
+                        $oldForeignKey->getOnDelete(),
+                        $foreignKey->getOnDelete() !== $oldForeignKey->getOnDelete(),
+                    ],
+                ] as [$property, $newValue, $oldValue, $isDifferent]
             ) {
-                $blueprint->addDescription(
-                    "different foreign key '$name' referred columns ("
-                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferredColumns) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferredColumns) . ')'
-                );
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
+                if ($isDifferent) {
+                    $this->replaceForeignKey(
+                        $blueprint,
+                        $foreignKey,
+                        $oldForeignKey,
+                        "different foreign key '$name' $property ("
+                        . 'DB: ' . $this->stringifyValue($newValue) . ' != '
+                        . 'MIG: ' . $this->stringifyValue($oldValue) . ')',
+                        $onlyShow,
+                        $schema
                     );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
-                    }
                 }
-
-                $blueprint->dropForeignKey($oldForeignKey);
-                $blueprint->addForeignKey($foreignKey);
-            }
-
-            $newForeignKeyReferredTable = $foreignKey->getReferredTable();
-            $oldForeignKeyReferredTable = $oldForeignKey->getReferredTable();
-            if ($newForeignKeyReferredTable !== $oldForeignKeyReferredTable) {
-                $blueprint->addDescription(
-                    "different foreign key '$name' referred table ("
-                    . 'DB: ' . $this->stringifyValue($newForeignKeyReferredTable) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldForeignKeyReferredTable) . ')'
-                );
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
-                $blueprint->dropForeignKey($oldForeignKey);
-                $blueprint->addForeignKey($foreignKey);
-            }
-
-            $newOnUpdate = $foreignKey->getOnUpdate();
-            $oldOnUpdate = $oldForeignKey->getOnUpdate();
-            if ($newOnUpdate !== $oldOnUpdate) {
-                $blueprint->addDescription(
-                    "different foreign key '$name' ON UPDATE constraint ("
-                    . 'DB: ' . $this->stringifyValue($newOnUpdate) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldOnUpdate) . ')'
-                );
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
-                $blueprint->dropForeignKey($oldForeignKey);
-                $blueprint->addForeignKey($foreignKey);
-            }
-
-            $newOnDelete = $foreignKey->getOnDelete();
-            $oldOnDelete = $oldForeignKey->getOnDelete();
-            if ($newOnDelete !== $oldOnDelete) {
-                $blueprint->addDescription(
-                    "different foreign key '$name' ON DELETE constraint ("
-                    . 'DB: ' . $this->stringifyValue($newOnDelete) . ' != '
-                    . 'MIG: ' . $this->stringifyValue($oldOnDelete) . ')'
-                );
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP/ADD FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP/ADD FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
-                $blueprint->dropForeignKey($oldForeignKey);
-                $blueprint->addForeignKey($foreignKey);
             }
         }
 
         foreach ($oldForeignKeys as $name => $foreignKey) {
             if (!\array_key_exists($name, $newForeignKeys)) {
                 $blueprint->addDescription("excessive foreign key '$name'");
-
-                if ($schema === Schema::SQLITE) {
-                    $blueprint->addDescription(
-                        '(!) DROP FOREIGN KEY is not supported by SQLite: Migration must be created manually'
-                    );
-                    if ($onlyShow === false) {
-                        throw new NotSupportedException('DROP FOREIGN KEY is not supported by SQLite.');
-                    }
-                }
-
+                $this->checkSqliteSupport($blueprint, $onlyShow, $schema, 'DROP FOREIGN KEY');
                 $blueprint->dropForeignKey($foreignKey);
+            }
+        }
+    }
+
+    /**
+     * Checks whether the lists of columns contain different columns (the order is not important).
+     * @param array<string> $newColumns
+     * @param array<string> $oldColumns
+     */
+    private function areColumnSetsDifferent(array $newColumns, array $oldColumns): bool
+    {
+        return \array_diff($newColumns, $oldColumns) !== \array_diff($oldColumns, $newColumns);
+    }
+
+    /**
+     * Adds the description of the foreign key difference and replaces the old foreign key with the new one.
+     * @throws NotSupportedException
+     */
+    private function replaceForeignKey(
+        BlueprintInterface $blueprint,
+        ForeignKeyInterface $newForeignKey,
+        ForeignKeyInterface $oldForeignKey,
+        string $description,
+        bool $onlyShow,
+        ?string $schema
+    ): void {
+        $blueprint->addDescription($description);
+        $this->checkSqliteSupport($blueprint, $onlyShow, $schema, 'DROP/ADD FOREIGN KEY');
+        $blueprint->dropForeignKey($oldForeignKey);
+        $blueprint->addForeignKey($newForeignKey);
+    }
+
+    /**
+     * Adds the warning when the operation is not supported by SQLite and throws an exception if the changes are not
+     * only being displayed.
+     * @throws NotSupportedException
+     */
+    private function checkSqliteSupport(
+        BlueprintInterface $blueprint,
+        bool $onlyShow,
+        ?string $schema,
+        string $operation
+    ): void {
+        if ($schema === Schema::SQLITE) {
+            $blueprint->addDescription(
+                "(!) $operation is not supported by SQLite: Migration must be created manually"
+            );
+            if ($onlyShow === false) {
+                throw new NotSupportedException("$operation is not supported by SQLite.");
             }
         }
     }
