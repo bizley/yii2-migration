@@ -296,7 +296,7 @@ final class ColumnRenderer implements ColumnRendererInterface
     }
 
     /**
-     * Escapes single quotes.
+     * Escapes backslashes and single quotes so the value can be safely placed in a single-quoted PHP string.
      */
     public function escapeQuotes(?string $value): ?string
     {
@@ -304,6 +304,6 @@ final class ColumnRenderer implements ColumnRendererInterface
             return null;
         }
 
-        return \str_replace('\'', '\\\'', $value);
+        return \str_replace(['\\', '\''], ['\\\\', '\\\''], $value);
     }
 }

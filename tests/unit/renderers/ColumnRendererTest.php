@@ -32,6 +32,8 @@ final class ColumnRendererTest extends TestCase
             ['aaa', 'aaa'],
             ['\\\'aaa', '\'aaa'],
             ['\\\'aaa\\\'', '\'aaa\''],
+            ['C:\\\\dir\\\\', 'C:\\dir\\'],
+            ['it\\\'s a\\\\\\\\b', 'it\'s a\\\\b'],
             [null, null],
         ];
     }
@@ -231,6 +233,22 @@ final class ColumnRendererTest extends TestCase
         $column->method('getDefault')->willReturn(123);
 
         self::assertSame('\'col\' => $this->def()->defaultValue(\'123\'),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldRenderSimpleColumnWithDefaultValueContainingBackslashesAsValidPhp(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getDefault')->willReturn('it\'s C:\\dir\\');
+
+        $definition = $this->getRenderer()->renderDefinition($column);
+        self::assertSame('$this->def()->defaultValue(\'it\\\'s C:\\\\dir\\\\\')', $definition);
+        self::assertSame(
+            'it\'s C:\\dir\\',
+            eval('return \'' . \substr($definition, \strlen('$this->def()->defaultValue(\''), -2) . '\';')
+        );
     }
 
     /** @test */
