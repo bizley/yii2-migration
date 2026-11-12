@@ -321,58 +321,14 @@ class MigrationController extends BaseMigrationController
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $postponedForeignKeys = [];
         $lastUsedTimestamp = \time() + $this->leeway;
-        $migrationsGenerated = 0;
-        foreach ($tables as $tableName) {
-            $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", BaseConsole::FG_YELLOW);
-
-            $normalizedTableName = \str_replace('.', '_', $tableName);
-            $timestamp = \time();
-            if ($timestamp <= $lastUsedTimestamp) {
-                $timestamp = ++$lastUsedTimestamp;
-            } else {
-                $lastUsedTimestamp = $timestamp;
-            }
-            $migrationClassName = \sprintf(
-                'm%s_create_table_%s',
-                \gmdate('ymd_His', $timestamp),
-                $normalizedTableName
-            );
-
-            try {
-                $this->generateMigrationForTableCreation($tableName, $migrationClassName, $referencesToPostpone);
-            } catch (\Throwable $exception) {
-                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            ++$migrationsGenerated;
-
-            $this->stdout("\n");
-
-            foreach ($this->getGenerator()->getSuppressedForeignKeys() as $suppressedKey) {
-                $postponedForeignKeys[] = $suppressedKey;
-            }
-        }
-
-        if (!empty($postponedForeignKeys)) {
-            $timestamp = \time();
-            if ($timestamp <= $lastUsedTimestamp) {
-                $timestamp = ++$lastUsedTimestamp;
-            }
-
-            try {
-                $this->generateMigrationForForeignKeys(
-                    $postponedForeignKeys,
-                    \sprintf("m%s_create_foreign_keys", \gmdate('ymd_His', $timestamp))
-                );
-            } catch (\Throwable $exception) {
-                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            ++$migrationsGenerated;
+        $migrationsGenerated = $this->generateMigrationsForTablesCreation(
+            $tables,
+            $referencesToPostpone,
+            $lastUsedTimestamp
+        );
+        if ($migrationsGenerated === null) {
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         $this->stdout(
@@ -490,77 +446,24 @@ class MigrationController extends BaseMigrationController
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $postponedForeignKeys = [];
         $lastUsedTimestamp = \time() + $this->leeway;
-        $migrationsGenerated = 0;
-        foreach ($newTables as $tableName) {
-            $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", BaseConsole::FG_YELLOW);
-
-            $timestamp = time();
-            if ($timestamp <= $lastUsedTimestamp) {
-                $timestamp = ++$lastUsedTimestamp;
-            } else {
-                $lastUsedTimestamp = $timestamp;
-            }
-            try {
-                $this->generateMigrationForTableCreation(
-                    $tableName,
-                    \sprintf(
-                        "m%s_create_table_%s",
-                        \gmdate('ymd_His', $timestamp),
-                        \str_replace('.', '_', $tableName)
-                    ),
-                    $referencesToPostpone
-                );
-            } catch (\Throwable $exception) {
-                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            ++$migrationsGenerated;
-
-            $this->stdout("\n");
-
-            foreach ($this->getGenerator()->getSuppressedForeignKeys() as $suppressedKey) {
-                $postponedForeignKeys[] = $suppressedKey;
-            }
-        }
-
-        if ($postponedForeignKeys) {
-            $timestamp = \time();
-            if ($timestamp <= $lastUsedTimestamp) {
-                $timestamp = ++$lastUsedTimestamp;
-            } else {
-                $lastUsedTimestamp = $timestamp;
-            }
-            try {
-                $this->generateMigrationForForeignKeys(
-                    $postponedForeignKeys,
-                    \sprintf(
-                        "m%s_create_foreign_keys",
-                        \gmdate('ymd_His', $timestamp)
-                    )
-                );
-            } catch (\Throwable $exception) {
-                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
-
-            ++$migrationsGenerated;
+        $migrationsGenerated = $this->generateMigrationsForTablesCreation(
+            $newTables,
+            $referencesToPostpone,
+            $lastUsedTimestamp
+        );
+        if ($migrationsGenerated === null) {
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         foreach ($blueprints as $tableName => $blueprint) {
             $this->stdout("\n > Generating migration for updating table '{$tableName}' ...", BaseConsole::FG_YELLOW);
 
-            $normalizedTableName = \str_replace('.', '_', $tableName);
-            $timestamp = \time();
-            if ($timestamp <= $lastUsedTimestamp) {
-                $timestamp = ++$lastUsedTimestamp;
-            } else {
-                $lastUsedTimestamp = $timestamp;
-            }
-
-            $migrationClassName = 'm' . \gmdate('ymd_His', $timestamp) . '_update_table_' . $normalizedTableName;
+            $migrationClassName = \sprintf(
+                'm%s_update_table_%s',
+                \gmdate('ymd_His', $this->getNextTimestamp($lastUsedTimestamp)),
+                \str_replace('.', '_', $tableName)
+            );
 
             try {
                 $this->generateMigrationWithBlueprint($blueprint, $migrationClassName);
@@ -620,6 +523,79 @@ class MigrationController extends BaseMigrationController
         $this->stdout("\n (!) Note that the above statements were not executed.\n", BaseConsole::FG_RED);
 
         return ExitCode::OK;
+    }
+
+    /**
+     * Returns the timestamp for the next migration. It is the current time unless it's not later than the last used
+     * timestamp, in which case the last used timestamp increased by one second is returned.
+     * @param int $lastUsedTimestamp updated with the returned timestamp
+     */
+    private function getNextTimestamp(int &$lastUsedTimestamp): int
+    {
+        $timestamp = \time();
+        if ($timestamp <= $lastUsedTimestamp) {
+            $timestamp = ++$lastUsedTimestamp;
+        } else {
+            $lastUsedTimestamp = $timestamp;
+        }
+
+        return $timestamp;
+    }
+
+    /**
+     * Generates creating migrations for the tables and the migration for the foreign keys that had to be postponed.
+     * @param array<string> $tables
+     * @param array<string> $referencesToPostpone
+     * @param int $lastUsedTimestamp updated with the timestamp of the last generated migration
+     * @return int|null number of generated migrations or null in case of error
+     */
+    private function generateMigrationsForTablesCreation(
+        array $tables,
+        array $referencesToPostpone,
+        int &$lastUsedTimestamp
+    ): ?int {
+        $postponedForeignKeys = [];
+        $migrationsGenerated = 0;
+        foreach ($tables as $tableName) {
+            $this->stdout("\n > Generating migration for creating table '{$tableName}' ...", BaseConsole::FG_YELLOW);
+
+            $migrationClassName = \sprintf(
+                'm%s_create_table_%s',
+                \gmdate('ymd_His', $this->getNextTimestamp($lastUsedTimestamp)),
+                \str_replace('.', '_', $tableName)
+            );
+
+            try {
+                $this->generateMigrationForTableCreation($tableName, $migrationClassName, $referencesToPostpone);
+            } catch (\Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
+                return null;
+            }
+
+            ++$migrationsGenerated;
+
+            $this->stdout("\n");
+
+            foreach ($this->getGenerator()->getSuppressedForeignKeys() as $suppressedKey) {
+                $postponedForeignKeys[] = $suppressedKey;
+            }
+        }
+
+        if (!empty($postponedForeignKeys)) {
+            try {
+                $this->generateMigrationForForeignKeys(
+                    $postponedForeignKeys,
+                    \sprintf('m%s_create_foreign_keys', \gmdate('ymd_His', $this->getNextTimestamp($lastUsedTimestamp)))
+                );
+            } catch (\Throwable $exception) {
+                $this->stdout("ERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
+                return null;
+            }
+
+            ++$migrationsGenerated;
+        }
+
+        return $migrationsGenerated;
     }
 
     /**
