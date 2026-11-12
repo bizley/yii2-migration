@@ -113,7 +113,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function addColumn(ColumnInterface $column): void
     {
-        $this->columnsToAdd[$column->getName()] = $column;
+        if ($column->getName() !== null) {
+            $this->columnsToAdd[$column->getName()] = $column;
+        }
     }
 
     /**
@@ -121,7 +123,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function alterColumn(ColumnInterface $column): void
     {
-        $this->columnsToAlter[$column->getName()] = $column;
+        if ($column->getName() !== null) {
+            $this->columnsToAlter[$column->getName()] = $column;
+        }
     }
 
     /**
@@ -129,7 +133,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function reverseColumn(ColumnInterface $column): void
     {
-        $this->columnsToUnalter[$column->getName()] = $column;
+        if ($column->getName() !== null) {
+            $this->columnsToUnalter[$column->getName()] = $column;
+        }
     }
 
     /**
@@ -137,7 +143,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropColumn(ColumnInterface $column): void
     {
-        $this->columnsToDrop[$column->getName()] = $column;
+        if ($column->getName() !== null) {
+            $this->columnsToDrop[$column->getName()] = $column;
+        }
     }
 
     /**
@@ -145,7 +153,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function addForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
+        if ($foreignKey->getName() !== null) {
+            $this->foreignKeysToAdd[$foreignKey->getName()] = $foreignKey;
+        }
     }
 
     /**
@@ -153,7 +163,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropForeignKey(ForeignKeyInterface $foreignKey): void
     {
-        $this->foreignKeysToDrop[$foreignKey->getName()] = $foreignKey;
+        if ($foreignKey->getName() !== null) {
+            $this->foreignKeysToDrop[$foreignKey->getName()] = $foreignKey;
+        }
     }
 
     /**
@@ -177,7 +189,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function addIndex(IndexInterface $index): void
     {
-        $this->indexesToAdd[$index->getName()] = $index;
+        if ($index->getName() !== null) {
+            $this->indexesToAdd[$index->getName()] = $index;
+        }
     }
 
     /**
@@ -185,7 +199,9 @@ final class Blueprint implements BlueprintInterface
      */
     public function dropIndex(IndexInterface $index): void
     {
-        $this->indexesToDrop[$index->getName()] = $index;
+        if ($index->getName() !== null) {
+            $this->indexesToDrop[$index->getName()] = $index;
+        }
     }
 
     /**
