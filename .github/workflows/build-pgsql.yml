@@ -51,10 +51,6 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Drop roave/security-advisories on EOL PHP
-        if: contains(fromJSON('["7.4", "8.0", "8.1"]'), matrix.php)
-        run: composer remove --dev --no-update roave/security-advisories
-
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
