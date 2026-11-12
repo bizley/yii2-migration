@@ -14,23 +14,14 @@ use yii\db\Connection;
 
 final class Extractor implements SqlExtractorInterface
 {
-    /** @var Connection */
-    private $db;
-
-    /**
-     * @var bool
-     * @since 4.1.0
-     */
-    private $experimental;
-
-    public function __construct(Connection $db, bool $experimental = false)
-    {
-        $this->db = $db;
-        $this->experimental = $experimental;
+    public function __construct(
+        private readonly Connection $db,
+        /** @since 4.1.0 */
+        private readonly bool $experimental = false
+    ) {
     }
 
-    /** @var MigrationChangesInterface|MigrationSqlInterface */
-    private $subject;
+    private MigrationChangesInterface|MigrationSqlInterface|null $subject = null;
 
     /**
      * Extracts migration data structures.
@@ -60,7 +51,7 @@ final class Extractor implements SqlExtractorInterface
      */
     private function loadFile(string $migration, array $migrationPaths): void
     {
-        if (\strpos($migration, '\\') !== false) {
+        if (\str_contains($migration, '\\')) {
             // migration with `\` character is most likely namespaced, so it doesn't require loading
             return;
         }

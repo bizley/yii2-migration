@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class DoubleColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [Schema::CUBRID];
+    private array $lengthSchemas = [Schema::CUBRID];
 
     /**
      * Returns length of the column.

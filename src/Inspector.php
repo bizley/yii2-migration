@@ -15,42 +15,25 @@ use yii\base\NotSupportedException;
 
 final class Inspector implements InspectorInterface
 {
-    /** @var HistoryManagerInterface */
-    private $historyManager;
-
-    /** @var ExtractorInterface */
-    private $extractor;
-
-    /** @var StructureBuilderInterface */
-    private $structureBuilder;
-
-    /** @var ComparatorInterface */
-    private $comparator;
-
     public function __construct(
-        HistoryManagerInterface $historyManager,
-        ExtractorInterface $extractor,
-        StructureBuilderInterface $structureBuilder,
-        ComparatorInterface $comparator
+        private readonly HistoryManagerInterface $historyManager,
+        private readonly ExtractorInterface $extractor,
+        private readonly StructureBuilderInterface $structureBuilder,
+        private readonly ComparatorInterface $comparator
     ) {
-        $this->historyManager = $historyManager;
-        $this->extractor = $extractor;
-        $this->structureBuilder = $structureBuilder;
-        $this->comparator = $comparator;
     }
 
     /** @var array<StructureChangeInterface> */
-    private $appliedChanges = [];
+    private array $appliedChanges = [];
 
-    /** @var string */
-    private $currentTable;
+    private string $currentTable;
 
     /**
      * Changes extracted from migrations, indexed by migration name. Migration classes can be loaded only once per
      * process, so extracting the same migration again would always give the same result.
      * @var array<string, array<string, array<StructureChangeInterface>>|null>
      */
-    private $extractedChanges = [];
+    private array $extractedChanges = [];
 
     /**
      * Prepares a blueprint for the upcoming update.

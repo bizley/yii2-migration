@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class DecimalColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [
+    private array $lengthSchemas = [
         Schema::MYSQL,
         Schema::CUBRID,
         Schema::PGSQL,

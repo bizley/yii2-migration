@@ -8,50 +8,35 @@ use bizley\migration\Schema;
 
 abstract class Column
 {
-    /** @var string */
-    private $name;
+    private string $name;
 
-    /** @var string */
-    private $type;
+    private string $type;
 
-    /** @var bool */
-    private $notNull = false;
+    private bool $notNull = false;
 
-    /** @var int|string|null */
-    private $size;
+    private int|string|null $size = null;
 
-    /** @var int|string|null */
-    private $precision;
+    private int|string|null $precision = null;
 
-    /** @var int|string|null */
-    private $scale;
+    private int|string|null $scale = null;
 
-    /** @var bool */
-    private $unique = false;
+    private bool $unique = false;
 
-    /** @var bool */
-    private $unsigned = false;
+    private bool $unsigned = false;
 
-    /** @var mixed */
-    private $default;
+    private mixed $default = null;
 
-    /** @var bool */
-    private $primaryKey = false;
+    private bool $primaryKey = false;
 
-    /** @var bool */
-    private $autoIncrement = false;
+    private bool $autoIncrement = false;
 
-    /** @var string|null */
-    private $append;
+    private ?string $append = null;
 
-    /** @var string|null */
-    private $comment;
+    private ?string $comment = null;
 
-    /** @var string|null */
-    private $after;
+    private ?string $after = null;
 
-    /** @var bool */
-    private $first = false;
+    private bool $first = false;
 
     /**
      * Returns name of the column.
@@ -334,25 +319,12 @@ abstract class Column
      */
     public function prepareSchemaAppend(bool $primaryKey, bool $autoIncrement, ?string $schema = null): ?string
     {
-        switch ($schema) {
-            case Schema::MSSQL:
-                $append = $primaryKey ? 'IDENTITY PRIMARY KEY' : '';
-                break;
-
-            case Schema::OCI:
-            case Schema::PGSQL:
-                $append = $primaryKey ? 'PRIMARY KEY' : '';
-                break;
-
-            case Schema::SQLITE:
-                $append = \trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : ''));
-                break;
-
-            case Schema::CUBRID:
-            case Schema::MYSQL:
-            default:
-                $append = \trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : ''));
-        }
+        $append = match ($schema) {
+            Schema::MSSQL => $primaryKey ? 'IDENTITY PRIMARY KEY' : '',
+            Schema::OCI, Schema::PGSQL => $primaryKey ? 'PRIMARY KEY' : '',
+            Schema::SQLITE => \trim(($primaryKey ? 'PRIMARY KEY ' : '') . ($autoIncrement ? 'AUTOINCREMENT' : '')),
+            default => \trim(($autoIncrement ? 'AUTO_INCREMENT ' : '') . ($primaryKey ? 'PRIMARY KEY' : '')),
+        };
 
         return empty($append) ? null : $append;
     }
@@ -374,25 +346,12 @@ abstract class Column
             return $this->append;
         }
 
-        switch ($schema) {
-            case Schema::MSSQL:
-                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append);
-                break;
-
-            case Schema::OCI:
-            case Schema::PGSQL:
-                $cleanedAppend = \str_ireplace('PRIMARY KEY', '', $this->append);
-                break;
-
-            case Schema::SQLITE:
-                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append);
-                break;
-
-            case Schema::CUBRID:
-            case Schema::MYSQL:
-            default:
-                $cleanedAppend = \str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append);
-        }
+        $cleanedAppend = match ($schema) {
+            Schema::MSSQL => \str_ireplace(['PRIMARY KEY', 'IDENTITY'], '', $this->append),
+            Schema::OCI, Schema::PGSQL => \str_ireplace('PRIMARY KEY', '', $this->append),
+            Schema::SQLITE => \str_ireplace(['PRIMARY KEY', 'AUTOINCREMENT'], '', $this->append),
+            default => \str_ireplace(['PRIMARY KEY', 'AUTO_INCREMENT'], '', $this->append),
+        };
 
         $cleanedAppend = \preg_replace('/\s+/', ' ', $cleanedAppend);
         if ($cleanedAppend !== null) {

@@ -6,20 +6,18 @@ namespace bizley\migration\table;
 
 final class Structure implements StructureInterface
 {
-    /** @var string */
-    private $name;
+    private string $name;
 
-    /** @var PrimaryKeyInterface|null */
-    private $primaryKey;
+    private ?PrimaryKeyInterface $primaryKey = null;
 
     /** @var array<string, ColumnInterface> */
-    private $columns = [];
+    private array $columns = [];
 
     /** @var array<string, IndexInterface> */
-    private $indexes = [];
+    private array $indexes = [];
 
     /** @var array<string, ForeignKeyInterface> */
-    private $foreignKeys = [];
+    private array $foreignKeys = [];
 
     /**
      * Returns name of the structure.

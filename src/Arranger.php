@@ -8,16 +8,12 @@ use yii\base\NotSupportedException;
 
 final class Arranger implements ArrangerInterface
 {
-    /** @var TableMapperInterface */
-    private $mapper;
-
-    public function __construct(TableMapperInterface $mapper)
+    public function __construct(private readonly TableMapperInterface $mapper)
     {
-        $this->mapper = $mapper;
     }
 
     /** @var array<string, array<string>> */
-    private $dependencies = [];
+    private array $dependencies = [];
 
     /**
      * Arranges the tables in proper order based on the presence of the foreign keys.
@@ -62,7 +58,7 @@ final class Arranger implements ArrangerInterface
     }
 
     /** @var array<string> */
-    private $tablesInOrder = [];
+    private array $tablesInOrder = [];
 
     /**
      * Returns the tables in proper order.
@@ -74,7 +70,7 @@ final class Arranger implements ArrangerInterface
     }
 
     /** @var array<string, array<string>> */
-    private $referencesToPostpone = [];
+    private array $referencesToPostpone = [];
 
     /**
      * Returns the references that needs to be postponed. Foreign keys referring the tables in references must be

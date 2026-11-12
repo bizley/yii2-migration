@@ -15,35 +15,24 @@ use yii\helpers\Json;
 final class ColumnRenderer implements ColumnRendererInterface
 {
     /** @var array<string> */
-    private $definition = [];
+    private array $definition = [];
 
-    /** @var bool */
-    private $isUnsignedPossible = true;
+    private bool $isUnsignedPossible = true;
 
-    /** @var bool */
-    private $isNotNullPossible = true;
+    private bool $isNotNullPossible = true;
 
-    /** @var bool */
-    private $isPrimaryKeyPossible = true;
+    private bool $isPrimaryKeyPossible = true;
 
-    /** @var string */
-    private $definitionTemplate = "'{columnName}' => {columnDefinition},";
+    private string $definitionTemplate = "'{columnName}' => {columnDefinition},";
 
-    /** @var string */
-    private $addColumnTemplate = '$this->addColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
+    private string $addColumnTemplate = '$this->addColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
 
-    /** @var string */
-    private $alterColumnTemplate = '$this->alterColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
+    private string $alterColumnTemplate = '$this->alterColumn(\'{tableName}\', \'{columnName}\', {columnDefinition});';
 
-    /** @var string */
-    private $dropColumnTemplate = '$this->dropColumn(\'{tableName}\', \'{columnName}\');';
+    private string $dropColumnTemplate = '$this->dropColumn(\'{tableName}\', \'{columnName}\');';
 
-    /** @var bool */
-    private $generalSchema;
-
-    public function __construct(bool $generalSchema)
+    public function __construct(private readonly bool $generalSchema)
     {
-        $this->generalSchema = $generalSchema;
     }
 
     /**

@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class BooleanColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [
+    private array $lengthSchemas = [
         Schema::MYSQL,
         Schema::OCI,
     ];

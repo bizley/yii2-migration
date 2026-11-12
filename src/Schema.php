@@ -16,7 +16,7 @@ final class Schema
     public const SQLITE = 'sqlite';
 
     /** @var array<string, array<string, string>> */
-    private static $defaultLength = [
+    private static array $defaultLength = [
         self::CUBRID => [
             YiiSchema::TYPE_CHAR => '1',
             YiiSchema::TYPE_STRING => '255',
@@ -98,7 +98,7 @@ final class Schema
     ];
 
     /** @var array<string, array<string, array<int|string, string>>> */
-    private static $aliases = [
+    private static array $aliases = [
         self::CUBRID => [
             YiiSchema::TYPE_STRING => ['' => 'text()'],
             YiiSchema::TYPE_DECIMAL => ['19, 4' => 'money()'],

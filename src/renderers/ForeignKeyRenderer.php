@@ -10,8 +10,7 @@ use yii\base\NotSupportedException;
 
 final class ForeignKeyRenderer implements ForeignKeyRendererInterface
 {
-    /** @var string */
-    private $addKeyTemplate = <<<'TEMPLATE'
+    private string $addKeyTemplate = <<<'TEMPLATE'
 $this->addForeignKey(
     '{keyName}',
     '{tableName}',
@@ -23,15 +22,10 @@ $this->addForeignKey(
 );
 TEMPLATE;
 
-    /** @var string */
-    private $dropKeyTemplate = '$this->dropForeignKey(\'{keyName}\', \'{tableName}\');';
+    private string $dropKeyTemplate = '$this->dropForeignKey(\'{keyName}\', \'{tableName}\');';
 
-    /** @var bool */
-    private $generalSchema;
-
-    public function __construct(bool $generalSchema)
+    public function __construct(private readonly bool $generalSchema)
     {
-        $this->generalSchema = $generalSchema;
     }
 
     /**

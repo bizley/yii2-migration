@@ -14,20 +14,11 @@ use yii\helpers\ArrayHelper;
 
 final class HistoryManager implements HistoryManagerInterface
 {
-    /** @var Connection */
-    private $db;
-
-    /** @var string */
-    private $historyTable;
-
-    /** @var Query */
-    private $query;
-
-    public function __construct(Connection $db, Query $query, string $historyTable)
-    {
-        $this->db = $db;
-        $this->query = $query;
-        $this->historyTable = $historyTable;
+    public function __construct(
+        private readonly Connection $db,
+        private readonly Query $query,
+        private readonly string $historyTable
+    ) {
     }
 
     /**

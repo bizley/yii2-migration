@@ -9,30 +9,22 @@ use yii\db\Expression;
 class SqlColumnMapper
 {
     /**
-     * @var string
-     */
-    private $definition;
-
-    /**
      * @var array<string, string>
      */
-    private $typeMap;
+    private array $typeMap;
 
     /**
      * @var array<string, mixed>
      */
-    private $schema = [];
+    private array $schema = [];
 
     /**
      * @param array<string, string> $typeMap
      */
-    private function __construct(string $definition, array $typeMap)
+    private function __construct(private string $definition, array $typeMap)
     {
-        $this->definition = $definition;
         // make sure longer DB types are first to avoid mismatch in detectType()
-        \uksort($typeMap, static function ($a, $b) {
-            return \strlen($b) <=> \strlen($a);
-        });
+        \uksort($typeMap, static fn ($a, $b) => \strlen($b) <=> \strlen($a));
         $this->typeMap = $typeMap;
     }
 
@@ -220,23 +212,13 @@ class SqlColumnMapper
         /** @var array<int, string> $sentenceArray */
         $sentenceArray = \preg_split('//u', $sentence, -1, \PREG_SPLIT_NO_EMPTY); // @phpstan-ignore varTag.nativeType
 
-        switch ($type) {
-            case "'":
-            case '"':
-                [$end, $part] = $this->findQuotedPart($sentenceArray, $type);
-                break;
-            case '`':
-                [$end, $part] = $this->findBacktickedPart($sentenceArray);
-                break;
-            case '(':
-                [$end, $part] = $this->findParenthesizedPart($sentenceArray);
-                break;
-            case '1':
-                [$end, $part] = $this->findNumericPart($sentenceArray);
-                break;
-            default:
-                [$end, $part] = $this->findExpressionPart($sentenceArray);
-        }
+        [$end, $part] = match ($type) {
+            "'", '"' => $this->findQuotedPart($sentenceArray, $type),
+            '`' => $this->findBacktickedPart($sentenceArray),
+            '(' => $this->findParenthesizedPart($sentenceArray),
+            '1' => $this->findNumericPart($sentenceArray),
+            default => $this->findExpressionPart($sentenceArray),
+        };
 
         return [$end + $offset, $part];
     }

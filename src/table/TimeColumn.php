@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class TimeColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [Schema::PGSQL];
+    private array $lengthSchemas = [Schema::PGSQL];
 
     /**
      * Checks if schema supports length for this column.

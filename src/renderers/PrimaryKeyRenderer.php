@@ -10,18 +10,12 @@ use yii\base\NotSupportedException;
 
 final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 {
-    /** @var string */
-    private $addKeyTemplate = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
+    private string $addKeyTemplate = '$this->addPrimaryKey(\'{keyName}\', \'{tableName}\', [{keyColumns}]);';
 
-    /** @var string */
-    private $dropKeyTemplate = '$this->dropPrimaryKey(\'{keyName}\', \'{tableName}\');';
+    private string $dropKeyTemplate = '$this->dropPrimaryKey(\'{keyName}\', \'{tableName}\');';
 
-    /** @var bool */
-    private $generalSchema;
-
-    public function __construct(bool $generalSchema)
+    public function __construct(private readonly bool $generalSchema)
     {
-        $this->generalSchema = $generalSchema;
     }
 
     /**

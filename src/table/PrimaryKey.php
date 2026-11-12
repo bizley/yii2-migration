@@ -8,11 +8,10 @@ final class PrimaryKey implements PrimaryKeyInterface
 {
     public const GENERIC_PRIMARY_KEY = 'PRIMARYKEY';
 
-    /** @var string|null */
-    private $name;
+    private ?string $name = null;
 
     /** @var array<string> */
-    private $columns = [];
+    private array $columns = [];
 
     /**
      * Checks whether the primary key is composite.

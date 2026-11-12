@@ -8,14 +8,11 @@ use InvalidArgumentException;
 
 final class StructureChange implements StructureChangeInterface
 {
-    /** @var string */
-    private $table;
+    private string $table;
 
-    /** @var string */
-    private $method;
+    private string $method;
 
-    /** @var mixed */
-    private $data;
+    private mixed $data = null;
 
     /**
      * Returns table name of the change.
@@ -73,39 +70,16 @@ final class StructureChange implements StructureChangeInterface
      */
     public function getValue(?string $schema = null, ?string $engineVersion = null)
     {
-        switch ($this->getMethod()) {
-            case 'createTable':
-                return $this->getValueForCreateTable($schema, $engineVersion);
-
-            case 'renameColumn':
-                return $this->getValueForRenameColumn();
-
-            case 'addColumn':
-            case 'alterColumn':
-                return $this->getValueForAddColumn($schema, $engineVersion);
-
-            case 'addPrimaryKey':
-                return $this->getValueForAddPrimaryKey();
-
-            case 'addForeignKey':
-                return $this->getValueForAddForeignKey();
-
-            case 'createIndex':
-                return $this->getValueForCreateIndex();
-
-            case 'addCommentOnColumn':
-                return $this->getValueForAddCommentOnColumn();
-
-            case 'renameTable':
-            case 'dropTable':
-            case 'dropColumn':
-            case 'dropPrimaryKey':
-            case 'dropForeignKey':
-            case 'dropIndex':
-            case 'dropCommentFromColumn':
-            default:
-                return $this->getData();
-        }
+        return match ($this->getMethod()) {
+            'createTable' => $this->getValueForCreateTable($schema, $engineVersion),
+            'renameColumn' => $this->getValueForRenameColumn(),
+            'addColumn', 'alterColumn' => $this->getValueForAddColumn($schema, $engineVersion),
+            'addPrimaryKey' => $this->getValueForAddPrimaryKey(),
+            'addForeignKey' => $this->getValueForAddForeignKey(),
+            'createIndex' => $this->getValueForCreateIndex(),
+            'addCommentOnColumn' => $this->getValueForAddCommentOnColumn(),
+            default => $this->getData(),
+        };
     }
 
     /**

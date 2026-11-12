@@ -8,11 +8,9 @@ use bizley\migration\table\IndexInterface;
 
 final class IndexRenderer implements IndexRendererInterface
 {
-    /** @var string */
-    private $createIndexTemplate = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
+    private string $createIndexTemplate = '$this->createIndex(\'{indexName}\', \'{tableName}\', [{indexColumns}]{unique});';
 
-    /** @var string */
-    private $dropIndexTemplate = '$this->dropIndex(\'{indexName}\', \'{tableName}\');';
+    private string $dropIndexTemplate = '$this->dropIndex(\'{indexName}\', \'{tableName}\');';
 
     /**
      * Renders the add index statement.

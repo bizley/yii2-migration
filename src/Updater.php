@@ -15,28 +15,12 @@ use yii\helpers\FileHelper;
 
 final class Updater implements UpdaterInterface
 {
-    /** @var TableMapperInterface */
-    private $tableMapper;
-
-    /** @var View */
-    private $view;
-
-    /** @var BlueprintRendererInterface */
-    private $blueprintRenderer;
-
-    /** @var InspectorInterface */
-    private $inspector;
-
     public function __construct(
-        TableMapperInterface $tableMapper,
-        InspectorInterface $inspector,
-        BlueprintRendererInterface $blueprintRenderer,
-        View $view
+        private readonly TableMapperInterface $tableMapper,
+        private readonly InspectorInterface $inspector,
+        private readonly BlueprintRendererInterface $blueprintRenderer,
+        private readonly View $view
     ) {
-        $this->tableMapper = $tableMapper;
-        $this->inspector = $inspector;
-        $this->blueprintRenderer = $blueprintRenderer;
-        $this->view = $view;
     }
 
     /**

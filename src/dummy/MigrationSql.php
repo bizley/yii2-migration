@@ -26,7 +26,7 @@ class Migration extends Component implements MigrationSqlInterface
     public $db;
 
     /** @var string[] List of all migration SQL statements */
-    private $statements = [];
+    private array $statements = [];
 
     /** @throws NotSupportedException */
     public function init(): void

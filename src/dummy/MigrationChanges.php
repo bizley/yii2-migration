@@ -36,7 +36,7 @@ class Migration extends Component implements MigrationChangesInterface
     public $experimental = false;
 
     /** @var array<string, StructureChangeInterface[]> List of all migration actions */
-    private $changes = [];
+    private array $changes = [];
 
     /** @throws NotSupportedException */
     public function init(): void
@@ -109,32 +109,32 @@ class Migration extends Component implements MigrationChangesInterface
 
         $builder = $keyToDb[$type];
 
-        if (\strpos($builder, 'NOT NULL') !== false) {
+        if (\str_contains($builder, 'NOT NULL')) {
             $schema['isNotNull'] = true;
             $builder = \trim(\str_replace('NOT NULL', '', $builder));
         }
 
-        if (\strpos($builder, 'AUTO_INCREMENT') !== false) {
+        if (\str_contains($builder, 'AUTO_INCREMENT')) {
             $schema['autoIncrement'] = true;
             $builder = \trim(\str_replace('AUTO_INCREMENT', '', $builder));
         }
 
-        if (\strpos($builder, 'AUTOINCREMENT') !== false) {
+        if (\str_contains($builder, 'AUTOINCREMENT')) {
             $schema['autoIncrement'] = true;
             $builder = \trim(\str_replace('AUTOINCREMENT', '', $builder));
         }
 
-        if (\strpos($builder, 'IDENTITY PRIMARY KEY') !== false) {
+        if (\str_contains($builder, 'IDENTITY PRIMARY KEY')) {
             $schema['isPrimaryKey'] = true;
             $builder = \trim(\str_replace('IDENTITY PRIMARY KEY', '', $builder));
         }
 
-        if (\strpos($builder, 'PRIMARY KEY') !== false) {
+        if (\str_contains($builder, 'PRIMARY KEY')) {
             $schema['isPrimaryKey'] = true;
             $builder = \trim(\str_replace('PRIMARY KEY', '', $builder));
         }
 
-        if (\strpos($builder, 'UNSIGNED') !== false) {
+        if (\str_contains($builder, 'UNSIGNED')) {
             $schema['isUnsigned'] = true;
             $builder = \trim(\str_replace('UNSIGNED', '', $builder));
         }

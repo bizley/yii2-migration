@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class BinaryColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [Schema::MSSQL];
+    private array $lengthSchemas = [Schema::MSSQL];
 
     /**
      * Returns length of the column.
