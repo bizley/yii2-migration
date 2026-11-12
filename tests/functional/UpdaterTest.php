@@ -42,8 +42,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         MigrationControllerStub::$confirmControl = false;
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_*']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
- > Are you sure you want to generate migrations for the following tables?
+            ' > Are you sure you want to generate migrations for the following tables?
    - updater_base_fk
    - updater_base_fk_target
    - updater_base_fk_with_idx
@@ -62,8 +61,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
 
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertStringContainsString(
-            ' > 1 table excluded by the config.
-
+            '
  > Comparing current table \'updater_base\' with its migrations ...DONE!
 
  > Generating migration for updating table \'updater_base\' ...DONE!

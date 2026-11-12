@@ -1816,4 +1816,53 @@ ERROR!
             $controller::$stdout
         );
     }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     */
+    public function shouldNotCountExcludedTablesNotMatchingTheInput(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2', 'mig', 'other']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['other'];
+
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('test,test2'));
+        self::assertSame(
+            ' > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForActionIds
+     */
+    public function shouldCountAllExcludedTablesForAsterisk(string $actionId): void
+    {
+        MigrationControllerStub::$confirmControl = false;
+        $schema = $this->createMock(Schema::class);
+        $schema->method('getTableNames')->willReturn(['test', 'test2', 'mig', 'other']);
+        $schema->method('getRawTableName')->willReturn('mig');
+        $this->db->method('getSchema')->willReturn($schema);
+        $this->controller->excludeTables = ['other'];
+
+        self::assertSame(ExitCode::OK, $this->controller->{'action' . ucfirst($actionId)}('*'));
+        self::assertSame(
+            ' > 2 tables excluded by the config.
+ > Are you sure you want to generate migrations for the following tables?
+   - test
+   - test2
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
 }
