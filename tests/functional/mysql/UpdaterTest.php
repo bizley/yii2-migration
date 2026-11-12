@@ -616,9 +616,9 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
         self::assertStringContainsString(
             'public function safeUp()
     {
-        $this->dropIndex(\'fk-plus\', \'{{%updater_base_fk}}\');
-
         $this->dropForeignKey(\'fk-plus\', \'{{%updater_base_fk}}\');
+
+        $this->dropIndex(\'fk-plus\', \'{{%updater_base_fk}}\');
 
         $this->dropColumn(\'{{%updater_base_fk}}\', \'updater_base_id\');
     }
