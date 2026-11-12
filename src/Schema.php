@@ -171,8 +171,22 @@ final class Schema
     }
 
     /**
+     * Checks whether the schema is MySQL with fractional seconds support for time columns (MySQL >= 5.6.4 or MariaDB).
+     * MariaDB 10 reports its version with the "5.5.5-" compatibility prefix (e.g. "5.5.5-10.6.12-MariaDB"), so it is
+     * detected by its name instead of the version number.
+     */
+    public static function isFractionalSecondsSupported(?string $schema, ?string $engineVersion): bool
+    {
+        if ($schema !== self::MYSQL || !$engineVersion) {
+            return false;
+        }
+
+        return \stripos($engineVersion, 'mariadb') !== false || \version_compare($engineVersion, '5.6.4', '>=');
+    }
+
+    /**
      * Returns default length based on the schema and column type.
-     * For MySQL >= 5.6.4 additional default sizes are available.
+     * For MySQL >= 5.6.4 and MariaDB additional default sizes are available.
      */
     public static function getDefaultLength(?string $schema, string $type, ?string $engineVersion = null): ?string
     {
@@ -180,7 +194,7 @@ final class Schema
             return null;
         }
 
-        if ($engineVersion && $schema === self::MYSQL && \version_compare($engineVersion, '5.6.4', '>=')) {
+        if (self::isFractionalSecondsSupported($schema, $engineVersion)) {
             $schema = self::MYSQL . '+';
         }
 
