@@ -8,7 +8,6 @@ use bizley\migration\Schema;
 use bizley\migration\table\BlueprintInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\TableMissingException;
-use ErrorException;
 use Exception;
 use Yii;
 use yii\base\Action;
@@ -590,7 +589,6 @@ class MigrationController extends BaseMigrationController
 
     /**
      * @since 4.4.0
-     * @throws ErrorException
      * @throws InvalidConfigException
      */
     public function actionSql(string $migrationName, string $method = 'up'): int
@@ -604,7 +602,12 @@ class MigrationController extends BaseMigrationController
         $migrationPaths = $this->migrationNamespace ?? $this->migrationPath;
 
         $extractor = $this->getSqlExtractor();
-        $extractor->getSql($migrationName, $migrationPaths, $method);
+        try {
+            $extractor->getSql($migrationName, $migrationPaths, $method);
+        } catch (\Throwable $exception) {
+            $this->stdout("\nERROR!\n > {$exception->getMessage()}\n", BaseConsole::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
         $migration = $this->ansiFormat($migrationName, BaseConsole::FG_YELLOW);
         $version = $this->ansiFormat(($method === 'up' ? 'UP' : 'DOWN') . ' method', BaseConsole::FG_CYAN);
