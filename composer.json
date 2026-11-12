@@ -23,7 +23,7 @@
     "phpstan": "./vendor/bin/phpstan"
   },
   "require": {
-    "php": ">=7.3",
+    "php": ">=8.1",
     "ext-mbstring": "*",
     "ext-pdo": "*",
     "yiisoft/yii2": "^2.0.19"
