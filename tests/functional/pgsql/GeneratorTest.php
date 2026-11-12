@@ -283,6 +283,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                     'col6' => $this->integer()->null(),
                     'col7' => $this->timestamp()->defaultExpression('NOW()'),
                     'col8' => $this->json()->defaultValue(Json::encode(['a' => 'b'])),
+                    'col9' => $this->boolean()->defaultValue(false),
+                    'col10' => $this->boolean()->defaultValue(true),
                 ]
             ]
         );
@@ -301,6 +303,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 \'col6\' => $this->integer(),
                 \'col7\' => $this->timestamp()->defaultExpression(\'now()\'),
                 \'col8\' => $this->json()->defaultValue(\'{"a":"b"}\'),
+                \'col9\' => $this->boolean()->defaultValue(false),
+                \'col10\' => $this->boolean()->defaultValue(true),
             ],
             $tableOptions
         );

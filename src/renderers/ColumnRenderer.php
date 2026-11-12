@@ -246,6 +246,8 @@ final class ColumnRenderer implements ColumnRendererInterface
                 $this->definition[] = "defaultExpression('{$this->escapeQuotes($default->expression)}')";
             } elseif (\is_array($default)) {
                 $this->definition[] = "defaultValue('{$this->escapeQuotes(Json::encode($default))}')";
+            } elseif (\is_bool($default)) {
+                $this->definition[] = 'defaultValue(' . ($default ? 'true' : 'false') . ')';
             } else {
                 $this->definition[] = "defaultValue('{$this->escapeQuotes((string)$default)}')";
             }

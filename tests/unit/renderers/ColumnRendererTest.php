@@ -236,6 +236,28 @@ final class ColumnRendererTest extends TestCase
     }
 
     /** @test */
+    public function shouldRenderProperlySimpleColumnWithDefaultFalseValue(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getDefault')->willReturn(false);
+
+        self::assertSame('\'col\' => $this->def()->defaultValue(false),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldRenderProperlySimpleColumnWithDefaultTrueValue(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getDefault')->willReturn(true);
+
+        self::assertSame('\'col\' => $this->def()->defaultValue(true),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
     public function shouldRenderSimpleColumnWithDefaultValueContainingBackslashesAsValidPhp(): void
     {
         $column = $this->createMock(ColumnInterface::class);
