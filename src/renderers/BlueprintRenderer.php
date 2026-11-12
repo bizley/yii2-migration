@@ -8,28 +8,12 @@ use bizley\migration\table\BlueprintInterface;
 
 final class BlueprintRenderer implements BlueprintRendererInterface
 {
-    /** @var ColumnRendererInterface */
-    private $columnRenderer;
-
-    /** @var PrimaryKeyRendererInterface */
-    private $primaryKeyRenderer;
-
-    /** @var IndexRendererInterface */
-    private $indexRenderer;
-
-    /** @var ForeignKeyRendererInterface */
-    private $foreignKeyRenderer;
-
     public function __construct(
-        ColumnRendererInterface $columnRenderer,
-        PrimaryKeyRendererInterface $primaryKeyRenderer,
-        IndexRendererInterface $indexRenderer,
-        ForeignKeyRendererInterface $foreignKeyRenderer
+        private readonly ColumnRendererInterface $columnRenderer,
+        private readonly PrimaryKeyRendererInterface $primaryKeyRenderer,
+        private readonly IndexRendererInterface $indexRenderer,
+        private readonly ForeignKeyRendererInterface $foreignKeyRenderer
     ) {
-        $this->columnRenderer = $columnRenderer;
-        $this->primaryKeyRenderer = $primaryKeyRenderer;
-        $this->indexRenderer = $indexRenderer;
-        $this->foreignKeyRenderer = $foreignKeyRenderer;
     }
 
     /**
@@ -107,7 +91,7 @@ final class BlueprintRenderer implements BlueprintRendererInterface
             return $tableName;
         }
 
-        if (!empty($dbPrefix) && \strpos($tableName, $dbPrefix) === 0) {
+        if (!empty($dbPrefix) && \str_starts_with($tableName, $dbPrefix)) {
             $tableName = \mb_substr($tableName, \mb_strlen($dbPrefix, 'UTF-8'), null, 'UTF-8');
         }
 

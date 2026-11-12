@@ -5,7 +5,7 @@
 ![Latest Stable Version](https://img.shields.io/packagist/v/bizley/migration.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/bizley/migration.svg)](https://packagist.org/packages/bizley/migration)
 ![License](https://img.shields.io/packagist/l/bizley/migration.svg)
-[![Infection MSI](https://badge.stryker-mutator.io/github.com/bizley/yii2-migration/master)](https://infection.github.io)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fbizley%2Fyii2-migration%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/bizley/yii2-migration/master)
 
 ## Migration Creator And Updater
 
@@ -230,5 +230,6 @@ Some of the newest features may not be available there.
 
 | version constraint | PHP requirements |                                    Yii requirements                                     |                                                            
 |:------------------:|:----------------:|:---------------------------------------------------------------------------------------:|
+|        ^4.4        |      >= 7.3      |                                       >= 2.0.19                                       |
 |        ^3.6        |      >= 7.1      |                                       >= 2.0.15.1                                       |
 |        ^2.9        |      < 7.1       | 2.0.13 to track non-unique indexes, 2.0.14 to handle `TINYINT` and `JSON` type columns. |

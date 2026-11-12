@@ -6,50 +6,44 @@ namespace bizley\migration\table;
 
 final class Blueprint implements BlueprintInterface
 {
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     /** @var array<string, ColumnInterface> */
-    private $columnsToDrop = [];
+    private array $columnsToDrop = [];
 
     /** @var array<string, ColumnInterface> */
-    private $columnsToAdd = [];
+    private array $columnsToAdd = [];
 
     /** @var array<string, ColumnInterface> */
-    private $columnsToAlter = [];
+    private array $columnsToAlter = [];
 
     /** @var array<string, ColumnInterface> */
-    private $columnsToUnalter = [];
+    private array $columnsToUnalter = [];
 
     /** @var array<string, ForeignKeyInterface> */
-    private $foreignKeysToDrop = [];
+    private array $foreignKeysToDrop = [];
 
     /** @var array<string, ForeignKeyInterface> */
-    private $foreignKeysToAdd = [];
+    private array $foreignKeysToAdd = [];
 
-    /** @var PrimaryKeyInterface|null */
-    private $primaryKeyToDrop;
+    private ?PrimaryKeyInterface $primaryKeyToDrop = null;
 
-    /** @var PrimaryKeyInterface|null */
-    private $primaryKeyToAdd;
+    private ?PrimaryKeyInterface $primaryKeyToAdd = null;
 
-    /** @var PrimaryKeyInterface|null */
-    private $tableOldPrimaryKey;
+    private ?PrimaryKeyInterface $tableOldPrimaryKey = null;
 
-    /** @var PrimaryKeyInterface|null */
-    private $tableNewPrimaryKey;
+    private ?PrimaryKeyInterface $tableNewPrimaryKey = null;
 
     /** @var array<string, IndexInterface> */
-    private $indexesToDrop = [];
+    private array $indexesToDrop = [];
 
     /** @var array<string, IndexInterface> */
-    private $indexesToAdd = [];
+    private array $indexesToAdd = [];
 
     /** @var array<string> */
-    private $description = [];
+    private array $description = [];
 
-    /** @var bool */
-    private $startFromScratch = false;
+    private bool $startFromScratch = false;
 
     /**
      * Returns table name of the structure.

@@ -135,8 +135,7 @@ class BaseMigrationController extends Controller
     /** @var array{class: class-string<mixed>}|(callable(): mixed)|class-string<mixed> */
     public $comparatorClass = Comparator::class;
 
-    /** @var HistoryManagerInterface */
-    private $historyManager;
+    private ?HistoryManagerInterface $historyManager = null;
 
     /**
      * Returns the service responsible for managing migration history.
@@ -164,8 +163,7 @@ class BaseMigrationController extends Controller
         return $this->historyManager;
     }
 
-    /** @var TableMapperInterface */
-    private $tableMapper;
+    private ?TableMapperInterface $tableMapper = null;
 
     /**
      * Returns the service responsible for mapping the table structure.
@@ -186,8 +184,7 @@ class BaseMigrationController extends Controller
         return $this->tableMapper;
     }
 
-    /** @var ArrangerInterface */
-    private $arranger;
+    private ?ArrangerInterface $arranger = null;
 
     /**
      * Returns the service responsible for arranging the tables in proper order.
@@ -206,8 +203,7 @@ class BaseMigrationController extends Controller
         return $this->arranger;
     }
 
-    /** @var StructureRendererInterface */
-    private $structureRenderer;
+    private ?StructureRendererInterface $structureRenderer = null;
 
     /**
      * Returns the service responsible for rendering the structure data.
@@ -246,8 +242,7 @@ class BaseMigrationController extends Controller
         ];
     }
 
-    /** @var GeneratorInterface */
-    private $generator;
+    private ?GeneratorInterface $generator = null;
 
     /**
      * Returns the service responsible for generating the creating migrations.
@@ -273,8 +268,7 @@ class BaseMigrationController extends Controller
         return $this->generator;
     }
 
-    /** @var ExtractorInterface|SqlExtractorInterface */
-    private $extractor;
+    private ExtractorInterface|SqlExtractorInterface|null $extractor = null;
 
     /**
      * Returns the service responsible for extracting the structure from old migrations.
@@ -319,8 +313,7 @@ class BaseMigrationController extends Controller
         return Yii::createObject($this->extractorClass, [clone $db, $this->experimental]);
     }
 
-    /** @var StructureBuilderInterface */
-    private $structureBuilder;
+    private ?StructureBuilderInterface $structureBuilder = null;
 
     /**
      * Returns the service responsible for building the structure based on extracted changes.
@@ -341,8 +334,7 @@ class BaseMigrationController extends Controller
         return $this->structureBuilder;
     }
 
-    /** @var ComparatorInterface */
-    private $comparator;
+    private ?ComparatorInterface $comparator = null;
 
     /**
      * Returns the service responsible for comparing the new and old structures.
@@ -363,8 +355,7 @@ class BaseMigrationController extends Controller
         return $this->comparator;
     }
 
-    /** @var InspectorInterface */
-    private $inspector;
+    private ?InspectorInterface $inspector = null;
 
     /**
      * Returns the service responsible for preparing the update blueprint.
@@ -391,8 +382,7 @@ class BaseMigrationController extends Controller
         return $this->inspector;
     }
 
-    /** @var BlueprintRendererInterface */
-    private $blueprintRenderer;
+    private ?BlueprintRendererInterface $blueprintRenderer = null;
 
     /**
      * Returns the service responsible for rendering the blueprint data.
@@ -416,8 +406,7 @@ class BaseMigrationController extends Controller
         return $this->blueprintRenderer;
     }
 
-    /** @var UpdaterInterface */
-    private $updater;
+    private ?UpdaterInterface $updater = null;
 
     /**
      * Returns the service responsible for generating the updating migrations.

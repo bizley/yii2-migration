@@ -9,7 +9,7 @@ use bizley\migration\Schema;
 final class TinyIntegerColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [Schema::OCI];
+    private array $lengthSchemas = [Schema::OCI];
 
     /**
      * Checks if schema supports length for this column.

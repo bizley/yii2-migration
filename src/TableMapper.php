@@ -31,32 +31,28 @@ use yii\db\TableSchema;
 
 final class TableMapper implements TableMapperInterface
 {
-    /** @var Connection */
-    private $db;
-
-    public function __construct(Connection $db)
+    public function __construct(private readonly Connection $db)
     {
-        $this->db = $db;
     }
 
     /** @var array<ForeignKeyInterface> */
-    private $suppressedForeignKeys = [];
+    private array $suppressedForeignKeys = [];
 
     /**
      * Table metadata read from the database, indexed by table name. The table is read only once per mapper instance,
      * while the structure objects are built anew on every call because they can be modified later.
      * @var array<string, TableSchema|null>
      */
-    private $tableSchemas = [];
+    private array $tableSchemas = [];
 
     /** @var array<string, array<ForeignKeyConstraint>> */
-    private $foreignKeyConstraints = [];
+    private array $foreignKeyConstraints = [];
 
     /** @var array<string, array<IndexConstraint>> */
-    private $indexConstraints = [];
+    private array $indexConstraints = [];
 
     /** @var array<string, Constraint|null> */
-    private $primaryKeyConstraints = [];
+    private array $primaryKeyConstraints = [];
 
     /**
      * Returns a structure of the table.
@@ -274,7 +270,7 @@ final class TableMapper implements TableMapperInterface
             }
 
             return $slavePdo->getAttribute(PDO::ATTR_SERVER_VERSION);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             return null;
         }
     }

@@ -6,14 +6,12 @@ namespace bizley\migration\table;
 
 final class Index implements IndexInterface
 {
-    /** @var string|null */
-    private $name;
+    private ?string $name = null;
 
-    /** @var bool */
-    private $unique = false;
+    private bool $unique = false;
 
     /** @var array<string> */
-    private $columns = [];
+    private array $columns = [];
 
     /**
      * Return name of the index.

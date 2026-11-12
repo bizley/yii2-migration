@@ -15,12 +15,8 @@ use yii\helpers\Json;
 
 final class Comparator implements ComparatorInterface
 {
-    /** @var bool */
-    private $generalSchema;
-
-    public function __construct(bool $generalSchema)
+    public function __construct(private readonly bool $generalSchema)
     {
-        $this->generalSchema = $generalSchema;
     }
 
     /**
@@ -544,22 +540,22 @@ final class Comparator implements ComparatorInterface
         $primaryKey = false;
 
         if ($append !== null) {
-            if (\strpos($append, 'AUTO_INCREMENT') !== false) {
+            if (\str_contains($append, 'AUTO_INCREMENT')) {
                 $autoIncrement = true;
                 $append = \str_replace('AUTO_INCREMENT', '', $append);
             }
 
-            if (\strpos($append, 'AUTOINCREMENT') !== false) {
+            if (\str_contains($append, 'AUTOINCREMENT')) {
                 $autoIncrement = true;
                 $append = \str_replace('AUTOINCREMENT', '', $append);
             }
 
-            if (\strpos($append, 'IDENTITY PRIMARY KEY') !== false) {
+            if (\str_contains($append, 'IDENTITY PRIMARY KEY')) {
                 $primaryKey = true;
                 $append = \str_replace('IDENTITY PRIMARY KEY', '', $append);
             }
 
-            if (\strpos($append, 'PRIMARY KEY') !== false) {
+            if (\str_contains($append, 'PRIMARY KEY')) {
                 $primaryKey = true;
                 $append = \str_replace('PRIMARY KEY', '', $append);
             }

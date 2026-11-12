@@ -10,7 +10,7 @@ use yii\db\Expression;
 final class DateTimeColumn extends Column implements ColumnInterface
 {
     /** @var array<string> Schemas using length for this column */
-    private $lengthSchemas = [Schema::PGSQL];
+    private array $lengthSchemas = [Schema::PGSQL];
 
     /**
      * Sets default value.

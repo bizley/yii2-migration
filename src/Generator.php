@@ -13,23 +13,12 @@ use yii\helpers\FileHelper;
 
 final class Generator implements GeneratorInterface
 {
-    /** @var TableMapperInterface */
-    private $tableMapper;
-
-    /** @var View View used in controller */
-    public $view;
-
-    /** @var StructureRendererInterface */
-    private $structureRenderer;
-
     public function __construct(
-        TableMapperInterface $tableMapper,
-        StructureRendererInterface $structureRenderer,
-        View $view
+        private readonly TableMapperInterface $tableMapper,
+        private readonly StructureRendererInterface $structureRenderer,
+        /** @var View View used in controller */
+        public View $view
     ) {
-        $this->tableMapper = $tableMapper;
-        $this->structureRenderer = $structureRenderer;
-        $this->view = $view;
     }
 
     /**

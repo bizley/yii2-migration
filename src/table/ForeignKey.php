@@ -6,26 +6,21 @@ namespace bizley\migration\table;
 
 final class ForeignKey implements ForeignKeyInterface
 {
-    /** @var string|null */
-    private $name;
+    private ?string $name = null;
 
     /** @var array<string> */
-    private $columns = [];
+    private array $columns = [];
 
-    /** @var string */
-    private $referredTable;
+    private string $referredTable;
 
     /** @var array<string> */
-    private $referredColumns = [];
+    private array $referredColumns = [];
 
-    /** @var string|null */
-    private $onDelete;
+    private ?string $onDelete = null;
 
-    /** @var string|null */
-    private $onUpdate;
+    private ?string $onUpdate = null;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     /**
      * Returns name of the foreign key.
@@ -159,18 +154,11 @@ final class ForeignKey implements ForeignKeyInterface
             return null;
         }
 
-        switch (\strtoupper($normalized)) {
-            case 'NOACTION':
-            case 'NO_ACTION':
-                return 'NO ACTION';
-            case 'SETNULL':
-            case 'SET_NULL':
-                return 'SET NULL';
-            case 'SETDEFAULT':
-            case 'SET_DEFAULT':
-                return 'SET DEFAULT';
-            default:
-                return $normalized;
-        }
+        return match (\strtoupper($normalized)) {
+            'NOACTION', 'NO_ACTION' => 'NO ACTION',
+            'SETNULL', 'SET_NULL' => 'SET NULL',
+            'SETDEFAULT', 'SET_DEFAULT' => 'SET DEFAULT',
+            default => $normalized,
+        };
     }
 }

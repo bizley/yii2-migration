@@ -32,8 +32,7 @@ use yii\helpers\FileHelper;
  */
 class MigrationController extends BaseMigrationController
 {
-    /** @var string */
-    private $version = '4.4.2';
+    private string $version = '4.4.2';
 
     /**
      * @var string|array<string>|null Directory storing the migration classes.
@@ -121,16 +120,11 @@ class MigrationController extends BaseMigrationController
         ];
         $updateOptions = ['onlyShow', 'skipMigrations', 'experimental'];
 
-        switch ($actionID) {
-            case 'create':
-                return \array_merge($defaultOptions, $createOptions);
-
-            case 'update':
-                return \array_merge($defaultOptions, $createOptions, $updateOptions);
-
-            default:
-                return $defaultOptions;
-        }
+        return match ($actionID) {
+            'create' => \array_merge($defaultOptions, $createOptions),
+            'update' => \array_merge($defaultOptions, $createOptions, $updateOptions),
+            default => $defaultOptions,
+        };
     }
 
     /** @return array<int|string, mixed> */
@@ -154,11 +148,9 @@ class MigrationController extends BaseMigrationController
         );
     }
 
-    /** @var string */
-    private $workingPath;
+    private ?string $workingPath = null;
 
-    /** @var string|null */
-    private $workingNamespace;
+    private ?string $workingNamespace = null;
 
     /**
      * Sets the workingPath and workingNamespace and makes sure DB connection is prepared.
@@ -388,7 +380,7 @@ class MigrationController extends BaseMigrationController
                         foreach ($blueprint->getDescriptions() as $difference) {
                             $this->stdout(
                                 "   - $difference\n",
-                                \strpos($difference, '(!)') !== false ? BaseConsole::FG_RED : BaseConsole::FG_YELLOW
+                                \str_contains($difference, '(!)') ? BaseConsole::FG_RED : BaseConsole::FG_YELLOW
                             );
                         }
                     }
@@ -749,10 +741,8 @@ class MigrationController extends BaseMigrationController
     private function prepareTableNames(string $inputTables): array
     {
         $tablesList = \array_filter(
-            \array_map('trim', \explode(',', $inputTables)),
-            static function (string $table): bool {
-                return $table !== '';
-            }
+            \array_map(\trim(...), \explode(',', $inputTables)),
+            static fn (string $table): bool => $table !== ''
         );
         if (empty($tablesList)) {
             return [];
@@ -785,7 +775,7 @@ class MigrationController extends BaseMigrationController
     }
 
     /** @var array<string> */
-    private $foundExcluded = [];
+    private array $foundExcluded = [];
 
     /**
      * Finds tables matching the pattern.
@@ -869,7 +859,7 @@ class MigrationController extends BaseMigrationController
         $schemaNames = [];
         try {
             $schemaNames = $db->getSchema()->getSchemaNames(true);
-        } catch (NotSupportedException $ex) {
+        } catch (NotSupportedException) {
         }
 
         if ($schemaNames === null || \count($schemaNames) < 2) {
@@ -900,7 +890,7 @@ class MigrationController extends BaseMigrationController
         if ($mode !== null) {
             if (\is_numeric($mode)) {
                 if (\is_string($mode)) {
-                    if (\strpos($mode, '0') === 0) {
+                    if (\str_starts_with($mode, '0')) {
                         $mode = \octdec($mode);
                     }
                     $mode = (int)$mode;
