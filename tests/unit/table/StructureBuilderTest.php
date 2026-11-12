@@ -10,6 +10,7 @@ use bizley\migration\table\IndexInterface;
 use bizley\migration\table\IntegerColumn;
 use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\StructureBuilder;
+use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -490,5 +491,111 @@ final class StructureBuilderTest extends TestCase
         $structureColumn = $structure->getColumn('column');
         self::assertNotNull($structureColumn);
         self::assertNull($structureColumn->getComment());
+    }
+
+    /**
+     * @param mixed $data
+     */
+    private function createChange(string $method, $data): StructureChange
+    {
+        $change = new StructureChange();
+        $change->setTable('table');
+        $change->setMethod($method);
+        $change->setData($data);
+
+        return $change;
+    }
+
+    /** @test */
+    public function shouldRenameColumnInPrimaryKeyIndexesAndForeignKeys(): void
+    {
+        $structure = $this->builder->build(
+            [
+                $this->createChange('createTable', ['a' => ['type' => 'integer'], 'x' => ['type' => 'string']]),
+                $this->createChange('addPrimaryKey', ['name' => 'pk', 'columns' => ['a', 'x']]),
+                $this->createChange('createIndex', ['name' => 'idx', 'columns' => ['a', 'x'], 'unique' => false]),
+                $this->createChange('createIndex', ['name' => 'idx-x', 'columns' => ['x'], 'unique' => true]),
+                $this->createChange(
+                    'addForeignKey',
+                    [
+                        'name' => 'fk',
+                        'columns' => ['a'],
+                        'referredTable' => 'other',
+                        'referredColumns' => ['id'],
+                        'onDelete' => 'CASCADE',
+                        'onUpdate' => null,
+                        'tableName' => 'table',
+                    ]
+                ),
+                $this->createChange('renameColumn', ['old' => 'a', 'new' => 'b']),
+            ],
+            null,
+            null
+        );
+
+        self::assertNull($structure->getColumn('a'));
+        self::assertNotNull($structure->getColumn('b'));
+
+        $primaryKey = $structure->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame('pk', $primaryKey->getName());
+        self::assertSame(['b', 'x'], $primaryKey->getColumns());
+
+        $index = $structure->getIndex('idx');
+        self::assertNotNull($index);
+        self::assertSame(['b', 'x'], $index->getColumns());
+        self::assertFalse($index->isUnique());
+
+        $untouchedIndex = $structure->getIndex('idx-x');
+        self::assertNotNull($untouchedIndex);
+        self::assertSame(['x'], $untouchedIndex->getColumns());
+        self::assertTrue($untouchedIndex->isUnique());
+
+        $foreignKey = $structure->getForeignKey('fk');
+        self::assertNotNull($foreignKey);
+        self::assertSame(['b'], $foreignKey->getColumns());
+        self::assertSame('other', $foreignKey->getReferredTable());
+        self::assertSame(['id'], $foreignKey->getReferredColumns());
+        self::assertSame('CASCADE', $foreignKey->getOnDelete());
+        self::assertNull($foreignKey->getOnUpdate());
+        self::assertSame('table', $foreignKey->getTableName());
+    }
+
+    /** @test */
+    public function shouldDropPrimaryKeyAfterRenamingItsColumn(): void
+    {
+        $structure = $this->builder->build(
+            [
+                $this->createChange('createTable', ['a' => ['type' => 'integer'], 'x' => ['type' => 'string']]),
+                $this->createChange('addPrimaryKey', ['name' => 'pk', 'columns' => ['a']]),
+                $this->createChange('renameColumn', ['old' => 'a', 'new' => 'b']),
+                $this->createChange('dropPrimaryKey', 'pk'),
+            ],
+            'mysql',
+            null
+        );
+
+        self::assertNull($structure->getPrimaryKey());
+        $column = $structure->getColumn('b');
+        self::assertNotNull($column);
+        self::assertNull($column->getAppend());
+    }
+
+    /** @test */
+    public function shouldDropPrimaryKeyWhenItsColumnWasDropped(): void
+    {
+        $structure = $this->builder->build(
+            [
+                $this->createChange('createTable', ['a' => ['type' => 'integer'], 'x' => ['type' => 'string']]),
+                $this->createChange('addPrimaryKey', ['name' => 'pk', 'columns' => ['a']]),
+                $this->createChange('dropColumn', 'a'),
+                $this->createChange('dropPrimaryKey', 'pk'),
+            ],
+            'mysql',
+            null
+        );
+
+        self::assertNull($structure->getPrimaryKey());
+        self::assertCount(1, $structure->getColumns());
     }
 }
