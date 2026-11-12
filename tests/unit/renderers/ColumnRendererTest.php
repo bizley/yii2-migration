@@ -18,6 +18,8 @@ use yii\db\Expression;
  */
 final class ColumnRendererTest extends TestCase
 {
+    use PhpStringLiteralsTrait;
+
     protected function getRenderer(bool $generalSchema = true): ColumnRenderer
     {
         return new ColumnRenderer($generalSchema);
@@ -453,5 +455,20 @@ final class ColumnRendererTest extends TestCase
         $column->method('isUnsigned')->willReturn(true);
 
         self::assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldEscapeNamesInRenderedCode(): void
+    {
+        $name = self::$unusualName;
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn($name);
+        $column->method('getDefinition')->willReturn('def()');
+        $renderer = $this->getRenderer();
+
+        self::assertSame([$name], self::stringLiterals('[' . $renderer->render($column) . '];'));
+        self::assertSame([$name, $name], self::stringLiterals($renderer->renderAdd($column, $name)));
+        self::assertSame([$name, $name], self::stringLiterals($renderer->renderAlter($column, $name)));
+        self::assertSame([$name, $name], self::stringLiterals($renderer->renderDrop($column, $name)));
     }
 }

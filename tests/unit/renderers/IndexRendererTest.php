@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class IndexRendererTest extends TestCase
 {
+    use PhpStringLiteralsTrait;
+
     /** @var IndexRenderer */
     private $renderer;
 
@@ -102,5 +104,18 @@ final class IndexRendererTest extends TestCase
 
         self::assertSame($expectedCreate, $this->renderer->renderUp($index, 'test', $indent));
         self::assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
+    }
+
+    /** @test */
+    public function shouldEscapeNamesInRenderedCode(): void
+    {
+        $name = self::$unusualName;
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn([$name, 'b']);
+        $index->method('getName')->willReturn($name);
+        $index->method('isUnique')->willReturn(false);
+
+        self::assertSame([$name, $name, $name, 'b'], self::stringLiterals($this->renderer->renderUp($index, $name)));
+        self::assertSame([$name, $name], self::stringLiterals($this->renderer->renderDown($index, $name)));
     }
 }

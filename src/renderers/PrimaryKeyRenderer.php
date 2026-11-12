@@ -38,24 +38,13 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
         $template = \str_repeat(' ', $indent) . $this->addKeyTemplate;
 
-        $keyColumns = $primaryKey->getColumns();
-        $renderedColumns = [];
-        foreach ($keyColumns as $keyColumn) {
-            $renderedColumns[] = "'$keyColumn'";
-        }
-
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{keyName}',
-                '{tableName}',
-                '{keyColumns}',
-            ],
-            [
-                $primaryKey->getName(),
-                $tableName,
-                \implode(', ', $renderedColumns),
-            ],
-            $template
+                '{keyName}' => QuoteEscaper::escape($primaryKey->getName()),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{keyColumns}' => QuoteEscaper::renderList($primaryKey->getColumns()),
+            ]
         );
     }
 
@@ -79,16 +68,12 @@ final class PrimaryKeyRenderer implements PrimaryKeyRendererInterface
 
         $template = \str_repeat(' ', $indent) . $this->dropKeyTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{keyName}',
-                '{tableName}'
-            ],
-            [
-                $primaryKey->getName(),
-                $tableName
-            ],
-            $template
+                '{keyName}' => QuoteEscaper::escape($primaryKey->getName()),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+            ]
         );
     }
 }

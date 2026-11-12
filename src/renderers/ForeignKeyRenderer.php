@@ -45,41 +45,20 @@ TEMPLATE;
 
         $template = $this->applyIndent($indent, $this->addKeyTemplate);
 
-        $keyColumns = $foreignKey->getColumns();
-        $renderedKeyColumns = [];
-        foreach ($keyColumns as $keyColumn) {
-            $renderedKeyColumns[] = "'$keyColumn'";
-        }
-
-        $referencedColumns = $foreignKey->getReferredColumns();
-        $renderedReferencedColumns = [];
-        foreach ($referencedColumns as $referencedColumn) {
-            $renderedReferencedColumns[] = "'$referencedColumn'";
-        }
-
         $onDelete = $foreignKey->getOnDelete();
         $onUpdate = $foreignKey->getOnUpdate();
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{keyName}',
-                '{tableName}',
-                '{keyColumns}',
-                '{referencedTableName}',
-                '{referencedColumns}',
-                '{onDelete}',
-                '{onUpdate}',
-            ],
-            [
-                $foreignKey->getName(),
-                $tableName,
-                \implode(', ', $renderedKeyColumns),
-                $referencedTableName,
-                \implode(', ', $renderedReferencedColumns),
-                $onDelete ? "'$onDelete'" : 'null',
-                $onUpdate ? "'$onUpdate'" : 'null'
-            ],
-            $template
+                '{keyName}' => QuoteEscaper::escape($foreignKey->getName()),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{keyColumns}' => QuoteEscaper::renderList($foreignKey->getColumns()),
+                '{referencedTableName}' => QuoteEscaper::escape($referencedTableName),
+                '{referencedColumns}' => QuoteEscaper::renderList($foreignKey->getReferredColumns()),
+                '{onDelete}' => $onDelete ? "'" . QuoteEscaper::escape($onDelete) . "'" : 'null',
+                '{onUpdate}' => $onUpdate ? "'" . QuoteEscaper::escape($onUpdate) . "'" : 'null',
+            ]
         );
     }
 
@@ -99,16 +78,12 @@ TEMPLATE;
 
         $template = $this->applyIndent($indent, $this->dropKeyTemplate);
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{keyName}',
-                '{tableName}'
-            ],
-            [
-                $foreignKey->getName(),
-                $tableName
-            ],
-            $template
+                '{keyName}' => QuoteEscaper::escape($foreignKey->getName()),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+            ]
         );
     }
 

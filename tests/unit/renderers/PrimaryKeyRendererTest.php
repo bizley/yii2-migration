@@ -16,6 +16,8 @@ use yii\base\NotSupportedException;
  */
 final class PrimaryKeyRendererTest extends TestCase
 {
+    use PhpStringLiteralsTrait;
+
     /** @var PrimaryKeyRenderer */
     private $renderer;
 
@@ -165,5 +167,21 @@ final class PrimaryKeyRendererTest extends TestCase
 
         self::assertSame($expectedAdd, $this->renderer->renderUp($primaryKey, 'test', $indent));
         self::assertSame($expectedDrop, $this->renderer->renderDown($primaryKey, 'test', $indent));
+    }
+
+    /** @test */
+    public function shouldEscapeNamesInRenderedCode(): void
+    {
+        $name = self::$unusualName;
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        $primaryKey->method('getName')->willReturn($name);
+        $primaryKey->method('getColumns')->willReturn([$name, 'b']);
+
+        self::assertSame(
+            [$name, $name, $name, 'b'],
+            self::stringLiterals((string)$this->renderer->renderUp($primaryKey, $name))
+        );
+        self::assertSame([$name, $name], self::stringLiterals((string)$this->renderer->renderDown($primaryKey, $name)));
     }
 }
