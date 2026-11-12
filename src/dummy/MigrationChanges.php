@@ -5,6 +5,7 @@ namespace yii\db;
 use bizley\migration\dummy\MigrationChangesInterface;
 use bizley\migration\Schema;
 use bizley\migration\SqlColumnMapper;
+use bizley\migration\table\CreateIndexParser;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
 use Generator;
@@ -256,7 +257,27 @@ class Migration extends Component implements MigrationChangesInterface
     /** @param string[] $params */
     public function execute(string $sql, array $params = []): void
     {
-        // not supported
+        // only CREATE INDEX statements (like the ones generated for PostgreSQL indexes that cannot be created with
+        // createIndex()) are supported
+        $index = CreateIndexParser::parse($sql);
+        if ($index !== null) {
+            $table = $index['table'];
+            $defaultSchema = $this->db->schema->defaultSchema;
+            if (\str_starts_with($table, $defaultSchema . '.')) {
+                $table = \substr($table, \strlen($defaultSchema) + 1);
+            }
+
+            $this->addChange(
+                $table,
+                'createIndex',
+                [
+                    'name' => $index['name'],
+                    'columns' => [],
+                    'unique' => $index['unique'],
+                    'definition' => $index['definition'],
+                ]
+            );
+        }
     }
 
     /** @param array<string, mixed>|Query $columns */

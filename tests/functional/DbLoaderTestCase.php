@@ -157,6 +157,12 @@ abstract class DbLoaderTestCase extends DbTestCase
             $this->getDb()
                 ->createCommand('CREATE INDEX "idx-amount-hash" ON "updater_base_fk_with_idx" USING hash ("amount")')
                 ->execute();
+            $this->getDb()
+                ->createCommand(
+                    'CREATE INDEX "idx-dec-partial" ON "updater_base_fk_with_idx" ("dec_no_scale") '
+                    . 'WHERE "dec_no_scale" > 0'
+                )
+                ->execute();
         }
 
         $this->addHistoryEntry('m20200406_124200_create_table_updater_base');

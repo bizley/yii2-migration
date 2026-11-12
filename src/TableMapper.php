@@ -54,8 +54,8 @@ final class TableMapper implements TableMapperInterface
     /** @var array<string, Constraint|null> */
     private array $primaryKeyConstraints = [];
 
-    /** @var array<string, array<string, string>> */
-    private array $pgsqlIndexMethods = [];
+    /** @var array<string, array<string, array{method: string|null, definition: string|null}>> */
+    private array $pgsqlIndexDetails = [];
 
     /**
      * Returns a structure of the table.
@@ -142,9 +142,18 @@ final class TableMapper implements TableMapperInterface
         }
 
         if ($mappedIndexes !== [] && $this->getSchemaType() === Schema::PGSQL) {
-            $methods = $this->getPgsqlIndexMethods($table);
+            $details = $this->getPgsqlIndexDetails($table);
             foreach ($mappedIndexes as $name => $mappedIndex) {
-                $mappedIndex->setMethod($methods[$name] ?? null);
+                if (!\array_key_exists($name, $details)) {
+                    continue;
+                }
+                $mappedIndex->setMethod($details[$name]['method']);
+                $definition = $details[$name]['definition'];
+                if ($definition !== null) {
+                    // columns reported by Yii are not reliable here (e.g. an expression is reported as a column)
+                    $mappedIndex->setColumns([]);
+                    $mappedIndex->setDefinition($definition);
+                }
             }
         }
 
@@ -152,16 +161,17 @@ final class TableMapper implements TableMapperInterface
     }
 
     /**
-     * Yii does not read the PostgreSQL index method, so it is taken from pg_am. Only the methods of indexes that can
-     * be recreated with createIndex() are returned (index without predicate, expressions, and non-default operator
-     * classes) - for others the method alone would not be enough (e.g. GIN index on a varchar column requires
-     * the operator class) and the generated migration would fail.
-     * @return array<string, string> non-B-tree index methods indexed by index names
+     * Yii does not read the PostgreSQL index method nor anything else than the plain list of columns, so the index
+     * definition is taken from pg_get_indexdef(). When it is exactly "USING method (column, ...)" the index can be
+     * recreated with createIndex() and only the method is needed (null for the default B-tree). Otherwise (operator
+     * classes, predicates, expressions, sort order, included columns, storage parameters...) the definition (from
+     * USING) is returned to be used in raw CREATE INDEX statement.
+     * @return array<string, array{method: string|null, definition: string|null}> indexed by index names
      */
-    private function getPgsqlIndexMethods(string $table): array
+    private function getPgsqlIndexDetails(string $table): array
     {
-        if (!\array_key_exists($table, $this->pgsqlIndexMethods)) {
-            $this->pgsqlIndexMethods[$table] = [];
+        if (!\array_key_exists($table, $this->pgsqlIndexDetails)) {
+            $this->pgsqlIndexDetails[$table] = [];
 
             $tableSchema = $this->getTableSchema($table);
             if ($tableSchema !== null) {
@@ -170,32 +180,47 @@ final class TableMapper implements TableMapperInterface
 SELECT
     "ic"."relname" AS "name",
     "am"."amname" AS "method",
+    pg_get_indexdef("i"."indexrelid") AS "definition",
     (
-        "i"."indpred" IS NULL
-        AND "i"."indexprs" IS NULL
-        AND NOT EXISTS (
-            SELECT 1 FROM "pg_opclass" AS "o" WHERE "o"."oid" = ANY("i"."indclass"::oid[]) AND NOT "o"."opcdefault"
-        )
-    ) AS "is_plain"
+        SELECT string_agg(quote_ident("a"."attname"), ', ' ORDER BY "k"."ord")
+        FROM unnest("i"."indkey"::int2[]) WITH ORDINALITY AS "k"("attnum", "ord")
+        INNER JOIN "pg_attribute" AS "a" ON "a"."attrelid" = "i"."indrelid" AND "a"."attnum" = "k"."attnum"
+    ) AS "plain_columns"
 FROM "pg_index" AS "i"
 INNER JOIN "pg_class" AS "ic" ON "ic"."oid" = "i"."indexrelid"
 INNER JOIN "pg_am" AS "am" ON "am"."oid" = "ic"."relam"
 INNER JOIN "pg_class" AS "tc" ON "tc"."oid" = "i"."indrelid"
 INNER JOIN "pg_namespace" AS "n" ON "n"."oid" = "tc"."relnamespace"
-WHERE "n"."nspname" = :schema AND "tc"."relname" = :table AND "am"."amname" <> 'btree'
+WHERE "n"."nspname" = :schema AND "tc"."relname" = :table AND NOT "i"."indisprimary"
 SQL,
                     [':schema' => $tableSchema->schemaName, ':table' => $tableSchema->name]
                 )->queryAll();
 
                 foreach ($rows as $row) {
-                    if (\in_array($row['is_plain'], [true, 1, '1', 't'], true)) {
-                        $this->pgsqlIndexMethods[$table][$row['name']] = $row['method'];
+                    $method = (string)$row['method'];
+                    $fullDefinition = (string)$row['definition'];
+                    $usingPosition = \strpos($fullDefinition, ' USING ' . $method . ' (');
+                    if ($usingPosition === false) {
+                        continue;
+                    }
+
+                    $definition = \substr($fullDefinition, $usingPosition + 1);
+                    if ($definition === 'USING ' . $method . ' (' . $row['plain_columns'] . ')') {
+                        $this->pgsqlIndexDetails[$table][$row['name']] = [
+                            'method' => $method === 'btree' ? null : $method,
+                            'definition' => null,
+                        ];
+                    } else {
+                        $this->pgsqlIndexDetails[$table][$row['name']] = [
+                            'method' => null,
+                            'definition' => $definition,
+                        ];
                     }
                 }
             }
         }
 
-        return $this->pgsqlIndexMethods[$table];
+        return $this->pgsqlIndexDetails[$table];
     }
 
     /**

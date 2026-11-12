@@ -68,6 +68,10 @@ class m20200406_124200_create_table_updater_base extends Migration
         );
         if ($driverName === 'pgsql') {
             $this->createIndex('idx-amount-hash', 'updater_base_fk_with_idx', 'amount', 'hash');
+            $this->execute(
+                'CREATE INDEX [[idx-dec-partial]] ON {{%updater_base_fk_with_idx}} '
+                . 'USING btree (dec_no_scale) WHERE (dec_no_scale > (0)::numeric)'
+            );
         }
     }
 
