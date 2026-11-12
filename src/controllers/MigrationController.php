@@ -942,8 +942,8 @@ class MigrationController extends BaseMigrationController
             return false;
         }
 
-        $now = \time() + 5 + $this->leeway; // 5 seconds for response
-        $lastTimestamp = $now + $tables + 1; // +1 for potential foreign keys migration
+        $now = \time() + $this->leeway;
+        $lastTimestamp = $now + 5 + $tables + 1; // 5 seconds for response, +1 for potential foreign keys migration
 
         $folders = [];
         if ($this->migrationNamespace !== null) {
@@ -956,14 +956,16 @@ class MigrationController extends BaseMigrationController
             }
         } else {
             foreach ((array)$this->migrationPath as $pathMigration) {
-                if (\is_dir($pathMigration)) {
-                    $folders[] = $pathMigration;
+                $translatedPath = Yii::getAlias($pathMigration, false);
+                if ($translatedPath !== false && \is_dir($translatedPath)) {
+                    $folders[] = $translatedPath;
                 }
             }
         }
 
-        $nowDate = \date('ymdHis', $now);
-        $lastTimestampDate = \date('ymdHis', $lastTimestamp);
+        // migration names are generated with gmdate()
+        $nowDate = \gmdate('ymdHis', $now);
+        $lastTimestampDate = \gmdate('ymdHis', $lastTimestamp);
         $foundCollision = false;
         foreach ($folders as $folder) {
             if ($handle = \opendir($folder)) {

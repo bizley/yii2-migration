@@ -79,6 +79,7 @@ final class TimestampMigrationControllerTest extends TestCase
     protected function tearDown(): void
     {
         Yii::$app = null;
+        \date_default_timezone_set('UTC');
     }
 
     private function prepareFolder(): void
@@ -210,5 +211,81 @@ final class TimestampMigrationControllerTest extends TestCase
 ',
             MigrationControllerStub::$stdout
         );
+    }
+
+    private function createMigrationFile(int $timestamp): void
+    {
+        \file_put_contents(
+            __DIR__ . '/../../runtime/test/' . \sprintf('m%s_create_table_tab', \gmdate('ymd_His', $timestamp)),
+            ''
+        );
+    }
+
+    private function assertCollisionDetectedOnCreate(): void
+    {
+        $this->schema->method('getTableNames')->willReturn(['test']);
+        $this->schema->method('getRawTableName')->willReturn('mig');
+        MigrationControllerStub::$confirmControl = false;
+
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $this->controller->actionCreate('test'));
+        self::assertSame(
+            ' > There are migration files detected that have timestamps colliding with the ones that will be generated. Are you sure you want to proceed?
+ Operation cancelled by user.
+',
+            MigrationControllerStub::$stdout
+        );
+    }
+
+    /** @test */
+    public function shouldDetectCollisionWithAliasedMigrationPath(): void
+    {
+        Yii::setAlias('@timestampCollisionTest', __DIR__ . '/../../runtime/test');
+        $this->controller->migrationPath = ['@timestampCollisionTest'];
+        $this->createMigrationFile(\time() + 2);
+
+        $this->assertCollisionDetectedOnCreate();
+    }
+
+    /** @test */
+    public function shouldDetectCollisionInNonUtcTimezone(): void
+    {
+        \date_default_timezone_set('Europe/Warsaw');
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
+        $this->createMigrationFile(\time() + 2);
+
+        $this->assertCollisionDetectedOnCreate();
+    }
+
+    /** @test */
+    public function shouldDetectCollisionAtTheStartOfTheWindow(): void
+    {
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
+        $this->createMigrationFile(\time() + 2);
+
+        $this->assertCollisionDetectedOnCreate();
+    }
+
+    /** @test */
+    public function shouldDetectCollisionWithLeeway(): void
+    {
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
+        $this->controller->leeway = 100;
+        $this->createMigrationFile(\time() + 102);
+
+        $this->assertCollisionDetectedOnCreate();
+    }
+
+    /** @test */
+    public function shouldNotDetectCollisionOutsideTheWindow(): void
+    {
+        $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
+        $this->createMigrationFile(\time() - 60);
+        $this->createMigrationFile(\time() + 60);
+        $this->schema->method('getTableNames')->willReturn(['test']);
+        $this->schema->method('getRawTableName')->willReturn('mig');
+        MigrationControllerStub::$confirmControl = false;
+
+        $this->controller->actionCreate('test');
+        self::assertStringNotContainsString('colliding', MigrationControllerStub::$stdout);
     }
 }
