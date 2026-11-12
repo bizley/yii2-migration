@@ -37,6 +37,9 @@ use yii\db\Schema;
  */
 final class ColumnFactoryTest extends TestCase
 {
+    /**
+     * @return array<string, array{string, class-string}>
+     */
     public function providerForTypes(): array
     {
         return [
@@ -68,6 +71,7 @@ final class ColumnFactoryTest extends TestCase
     /**
      * @test
      * @dataProvider providerForTypes
+     * @param class-string $expected
      */
     public function shouldReturnProperColumn(string $type, string $expected): void
     {

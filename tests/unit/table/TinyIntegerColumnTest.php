@@ -30,6 +30,9 @@ final class TinyIntegerColumnTest extends TestCase
         self::assertSame('tinyInteger({renderLength})', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string, int|null}>
+     */
     public function providerForGettingLength(): array
     {
         return [
@@ -51,6 +54,9 @@ final class TinyIntegerColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema));
     }
 
+    /**
+     * @return list<array{int, int|null, string|null}>
+     */
     public function providerForGettingLengthForMySQL(): array
     {
         return [
@@ -75,6 +81,9 @@ final class TinyIntegerColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength(Schema::MYSQL, $engineVersion));
     }
 
+    /**
+     * @return array<string, array{string, int|null, int|null}>
+     */
     public function providerForSettingLength(): array
     {
         return [
@@ -97,6 +106,9 @@ final class TinyIntegerColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
+    /**
+     * @return list<array{int, int|null, int|null, string|null}>
+     */
     public function providerForSettingLengthForMySQL(): array
     {
         return [

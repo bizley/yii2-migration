@@ -38,6 +38,9 @@ final class GenericColumnTest extends TestCase
         };
     }
 
+    /**
+     * @return array<string, array{string, list<string>, bool}>
+     */
     public function providerForColumnInPrimaryKey(): array
     {
         return [
@@ -50,6 +53,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForColumnInPrimaryKey
+     * @param list<string> $columns
      */
     public function shouldCheckIfColumnIsPartOfPrimaryKey(string $name, array $columns, bool $expected): void
     {
@@ -59,6 +63,9 @@ final class GenericColumnTest extends TestCase
         self::assertSame($expected, $this->column->isColumnInPrimaryKey($primaryKey));
     }
 
+    /**
+     * @return array<string, array{string, string, bool}>
+     */
     public function providerForPrimaryKeyInfoAppended(): array
     {
         return [
@@ -82,6 +89,9 @@ final class GenericColumnTest extends TestCase
         self::assertSame($expected, $this->column->isPrimaryKeyInfoAppended($schema));
     }
 
+    /**
+     * @return array<string, array{string, bool, bool, string|null}>
+     */
     public function providerForPrepareSchemaAppend(): array
     {
         return [
@@ -125,6 +135,9 @@ final class GenericColumnTest extends TestCase
         self::assertSame($expected, $this->column->prepareSchemaAppend($primaryKey, $autoIncrement, $schema));
     }
 
+    /**
+     * @return list<array{string, string}>
+     */
     public function providerForEscapingQuotes(): array
     {
         return [
@@ -142,6 +155,9 @@ final class GenericColumnTest extends TestCase
         self::assertSame($expected, $this->column->escapeQuotes($value));
     }
 
+    /**
+     * @return array<string, array{string, string, string|null}>
+     */
     public function providerForRemovingPrimaryKeyInfo(): array
     {
         return [
@@ -200,6 +216,9 @@ final class GenericColumnTest extends TestCase
         self::assertSame('test', $this->column->getType());
     }
 
+    /**
+     * @return list<array{string|int|null, string|int|null}>
+     */
     public function providerForSizePrecisionScale(): array
     {
         return [
@@ -212,6 +231,8 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSizePrecisionScale
+     * @param string|int|null $size
+     * @param string|int|null $expected
      */
     public function shouldProperlySetSize($size, $expected): void
     {
@@ -222,6 +243,8 @@ final class GenericColumnTest extends TestCase
     /**
      * @test
      * @dataProvider providerForSizePrecisionScale
+     * @param string|int|null $precision
+     * @param string|int|null $expected
      */
     public function shouldProperlySetPrecision($precision, $expected): void
     {

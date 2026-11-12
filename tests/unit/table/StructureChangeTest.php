@@ -45,6 +45,9 @@ final class StructureChangeTest extends TestCase
         self::assertSame('data', $this->change->getValue());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongCreateTable(): array
     {
         return [
@@ -134,6 +137,9 @@ final class StructureChangeTest extends TestCase
         self::assertTrue($column->isFirst());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongAddColumn(): array
     {
         return [
@@ -306,6 +312,9 @@ final class StructureChangeTest extends TestCase
         self::assertTrue($column->isFirst());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongRenameColumn(): array
     {
         return [
@@ -344,6 +353,9 @@ final class StructureChangeTest extends TestCase
         self::assertSame(['old' => 'a', 'new' => 'b'], $this->change->getValue());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongAddPrimaryKey(): array
     {
         return [
@@ -356,7 +368,7 @@ final class StructureChangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider providerForWrongRenameColumn
+     * @dataProvider providerForWrongAddPrimaryKey
      * @param mixed $data
      */
     public function shouldThrowExceptionForAddPrimaryKeyWithWrongData($data): void
@@ -379,13 +391,15 @@ final class StructureChangeTest extends TestCase
             ]
         );
 
-        /** @var PrimaryKeyInterface $primaryKey */
         $primaryKey = $this->change->getValue();
         self::assertInstanceOf(PrimaryKeyInterface::class, $primaryKey);
         self::assertSame('pk', $primaryKey->getName());
         self::assertSame(['column'], $primaryKey->getColumns());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongAddForeignKey(): array
     {
         return [
@@ -400,7 +414,7 @@ final class StructureChangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider providerForWrongRenameColumn
+     * @dataProvider providerForWrongAddForeignKey
      * @param mixed $data
      */
     public function shouldThrowExceptionForAddForeignKeyWithWrongData($data): void
@@ -428,7 +442,6 @@ final class StructureChangeTest extends TestCase
             ]
         );
 
-        /** @var ForeignKeyInterface $foreignKey */
         $foreignKey = $this->change->getValue();
         self::assertInstanceOf(ForeignKeyInterface::class, $foreignKey);
         self::assertSame('fk', $foreignKey->getName());
@@ -440,6 +453,9 @@ final class StructureChangeTest extends TestCase
         self::assertSame('test', $foreignKey->getTableName());
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForWrongCreateIndex(): array
     {
         return [
@@ -453,7 +469,7 @@ final class StructureChangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider providerForWrongRenameColumn
+     * @dataProvider providerForWrongCreateIndex
      * @param mixed $data
      */
     public function shouldThrowExceptionForCreateIndexWithWrongData($data): void
@@ -477,7 +493,6 @@ final class StructureChangeTest extends TestCase
             ]
         );
 
-        /** @var IndexInterface $index */
         $index = $this->change->getValue();
         self::assertInstanceOf(IndexInterface::class, $index);
         self::assertSame('idx', $index->getName());
@@ -513,6 +528,9 @@ final class StructureChangeTest extends TestCase
         self::assertSame(['column' => 'column', 'comment' => 'comment'], $this->change->getValue());
     }
 
+    /**
+     * @return list<array{string}>
+     */
     public function providerForDataReturnMethods(): array
     {
         return [

@@ -47,6 +47,9 @@ final class StructureRendererTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{bool, string|null, string, string|null}>
+     */
     public function providerForName(): array
     {
         return [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\stubs;
 
 use bizley\migration\GeneratorInterface;
+use bizley\migration\table\ForeignKey;
 use Exception;
 
 final class GeneratorStub implements GeneratorInterface
@@ -48,6 +49,6 @@ final class GeneratorStub implements GeneratorInterface
 
     public function getSuppressedForeignKeys(): array
     {
-        return ['test'];
+        return [new ForeignKey()];
     }
 }

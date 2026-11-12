@@ -21,6 +21,9 @@ final class ForeignKeyTest extends TestCase
         $this->fk = new ForeignKey();
     }
 
+    /**
+     * @return array<string, array{string|null, string}>
+     */
     public function providerForName(): array
     {
         return [
@@ -44,6 +47,9 @@ final class ForeignKeyTest extends TestCase
         self::assertSame($output, $this->fk->getName());
     }
 
+    /**
+     * @return array<string, array{string|null, string}>
+     */
     public function providerForFKConstraints(): array
     {
         return [

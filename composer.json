@@ -19,6 +19,9 @@
       "url": "https://github.com/sponsors/bizley"
     }
   ],
+  "scripts": {
+    "phpstan": "./vendor/bin/phpstan"
+  },
   "require": {
     "php": ">=7.3",
     "ext-mbstring": "*",
@@ -29,7 +32,9 @@
     "infection/infection": "*",
     "phpstan/phpstan": "*",
     "phpunit/phpunit": "<10.0",
-    "roave/security-advisories": "dev-latest"
+    "roave/security-advisories": "dev-latest",
+    "mspirkov/yii2-phpstan": "^0.17",
+    "phpstan/phpstan-phpunit": "^2.1"
   },
   "autoload": {
     "psr-4": {

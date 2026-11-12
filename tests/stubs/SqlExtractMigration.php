@@ -8,12 +8,14 @@ use bizley\migration\dummy\MigrationSqlInterface;
 
 final class SqlExtractMigration implements MigrationSqlInterface
 {
-    public function up()
+    public function up(): bool
     {
+        return true;
     }
 
-    public function down()
+    public function down(): bool
     {
+        return true;
     }
 
     public function getStatements(): array

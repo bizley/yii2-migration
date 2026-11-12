@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4']
+        php: ['8.5']
 
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -43,4 +43,4 @@ jobs:
         run: composer update $DEFAULT_COMPOSER_FLAGS
 
       - name: PHPStan tests
-        run: vendor/bin/phpstan analyze -l 8 -a vendor/yiisoft/yii2/Yii.php --no-progress src
+        run: vendor/bin/phpstan --no-progress

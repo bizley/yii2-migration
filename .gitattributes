@@ -1,6 +1,5 @@
 /.github export-ignore
 /tests export-ignore
-/phpstan.sh export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml.dist export-ignore
 /phpunit-no-yii-autoload.xml.dist export-ignore

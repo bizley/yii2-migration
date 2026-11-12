@@ -189,7 +189,6 @@ class Migration extends Component implements MigrationChangesInterface
 
         $reflectionClass = new ReflectionClass($columnData);
         $reflectionProperty = $reflectionClass->getProperty('type');
-        $reflectionProperty->setAccessible(true);
 
         $schema = $this->fillTypeMapProperties(
             $reflectionProperty->getValue($columnData),
@@ -211,7 +210,6 @@ class Migration extends Component implements MigrationChangesInterface
             ] as $property
         ) {
             $reflectionProperty = $reflectionClass->getProperty($property);
-            $reflectionProperty->setAccessible(true);
 
             $value = $reflectionProperty->getValue($columnData);
             if (($value !== null && $value !== []) || !\array_key_exists($property, $schema)) {

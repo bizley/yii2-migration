@@ -137,6 +137,9 @@ final class HistoryManagerTest extends TestCase
         self::assertSame([], $this->manager->fetchHistory());
     }
 
+    /**
+     * @return array<array-key, array{list<array<string, string|int>>, array<string, int>}>
+     */
     public function providerForHistory(): array
     {
         return [
@@ -199,8 +202,8 @@ final class HistoryManagerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForHistory
-     * @param array $rows
-     * @param array $expected
+     * @param list<array<string, string|int>> $rows
+     * @param array<string, int> $expected
      * @throws NotSupportedException
      */
     public function shouldReturnHistoryInProperOrder(array $rows, array $expected): void

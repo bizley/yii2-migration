@@ -61,6 +61,9 @@ final class UpdaterTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array{string|null, string|null}>
+     */
     public function providerForNamespaces(): array
     {
         return [

@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-        pgsql: ['9', '10', '11', '12', '13', '14', '15', '16']
+        php: ['8.2', '8.3', '8.4', '8.5']
+        pgsql: ['12', '13', '14', '15', '16', '17', '18']
     services:
       postgres:
         image: postgres:${{ matrix.pgsql }}
@@ -45,7 +45,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}

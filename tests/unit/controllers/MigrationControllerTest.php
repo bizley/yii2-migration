@@ -20,6 +20,7 @@ use yii\base\Controller;
 use yii\base\InvalidConfigException;
 use yii\base\Module;
 use yii\base\View;
+use yii\console\Application;
 use yii\console\ExitCode;
 use yii\console\Request;
 use yii\console\Response;
@@ -48,7 +49,8 @@ final class MigrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        Yii::$app = new class {
+        Yii::$app = new class extends Application {
+            /** @var \stdClass */
             public $errorHandler;
 
             public function __construct()
@@ -56,7 +58,11 @@ final class MigrationControllerTest extends TestCase
                 $this->errorHandler = new \stdClass();
             }
 
-            public function has(): bool
+            /**
+             * @param string $id
+             * @param bool $checkInstance
+             */
+            public function has($id, $checkInstance = false): bool
             {
                 return false;
             }
@@ -85,6 +91,9 @@ final class MigrationControllerTest extends TestCase
         Yii::$app = null;
     }
 
+    /**
+     * @return array<string, array{string, list<string>}>
+     */
     public function providerForOptions(): array
     {
         return [
@@ -149,6 +158,7 @@ final class MigrationControllerTest extends TestCase
     /**
      * @test
      * @dataProvider providerForOptions
+     * @param list<string> $expected
      */
     public function shouldReturnProperOptions(string $actionId, array $expected): void
     {
@@ -205,6 +215,9 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array{string}>
+     */
     public function providerForActionIds(): array
     {
         return [
@@ -1556,7 +1569,7 @@ ERROR!
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
 
-        $potentialFiles = \glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php');
+        $potentialFiles = \glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php') ?: [];
         foreach ($potentialFiles as $potentialFile) {
             \unlink($potentialFile);
         }
@@ -1623,6 +1636,9 @@ ERROR!
         \chmod(__DIR__ . '/../../runtime', 0777);
     }
 
+    /**
+     * @return array<string, array{string|int}>
+     */
     public function providerForFileMode(): array
     {
         return [
@@ -1642,7 +1658,7 @@ ERROR!
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
 
-        $potentialFiles = glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php');
+        $potentialFiles = \glob(__DIR__ . '/../../runtime/m??????_??????_create_table_testFileMode.php') ?: [];
         foreach ($potentialFiles as $potentialFile) {
             \unlink($potentialFile);
         }
@@ -1682,6 +1698,9 @@ ERROR!
         }
     }
 
+    /**
+     * @return list<array{string, string}>
+     */
     public function providerForSqlExtract(): array
     {
         return [

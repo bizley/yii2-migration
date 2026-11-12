@@ -17,7 +17,7 @@ final class StringColumn extends Column implements ColumnInterface
 
     /**
      * Sets length of the column.
-     * @param string|null $value
+     * @param string|int|null $value
      */
     public function setLength($value, ?string $schema = null, ?string $engineVersion = null): void
     {

@@ -37,7 +37,7 @@ class MigrationController extends BaseMigrationController
     private $version = '4.4.2';
 
     /**
-     * @var string|array<string> Directory storing the migration classes.
+     * @var string|array<string>|null Directory storing the migration classes.
      * This can be either a path alias or a directory or array of these in which case the first element will be used
      * for generator and only first one will be created if it doesn't exist yet.
      */

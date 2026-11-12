@@ -11,9 +11,13 @@ use yii\base\InvalidArgumentException;
 /** @group controller */
 final class FallbackFileHelperTest extends TestCase
 {
+    /** @var string */
     public $basePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'runtime';
 
-    protected function createFileStructure(array $items, $basePath = ''): void
+    /**
+     * @param array<string, mixed> $items
+     */
+    protected function createFileStructure(array $items, string $basePath = ''): void
     {
         if (empty($basePath)) {
             $basePath = $this->basePath;
@@ -31,7 +35,7 @@ final class FallbackFileHelperTest extends TestCase
         }
     }
 
-    protected function removeDir($dirName): void
+    protected function removeDir(string $dirName): void
     {
         if (!empty($dirName) && \is_dir($dirName) && $handle = \opendir($dirName)) {
             while (false !== ($entry = \readdir($handle))) {
@@ -51,6 +55,45 @@ final class FallbackFileHelperTest extends TestCase
         }
     }
 
+    private function getFileMode(string $file): string
+    {
+        $permissions = \fileperms($file);
+        self::assertNotFalse($permissions, "Unable to get permissions of $file");
+
+        return \substr(\decoct($permissions), -4);
+    }
+
+    private function getFileOwner(string $file): int
+    {
+        $owner = \fileowner($file);
+        self::assertNotFalse($owner, "Unable to get owner of $file");
+
+        return $owner;
+    }
+
+    private function getFileGroup(string $file): int
+    {
+        $group = \filegroup($file);
+        self::assertNotFalse($group, "Unable to get group of $file");
+
+        return $group;
+    }
+
+    private function getUserName(int $userId): string
+    {
+        $user = \posix_getpwuid($userId);
+        self::assertNotFalse($user, "Unable to get user with ID $userId");
+
+        return $user['name'];
+    }
+
+    private function getGroupName(int $groupId): string
+    {
+        $group = \posix_getgrgid($groupId);
+        self::assertNotFalse($group, "Unable to get group with ID $groupId");
+
+        return $group['name'];
+    }
 
     public function tearDown(): void
     {
@@ -75,9 +118,9 @@ final class FallbackFileHelperTest extends TestCase
         $testFile = $this->basePath . DIRECTORY_SEPARATOR . $dirName . DIRECTORY_SEPARATOR . $fileName;
 
         $currentUserId = \posix_getuid();
-        $currentUserName = \posix_getpwuid($currentUserId)['name'];
+        $currentUserName = $this->getUserName($currentUserId);
         $currentGroupId = \posix_getgid();
-        $currentGroupName = \posix_getgrgid($currentGroupId)['name'];
+        $currentGroupName = $this->getGroupName($currentGroupId);
 
         $this->createFileStructure(
             [
@@ -96,7 +139,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected created test file group to be current group.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be changed.'
         );
 
@@ -109,7 +152,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be changed.'
         );
 
@@ -131,7 +174,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -143,7 +186,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -153,13 +196,13 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             $ownership,
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected created test file owner to be changed.'
         );
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -171,7 +214,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -181,13 +224,13 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             \substr($ownership, 0, -1),
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected created test file owner to be changed.'
         );
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -199,7 +242,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -211,7 +254,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -221,13 +264,13 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             $ownership['user'],
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected created test file owner to be changed.'
         );
         self::assertEquals($currentGroupId, \filegroup($testFile), 'Expected file group to be unchanged.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -243,7 +286,7 @@ final class FallbackFileHelperTest extends TestCase
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -254,12 +297,12 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentUserId, \fileowner($testFile), 'Expected file owner to be unchanged.');
         self::assertEquals(
             \substr($ownership, 1),
-            \posix_getgrgid(\filegroup($testFile))['name'],
+            $this->getGroupName($this->getFileGroup($testFile)),
             'Expected created test file group to be changed.'
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -271,7 +314,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($ownership['group'], \filegroup($testFile), 'Expected created test file group to be changed.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -287,7 +330,7 @@ final class FallbackFileHelperTest extends TestCase
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -298,12 +341,12 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($currentUserId, \fileowner($testFile), 'Expected file owner to be unchanged.');
         self::assertEquals(
             $ownership['group'],
-            \posix_getgrgid(\filegroup($testFile))['name'],
+            $this->getGroupName($this->getFileGroup($testFile)),
             'Expected created test file group to be changed.'
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -323,7 +366,7 @@ final class FallbackFileHelperTest extends TestCase
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -333,17 +376,17 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             \explode(':', $ownership)[0],
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected file owner to be changed.'
         );
         self::assertEquals(
             \explode(':', $ownership)[1],
-            \posix_getgrgid(\filegroup($testFile))['name'],
+            $this->getGroupName($this->getFileGroup($testFile)),
             'Expected created test file group to be changed.'
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -355,7 +398,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($ownership[1], \filegroup($testFile), 'Expected created test file group to be changed.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -367,7 +410,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals((int)$ownership[1], \filegroup($testFile), 'Expected created test file group to be changed.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -377,17 +420,17 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             $ownership[0],
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected file owner to be changed.'
         );
         self::assertEquals(
             $ownership[1],
-            \posix_getgrgid(\filegroup($testFile))['name'],
+            $this->getGroupName($this->getFileGroup($testFile)),
             'Expected created test file group to be changed.'
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -399,7 +442,7 @@ final class FallbackFileHelperTest extends TestCase
         self::assertEquals($ownership['group'], \filegroup($testFile), 'Expected created test file group to be changed.');
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -415,7 +458,7 @@ final class FallbackFileHelperTest extends TestCase
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -425,17 +468,17 @@ final class FallbackFileHelperTest extends TestCase
         \clearstatcache(true, $testFile);
         self::assertEquals(
             $ownership['user'],
-            \posix_getpwuid(\fileowner($testFile))['name'],
+            $this->getUserName($this->getFileOwner($testFile)),
             'Expected file owner to be changed.'
         );
         self::assertEquals(
             $ownership['group'],
-            \posix_getgrgid(\filegroup($testFile))['name'],
+            $this->getGroupName($this->getFileGroup($testFile)),
             'Expected created test file group to be changed.'
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected file mode to be unchanged.'
         );
 
@@ -456,7 +499,7 @@ final class FallbackFileHelperTest extends TestCase
         );
         self::assertEquals(
             '0' . \decoct($fileMode),
-            \substr(\decoct(\fileperms($testFile)), -4),
+            $this->getFileMode($testFile),
             'Expected created test file mode to be changed.'
         );
 
@@ -490,6 +533,9 @@ final class FallbackFileHelperTest extends TestCase
         }
     }
 
+    /**
+     * @return list<array{mixed}>
+     */
     public function providerForInvalidArguments(): array
     {
         return [

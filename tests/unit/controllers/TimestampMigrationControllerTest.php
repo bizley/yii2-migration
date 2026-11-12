@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\base\Module;
 use yii\base\View;
+use yii\console\Application;
 use yii\console\ExitCode;
 use yii\db\Connection;
 use yii\db\mysql\Schema as MysqlSchema;
@@ -37,7 +38,8 @@ final class TimestampMigrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        Yii::$app = new class {
+        Yii::$app = new class extends Application {
+            /** @var \stdClass */
             public $errorHandler;
 
             public function __construct()
@@ -45,7 +47,11 @@ final class TimestampMigrationControllerTest extends TestCase
                 $this->errorHandler = new \stdClass();
             }
 
-            public function has(): bool
+            /**
+             * @param string $id
+             * @param bool $checkInstance
+             */
+            public function has($id, $checkInstance = false): bool
             {
                 return false;
             }

@@ -23,11 +23,11 @@ abstract class DbLoaderTestCase extends DbTestCase
 
     protected function getDb(): Connection
     {
-        return static::$db;
+        return static::getConnection();
     }
 
     /**
-     * @param array $tables
+     * @param array<string, array<array-key, ColumnSchemaBuilder|string>> $tables
      * @throws Exception
      * @throws NotSupportedException
      */
@@ -56,14 +56,14 @@ abstract class DbLoaderTestCase extends DbTestCase
 
     /**
      * @param string $table
-     * @param array $columns
+     * @param array<array-key, ColumnSchemaBuilder|string> $columns
      * @throws Exception
      */
     private function createTable(string $table, array $columns): void
     {
         $this->getDb()->createCommand()->createTable($table, $columns, static::$tableOptions)->execute();
         foreach ($columns as $column => $type) {
-            if ($type instanceof ColumnSchemaBuilder && $type->comment !== null) {
+            if (\is_string($column) && $type instanceof ColumnSchemaBuilder && $type->comment !== null) {
                 $this->getDb()->createCommand()->addCommentOnColumn($table, $column, $type->comment)->execute();
             }
         }

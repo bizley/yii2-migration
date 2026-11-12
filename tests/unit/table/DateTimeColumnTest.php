@@ -31,6 +31,9 @@ final class DateTimeColumnTest extends TestCase
         self::assertSame('dateTime({renderLength})', $this->column->getDefinition());
     }
 
+    /**
+     * @return array<string, array{string|int|Expression, string|int|Expression}>
+     */
     public function providerForDefaults(): array
     {
         return [
@@ -60,6 +63,9 @@ final class DateTimeColumnTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{0: string, 1: int|null, 2?: string|null}>
+     */
     public function providerForGettingLength(): array
     {
         return [
@@ -84,6 +90,9 @@ final class DateTimeColumnTest extends TestCase
         self::assertSame($expected, $this->column->getLength($schema, $engineVersion));
     }
 
+    /**
+     * @return array<string, array{0: string, 1: int|null, 2: int|null, 3?: string|null}>
+     */
     public function providerForSettingLength(): array
     {
         return [

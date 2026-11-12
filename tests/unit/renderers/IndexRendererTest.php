@@ -42,6 +42,9 @@ final class IndexRendererTest extends TestCase
         self::assertSame('$this->dropIndex(\'pk\', \'test\');', $this->renderer->renderDown($index, 'test'));
     }
 
+    /**
+     * @return array<string, array{int, list<string>, bool, string, string}>
+     */
     public function providerForRender(): array
     {
         return [
@@ -80,7 +83,7 @@ final class IndexRendererTest extends TestCase
      * @test
      * @dataProvider providerForRender
      * @param int $indent
-     * @param array $columns
+     * @param list<string> $columns
      * @param bool $unique
      * @param string $expectedCreate
      * @param string $expectedDrop

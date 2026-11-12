@@ -100,6 +100,9 @@ final class ForeignKeyRendererTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{int, list<string>, list<string>, string|null, string|null, string, string}>
+     */
     public function providerForRender(): array
     {
         return [
@@ -190,8 +193,8 @@ RENDERED
      * @test
      * @dataProvider providerForRender
      * @param int $indent
-     * @param array $columns
-     * @param array $refColumns
+     * @param list<string> $columns
+     * @param list<string> $refColumns
      * @param string|null $onDelete
      * @param string|null $onUpdate
      * @param string $expectedAdd
@@ -218,6 +221,9 @@ RENDERED
         self::assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test', $indent));
     }
 
+    /**
+     * @return array<string, array{string|null, list<string>, string, string}>
+     */
     public function providerForRenderName(): array
     {
         return [
@@ -296,7 +302,7 @@ RENDERED
      * @test
      * @dataProvider providerForRenderName
      * @param string|null $name
-     * @param array $columns
+     * @param list<string> $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
      * @throws NotSupportedException

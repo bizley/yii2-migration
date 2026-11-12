@@ -23,6 +23,9 @@ final class ColumnRendererTest extends TestCase
         return new ColumnRenderer($generalSchema);
     }
 
+    /**
+     * @return list<array{string|null, string|null}>
+     */
     public function providerForEscaping(): array
     {
         return [
