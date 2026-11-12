@@ -33,7 +33,7 @@
     "phpstan/phpstan": "*",
     "phpunit/phpunit": "<10.0",
     "roave/security-advisories": "dev-latest",
-    "mspirkov/yii2-phpstan": "^0.16",
+    "mspirkov/yii2-phpstan": "^0.17",
     "phpstan/phpstan-phpunit": "^2.1"
   },
   "autoload": {
