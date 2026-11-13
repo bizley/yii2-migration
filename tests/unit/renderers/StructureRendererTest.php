@@ -22,6 +22,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class StructureRendererTest extends TestCase
 {
+    use PhpStringLiteralsTrait;
+
     /** @var StructureRenderer */
     private $structureRenderer;
     /** @var ColumnRendererInterface&MockObject */
@@ -277,5 +279,24 @@ RENDERED
         $this->foreignKeyRenderer->method('renderDown')->willReturn('foreign-key-render');
 
         self::assertSame('foreign-key-render', $this->structureRenderer->renderForeignKeysDown([$foreignKey]));
+    }
+
+    /** @test */
+    public function shouldEscapeTableNameInRenderedCode(): void
+    {
+        $name = self::$unusualName;
+        $structure = $this->createMock(StructureInterface::class);
+        $structure->method('getName')->willReturn($name);
+        $structure->method('getColumns')->willReturn([$this->createMock(ColumnInterface::class)]);
+        $this->columnRenderer->method('render')->willReturn("'col' => \$this->integer(),");
+
+        self::assertSame(
+            ['mysql', 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB', $name, 'col'],
+            self::stringLiterals($this->structureRenderer->renderStructureUp($structure, 0, null, null, false))
+        );
+        self::assertSame(
+            [$name],
+            self::stringLiterals($this->structureRenderer->renderStructureDown($structure, 0, false))
+        );
     }
 }

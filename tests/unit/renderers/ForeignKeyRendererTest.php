@@ -17,6 +17,8 @@ use yii\base\NotSupportedException;
  */
 final class ForeignKeyRendererTest extends TestCase
 {
+    use PhpStringLiteralsTrait;
+
     /** @var ForeignKeyRenderer */
     private $renderer;
 
@@ -320,5 +322,23 @@ RENDERED
 
         self::assertSame($expectedAdd, $this->renderer->renderUp($foreignKey, 'test', 'refTable'));
         self::assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
+    }
+
+    /** @test */
+    public function shouldEscapeNamesInRenderedCode(): void
+    {
+        $name = self::$unusualName;
+        $foreignKey = $this->createMock(ForeignKeyInterface::class);
+        $foreignKey->method('getName')->willReturn($name);
+        $foreignKey->method('getColumns')->willReturn([$name, 'b']);
+        $foreignKey->method('getReferredColumns')->willReturn(['c', $name]);
+        $foreignKey->method('getOnDelete')->willReturn($name);
+        $foreignKey->method('getOnUpdate')->willReturn('CASCADE');
+
+        self::assertSame(
+            [$name, $name, $name, 'b', $name, 'c', $name, $name, 'CASCADE'],
+            self::stringLiterals($this->renderer->renderUp($foreignKey, $name, $name))
+        );
+        self::assertSame([$name, $name], self::stringLiterals($this->renderer->renderDown($foreignKey, $name)));
     }
 }

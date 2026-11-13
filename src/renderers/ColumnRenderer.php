@@ -47,16 +47,12 @@ final class ColumnRenderer implements ColumnRendererInterface
     ): string {
         $template = \str_repeat(' ', $indent) . $this->definitionTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{columnName}',
-                '{columnDefinition}'
-            ],
-            [
-                $column->getName(),
-                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
-            ],
-            $template
+                '{columnName}' => QuoteEscaper::escape($column->getName()),
+                '{columnDefinition}' => $this->renderDefinition($column, $primaryKey, $schema, $engineVersion),
+            ]
         );
     }
 
@@ -73,18 +69,13 @@ final class ColumnRenderer implements ColumnRendererInterface
     ): string {
         $template = \str_repeat(' ', $indent) . $this->addColumnTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{tableName}',
-                '{columnName}',
-                '{columnDefinition}'
-            ],
-            [
-                $tableName,
-                $column->getName(),
-                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
-            ],
-            $template
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{columnName}' => QuoteEscaper::escape($column->getName()),
+                '{columnDefinition}' => $this->renderDefinition($column, $primaryKey, $schema, $engineVersion),
+            ]
         );
     }
 
@@ -101,18 +92,13 @@ final class ColumnRenderer implements ColumnRendererInterface
     ): string {
         $template = \str_repeat(' ', $indent) . $this->alterColumnTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{tableName}',
-                '{columnName}',
-                '{columnDefinition}'
-            ],
-            [
-                $tableName,
-                $column->getName(),
-                $this->renderDefinition($column, $primaryKey, $schema, $engineVersion)
-            ],
-            $template
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{columnName}' => QuoteEscaper::escape($column->getName()),
+                '{columnDefinition}' => $this->renderDefinition($column, $primaryKey, $schema, $engineVersion),
+            ]
         );
     }
 
@@ -123,16 +109,12 @@ final class ColumnRenderer implements ColumnRendererInterface
     {
         $template = \str_repeat(' ', $indent) . $this->dropColumnTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{tableName}',
-                '{columnName}'
-            ],
-            [
-                $tableName,
-                $column->getName(),
-            ],
-            $template
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{columnName}' => QuoteEscaper::escape($column->getName()),
+            ]
         );
     }
 
@@ -295,6 +277,6 @@ final class ColumnRenderer implements ColumnRendererInterface
             return null;
         }
 
-        return \str_replace(['\\', '\''], ['\\\\', '\\\''], $value);
+        return QuoteEscaper::escape($value);
     }
 }

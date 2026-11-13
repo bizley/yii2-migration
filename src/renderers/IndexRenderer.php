@@ -19,26 +19,14 @@ final class IndexRenderer implements IndexRendererInterface
     {
         $template = \str_repeat(' ', $indent) . $this->createIndexTemplate;
 
-        $indexColumns = $index->getColumns();
-        $renderedColumns = [];
-        foreach ($indexColumns as $indexColumn) {
-            $renderedColumns[] = "'$indexColumn'";
-        }
-
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{indexName}',
-                '{tableName}',
-                '{indexColumns}',
-                '{unique}',
-            ],
-            [
-                $index->getName() ?? '',
-                $tableName,
-                \implode(', ', $renderedColumns),
-                $index->isUnique() ? ', true' : '',
-            ],
-            $template
+                '{indexName}' => QuoteEscaper::escape($index->getName() ?? ''),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+                '{indexColumns}' => QuoteEscaper::renderList($index->getColumns()),
+                '{unique}' => $index->isUnique() ? ', true' : '',
+            ]
         );
     }
 
@@ -49,16 +37,12 @@ final class IndexRenderer implements IndexRendererInterface
     {
         $template = \str_repeat(' ', $indent) . $this->dropIndexTemplate;
 
-        return \str_replace(
+        return \strtr(
+            $template,
             [
-                '{indexName}',
-                '{tableName}'
-            ],
-            [
-                $index->getName() ?? '',
-                $tableName
-            ],
-            $template
+                '{indexName}' => QuoteEscaper::escape($index->getName() ?? ''),
+                '{tableName}' => QuoteEscaper::escape($tableName),
+            ]
         );
     }
 }

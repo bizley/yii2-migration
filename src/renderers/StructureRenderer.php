@@ -136,16 +136,12 @@ TEMPLATE;
 
         return $this->applyIndent(
             $indent,
-            \str_replace(
+            \strtr(
+                $this->createTableTemplate,
                 [
-                    '{tableName}',
-                    '{columns}',
-                ],
-                [
-                    $tableName,
-                    \implode("\n", $renderedColumns),
-                ],
-                $this->createTableTemplate
+                    '{tableName}' => QuoteEscaper::escape($tableName),
+                    '{columns}' => \implode("\n", $renderedColumns),
+                ]
             )
         );
     }
@@ -159,7 +155,7 @@ TEMPLATE;
     ): string {
         $template = $this->applyIndent($indent, $this->dropTableTemplate);
 
-        return \str_replace('{tableName}', $tableName, $template);
+        return \str_replace('{tableName}', QuoteEscaper::escape($tableName), $template);
     }
 
     /**
