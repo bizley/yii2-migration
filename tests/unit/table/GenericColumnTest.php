@@ -198,6 +198,9 @@ final class GenericColumnTest extends TestCase
             'mysql pk ai' => [Schema::MYSQL, 'PRIMARY KEY AUTO_INCREMENT', null],
             'mysql ai pk' => [Schema::MYSQL, 'AUTO_INCREMENT  PRIMARY KEY', null],
             'mysql pk ai trim' => [Schema::MYSQL, '   PRIMARY KEY  AUTO_INCREMENT ', null],
+            'mysql no pk untouched' => [Schema::MYSQL, ' abc  def ', ' abc  def '],
+            'oci pk keeps ai' => [Schema::OCI, 'PRIMARY KEY AUTO_INCREMENT', 'AUTO_INCREMENT'],
+            'pgsql pk keeps ai' => [Schema::PGSQL, 'PRIMARY KEY AUTO_INCREMENT', 'AUTO_INCREMENT'],
         ];
     }
 

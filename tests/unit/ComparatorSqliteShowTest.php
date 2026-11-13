@@ -277,6 +277,32 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
      * @test
      * @throws NotSupportedException
      */
+    public function shouldEscapeDoubleQuotesInDifferenceDescription(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setComment('say "hi"');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setComment('def');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertSame(
+            [
+                "different 'col' column property: comment (DB: \"say \\\"hi\\\"\" != MIG: \"def\")",
+                '(!) ALTER COLUMN is not supported by SQLite: Migration must be created manually'
+            ],
+            $this->blueprint->getDescriptions()
+        );
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
     public function shouldAlterColumnForGetComment(): void
     {
         $columnNew = $this->getColumn('col');

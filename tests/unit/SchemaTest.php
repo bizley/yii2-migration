@@ -61,7 +61,32 @@ final class SchemaTest extends TestCase
     /** @test */
     public function shouldReturnNoDefaultLengthForNoSchema(): void
     {
-        self::assertNull(Schema::getDefaultLength(null, YiiSchema::TYPE_PK));
+        self::assertNull(self::withoutDeprecations(static fn () => Schema::getDefaultLength(null, YiiSchema::TYPE_PK)));
+    }
+
+    /**
+     * Runs the callback and fails when it triggers a deprecation (i.e. null used as an array offset in PHP 8.5+).
+     * @param callable(): mixed $callback
+     * @return mixed
+     */
+    private static function withoutDeprecations(callable $callback)
+    {
+        $deprecations = [];
+        \set_error_handler(
+            static function (int $errno, string $errstr) use (&$deprecations): bool {
+                $deprecations[] = $errstr;
+                return true;
+            },
+            \E_DEPRECATED | \E_USER_DEPRECATED
+        );
+        try {
+            $result = $callback();
+        } finally {
+            \restore_error_handler();
+        }
+        self::assertSame([], $deprecations);
+
+        return $result;
     }
 
     /**
@@ -354,7 +379,7 @@ final class SchemaTest extends TestCase
     /** @test */
     public function shouldReturnNoAliasForNoSchema(): void
     {
-        self::assertNull(Schema::getAlias(null, YiiSchema::TYPE_PK, '11'));
+        self::assertNull(self::withoutDeprecations(static fn () => Schema::getAlias(null, YiiSchema::TYPE_PK, '11')));
     }
 
     /**

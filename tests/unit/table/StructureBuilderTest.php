@@ -204,6 +204,7 @@ final class StructureBuilderTest extends TestCase
         self::assertCount(1, $structure->getColumns());
         self::assertNull($structure->getColumn('column'));
         self::assertNotNull($structure->getColumn('new-column'));
+        self::assertSame('column', $column->getName(), 'Original column must not be modified.');
     }
 
     /** @test */
@@ -446,6 +447,37 @@ final class StructureBuilderTest extends TestCase
     }
 
     /** @test */
+    public function shouldKeepColumnUniqueWhenDroppingNonUniqueIndex(): void
+    {
+        $column = new IntegerColumn();
+        $column->setType('integer');
+        $column->setName('idx-column');
+        $column->setUnique(true);
+
+        $changeAddColumn = $this->createMock(StructureChangeInterface::class);
+        $changeAddColumn->method('getMethod')->willReturn('addColumn');
+        $changeAddColumn->method('getValue')->willReturn($column);
+
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getName')->willReturn('idx');
+        $index->method('isUnique')->willReturn(false);
+        $index->method('getColumns')->willReturn(['idx-column']);
+
+        $changeAddIndex = $this->createMock(StructureChangeInterface::class);
+        $changeAddIndex->method('getMethod')->willReturn('createIndex');
+        $changeAddIndex->method('getValue')->willReturn($index);
+
+        $this->change->method('getMethod')->willReturn('dropIndex');
+        $this->change->method('getValue')->willReturn('idx');
+
+        $structure = $this->builder->build([$changeAddColumn, $changeAddIndex, $this->change], null, null);
+
+        $structureColumn = $structure->getColumn('idx-column');
+        self::assertNotNull($structureColumn);
+        self::assertTrue($structureColumn->isUnique());
+    }
+
+    /** @test */
     public function shouldProperlyBuildWithAddCommentOnColumn(): void
     {
         $column = new IntegerColumn();
@@ -602,5 +634,61 @@ final class StructureBuilderTest extends TestCase
 
         self::assertNull($structure->getPrimaryKey());
         self::assertCount(1, $structure->getColumns());
+    }
+
+    /** @test */
+    public function shouldDropPrimaryKeyInfoFromRemainingColumnsWhenOneOfItsColumnsWasDropped(): void
+    {
+        $structure = $this->builder->build(
+            [
+                $this->createChange('createTable', ['a' => ['type' => 'integer'], 'x' => ['type' => 'string']]),
+                $this->createChange('addPrimaryKey', ['name' => 'pk', 'columns' => ['a', 'x']]),
+                $this->createChange('dropColumn', 'a'),
+                $this->createChange('dropPrimaryKey', 'pk'),
+            ],
+            'mysql',
+            null
+        );
+
+        self::assertNull($structure->getPrimaryKey());
+        $column = $structure->getColumn('x');
+        self::assertNotNull($column);
+        self::assertNull($column->getAppend());
+    }
+
+    /** @test */
+    public function shouldKeepUniquenessAndOnUpdateWhenRenamingColumn(): void
+    {
+        $structure = $this->builder->build(
+            [
+                $this->createChange('createTable', ['a' => ['type' => 'integer']]),
+                $this->createChange('createIndex', ['name' => 'idx', 'columns' => ['a'], 'unique' => true]),
+                $this->createChange(
+                    'addForeignKey',
+                    [
+                        'name' => 'fk',
+                        'columns' => ['a'],
+                        'referredTable' => 'other',
+                        'referredColumns' => ['id'],
+                        'onDelete' => null,
+                        'onUpdate' => 'CASCADE',
+                        'tableName' => 'table',
+                    ]
+                ),
+                $this->createChange('renameColumn', ['old' => 'a', 'new' => 'b']),
+            ],
+            null,
+            null
+        );
+
+        $index = $structure->getIndex('idx');
+        self::assertNotNull($index);
+        self::assertSame(['b'], $index->getColumns());
+        self::assertTrue($index->isUnique());
+
+        $foreignKey = $structure->getForeignKey('fk');
+        self::assertNotNull($foreignKey);
+        self::assertSame(['b'], $foreignKey->getColumns());
+        self::assertSame('CASCADE', $foreignKey->getOnUpdate());
     }
 }

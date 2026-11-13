@@ -406,6 +406,51 @@ final class ColumnRendererTest extends TestCase
     }
 
     /** @test */
+    public function shouldNotAppendPrimaryKeyInfoForPrimaryKeyColumnInGeneralSchema(): void
+    {
+        $column = $this->createMock(PrimaryKeyColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('isColumnInPrimaryKey')->willReturn(true);
+        $column->method('prepareSchemaAppend')->willReturn('schema-append');
+
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(false);
+
+        self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
+    }
+
+    /** @test */
+    public function shouldRenderProperlySimpleColumnWithTrimmedAppend(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getAppend')->willReturn('  aaa  ');
+
+        self::assertSame('\'col\' => $this->def()->append(\'aaa\'),', $this->getRenderer()->render($column));
+    }
+
+    /** @test */
+    public function shouldNotDuplicateSchemaAppendAlreadyPresentInColumnAppend(): void
+    {
+        $column = $this->createMock(ColumnInterface::class);
+        $column->method('getName')->willReturn('col');
+        $column->method('getDefinition')->willReturn('def({renderLength})');
+        $column->method('getAppend')->willReturn('schema-append aaa');
+        $column->method('isColumnInPrimaryKey')->willReturn(true);
+        $column->method('prepareSchemaAppend')->willReturn('schema-append');
+
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(false);
+
+        self::assertSame(
+            '\'col\' => $this->def()->append(\'schema-append aaa\'),',
+            $this->getRenderer()->render($column, $primaryKey)
+        );
+    }
+
+    /** @test */
     public function shouldRenderProperlyColumnToAdd(): void
     {
         $column = $this->createMock(ColumnInterface::class);

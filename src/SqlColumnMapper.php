@@ -115,7 +115,7 @@ class SqlColumnMapper
                 [$cutTo, $sentence] = $this->findPart('(', $this->definition, $cutFrom);
                 $this->schema['default'] = new Expression($sentence);
                 $this->cutOutDefinition($cutFrom, $cutTo);
-            } elseif (\preg_match('/DEFAULT\s?[0-9]/i', $this->definition)) {
+            } elseif (\preg_match('/DEFAULT\s?-?[0-9]/i', $this->definition)) {
                 [$cutTo, $sentence] = $this->findPart('1', $this->definition, $cutFrom);
                 $this->schema['default'] = $sentence;
                 $this->cutOutDefinition($cutFrom, $cutTo);
@@ -245,7 +245,7 @@ class SqlColumnMapper
 
             if ($collect) {
                 if ($char !== $quote) {
-                    if ($consecutiveQuotes > 0 && $consecutiveQuotes % 2 !== 0) {
+                    if ($consecutiveQuotes % 2 === 1) {
                         break;
                     }
                     $consecutiveQuotes = 0;
@@ -257,11 +257,11 @@ class SqlColumnMapper
                 }
             }
         }
-        if ($consecutiveQuotes > 0 && $consecutiveQuotes % 2 !== 0) {
+        if ($consecutiveQuotes % 2 === 1) {
             $part = \substr($part, 0, -1);
         }
 
-        return [(int)$end, $part];
+        return [$end, $part];
     }
 
     /**
@@ -290,7 +290,7 @@ class SqlColumnMapper
             $end = $index + 2;
         }
 
-        return [(int)$end, $part];
+        return [$end, $part];
     }
 
     /**
@@ -300,6 +300,8 @@ class SqlColumnMapper
     private function findParenthesizedPart(array $sentenceArray): array
     {
         $part = '';
+        // the opening parenthesis is always present here, so $end is always overwritten
+        /** @infection-ignore-all */
         $end = 0;
         $collect = false;
         $openedParenthesis = 0;
@@ -321,7 +323,7 @@ class SqlColumnMapper
             }
         }
 
-        return [(int)$end, $part];
+        return [$end, $part];
     }
 
     /**
@@ -331,30 +333,28 @@ class SqlColumnMapper
     private function findNumericPart(array $sentenceArray): array
     {
         $part = '';
+        // the digit (or minus sign) is always present here, so $end is always overwritten
+        /** @infection-ignore-all */
         $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
-            if (!$collect && !\is_numeric($char) && $char !== '-') {
-                continue;
-            }
-
-            if (!$collect && (\is_numeric($char) || $char === '-')) {
-                $collect = true;
-                $part .= $char;
-                $end = $index + 1;
-                continue;
-            }
-
-            if ($collect) {
-                if (!\is_numeric($char) && !\preg_match('/[a-fA-F0-9x.]/', $char)) {
-                    break;
+            if (!$collect) {
+                if (\is_numeric($char) || $char === '-') {
+                    $collect = true;
+                    $part = $char;
+                    $end = $index + 1;
                 }
-                $part .= $char;
-                $end = $index + 1;
+                continue;
             }
+
+            if (!\is_numeric($char) && !\preg_match('/[a-fA-F0-9x.]/', $char)) {
+                break;
+            }
+            $part .= $char;
+            $end = $index + 1;
         }
 
-        return [(int)$end, $part];
+        return [$end, $part];
     }
 
     /**
@@ -364,6 +364,8 @@ class SqlColumnMapper
     private function findExpressionPart(array $sentenceArray): array
     {
         $part = '';
+        // the letter is always present here, so $end is always overwritten
+        /** @infection-ignore-all */
         $end = 0;
         $collect = false;
         foreach ($sentenceArray as $index => $char) {
@@ -371,30 +373,26 @@ class SqlColumnMapper
                 continue;
             }
 
-            if (!$collect && \preg_match('/[a-z]/i', $char)) {
-                $collect = true;
+            $collect = true;
+
+            if (\preg_match('/\s/', $char)) {
+                break;
             }
 
-            if ($collect) {
-                if (\preg_match('/\s/', $char)) {
-                    break;
-                }
-
-                if ($char === '(') {
-                    [$parenthesisPartEnd, $parenthesisPart] = $this->findParenthesizedPart(
-                        \array_slice($sentenceArray, $index)
-                    );
-                    $part .= $parenthesisPart;
-                    $end = $index + $parenthesisPartEnd;
-                    break;
-                }
-
-                $part .= $char;
-                $end = $index + 1;
+            if ($char === '(') {
+                [$parenthesisPartEnd, $parenthesisPart] = $this->findParenthesizedPart(
+                    \array_slice($sentenceArray, $index)
+                );
+                $part .= $parenthesisPart;
+                $end = $index + $parenthesisPartEnd;
+                break;
             }
+
+            $part .= $char;
+            $end = $index + 1;
         }
 
-        return [(int)$end, $part];
+        return [$end, $part];
     }
 
     private function prepareAppend(): void

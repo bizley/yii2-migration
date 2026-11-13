@@ -341,4 +341,25 @@ RENDERED
         );
         self::assertSame([$name, $name], self::stringLiterals($this->renderer->renderDown($foreignKey, $name)));
     }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldTreatNegativeIndentAsNoIndent(): void
+    {
+        $foreignKey = $this->createMock(ForeignKeyInterface::class);
+        $foreignKey->method('getColumns')->willReturn(['a']);
+        $foreignKey->method('getReferredColumns')->willReturn(['b']);
+        $foreignKey->method('getName')->willReturn('fk');
+
+        self::assertSame(
+            $this->renderer->renderUp($foreignKey, 'test', 'refTable'),
+            $this->renderer->renderUp($foreignKey, 'test', 'refTable', -4)
+        );
+        self::assertSame(
+            $this->renderer->renderDown($foreignKey, 'test'),
+            $this->renderer->renderDown($foreignKey, 'test', -4)
+        );
+    }
 }

@@ -44,6 +44,8 @@ final class DateTimeColumnTest extends TestCase
             'current_timestamp(10)' => ['current_timestamp(10)', new Expression('current_timestamp(10)')],
             'CURRENT_TIMESTAMP(2)' => ['CURRENT_TIMESTAMP(2)', new Expression('CURRENT_TIMESTAMP(2)')],
             'CURRENT_TIMESTAMP()' => ['CURRENT_TIMESTAMP()', new Expression('CURRENT_TIMESTAMP()')],
+            'prefixed current_timestamp()' => ['x current_timestamp()', 'x current_timestamp()'],
+            'suffixed current_timestamp()' => ['current_timestamp() x', 'current_timestamp() x'],
         ];
     }
 

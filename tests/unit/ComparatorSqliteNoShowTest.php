@@ -242,6 +242,50 @@ final class ComparatorSqliteNoShowTest extends ComparatorNonSqliteTest
     /**
      * @test
      */
+    public function shouldEscapeDoubleQuotesInDifferenceDescription(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $columnNew = $this->getColumn('col');
+        $columnNew->setComment('say "hi"');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setComment('def');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAddCompositePrimaryKeyEvenWhenNewColumnHasPKInfo(): void
+    {
+        $this->expectException(NotSupportedException::class);
+
+        $columnId = $this->getColumn('id');
+        $columnCol = $this->getColumn('col');
+        $columnCol->setAppend('PRIMARY KEY');
+        $this->newStructure->method('getColumns')->willReturn(['id' => $columnId, 'col' => $columnCol]);
+        $this->newStructure->method('getColumn')->willReturnMap([['id', $columnId], ['col', $columnCol]]);
+        $this->oldStructure->method('getColumns')->willReturn(['id' => $columnId]);
+        $this->oldStructure->method('getColumn')->willReturnMap([['id', $columnId], ['col', null]]);
+
+        $primaryKeyNew = new PrimaryKey();
+        $primaryKeyNew->setColumns(['id', 'col']);
+        $primaryKeyOld = new PrimaryKey();
+        $primaryKeyOld->setColumns(['id']);
+        $this->newStructure->method('getPrimaryKey')->willReturn($primaryKeyNew);
+        $this->oldStructure->method('getPrimaryKey')->willReturn($primaryKeyOld);
+
+        $this->compare();
+    }
+
+    /**
+     * @test
+     */
     public function shouldAlterColumnForGetAppendNonPK(): void
     {
         $this->expectException(NotSupportedException::class);

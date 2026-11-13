@@ -496,6 +496,43 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /** @test */
+    public function shouldKeepUnterminatedEmptyCommentInAppend(): void
+    {
+        self::assertSame(
+            [
+                'comment' => '',
+                'type' => 'string',
+                'append' => "comment '",
+            ],
+            SqlColumnMapper::map("comment '", [])
+        );
+    }
+
+    /** @test */
+    public function shouldKeepEvenNumberOfTrailingQuotesInUnterminatedComment(): void
+    {
+        self::assertSame(
+            [
+                'comment' => "te''",
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map("comment 'te''", [])
+        );
+    }
+
+    /** @test */
+    public function shouldDropClosingQuoteAfterEscapedQuotesInComment(): void
+    {
+        self::assertSame(
+            [
+                'comment' => "te''",
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map("comment 'te'''", [])
+        );
+    }
+
+    /** @test */
     public function shouldDetectStringDefault(): void
     {
         self::assertSame(
@@ -566,6 +603,71 @@ class SqlColumnMapperTest extends TestCase
             ],
             SqlColumnMapper::map('default 1s5', [])
         );
+    }
+
+    /** @test */
+    public function shouldDetectNegativeNumericDefault(): void
+    {
+        self::assertSame(
+            [
+                'default' => '-1',
+                'isNotNull' => true,
+                'type' => 'string',
+            ],
+            SqlColumnMapper::map('default -1 not null', [])
+        );
+    }
+
+    /** @test */
+    public function shouldCutOnlyMultiDigitNumericDefault(): void
+    {
+        self::assertSame(
+            [
+                'default' => '12',
+                'type' => 'string',
+                'append' => 's',
+            ],
+            SqlColumnMapper::map('default 12s', [])
+        );
+    }
+
+    /** @test */
+    public function shouldStopNumericDefaultAtHyphen(): void
+    {
+        self::assertSame(
+            [
+                'default' => '5',
+                'type' => 'string',
+                'append' => '-3',
+            ],
+            SqlColumnMapper::map('default 5-3', [])
+        );
+    }
+
+    /** @test */
+    public function shouldCutOnlyParenthesizedDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default (1)not null', []);
+        self::assertSame('(1)', $schema['default']->expression);
+        self::assertTrue($schema['isNotNull']);
+        self::assertArrayNotHasKey('append', $schema);
+    }
+
+    /** @test */
+    public function shouldCutOnlyParenthesizedExpressionDefault(): void
+    {
+        $schema = SqlColumnMapper::map('default NOW() not null', []);
+        self::assertSame('NOW()', $schema['default']->expression);
+        self::assertTrue($schema['isNotNull']);
+        self::assertArrayNotHasKey('append', $schema);
+    }
+
+    /** @test */
+    public function shouldCutOnlyExpressionDefault(): void
+    {
+        $schema = SqlColumnMapper::map('x default CURRENT_TIMESTAMP y', []);
+        self::assertSame('CURRENT_TIMESTAMP', $schema['default']->expression);
+        self::assertSame('x  y', $schema['append']);
     }
 
     /** @test */
@@ -660,6 +762,24 @@ class SqlColumnMapperTest extends TestCase
                 'type' => 'string',
             ],
             SqlColumnMapper::map('after `col', [])
+        );
+
+        self::assertSame(
+            [
+                'after' => 'col',
+                'type' => 'string',
+                'append' => 'xyz',
+            ],
+            SqlColumnMapper::map('after `col`xyz', [])
+        );
+
+        self::assertSame(
+            [
+                'after' => '',
+                'type' => 'string',
+                'append' => '``',
+            ],
+            SqlColumnMapper::map('after ``', [])
         );
     }
 

@@ -528,7 +528,7 @@ final class TableMapperTest extends TestCase
         $db = $this->createMock(Connection::class);
         $db->method('getSchema')->willReturn($schema);
 
-        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema = $this->createMock(MssqlTableSchema::class);
         $tableSchema->name = 'bill';
         $tableSchema->schemaName = 'dbo';
         $tableSchema->columns = [
@@ -556,7 +556,7 @@ final class TableMapperTest extends TestCase
         ]);
         $db->expects(self::once())
             ->method('createCommand')
-            ->with(self::stringContains('INFORMATION_SCHEMA'), [':schema' => 'dbo', ':table' => 'bill'])
+            ->with(self::stringContains('FROM [INFORMATION_SCHEMA].[COLUMNS]'), [':schema' => 'dbo', ':table' => 'bill'])
             ->willReturn($command);
 
         $mapper = new TableMapper($db);
@@ -841,6 +841,7 @@ final class TableMapperTest extends TestCase
     {
         $db = $this->preparePgsqlIndexConnection([
             new IndexConstraint(['name' => 'pk', 'columnNames' => ['id'], 'isPrimary' => true, 'isUnique' => true]),
+            $this->plainIndex('idx-unknown', 'g'),
             $this->plainIndex('idx-hash', 'a'),
             $this->plainIndex('idx-btree', 'b'),
             $this->plainIndex('idx-gin', 'c'),
@@ -850,10 +851,15 @@ final class TableMapperTest extends TestCase
                 ['name' => 'idx-partial', 'columnNames' => ['e'], 'isPrimary' => false, 'isUnique' => true]
             ),
             $this->plainIndex('idx-multi', 'f'),
-            $this->plainIndex('idx-unknown', 'g'),
         ]);
         $command = $this->createMock(Command::class);
         $command->expects(self::once())->method('queryAll')->willReturn([
+            [
+                'name' => 'idx-unknown',
+                'method' => 'btree',
+                'definition' => 'something unexpected',
+                'plain_columns' => 'g',
+            ],
             [
                 'name' => 'idx-hash',
                 'method' => 'hash',
@@ -895,12 +901,6 @@ final class TableMapperTest extends TestCase
                 'method' => 'btree',
                 'definition' => 'CREATE INDEX "idx-multi" ON public.tab USING btree (f, "G")',
                 'plain_columns' => 'f, "G"',
-            ],
-            [
-                'name' => 'idx-unknown',
-                'method' => 'btree',
-                'definition' => 'something unexpected',
-                'plain_columns' => 'g',
             ],
         ]);
         $db->expects(self::once())

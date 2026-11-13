@@ -102,6 +102,22 @@ final class PrimaryKeyRendererTest extends TestCase
         );
     }
 
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldRenderDownForNonSQLiteAndNonGeneralSchema(): void
+    {
+        $primaryKey = $this->createMock(PrimaryKeyInterface::class);
+        $primaryKey->method('isComposite')->willReturn(true);
+        $primaryKey->method('getName')->willReturn('pk');
+
+        self::assertSame(
+            '$this->dropPrimaryKey(\'pk\', \'test\');',
+            (new PrimaryKeyRenderer(false))->renderDown($primaryKey, 'test', 0, Schema::MYSQL)
+        );
+    }
+
     /** @test */
     public function shouldRenderProperTemplateForDown(): void
     {
