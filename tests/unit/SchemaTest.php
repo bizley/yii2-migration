@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace bizley\tests\unit;
 
 use bizley\migration\Schema;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\db\Schema as YiiSchema;
 
-/** @group schema */
+#[Group('schema')]
 final class SchemaTest extends TestCase
 {
     /**
      * @return array<string, array{class-string, string}>
      */
-    public function providerForSchema(): array
+    public static function providerForSchema(): array
     {
         return [
             'cubrid' => [\yii\db\cubrid\Schema::class, Schema::CUBRID],
@@ -31,12 +34,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchema
      * @param class-string $schemaClass
      * @param string $expected
      * @throws InvalidConfigException
      */
+    #[DataProvider('providerForSchema')]
+    #[Test]
     public function shouldReturnProperSchemaType(string $schemaClass, string $expected): void
     {
         $schema = Yii::createObject(
@@ -49,16 +52,16 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
      * @throws InvalidConfigException
      */
+    #[Test]
     public function shouldCheckIfSchemaIsSqlite(): void
     {
         self::assertTrue(Schema::isSQLite(Yii::createObject(\yii\db\sqlite\Schema::class)));
         self::assertFalse(Schema::isSQLite(new \stdClass()));
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnNoDefaultLengthForNoSchema(): void
     {
         self::assertNull(self::withoutDeprecations(static fn () => Schema::getDefaultLength(null, YiiSchema::TYPE_PK)));
@@ -92,7 +95,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForCubrid(): array
+    public static function providerForSchemaDefaultLengthForCubrid(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK],
@@ -120,11 +123,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForCubrid
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForCubrid')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForCubrid(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::CUBRID, $type));
@@ -133,7 +136,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForMSSQL(): array
+    public static function providerForSchemaDefaultLengthForMSSQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK],
@@ -161,11 +164,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForMSSQL
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForMSSQL')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForMSSQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MSSQL, $type));
@@ -174,7 +177,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForMySQL(): array
+    public static function providerForSchemaDefaultLengthForMySQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '11'],
@@ -202,11 +205,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForMySQL
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForMySQL')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForMySQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type));
@@ -215,7 +218,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForMySQLPlus(): array
+    public static function providerForSchemaDefaultLengthForMySQLPlus(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '11'],
@@ -243,11 +246,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForMySQLPlus
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForMySQLPlus')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForMySQLPlus(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::MYSQL, $type, '5.6.4'));
@@ -256,7 +259,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForOCI(): array
+    public static function providerForSchemaDefaultLengthForOCI(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '10'],
@@ -284,11 +287,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForOCI
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForOCI')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForOCI(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::OCI, $type));
@@ -297,7 +300,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForPgSQL(): array
+    public static function providerForSchemaDefaultLengthForPgSQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK],
@@ -325,11 +328,11 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForPgSQL
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForPgSQL')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForPgSQL(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::PGSQL, $type));
@@ -338,7 +341,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1?: string|null}>
      */
-    public function providerForSchemaDefaultLengthForSQLite(): array
+    public static function providerForSchemaDefaultLengthForSQLite(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK],
@@ -366,17 +369,17 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaDefaultLengthForSQLite
      * @param string|null $expected
      * @param string $type
      */
+    #[DataProvider('providerForSchemaDefaultLengthForSQLite')]
+    #[Test]
     public function shouldReturnProperDefaultLengthForSQLite(string $type, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getDefaultLength(Schema::SQLITE, $type));
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnNoAliasForNoSchema(): void
     {
         self::assertNull(self::withoutDeprecations(static fn () => Schema::getAlias(null, YiiSchema::TYPE_PK, '11')));
@@ -385,7 +388,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForCubrid(): array
+    public static function providerForSchemaAliasesForCubrid(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -397,12 +400,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForCubrid
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForCubrid')]
+    #[Test]
     public function shouldReturnProperAliasForCubrid(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::CUBRID, $type, $length));
@@ -411,7 +414,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForMSSQL(): array
+    public static function providerForSchemaAliasesForMSSQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -423,12 +426,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForMSSQL
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForMSSQL')]
+    #[Test]
     public function shouldReturnProperAliasForMSSQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::MSSQL, $type, $length));
@@ -437,7 +440,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForMySQL(): array
+    public static function providerForSchemaAliasesForMySQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -449,12 +452,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForMySQL
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForMySQL')]
+    #[Test]
     public function shouldReturnProperAliasForMySQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::MYSQL, $type, $length));
@@ -463,7 +466,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForOCI(): array
+    public static function providerForSchemaAliasesForOCI(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -478,12 +481,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForOCI
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForOCI')]
+    #[Test]
     public function shouldReturnProperAliasForOCI(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::OCI, $type, $length));
@@ -492,7 +495,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForPgSQL(): array
+    public static function providerForSchemaAliasesForPgSQL(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -502,12 +505,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForPgSQL
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForPgSQL')]
+    #[Test]
     public function shouldReturnProperAliasForPgSQL(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
@@ -516,7 +519,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2?: string|null}>
      */
-    public function providerForSchemaAliasesForSQLite(): array
+    public static function providerForSchemaAliasesForSQLite(): array
     {
         return [
             YiiSchema::TYPE_PK => [YiiSchema::TYPE_PK, '1'],
@@ -526,12 +529,12 @@ final class SchemaTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSchemaAliasesForSQLite
      * @param string $type
      * @param string $length
      * @param string|null $expected
      */
+    #[DataProvider('providerForSchemaAliasesForSQLite')]
+    #[Test]
     public function shouldReturnProperAliasForSQLite(string $type, string $length, ?string $expected = null): void
     {
         self::assertSame($expected, Schema::getAlias(Schema::PGSQL, $type, $length));
@@ -540,7 +543,7 @@ final class SchemaTest extends TestCase
     /**
      * @return array<string, array{string|null, string|null, bool}>
      */
-    public function providerForFractionalSeconds(): array
+    public static function providerForFractionalSeconds(): array
     {
         return [
             'no schema' => [null, '8.0.30', false],
@@ -555,10 +558,8 @@ final class SchemaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForFractionalSeconds
-     */
+    #[DataProvider('providerForFractionalSeconds')]
+    #[Test]
     public function shouldCheckIfFractionalSecondsAreSupported(
         ?string $schema,
         ?string $engineVersion,
@@ -567,7 +568,7 @@ final class SchemaTest extends TestCase
         self::assertSame($expected, Schema::isFractionalSecondsSupported($schema, $engineVersion));
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnFractionalSecondsDefaultLengthForMariaDB(): void
     {
         self::assertSame('0', Schema::getDefaultLength(Schema::MYSQL, 'datetime', '5.5.5-10.6.12-MariaDB'));

@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\TextColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group textcolumn
- */
+#[Group('table')]
+#[Group('textcolumn')]
 final class TextColumnTest extends TestCase
 {
     /** @var TextColumn */
@@ -22,9 +23,7 @@ final class TextColumnTest extends TestCase
         $this->column = new TextColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('text({renderLength})', $this->column->getDefinition());
@@ -33,7 +32,7 @@ final class TextColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -45,10 +44,8 @@ final class TextColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setSize(1);
@@ -58,7 +55,7 @@ final class TextColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -70,10 +67,8 @@ final class TextColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);

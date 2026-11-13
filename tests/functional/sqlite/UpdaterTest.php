@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace bizley\tests\functional\sqlite;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group sqlite */
-final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
+#[Group('sqlite')]
+final class UpdaterTest extends \bizley\tests\functional\UpdaterTestCase
 {
     /** @var string */
     public static $schema = 'sqlite';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithUnsigned(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->unsigned())->execute();
@@ -42,11 +44,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithUnique(): void
     {
         $this->getDb()->createCommand()->dropTable('updater_base')->execute();
@@ -76,11 +78,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldNotUpdateTableByAddingForeignKey(): void
     {
         $this->getDb()->createCommand()->dropTable('updater_base_fk')->execute();
@@ -106,11 +108,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldNotUpdateTableByAlteringForeignKey(): void
     {
         $this->getDb()->createCommand()->dropTable('updater_base_fk')->execute();

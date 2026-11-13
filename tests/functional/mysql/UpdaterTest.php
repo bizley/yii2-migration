@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
@@ -12,8 +14,8 @@ use yii\console\ExitCode;
 
 use function version_compare;
 
-/** @group mysql */
-final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
+#[Group('mysql')]
+final class UpdaterTest extends \bizley\tests\functional\UpdaterTestCase
 {
     /** @var string */
     public static $schema = 'mysql';
@@ -38,11 +40,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingColumn(): void
     {
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
@@ -63,11 +65,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumn(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
@@ -88,11 +90,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnSize(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer(8))->execute();
@@ -115,11 +117,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnDefault(): void
     {
         $this->getDb()->createCommand()->alterColumn(
@@ -144,11 +146,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnAsFirst(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->first())->execute();
@@ -169,11 +171,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithAfter(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->after('col'))->execute();
@@ -194,11 +196,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithUnsigned(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->unsigned())->execute();
@@ -219,11 +221,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->notNull())->execute();
@@ -244,11 +246,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithComment(): void
     {
         $this->getDb()->createCommand()->addColumn(
@@ -273,11 +275,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithUnsigned(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unsigned())->execute();
@@ -298,11 +300,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
@@ -323,11 +325,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithComment(): void
     {
         $this->getDb()->createCommand()->alterColumn(
@@ -352,11 +354,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithUnique(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
@@ -377,11 +379,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingForeignKey(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -410,11 +412,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingForeignKey(): void
     {
         $this->getDb()->createCommand()->addForeignKey(
@@ -467,11 +469,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringForeignKeyColumns(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -548,11 +550,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringForeignKeyConstraints(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -602,11 +604,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingColumnWithFK(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();

@@ -5,26 +5,28 @@ declare(strict_types=1);
 namespace bizley\tests\functional\sqlite;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
-/** @group sqlite */
-final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
+#[Group('sqlite')]
+final class GeneratorTest extends \bizley\tests\functional\GeneratorTestCase
 {
     /** @var string */
     public static $schema = 'sqlite';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithNonStandardColumns(): void
     {
         $this->createTables(
@@ -59,13 +61,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateNonGeneralSchemaTable(): void
     {
         $this->createTables(
@@ -129,13 +131,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableButKeepNonDefaultSize(): void
     {
         $this->createTables(
@@ -166,13 +168,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
     {
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
@@ -193,13 +195,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateNonGeneralSchemaTableWithBigPrimaryKey(): void
     {
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
@@ -221,13 +223,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithNonGeneralColumnsDefaultValues(): void
     {
         $this->createTables(
@@ -262,13 +264,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithColumnsWithAppendixes(): void
     {
         $this->createTables(
@@ -305,13 +307,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithCompositePrimaryKey(): void
     {
         $this->createTables(
@@ -343,13 +345,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldNotGenerateNonGeneralSchemaTableWithCompositePrimaryKey(): void
     {
         $this->createTables(
@@ -376,13 +378,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
     {
         $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);
@@ -405,13 +407,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithForeignKey(): void
     {
         $this->createTables(
@@ -450,13 +452,13 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldNotGenerateNonGeneralSchemaTableWithForeignKey(): void
     {
         $this->createTables(

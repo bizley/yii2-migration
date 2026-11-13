@@ -12,13 +12,14 @@ use bizley\migration\table\IntegerColumn;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\StructureChange;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\db\Schema;
 
-/**
- * @group table
- * @group structurechange
- */
+#[Group('table')]
+#[Group('structurechange')]
 final class StructureChangeTest extends TestCase
 {
     /** @var StructureChange */
@@ -29,14 +30,14 @@ final class StructureChangeTest extends TestCase
         $this->change = new StructureChange();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlySetTable(): void
     {
         $this->change->setTable('test');
         self::assertSame('test', $this->change->getTable());
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnDataForUnknownMethod(): void
     {
         $this->change->setMethod('unknown');
@@ -48,7 +49,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return list<array{mixed}>
      */
-    public function providerForWrongCreateTable(): array
+    public static function providerForWrongCreateTable(): array
     {
         return [
             ['wrong'],
@@ -57,10 +58,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongCreateTable
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongCreateTable')]
+    #[Test]
     public function shouldThrowExceptionForWrongDataForCreateTable($data): void
     {
         $this->change->setMethod('createTable');
@@ -70,7 +71,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForCreateTableWithDefaults(): void
     {
         $this->change->setMethod('createTable');
@@ -95,7 +96,7 @@ final class StructureChangeTest extends TestCase
         self::assertFalse($column->isFirst());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForCreateTableWithNonDefaults(): void
     {
         $this->change->setMethod('createTable');
@@ -140,7 +141,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return array<array-key, array{mixed}>
      */
-    public function providerForWrongAddColumn(): array
+    public static function providerForWrongAddColumn(): array
     {
         return [
             ['wrong'],
@@ -156,10 +157,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongAddColumn
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongAddColumn')]
+    #[Test]
     public function shouldThrowExceptionForAddColumnWithWrongData($data): void
     {
         $this->change->setMethod('addColumn');
@@ -169,7 +170,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAddColumnWithDefaults(): void
     {
         $this->change->setMethod('addColumn');
@@ -196,7 +197,7 @@ final class StructureChangeTest extends TestCase
         self::assertFalse($column->isFirst());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAddColumnWithNonDefaults(): void
     {
         $this->change->setMethod('addColumn');
@@ -237,10 +238,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongAddColumn
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongAddColumn')]
+    #[Test]
     public function shouldThrowExceptionForAlterColumnWithWrongData($data): void
     {
         $this->change->setMethod('alterColumn');
@@ -250,7 +251,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAlterColumnWithDefaults(): void
     {
         $this->change->setMethod('alterColumn');
@@ -277,7 +278,7 @@ final class StructureChangeTest extends TestCase
         self::assertFalse($column->isFirst());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAlterColumnWithNonDefaults(): void
     {
         $this->change->setMethod('alterColumn');
@@ -320,7 +321,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return array<array-key, array{mixed}>
      */
-    public function providerForWrongRenameColumn(): array
+    public static function providerForWrongRenameColumn(): array
     {
         return [
             ['wrong'],
@@ -337,7 +338,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return array<array-key, array{mixed}>
      */
-    public function providerForWrongAddCommentOnColumn(): array
+    public static function providerForWrongAddCommentOnColumn(): array
     {
         return [
             ['wrong'],
@@ -352,10 +353,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongRenameColumn
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongRenameColumn')]
+    #[Test]
     public function shouldThrowExceptionForWrongDataForRenameColumn($data): void
     {
         $this->change->setMethod('renameColumn');
@@ -365,7 +366,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForRenameColumn(): void
     {
         $this->change->setMethod('renameColumn');
@@ -382,7 +383,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return list<array{mixed}>
      */
-    public function providerForWrongAddPrimaryKey(): array
+    public static function providerForWrongAddPrimaryKey(): array
     {
         return [
             ['wrong'],
@@ -393,10 +394,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongAddPrimaryKey
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongAddPrimaryKey')]
+    #[Test]
     public function shouldThrowExceptionForAddPrimaryKeyWithWrongData($data): void
     {
         $this->change->setMethod('addPrimaryKey');
@@ -406,7 +407,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAddPrimaryKey(): void
     {
         $this->change->setMethod('addPrimaryKey');
@@ -426,7 +427,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return list<array{mixed}>
      */
-    public function providerForWrongAddForeignKey(): array
+    public static function providerForWrongAddForeignKey(): array
     {
         return [
             ['wrong'],
@@ -439,10 +440,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongAddForeignKey
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongAddForeignKey')]
+    #[Test]
     public function shouldThrowExceptionForAddForeignKeyWithWrongData($data): void
     {
         $this->change->setMethod('addForeignKey');
@@ -452,7 +453,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForAddForeignKey(): void
     {
         $this->change->setMethod('addForeignKey');
@@ -482,7 +483,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return list<array{mixed}>
      */
-    public function providerForWrongCreateIndex(): array
+    public static function providerForWrongCreateIndex(): array
     {
         return [
             ['wrong'],
@@ -494,10 +495,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongCreateIndex
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongCreateIndex')]
+    #[Test]
     public function shouldThrowExceptionForCreateIndexWithWrongData($data): void
     {
         $this->change->setMethod('createIndex');
@@ -507,7 +508,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForCreateIndex(): void
     {
         $this->change->setMethod('createIndex');
@@ -528,7 +529,7 @@ final class StructureChangeTest extends TestCase
         self::assertNull($index->getDefinition());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForCreateIndexWithMethod(): void
     {
         $this->change->setMethod('createIndex');
@@ -547,7 +548,7 @@ final class StructureChangeTest extends TestCase
         self::assertSame('hash', $index->getMethod());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnValueForCreateIndexWithDefinition(): void
     {
         $this->change->setMethod('createIndex');
@@ -568,7 +569,7 @@ final class StructureChangeTest extends TestCase
         self::assertSame('USING btree (a) WHERE (a > 0)', $index->getDefinition());
     }
 
-    /** @test */
+    #[Test]
     public function shouldThrowExceptionForCreateIndexWithWrongDefinition(): void
     {
         $this->change->setMethod('createIndex');
@@ -578,7 +579,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldThrowExceptionForCreateIndexWithWrongMethod(): void
     {
         $this->change->setMethod('createIndex');
@@ -589,10 +590,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForWrongAddCommentOnColumn
      * @param mixed $data
      */
+    #[DataProvider('providerForWrongAddCommentOnColumn')]
+    #[Test]
     public function shouldThrowExceptionForWrongDataForAddCommentOnColumn($data): void
     {
         $this->change->setMethod('addCommentOnColumn');
@@ -602,7 +603,7 @@ final class StructureChangeTest extends TestCase
         $this->change->getValue();
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnProperlyValueForAddCommentOnColumn(): void
     {
         $this->change->setMethod('addCommentOnColumn');
@@ -619,7 +620,7 @@ final class StructureChangeTest extends TestCase
     /**
      * @return list<array{string}>
      */
-    public function providerForDataReturnMethods(): array
+    public static function providerForDataReturnMethods(): array
     {
         return [
             ['renameTable'],
@@ -633,10 +634,10 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForDataReturnMethods
      * @param string $method
      */
+    #[DataProvider('providerForDataReturnMethods')]
+    #[Test]
     public function shouldProperlyReturnDataForMethods(string $method): void
     {
         $this->change->setMethod($method);

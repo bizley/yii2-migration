@@ -8,12 +8,13 @@ use bizley\migration\Schema;
 use bizley\migration\table\Column;
 use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\PrimaryKey;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group genericcolumn
- */
+#[Group('table')]
+#[Group('genericcolumn')]
 final class GenericColumnTest extends TestCase
 {
     /** @var Column */
@@ -41,7 +42,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return array<string, array{string, list<string>, bool}>
      */
-    public function providerForColumnInPrimaryKey(): array
+    public static function providerForColumnInPrimaryKey(): array
     {
         return [
             'yes 1' => ['test', ['test'], true],
@@ -51,10 +52,10 @@ final class GenericColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForColumnInPrimaryKey
      * @param list<string> $columns
      */
+    #[DataProvider('providerForColumnInPrimaryKey')]
+    #[Test]
     public function shouldCheckIfColumnIsPartOfPrimaryKey(string $name, array $columns, bool $expected): void
     {
         $this->column->setName($name);
@@ -66,7 +67,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return array<string, array{string, string, bool}>
      */
-    public function providerForPrimaryKeyInfoAppended(): array
+    public static function providerForPrimaryKeyInfoAppended(): array
     {
         return [
             'empty append' => ['', '', false],
@@ -79,10 +80,8 @@ final class GenericColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForPrimaryKeyInfoAppended
-     */
+    #[DataProvider('providerForPrimaryKeyInfoAppended')]
+    #[Test]
     public function shouldCheckIfPrimaryKeyInfoIsAppended(string $append, string $schema, bool $expected): void
     {
         $this->column->setAppend($append);
@@ -92,7 +91,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return array<string, array{string, bool, bool, string|null}>
      */
-    public function providerForPrepareSchemaAppend(): array
+    public static function providerForPrepareSchemaAppend(): array
     {
         return [
             'mssql' => [Schema::MSSQL, false, false, null],
@@ -122,10 +121,8 @@ final class GenericColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForPrepareSchemaAppend
-     */
+    #[DataProvider('providerForPrepareSchemaAppend')]
+    #[Test]
     public function shouldPrepareSchemaAppend(
         string $schema,
         bool $primaryKey,
@@ -138,7 +135,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return list<array{string, string}>
      */
-    public function providerForEscapingQuotes(): array
+    public static function providerForEscapingQuotes(): array
     {
         return [
             ['abc', 'abc'],
@@ -148,10 +145,8 @@ final class GenericColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForEscapingQuotes
-     */
+    #[DataProvider('providerForEscapingQuotes')]
+    #[Test]
     public function shouldEscapeQuotes(string $value, string $expected): void
     {
         self::assertSame($expected, $this->column->escapeQuotes($value));
@@ -160,7 +155,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return array<string, array{string, string, string|null}>
      */
-    public function providerForRemovingPrimaryKeyInfo(): array
+    public static function providerForRemovingPrimaryKeyInfo(): array
     {
         return [
             'mssql' => [Schema::MSSQL, 'abc', 'abc'],
@@ -204,17 +199,15 @@ final class GenericColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForRemovingPrimaryKeyInfo
-     */
+    #[DataProvider('providerForRemovingPrimaryKeyInfo')]
+    #[Test]
     public function shouldRemoveAppendedPrimaryKeyInfo(string $schema, string $append, ?string $expected): void
     {
         $this->column->setAppend($append);
         self::assertSame($expected, $this->column->removeAppendedPrimaryKeyInfo($schema));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlySetType(): void
     {
         $this->column->setType('test');
@@ -224,7 +217,7 @@ final class GenericColumnTest extends TestCase
     /**
      * @return list<array{string|int|null, string|int|null}>
      */
-    public function providerForSizePrecisionScale(): array
+    public static function providerForSizePrecisionScale(): array
     {
         return [
             ['1', '1'],
@@ -234,11 +227,11 @@ final class GenericColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSizePrecisionScale
      * @param string|int|null $size
      * @param string|int|null $expected
      */
+    #[DataProvider('providerForSizePrecisionScale')]
+    #[Test]
     public function shouldProperlySetSize($size, $expected): void
     {
         $this->column->setSize($size);
@@ -246,11 +239,11 @@ final class GenericColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSizePrecisionScale
      * @param string|int|null $precision
      * @param string|int|null $expected
      */
+    #[DataProvider('providerForSizePrecisionScale')]
+    #[Test]
     public function shouldProperlySetPrecision($precision, $expected): void
     {
         $this->column->setPrecision($precision);
@@ -258,11 +251,11 @@ final class GenericColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSizePrecisionScale
      * @param int|string|null $scale
      * @param int|string|null $expected
      */
+    #[DataProvider('providerForSizePrecisionScale')]
+    #[Test]
     public function shouldProperlySetScale($scale, $expected): void
     {
         $this->column->setScale($scale);

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace bizley\tests\unit;
 
 use bizley\migration\HistoryManager;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -17,7 +20,7 @@ use yii\db\Query;
 use yii\db\Schema;
 use yii\db\TableSchema;
 
-/** @group historymanager */
+#[Group('historymanager')]
 final class HistoryManagerTest extends TestCase
 {
     /** @var MockObject&Connection */
@@ -42,10 +45,10 @@ final class HistoryManagerTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      * @throws Exception
      */
+    #[Test]
     public function shouldAddHistoryAndNotCreateTable(): void
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
@@ -56,10 +59,10 @@ final class HistoryManagerTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      * @throws Exception
      */
+    #[Test]
     public function shouldAddHistoryAndCreateTable(): void
     {
         $this->schema->method('getTableSchema')->willReturn(null);
@@ -76,38 +79,27 @@ final class HistoryManagerTest extends TestCase
             )
         )->willReturn($command);
         $time = \time();
-        $command->expects(self::exactly(2))->method('insert')->withConsecutive(
-            [
-                'table',
-                self::callback(
-                    static function (array $structure) use ($time): bool {
-                        return $structure['version'] === BaseMigrateController::BASE_MIGRATION
-                            && $structure['apply_time'] >= $time - 1
-                            && $structure['apply_time'] <= $time + 1;
-                    }
-                )
-            ],
-            [
-                'table',
-                self::callback(
-                    static function (array $structure) use ($time): bool {
-                        return $structure['version'] === 'migration'
-                            && $structure['apply_time'] >= $time - 1
-                            && $structure['apply_time'] <= $time + 1;
-                    }
-                )
-            ]
-        )->willReturn($command);
+        $expectedVersions = [BaseMigrateController::BASE_MIGRATION, 'migration'];
+        $command->expects(self::exactly(2))->method('insert')->willReturnCallback(
+            static function (string $table, array $structure) use (&$expectedVersions, $time, $command): Command {
+                self::assertSame('table', $table);
+                self::assertSame(\array_shift($expectedVersions), $structure['version']);
+                self::assertGreaterThanOrEqual($time - 1, $structure['apply_time']);
+                self::assertLessThanOrEqual($time + 1, $structure['apply_time']);
+
+                return $command;
+            }
+        );
 
         $this->db->expects(self::exactly(3))->method('createCommand')->willReturn($command);
         $this->manager->addHistory('migration');
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      * @throws Exception
      */
+    #[Test]
     public function shouldAddHistoryWithNamespace(): void
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
@@ -128,9 +120,9 @@ final class HistoryManagerTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnEmptyHistoryArrayWhenNoTableHistory(): void
     {
         $this->schema->method('getTableSchema')->willReturn(null);
@@ -140,7 +132,7 @@ final class HistoryManagerTest extends TestCase
     /**
      * @return array<array-key, array{list<array<string, string|int>>, array<string, int>}>
      */
-    public function providerForHistory(): array
+    public static function providerForHistory(): array
     {
         return [
             'only base' => [
@@ -200,12 +192,12 @@ final class HistoryManagerTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForHistory
      * @param list<array<string, string|int>> $rows
      * @param array<string, int> $expected
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForHistory')]
+    #[Test]
     public function shouldReturnHistoryInProperOrder(array $rows, array $expected): void
     {
         $this->schema->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));

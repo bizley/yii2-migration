@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace bizley\tests\unit\controllers;
 
 use bizley\migration\controllers\FallbackFileHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidArgumentException;
 
-/** @group controller */
+#[Group('controller')]
 final class FallbackFileHelperTest extends TestCase
 {
     /** @var string */
@@ -100,9 +103,7 @@ final class FallbackFileHelperTest extends TestCase
         $this->removeDir($this->basePath);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldChangeOwnership(): void
     {
         if (DIRECTORY_SEPARATOR !== '/') {
@@ -506,9 +507,7 @@ final class FallbackFileHelperTest extends TestCase
         \chmod($this->basePath, 0777);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotChangeOwnershipToNonExistingUser(): void
     {
         $dirName = 'change_ownership_non_existing_user';
@@ -525,18 +524,26 @@ final class FallbackFileHelperTest extends TestCase
 
         // Test user ownership as integer with file mode (Due to the nature of chown we can't use PHPUnit's `expectException`)
         $ownership = 'non_existing_user';
+        // In a real application Yii's error handler turns PHP warnings into exceptions
+        \set_error_handler(
+            static function (int $severity, string $message, string $file, int $line): bool {
+                throw new \ErrorException($message, 0, $severity, $file, $line);
+            }
+        );
         try {
             FallbackFileHelper::changeOwnership($testFile, $ownership, null);
             throw new \Exception('FallbackFileHelper::changeOwnership() should have thrown error for non existing user.');
         } catch(\Exception $e) {
             self::assertEquals('chown(): Unable to find uid for non_existing_user', $e->getMessage());
+        } finally {
+            \restore_error_handler();
         }
     }
 
     /**
      * @return list<array{mixed}>
      */
-    public function providerForInvalidArguments(): array
+    public static function providerForInvalidArguments(): array
     {
         return [
             [new \stdClass()],
@@ -546,10 +553,10 @@ final class FallbackFileHelperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForInvalidArguments
      * @param mixed $ownership
      */
+    #[DataProvider('providerForInvalidArguments')]
+    #[Test]
     public function shouldThrowInvalidArgumentException($ownership): void
     {
         $dirName = 'change_ownership_invalid_arguments';

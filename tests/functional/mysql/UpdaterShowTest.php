@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group mysql */
-final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
+#[Group('mysql')]
+final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTestCase
 {
     /** @var string */
     public static $schema = 'mysql';
@@ -36,11 +38,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByDroppingColumn(): void
     {
         $this->addBase();
@@ -58,11 +60,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumn(): void
     {
         $this->addBase();
@@ -86,11 +88,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnSize(): void
     {
         $this->addBase();
@@ -110,11 +112,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnDefault(): void
     {
         $this->addBase();
@@ -136,11 +138,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnWithUnsigned(): void
     {
         $this->addBase();
@@ -158,11 +160,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnWithNotNull(): void
     {
         $this->addBase();
@@ -180,11 +182,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnWithComment(): void
     {
         $this->addBase();
@@ -206,11 +208,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringColumnWithUnique(): void
     {
         $this->addBase();
@@ -228,11 +230,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByDroppingForeignKey(): void
     {
         $this->addBase();
@@ -250,11 +252,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringForeignKeyColumns(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -280,11 +282,11 @@ final class UpdaterShowTest extends \bizley\tests\functional\UpdaterShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAlteringForeignKeyConstraints(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();

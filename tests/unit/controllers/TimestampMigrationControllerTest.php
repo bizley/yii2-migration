@@ -7,6 +7,8 @@ namespace bizley\tests\unit\controllers;
 use bizley\tests\stubs\GeneratorStub;
 use bizley\tests\stubs\MigrationControllerStub;
 use bizley\tests\stubs\UpdaterStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -19,9 +21,7 @@ use yii\db\mysql\Schema as MysqlSchema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 
-/**
- * @group controller
- */
+#[Group('controller')]
 final class TimestampMigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */
@@ -89,7 +89,7 @@ final class TimestampMigrationControllerTest extends TestCase
         FileHelper::createDirectory($path);
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionOnCreateWithMigrationPath(): void
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
@@ -118,7 +118,7 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionOnUpdateWithMigrationPath(): void
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
@@ -151,7 +151,7 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionOnCreateWithMigrationNamespace(): void
     {
         $this->controller->migrationNamespace = ['bizley\\tests\\runtime\\test'];
@@ -180,7 +180,7 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionOnUpdateWithMigrationNamespace(): void
     {
         $this->controller->migrationNamespace = ['bizley\\tests\\runtime\\test'];
@@ -213,7 +213,7 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionWithMigrationNamespaceGivenAsString(): void
     {
         $this->controller->migrationNamespace = 'bizley\\tests\\runtime\\test';
@@ -245,7 +245,7 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionWithAliasedMigrationPath(): void
     {
         Yii::setAlias('@timestampCollisionTest', __DIR__ . '/../../runtime/test');
@@ -255,7 +255,7 @@ final class TimestampMigrationControllerTest extends TestCase
         $this->assertCollisionDetectedOnCreate();
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionInNonUtcTimezone(): void
     {
         \date_default_timezone_set('Europe/Warsaw');
@@ -265,7 +265,7 @@ final class TimestampMigrationControllerTest extends TestCase
         $this->assertCollisionDetectedOnCreate();
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionAtTheStartOfTheWindow(): void
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
@@ -274,7 +274,7 @@ final class TimestampMigrationControllerTest extends TestCase
         $this->assertCollisionDetectedOnCreate();
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCollisionWithLeeway(): void
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
@@ -284,7 +284,7 @@ final class TimestampMigrationControllerTest extends TestCase
         $this->assertCollisionDetectedOnCreate();
     }
 
-    /** @test */
+    #[Test]
     public function shouldNotDetectCollisionOutsideTheWindow(): void
     {
         $this->controller->migrationPath = [__DIR__ . '/../../runtime/test'];
@@ -292,6 +292,8 @@ final class TimestampMigrationControllerTest extends TestCase
         $this->createMigrationFile(\time() + 60);
         $this->schema->method('getTableNames')->willReturn(['test']);
         $this->schema->method('getRawTableName')->willReturn('mig');
+        $this->schema->method('getTableForeignKeys')->willReturn([]);
+        $this->schema->method('getTableIndexes')->willReturn([]);
         MigrationControllerStub::$confirmControl = false;
 
         $this->controller->actionCreate('test');

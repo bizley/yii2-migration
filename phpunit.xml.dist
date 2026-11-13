@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="./tests/bootstrap.php" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" stopOnFailure="false" processIsolation="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage processUncoveredFiles="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="./tests/bootstrap.php" colors="true" stopOnFailure="false" processIsolation="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd" cacheDirectory=".phpunit.cache">
+  <testsuites>
+    <testsuite name="Yii 2 Migration Test Suite">
+      <directory>./tests</directory>
+    </testsuite>
+  </testsuites>
+  <source>
     <include>
       <directory suffix=".php">./src</directory>
     </include>
@@ -8,10 +13,5 @@
       <directory suffix=".php">./src/dummy</directory>
       <directory suffix=".php">./src/views</directory>
     </exclude>
-  </coverage>
-  <testsuites>
-    <testsuite name="Yii 2 Migration Test Suite">
-      <directory>./tests</directory>
-    </testsuite>
-  </testsuites>
+  </source>
 </phpunit>

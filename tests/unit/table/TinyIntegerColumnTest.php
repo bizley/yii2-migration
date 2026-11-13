@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\TinyIntegerColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group tinyintegercolumn
- */
+#[Group('table')]
+#[Group('tinyintegercolumn')]
 final class TinyIntegerColumnTest extends TestCase
 {
     /** @var TinyIntegerColumn */
@@ -22,9 +23,7 @@ final class TinyIntegerColumnTest extends TestCase
         $this->column = new TinyIntegerColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('tinyInteger({renderLength})', $this->column->getDefinition());
@@ -33,7 +32,7 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -44,10 +43,8 @@ final class TinyIntegerColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setSize(1);
@@ -57,7 +54,7 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @return list<array{int, int|null, string|null}>
      */
-    public function providerForGettingLengthForMySQL(): array
+    public static function providerForGettingLengthForMySQL(): array
     {
         return [
             [1, 1, null],
@@ -71,10 +68,8 @@ final class TinyIntegerColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLengthForMySQL
-     */
+    #[DataProvider('providerForGettingLengthForMySQL')]
+    #[Test]
     public function shouldReturnProperLengthForMySQL(int $size, ?int $expected, ?string $engineVersion): void
     {
         $this->column->setSize($size);
@@ -84,7 +79,7 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -95,10 +90,8 @@ final class TinyIntegerColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(string $schema, ?int $expectedSize, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
@@ -109,7 +102,7 @@ final class TinyIntegerColumnTest extends TestCase
     /**
      * @return list<array{int, int|null, int|null, string|null}>
      */
-    public function providerForSettingLengthForMySQL(): array
+    public static function providerForSettingLengthForMySQL(): array
     {
         return [
             [1, 1, 1, null],
@@ -123,10 +116,8 @@ final class TinyIntegerColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthForMySQL
-     */
+    #[DataProvider('providerForSettingLengthForMySQL')]
+    #[Test]
     public function shouldSetProperLengthForMySQL(
         int $length,
         ?int $expectedSize,

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace bizley\tests\functional\mysql;
 
-/** @group mysql */
-final class UpdaterExperimentalTest extends \bizley\tests\functional\UpdaterExperimentalTest
+use PHPUnit\Framework\Attributes\Group;
+
+#[Group('mysql')]
+final class UpdaterExperimentalTest extends \bizley\tests\functional\UpdaterExperimentalTestCase
 {
     /** @var string */
     public static $schema = 'mysql';

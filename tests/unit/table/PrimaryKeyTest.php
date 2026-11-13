@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace bizley\tests\unit\table;
 
 use bizley\migration\table\PrimaryKey;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group primarykey
- */
+#[Group('table')]
+#[Group('primarykey')]
 final class PrimaryKeyTest extends TestCase
 {
     /** @var PrimaryKey */
@@ -24,7 +25,7 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @return array<string, array{list<string>, bool}>
      */
-    public function providerForComposite(): array
+    public static function providerForComposite(): array
     {
         return [
             'no columns' => [[], false],
@@ -34,10 +35,10 @@ final class PrimaryKeyTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForComposite
      * @param list<string> $columns
      */
+    #[DataProvider('providerForComposite')]
+    #[Test]
     public function shouldProperlyCheckIfKeyIsComposite(array $columns, bool $expected): void
     {
         $this->pk->setColumns($columns);
@@ -47,7 +48,7 @@ final class PrimaryKeyTest extends TestCase
     /**
      * @return array<string, array{string, list<string>}>
      */
-    public function providerForColumns(): array
+    public static function providerForColumns(): array
     {
         return [
             'new column' => ['new', ['old', 'new']],
@@ -56,10 +57,10 @@ final class PrimaryKeyTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForColumns
      * @param list<string> $expectedColumns
      */
+    #[DataProvider('providerForColumns')]
+    #[Test]
     public function shouldProperlyAddColumn(string $newColumn, array $expectedColumns): void
     {
         $this->pk->setColumns(['old']);

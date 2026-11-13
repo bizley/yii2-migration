@@ -6,6 +6,8 @@ namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\functional\DbLoaderTestCase;
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
@@ -14,7 +16,7 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception as DbException;
 
-/** @group pgsql */
+#[Group('pgsql')]
 class UpdaterSchemasTest extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
@@ -38,11 +40,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldFindMatchingSchemasTables(): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -58,11 +60,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldFindMatchingTablesWithoutSchemasToo(): void
     {
         $this->createTables([
@@ -85,11 +87,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldCreateNewSchemaTable(): void
     {
         $this->createSchema('test');
@@ -143,11 +145,11 @@ class UpdaterSchemasTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateSchemaTable(): void
     {
         $this->getDb()->createCommand()->addColumn('schema1.table1', 'added', $this->integer())->execute();

@@ -7,13 +7,14 @@ namespace bizley\tests\unit\renderers;
 use bizley\migration\renderers\PrimaryKeyRenderer;
 use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKeyInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
-/**
- * @group renderers
- * @group primarykeyrenderer
- */
+#[Group('renderers')]
+#[Group('primarykeyrenderer')]
 final class PrimaryKeyRendererTest extends TestCase
 {
     use PhpStringLiteralsTrait;
@@ -27,9 +28,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderUp(): void
     {
         $this->expectException(NotSupportedException::class);
@@ -45,9 +46,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderDown(): void
     {
         $this->expectException(NotSupportedException::class);
@@ -63,9 +64,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnNullWhenNoPrimaryKey(): void
     {
         self::assertNull($this->renderer->renderUp(null, 'test'));
@@ -73,9 +74,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnNullWhenPrimaryKeyIsNotComposite(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -86,9 +87,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldRenderProperTemplateForUp(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -103,9 +104,9 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldRenderDownForNonSQLiteAndNonGeneralSchema(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -118,7 +119,7 @@ final class PrimaryKeyRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperTemplateForDown(): void
     {
         $primaryKey = $this->createMock(PrimaryKeyInterface::class);
@@ -131,7 +132,7 @@ final class PrimaryKeyRendererTest extends TestCase
     /**
      * @return array<string, array{int, list<string>, string, string}>
      */
-    public function providerForRender(): array
+    public static function providerForRender(): array
     {
         return [
             '1col 0ind' => [
@@ -162,14 +163,14 @@ final class PrimaryKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForRender
      * @param int $indent
      * @param list<string> $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForRender')]
+    #[Test]
     public function shouldRenderProperlyPrimaryKey(
         int $indent,
         array $columns,
@@ -185,7 +186,7 @@ final class PrimaryKeyRendererTest extends TestCase
         self::assertSame($expectedDrop, $this->renderer->renderDown($primaryKey, 'test', $indent));
     }
 
-    /** @test */
+    #[Test]
     public function shouldEscapeNamesInRenderedCode(): void
     {
         $name = self::$unusualName;

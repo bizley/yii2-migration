@@ -9,7 +9,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Exception as DbException;
 
-abstract class UpdaterPkShowTest extends DbLoaderTestCase
+abstract class UpdaterPkTestCase extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
@@ -22,7 +22,6 @@ abstract class UpdaterPkShowTest extends DbLoaderTestCase
     {
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
         $this->controller->migrationPath = '@bizley/tests/migrations';
-        $this->controller->onlyShow = true;
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$content = '';
         MigrationControllerStub::$confirmControl = true;

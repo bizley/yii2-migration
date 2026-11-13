@@ -8,17 +8,20 @@ use bizley\migration\Arranger;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\StructureInterface;
 use bizley\migration\TableMapperInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
-/** @group arranger */
+#[Group('arranger')]
 final class ArrangerTest extends TestCase
 {
     /**
      * @return array<string, array{array<string, list<string>>, list<string>, list<string>}>
      */
-    public function providerForArrange(): array
+    public static function providerForArrange(): array
     {
         return [
             'no tables' => [[], [], []],
@@ -50,13 +53,13 @@ final class ArrangerTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForArrange
      * @param array<string, list<string>> $inputData
      * @param list<string> $tablesInOrder
      * @param list<string> $referencesToPostpone
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForArrange')]
+    #[Test]
     public function shouldArrangeTables(
         array $inputData,
         array $tablesInOrder,

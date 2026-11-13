@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace bizley\tests\functional\sqlite;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group sqlite */
-final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
+#[Group('sqlite')]
+final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTestCase
 {
     /** @var string */
     public static $schema = 'sqlite';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropTable('no_pk')->execute();
@@ -48,11 +50,11 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByDroppingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropTable('string_pk')->execute();
@@ -73,11 +75,11 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingCompositePrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropTable('no_pk')->execute();

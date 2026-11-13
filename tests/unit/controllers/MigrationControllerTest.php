@@ -12,6 +12,9 @@ use bizley\tests\stubs\MigrationControllerStoringStub;
 use bizley\tests\stubs\MigrationControllerStub;
 use bizley\tests\stubs\SqlExtractMigration;
 use bizley\tests\stubs\UpdaterStub;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -33,9 +36,7 @@ use yii\db\sqlite\Schema as SqliteSchema;
 use yii\db\TableSchema;
 use yii\helpers\FileHelper;
 
-/**
- * @group controller
- */
+#[Group('controller')]
 final class MigrationControllerTest extends TestCase
 {
     /** @var MigrationControllerStub */
@@ -94,7 +95,7 @@ final class MigrationControllerTest extends TestCase
     /**
      * @return array<string, array{string, list<string>}>
      */
-    public function providerForOptions(): array
+    public static function providerForOptions(): array
     {
         return [
             'default' => [
@@ -156,18 +157,16 @@ final class MigrationControllerTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForOptions
      * @param list<string> $expected
      */
+    #[DataProvider('providerForOptions')]
+    #[Test]
     public function shouldReturnProperOptions(string $actionId, array $expected): void
     {
         self::assertSame($expected, $this->controller->options($actionId));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperOptionAliases(): void
     {
         self::assertSame(
@@ -189,9 +188,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnFalseWhenParentBeforeActionReturnsFalse(): void
     {
         $this->controller->on(
@@ -203,9 +200,7 @@ final class MigrationControllerTest extends TestCase
         self::assertFalse($this->controller->beforeAction($this->createMock(Action::class)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnTrueBeforeDefaultAction(): void
     {
         self::assertTrue($this->controller->beforeAction($this->createMock(Action::class)));
@@ -218,7 +213,7 @@ final class MigrationControllerTest extends TestCase
     /**
      * @return list<array{string}>
      */
-    public function providerForActionIds(): array
+    public static function providerForActionIds(): array
     {
         return [
             ['create'],
@@ -226,10 +221,8 @@ final class MigrationControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldThrowExceptionWhenNeitherPathOrNamespaceGivenInBeforeNonDefaultAction(string $actionId): void
     {
         $this->expectException(InvalidConfigException::class);
@@ -240,10 +233,8 @@ final class MigrationControllerTest extends TestCase
         $this->controller->beforeAction($action);
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldPrepareSkippedMigrationsInBeforeNonDefaultAction(string $actionId): void
     {
         $action = $this->createMock(Action::class);
@@ -254,10 +245,8 @@ final class MigrationControllerTest extends TestCase
         self::assertSame(['a\\b'], $this->controller->skipMigrations);
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldPrepareSingleMigrationNamespaceInBeforeNonDefaultAction(string $actionId): void
     {
         $action = $this->createMock(Action::class);
@@ -267,10 +256,8 @@ final class MigrationControllerTest extends TestCase
         self::assertSame(['bizley\\tests'], $this->controller->migrationNamespace);
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldPrepareSingleMigrationPathInBeforeNonDefaultAction(string $actionId): void
     {
         $action = $this->createMock(Action::class);
@@ -280,9 +267,7 @@ final class MigrationControllerTest extends TestCase
         self::assertSame(['tests'], $this->controller->migrationPath);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnListForNoTables(): void
     {
         $schema = $this->createMock(Schema::class);
@@ -310,9 +295,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnSortedListForTables(): void
     {
         $schema = $this->createMock(Schema::class);
@@ -345,10 +328,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenThereAreNoTables(string $actionId): void
     {
         $schema = $this->createMock(Schema::class);
@@ -364,10 +345,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenThereIsNoProvidedTable(string $actionId): void
     {
         $schema = $this->createMock(Schema::class);
@@ -384,10 +363,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenProvidedTableIsExcluded(string $actionId): void
     {
         $schema = $this->createMock(Schema::class);
@@ -406,10 +383,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenUserCancels(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -429,10 +404,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenUserCancelsAndOneIsExcluded(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -457,7 +430,7 @@ final class MigrationControllerTest extends TestCase
     /**
      * @return array<string, array{array<string>, string, array<string>}>
      */
-    public function providerForTablePatterns(): array
+    public static function providerForTablePatterns(): array
     {
         return [
             'dot is literal' => [
@@ -474,11 +447,11 @@ final class MigrationControllerTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForTablePatterns
      * @param array<string> $tables
      * @param array<string> $expected
      */
+    #[DataProvider('providerForTablePatterns')]
+    #[Test]
     public function shouldMatchTablesByPattern(array $tables, string $input, array $expected): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -497,10 +470,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant1(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -521,10 +492,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant2(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -545,10 +514,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant3(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -569,10 +536,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant4(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -593,10 +558,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldListAllMatchingTablesWhenUserCancelsButProvidesAsteriskVariant5(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -617,10 +580,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenUserCancelsAndOneIsHistory(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -641,10 +602,8 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotProceedWhenUserCancelsAndAsteriskProvided(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -664,9 +623,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopCreateWhenTableIsMissing(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -684,9 +641,7 @@ final class MigrationControllerTest extends TestCase
         self::assertStringContainsString(' > Table \'test\' does not exists!', MigrationControllerStub::$stdout);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateOneMigration(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -714,9 +669,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateManyMigrations(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -763,9 +716,7 @@ final class MigrationControllerTest extends TestCase
         self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateManyMigrationsWithLeeway(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -812,9 +763,7 @@ final class MigrationControllerTest extends TestCase
         self::assertTrue($matches[1][1] - $matches[1][0] >= 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateManyMigrationsWithPostponedForeignKeys(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -880,9 +829,7 @@ final class MigrationControllerTest extends TestCase
         self::assertTrue($t2 - $t3 >= 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateOneMigrationAndFixHistory(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -916,9 +863,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopCreateManyMigrationsWithPostponedForeignKeysWhenThereIsException(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -971,9 +916,7 @@ final class MigrationControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopCreateWhenThereArePostponedForeignKeysAndSchemaIsSqlite(): void
     {
         $schema = $this->createMock(SqliteSchema::class);
@@ -994,9 +937,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopUpdateWhenTableIsMissing(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1017,9 +958,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateOneMigrationWhenNoPreviousDataForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1050,9 +989,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateOneMigrationAndFixHistoryWhenNoPreviousDataForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1089,9 +1026,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateManyMigrationsWhenNoPreviousDataForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1133,9 +1068,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateManyMigrationsWithPostponedForeignKeysWhenNoPreviousDataForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1204,9 +1137,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnUpToDate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1228,9 +1159,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnDifferencesForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1255,9 +1184,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnStartFromScratchForUpdate(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1282,9 +1209,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowNotSupportedWarning(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1309,9 +1234,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopUpdateWhenThereArePostponedForeignKeysAndSchemaIsSqlite(): void
     {
         $schema = $this->createMock(SqliteSchema::class);
@@ -1356,9 +1279,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopUpdateManyMigrationsWithPostponedForeignKeysWhenThereIsException(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1419,9 +1340,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopUpdateManyMigrationsWhenThereIsException(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1452,9 +1371,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateMigrationWhenUpdateDataIsAvailable(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1489,9 +1406,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateManyMigrationWhenUpdateDataIsAvailable(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1537,9 +1452,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStopUpdateWhenUpdateDataIsAvailableButThereIsException(): void
     {
         $schema = $this->createMock(MysqlSchema::class);
@@ -1568,9 +1481,7 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateDirectoryForPath(): void
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
@@ -1588,9 +1499,7 @@ ERROR!
         self::assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCreateDirectoryForPathByNamespace(): void
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
@@ -1608,9 +1517,7 @@ ERROR!
         self::assertDirectoryExists(__DIR__ . '/../../runtime/test');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldStoreOneMigration(): void
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
@@ -1642,9 +1549,7 @@ ERROR!
         self::assertNotEmpty(glob(__DIR__ . '/../../runtime/m??????_??????_create_table_test.php'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotStoreOneMigration(): void
     {
         \chmod(__DIR__ . '/../../runtime', 0644);
@@ -1668,7 +1573,17 @@ ERROR!
         $tableSchema = $this->createMock(TableSchema::class);
         $this->db->method('getTableSchema')->willReturn($tableSchema);
 
-        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
+        // In a real application Yii's error handler turns PHP warnings into exceptions
+        \set_error_handler(
+            static function (int $severity, string $message, string $file, int $line): bool {
+                throw new \ErrorException($message, 0, $severity, $file, $line);
+            }
+        );
+        try {
+            self::assertSame(ExitCode::UNSPECIFIED_ERROR, $controller->actionCreate('test'));
+        } finally {
+            \restore_error_handler();
+        }
         self::assertStringContainsString(
             ' > Generating migration for creating table \'test\' ...ERROR!
  > file_put_contents(',
@@ -1685,7 +1600,7 @@ ERROR!
     /**
      * @return array<string, array{string|int}>
      */
-    public function providerForFileMode(): array
+    public static function providerForFileMode(): array
     {
         return [
             'oct' => [0777],
@@ -1696,10 +1611,10 @@ ERROR!
     }
 
     /**
-     * @test
-     * @dataProvider providerForFileMode
      * @param string|int $mode
      */
+    #[DataProvider('providerForFileMode')]
+    #[Test]
     public function shouldChangeMigrationPermissions($mode): void
     {
         \chmod(__DIR__ . '/../../runtime', 0777);
@@ -1747,7 +1662,7 @@ ERROR!
     /**
      * @return list<array{string, string}>
      */
-    public function providerForSqlExtract(): array
+    public static function providerForSqlExtract(): array
     {
         return [
             ['up', 'UP'],
@@ -1759,10 +1674,10 @@ ERROR!
     }
 
     /**
-     * @test
-     * @dataProvider providerForSqlExtract
      * @param string $method
      */
+    #[DataProvider('providerForSqlExtract')]
+    #[Test]
     public function shouldExtractSql(string $method, string $methodShown): void
     {
         $controller = new MigrationControllerStub(
@@ -1790,7 +1705,7 @@ ERROR!
         self::assertStringContainsString("sql1;\nsql2;", $controller::$stdout);
     }
 
-    /** @test */
+    #[Test]
     public function shouldShowErrorWhenSqlCanNotBeExtracted(): void
     {
         $controller = new MigrationControllerStub(
@@ -1817,10 +1732,8 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldNotCountExcludedTablesNotMatchingTheInput(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -1841,10 +1754,8 @@ ERROR!
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerForActionIds
-     */
+    #[DataProvider('providerForActionIds')]
+    #[Test]
     public function shouldCountAllExcludedTablesForAsterisk(string $actionId): void
     {
         MigrationControllerStub::$confirmControl = false;

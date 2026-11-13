@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group pgsql */
-final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
+#[Group('pgsql')]
+final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTestCase
 {
     /** @var string */
     public static $schema = 'pgsql';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', 'col')->execute();
@@ -42,11 +44,11 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropPrimaryKey('string_pk-primary-key', 'string_pk')->execute();
@@ -67,11 +69,11 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingCompositePrimaryKey(): void
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col2'])->execute();
@@ -98,11 +100,11 @@ final class UpdaterPkTest extends \bizley\tests\functional\UpdaterPkTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldAddNewColumnBeforeAddingCompositePrimaryKeyWithIt(): void
     {
         $this->getDb()->createCommand()->addColumn('no_pk', 'col3', $this->integer()->notNull())->execute();

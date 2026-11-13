@@ -6,13 +6,14 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\DateTimeColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
-/**
- * @group table
- * @group datetimecolumn
- */
+#[Group('table')]
+#[Group('datetimecolumn')]
 final class DateTimeColumnTest extends TestCase
 {
     /** @var DateTimeColumn */
@@ -23,9 +24,7 @@ final class DateTimeColumnTest extends TestCase
         $this->column = new DateTimeColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('dateTime({renderLength})', $this->column->getDefinition());
@@ -34,7 +33,7 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @return array<string, array{string|int|Expression, string|int|Expression}>
      */
-    public function providerForDefaults(): array
+    public static function providerForDefaults(): array
     {
         return [
             'string' => ['abc', 'abc'],
@@ -50,11 +49,11 @@ final class DateTimeColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForDefaults
      * @param string|int|Expression $defaultToSet
      * @param string|int|Expression $expected
      */
+    #[DataProvider('providerForDefaults')]
+    #[Test]
     public function shouldReturnProperDefault($defaultToSet, $expected): void
     {
         $this->column->setDefault($defaultToSet);
@@ -68,7 +67,7 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: int|null, 2?: string|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -84,10 +83,8 @@ final class DateTimeColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion = null): void
     {
         $this->column->setPrecision(1);
@@ -97,7 +94,7 @@ final class DateTimeColumnTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: int|null, 2: int|null, 3?: string|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -112,10 +109,8 @@ final class DateTimeColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(
         string $schema,
         ?int $expectedSize,

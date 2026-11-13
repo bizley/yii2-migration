@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\FloatColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group floatcolumn
- */
+#[Group('table')]
+#[Group('floatcolumn')]
 final class FloatColumnTest extends TestCase
 {
     /** @var FloatColumn */
@@ -22,9 +23,7 @@ final class FloatColumnTest extends TestCase
         $this->column = new FloatColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('float({renderLength})', $this->column->getDefinition());
@@ -33,7 +32,7 @@ final class FloatColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, 1],
@@ -45,10 +44,8 @@ final class FloatColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         $this->column->setPrecision(1);
@@ -58,7 +55,7 @@ final class FloatColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, 1],
@@ -71,11 +68,11 @@ final class FloatColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSettingLength
      * @param string $schema
      * @param int|null $expectedPrecision
      */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(string $schema, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
@@ -12,7 +13,7 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
-abstract class GeneratorTest extends DbLoaderTestCase
+abstract class GeneratorTestCase extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
@@ -27,10 +28,10 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws InvalidRouteException
      * @throws ConsoleException
      */
+    #[Test]
     public function shouldHandleNonExistingTable(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['non-existing-table']));
@@ -39,13 +40,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithCommonColumns(): void
     {
         $this->createTables(
@@ -126,13 +127,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithBigPrimaryKey(): void
     {
         $this->createTables(['big_primary_key' => ['id' => $this->bigPrimaryKey()]]);
@@ -153,13 +154,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithIndex(): void
     {
         $this->createTables(['index' => ['col' => $this->integer()]]);
@@ -183,13 +184,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTableWithIndexMultiColumn(): void
     {
         $this->createTables(
@@ -221,13 +222,13 @@ abstract class GeneratorTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws Exception
      * @throws InvalidRouteException
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    #[Test]
     public function shouldGenerateGeneralSchemaTablesMatchingPattern(): void
     {
         $this->createTables(

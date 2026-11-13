@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\TimeColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group timecolumn
- */
+#[Group('table')]
+#[Group('timecolumn')]
 final class TimeColumnTest extends TestCase
 {
     /** @var TimeColumn */
@@ -22,9 +23,7 @@ final class TimeColumnTest extends TestCase
         $this->column = new TimeColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('time({renderLength})', $this->column->getDefinition());
@@ -33,7 +32,7 @@ final class TimeColumnTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: int|null, 2?: string|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -49,10 +48,8 @@ final class TimeColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion = null): void
     {
         $this->column->setPrecision(1);
@@ -62,7 +59,7 @@ final class TimeColumnTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: int|null, 2: int|null, 3?: string|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -77,10 +74,8 @@ final class TimeColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(
         string $schema,
         ?int $expectedSize,

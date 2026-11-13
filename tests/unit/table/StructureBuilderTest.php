@@ -12,14 +12,14 @@ use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\StructureBuilder;
 use bizley\migration\table\StructureChange;
 use bizley\migration\table\StructureChangeInterface;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidArgumentException;
 
-/**
- * @group table
- * @group structurebuilder
- */
+#[Group('table')]
+#[Group('structurebuilder')]
 final class StructureBuilderTest extends TestCase
 {
     /** @var StructureBuilder */
@@ -34,14 +34,14 @@ final class StructureBuilderTest extends TestCase
         $this->change = $this->createMock(StructureChangeInterface::class);
     }
 
-    /** @test */
+    #[Test]
     public function shouldThrowExceptionWhenNoStructureChange(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->builder->build([new \stdClass()], null, null);
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateTableAndNonPKColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -60,7 +60,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($structure->getPrimaryKey());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateTableAndPKColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -82,7 +82,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame(['column'], $structurePrimaryKey->getColumns());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateTableAndColumnWithPKAppended(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -104,7 +104,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame(['column'], $structurePrimaryKey->getColumns());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateTableAndPKColumnWithExistingPK(): void
     {
         $primaryKey = new PrimaryKey();
@@ -133,7 +133,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame(['pk-column', 'column'], $structurePrimaryKey->getColumns());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -149,7 +149,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($structure->getColumn('column'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAlterColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -165,7 +165,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($structure->getColumn('column'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropColumn(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -185,7 +185,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($structure->getColumn('column'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithRenameColumn(): void
     {
         $column = new IntegerColumn(); // no mock because of cloning
@@ -207,7 +207,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('column', $column->getName(), 'Original column must not be modified.');
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddPrimaryKeyAndNoColumn(): void
     {
         $primaryKey = new PrimaryKey();
@@ -222,7 +222,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($structure->getPrimaryKey());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddPrimaryKeyAndMatchingColumnNothingAppended(): void
     {
         $column = new IntegerColumn();
@@ -247,7 +247,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('PRIMARY KEY', $structureColumn->getAppend());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddPrimaryKeyAndMatchingColumnWithAppend(): void
     {
         $column = new IntegerColumn();
@@ -273,7 +273,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('appended PRIMARY KEY', $structureColumn->getAppend());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropPrimaryKey(): void
     {
         $changeAdd = $this->createMock(StructureChangeInterface::class);
@@ -287,7 +287,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($structure->getPrimaryKey());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropPrimaryKeyWithMatchingColumn(): void
     {
         $column = new IntegerColumn();
@@ -316,7 +316,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('appended', $structureColumn->getAppend());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddForeignKey(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -331,7 +331,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($structure->getForeignKey('fk'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropForeignKey(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -350,7 +350,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($structure->getForeignKey('fk'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateIndexNonUnique(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -365,7 +365,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNotNull($structure->getIndex('idx'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithCreateIndexUniqueAndMatchingColumn(): void
     {
         $column = new IntegerColumn();
@@ -394,7 +394,7 @@ final class StructureBuilderTest extends TestCase
         self::assertTrue($structureColumn->isUnique());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropIndexNonUnique(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -413,7 +413,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($structure->getIndex('idx'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropIndexUniqueAndMatchingColumn(): void
     {
         $column = new IntegerColumn();
@@ -446,7 +446,7 @@ final class StructureBuilderTest extends TestCase
         self::assertFalse($structureColumn->isUnique());
     }
 
-    /** @test */
+    #[Test]
     public function shouldKeepColumnUniqueWhenDroppingNonUniqueIndex(): void
     {
         $column = new IntegerColumn();
@@ -477,7 +477,7 @@ final class StructureBuilderTest extends TestCase
         self::assertTrue($structureColumn->isUnique());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithAddCommentOnColumn(): void
     {
         $column = new IntegerColumn();
@@ -503,7 +503,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('comment-to-add', $structureColumn->getComment());
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyBuildWithDropCommentFromColumn(): void
     {
         $column = new IntegerColumn();
@@ -538,7 +538,7 @@ final class StructureBuilderTest extends TestCase
         return $change;
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenameColumnInPrimaryKeyIndexesAndForeignKeys(): void
     {
         $structure = $this->builder->build(
@@ -598,7 +598,7 @@ final class StructureBuilderTest extends TestCase
         self::assertSame('table', $foreignKey->getTableName());
     }
 
-    /** @test */
+    #[Test]
     public function shouldDropPrimaryKeyAfterRenamingItsColumn(): void
     {
         $structure = $this->builder->build(
@@ -618,7 +618,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($column->getAppend());
     }
 
-    /** @test */
+    #[Test]
     public function shouldDropPrimaryKeyWhenItsColumnWasDropped(): void
     {
         $structure = $this->builder->build(
@@ -636,7 +636,7 @@ final class StructureBuilderTest extends TestCase
         self::assertCount(1, $structure->getColumns());
     }
 
-    /** @test */
+    #[Test]
     public function shouldDropPrimaryKeyInfoFromRemainingColumnsWhenOneOfItsColumnsWasDropped(): void
     {
         $structure = $this->builder->build(
@@ -656,7 +656,7 @@ final class StructureBuilderTest extends TestCase
         self::assertNull($column->getAppend());
     }
 
-    /** @test */
+    #[Test]
     public function shouldKeepUniquenessAndOnUpdateWhenRenamingColumn(): void
     {
         $structure = $this->builder->build(

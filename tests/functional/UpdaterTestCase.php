@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\console\ExitCode;
 
-abstract class UpdaterTest extends DbLoaderTestCase
+abstract class UpdaterTestCase extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
@@ -24,9 +25,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         $this->addBase();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldHandleNonExistingTable(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['non-existing-table']));
@@ -34,9 +33,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         self::assertStringContainsString(' > No matching tables in database.', MigrationControllerStub::$stdout);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldFindMatchingTables(): void
     {
         MigrationControllerStub::$confirmControl = false;
@@ -52,9 +49,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByAddingColumn(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
@@ -90,9 +85,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByAddingIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
@@ -112,9 +105,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByAddingUniqueIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
@@ -134,9 +125,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByAddingMultiIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
@@ -156,9 +145,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByAddingMultiUniqueIndex(): void
     {
         $this->getDb()->createCommand()->createIndex(
@@ -183,9 +170,7 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldUpdateTableByDroppingIndex(): void
     {
         $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();
@@ -205,27 +190,21 @@ abstract class UpdaterTest extends DbLoaderTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotUpdateTableWithTimestampColumnWhenItsNotChanged(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base']));
         self::assertSame('', MigrationControllerStub::$content);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotUpdateTableWithForeignKeyAndExplicitIndexWhenItsNotChanged(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('update', ['updater_base_fk_with_idx']));
         self::assertSame('', MigrationControllerStub::$content);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotCreateNewTableWhenTableIsRenamed(): void
     {
         $this->getDb()->createCommand()->renameTable('updater_base', 'renamed_base')->execute();

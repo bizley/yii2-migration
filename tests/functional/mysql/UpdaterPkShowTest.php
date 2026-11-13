@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group mysql */
-final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
+#[Group('mysql')]
+final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTestCase
 {
     /** @var string */
     public static $schema = 'mysql';
@@ -20,11 +22,11 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', 'col')->execute();
@@ -42,11 +44,11 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByDroppingPrimaryKey(): void
     {
         $this->getDb()->createCommand()->dropPrimaryKey('string_pk-primary-key', 'string_pk')->execute();
@@ -65,11 +67,11 @@ final class UpdaterPkShowTest extends \bizley\tests\functional\UpdaterPkShowTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingCompositePrimaryKey(): void
     {
         $this->getDb()->createCommand()->addPrimaryKey('primary-new', 'no_pk', ['col', 'col2'])->execute();

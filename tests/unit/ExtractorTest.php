@@ -9,11 +9,13 @@ use bizley\migration\table\StructureChange;
 use bizley\tests\stubs\GoodMigration;
 use bizley\tests\stubs\WrongMigration;
 use ErrorException;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Yii;
 use yii\db\Connection;
 
-/** @group extractor */
+#[Group('extractor')]
 final class ExtractorTest extends TestCase
 {
     /** @var Extractor */
@@ -24,15 +26,13 @@ final class ExtractorTest extends TestCase
         $this->extractor = new Extractor($this->createMock(Connection::class));
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnNullWhenThereAreNoChanges(): void
     {
         self::assertNull($this->extractor->getChanges());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowExceptionWhenMigrationIsNotNamespacedAndThereIsNoFile(): void
     {
         $this->expectException(ErrorException::class);
@@ -41,9 +41,7 @@ final class ExtractorTest extends TestCase
         $this->extractor->extract('non-existing', []);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowExceptionWhenSubjectIsNotMigrationChangesInterface(): void
     {
         $this->expectException(ErrorException::class);
@@ -54,9 +52,7 @@ final class ExtractorTest extends TestCase
         $this->extractor->extract(WrongMigration::class, []);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowExceptionWhenSubjectIsNotMigrationSqlInterface(): void
     {
         $this->expectException(ErrorException::class);
@@ -68,9 +64,9 @@ final class ExtractorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      */
+    #[Test]
     public function shouldReturnChangesWhenSubjectIsNamespaced(): void
     {
         $this->extractor->extract(GoodMigration::class, []);
@@ -83,9 +79,9 @@ final class ExtractorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      */
+    #[Test]
     public function shouldReturnChangesWhenSubjectIsNotNamespaced(): void
     {
         $this->extractor->extract('good_migration', ['tests/stubs']);

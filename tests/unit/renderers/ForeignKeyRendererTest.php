@@ -8,13 +8,14 @@ use bizley\migration\renderers\ForeignKeyRenderer;
 use bizley\migration\Schema;
 use bizley\migration\table\ForeignKey;
 use bizley\migration\table\ForeignKeyInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
 
-/**
- * @group renderers
- * @group foreignkeyrenderer
- */
+#[Group('renderers')]
+#[Group('foreignkeyrenderer')]
 final class ForeignKeyRendererTest extends TestCase
 {
     use PhpStringLiteralsTrait;
@@ -28,9 +29,9 @@ final class ForeignKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderUp(): void
     {
         $this->expectException(NotSupportedException::class);
@@ -45,9 +46,9 @@ final class ForeignKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldThrowExceptionForSQLiteAndNonGeneralSchemaRenderDown(): void
     {
         $this->expectException(NotSupportedException::class);
@@ -61,9 +62,9 @@ final class ForeignKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldRenderProperTemplateForUp(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -88,9 +89,9 @@ final class ForeignKeyRendererTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldRenderProperTemplateForDown(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -105,7 +106,7 @@ final class ForeignKeyRendererTest extends TestCase
     /**
      * @return array<string, array{int, list<string>, list<string>, string|null, string|null, string, string}>
      */
-    public function providerForRender(): array
+    public static function providerForRender(): array
     {
         return [
             '#1' => [
@@ -192,8 +193,6 @@ RENDERED
     }
 
     /**
-     * @test
-     * @dataProvider providerForRender
      * @param int $indent
      * @param list<string> $columns
      * @param list<string> $refColumns
@@ -203,6 +202,8 @@ RENDERED
      * @param string $expectedDrop
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForRender')]
+    #[Test]
     public function shouldRenderProperlyForeignKey(
         int $indent,
         array $columns,
@@ -226,7 +227,7 @@ RENDERED
     /**
      * @return array<string, array{string|null, list<string>, string, string}>
      */
-    public function providerForRenderName(): array
+    public static function providerForRenderName(): array
     {
         return [
             'not numeric' => [
@@ -301,14 +302,14 @@ RENDERED
     }
 
     /**
-     * @test
-     * @dataProvider providerForRenderName
      * @param string|null $name
      * @param list<string> $columns
      * @param string $expectedAdd
      * @param string $expectedDrop
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForRenderName')]
+    #[Test]
     public function shouldRenderProperlyForeignKeyName(
         ?string $name,
         array $columns,
@@ -324,7 +325,7 @@ RENDERED
         self::assertSame($expectedDrop, $this->renderer->renderDown($foreignKey, 'test'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldEscapeNamesInRenderedCode(): void
     {
         $name = self::$unusualName;
@@ -343,9 +344,9 @@ RENDERED
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldTreatNegativeIndentAsNoIndent(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);

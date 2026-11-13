@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\Exception;
 use yii\console\ExitCode;
@@ -12,19 +16,19 @@ use yii\console\ExitCode;
 /**
  * This test should be run separate with phpunit-no-yii-autoload.xml config (bootstrap-no-autoload.php bootstrap)
  * to make sure no standard Yii autoloader is registered first.
- * @group autoloader
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
+#[PreserveGlobalState(false)]
+#[Group('autoloader')]
+#[RunTestsInSeparateProcesses]
 class NoYiiAutoloaderTest extends DbLoaderTestCase
 {
     /** @var string */
     public static $schema = 'sqlite';
 
     /**
-     * @test
      * @throws Exception
      */
+    #[Test]
     public function shouldProvideOwnYiiAutoloader(): void
     {
         $controller = new MigrationControllerStub('migration', Yii::$app);

@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace bizley\tests\unit\table;
 
 use bizley\migration\table\CreateIndexParser;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/** @group table */
+#[Group('table')]
 final class CreateIndexParserTest extends TestCase
 {
     /**
      * @return array<string, array{string, array{table: string, name: string, unique: bool, definition: string}}>
      */
-    public function providerForCreateIndex(): array
+    public static function providerForCreateIndex(): array
     {
         return [
             'generated' => [
@@ -67,10 +70,10 @@ final class CreateIndexParserTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForCreateIndex
      * @param array{table: string, name: string, unique: bool, definition: string} $expected
      */
+    #[DataProvider('providerForCreateIndex')]
+    #[Test]
     public function shouldParseCreateIndex(string $sql, array $expected): void
     {
         self::assertSame($expected, CreateIndexParser::parse($sql));
@@ -79,7 +82,7 @@ final class CreateIndexParserTest extends TestCase
     /**
      * @return array<string, array{string}>
      */
-    public function providerForNotCreateIndex(): array
+    public static function providerForNotCreateIndex(): array
     {
         return [
             'insert' => ['INSERT INTO tab (a) VALUES (1)'],
@@ -90,10 +93,8 @@ final class CreateIndexParserTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForNotCreateIndex
-     */
+    #[DataProvider('providerForNotCreateIndex')]
+    #[Test]
     public function shouldNotParseOtherStatements(string $sql): void
     {
         self::assertNull(CreateIndexParser::parse($sql));
