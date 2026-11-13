@@ -285,6 +285,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                     'col8' => $this->json()->defaultValue(Json::encode(['a' => 'b'])),
                     'col9' => $this->boolean()->defaultValue(false),
                     'col10' => $this->boolean()->defaultValue(true),
+                    'col11' => $this->string()->defaultExpression('md5(random()::text)'),
+                    'col12' => $this->integer()->defaultExpression('(1 + 2)'),
                 ]
             ]
         );
@@ -305,6 +307,8 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
                 \'col8\' => $this->json()->defaultValue(\'{"a":"b"}\'),
                 \'col9\' => $this->boolean()->defaultValue(false),
                 \'col10\' => $this->boolean()->defaultValue(true),
+                \'col11\' => $this->string()->defaultExpression(\'md5((random())::text)\'),
+                \'col12\' => $this->integer()->defaultExpression(\'(1 + 2)\'),
             ],
             $tableOptions
         );

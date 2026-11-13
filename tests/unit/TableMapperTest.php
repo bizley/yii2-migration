@@ -15,6 +15,7 @@ use yii\db\ColumnSchema;
 use yii\db\Command;
 use yii\db\Connection;
 use yii\db\Constraint;
+use yii\db\Expression;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\mssql\Schema as MssqlSchema;
@@ -658,6 +659,148 @@ final class TableMapperTest extends TestCase
         $amount = (new TableMapper($db))->getStructureOf('bill')->getColumn('Amount');
         self::assertNotNull($amount);
         self::assertSame('9, 3', $amount->getLength(Schema::MSSQL));
+    }
+
+    /**
+     * @param array<ColumnSchema> $columns
+     * @return MockObject&Connection
+     */
+    private function preparePgsqlConnection(array $columns): Connection
+    {
+        $schema = $this->createMock(PgsqlSchema::class);
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn([]);
+        $schema->method('getTablePrimaryKey')->willReturn(null);
+        $db = $this->createMock(Connection::class);
+        $db->method('getSchema')->willReturn($schema);
+
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->name = 'tab';
+        $tableSchema->schemaName = 'public';
+        $tableSchema->columns = $columns;
+        $db->method('getTableSchema')->willReturn($tableSchema);
+
+        return $db;
+    }
+
+    /**
+     * @param mixed $default
+     */
+    private function pgsqlColumn(string $name, $default, bool $isPrimaryKey = false): ColumnSchema
+    {
+        return new ColumnSchema([
+            'type' => 'string',
+            'dbType' => 'varchar',
+            'name' => $name,
+            'defaultValue' => $default,
+            'isPrimaryKey' => $isPrimaryKey,
+            'unsigned' => false,
+        ]);
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public function providerForPgsqlRawDefaults(): array
+    {
+        return [
+            'quoted string' => ["'abc'::character varying", false],
+            'quoted string with escaped quote' => ["'it''s'::character varying", false],
+            'empty string' => ["''::character varying", false],
+            'quoted negative number' => ["'-5'::integer", false],
+            'quoted array' => ["'{1,2}'::integer[]", false],
+            'quoted json' => ["'{\"a\":\"b\"}'::json", false],
+            'quoted timestamp' => ["'2020-01-01 10:00:00'::timestamp without time zone", false],
+            'quoted with sized cast' => ["'abc'::character varying(10)", false],
+            'quoted bit' => ["'101'::\"bit\"", false],
+            'bit literal' => ["B'101'::\"bit\"", false],
+            'integer' => ['5', false],
+            'decimal' => ['1.5', false],
+            'negative decimal' => ['-1.5', false],
+            'true' => ['true', false],
+            'false' => ['false', false],
+            'null with cast' => ['NULL::character varying', false],
+            'function' => ['gen_random_uuid()', true],
+            'function with cast argument' => ['md5((random())::text)', true],
+            'casted function' => ["(md5('x'::text))::uuid", true],
+            'now' => ['now()', true],
+            'current timestamp' => ['CURRENT_TIMESTAMP', true],
+            'arithmetic' => ['(1 + 2)', true],
+            'concatenation' => ["('a'::text || 'b'::text)", true],
+            'quoted and operator' => ["'1'::integer + 1", true],
+            'sequence' => ["nextval('tab_col_seq'::regclass)", true],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForPgsqlRawDefaults
+     * @throws NotSupportedException
+     */
+    public function shouldUseRawPgsqlDefaultForExpressions(string $rawDefault, bool $isExpression): void
+    {
+        $db = $this->preparePgsqlConnection([$this->pgsqlColumn('col', 'parsed by Yii')]);
+        $command = $this->createMock(Command::class);
+        $command->method('queryAll')->willReturn([['column_name' => 'col', 'column_default' => $rawDefault]]);
+        $db->expects(self::once())
+            ->method('createCommand')
+            ->with(self::stringContains('pg_attrdef'), [':schema' => 'public', ':table' => 'tab'])
+            ->willReturn($command);
+
+        $column = (new TableMapper($db))->getStructureOf('tab')->getColumn('col');
+        self::assertNotNull($column);
+        if ($isExpression) {
+            $default = $column->getDefault();
+            self::assertInstanceOf(Expression::class, $default);
+            self::assertSame($rawDefault, $default->expression);
+        } else {
+            self::assertSame('parsed by Yii', $column->getDefault());
+        }
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReadPgsqlDefaultsOnlyOncePerTable(): void
+    {
+        $db = $this->preparePgsqlConnection([
+            $this->pgsqlColumn('id', null, true),
+            $this->pgsqlColumn('a', 'gen_random_uuid()'),
+            $this->pgsqlColumn('b', 'abc'),
+            $this->pgsqlColumn('c', null),
+        ]);
+        $command = $this->createMock(Command::class);
+        $command->expects(self::once())->method('queryAll')->willReturn([
+            ['column_name' => 'id', 'column_default' => "nextval('tab_id_seq'::regclass)"],
+            ['column_name' => 'a', 'column_default' => 'gen_random_uuid()'],
+            ['column_name' => 'b', 'column_default' => "'abc'::character varying"],
+        ]);
+        $db->expects(self::once())->method('createCommand')->willReturn($command);
+
+        $mapper = new TableMapper($db);
+        $structure = $mapper->getStructureOf('tab');
+        $mapper->getStructureOf('tab');
+
+        self::assertNull($structure->getColumn('id')?->getDefault());
+        self::assertEquals(new Expression('gen_random_uuid()'), $structure->getColumn('a')?->getDefault());
+        self::assertSame('abc', $structure->getColumn('b')?->getDefault());
+        self::assertNull($structure->getColumn('c')?->getDefault());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotReadPgsqlDefaultsWhenThereAreNone(): void
+    {
+        $db = $this->preparePgsqlConnection([
+            $this->pgsqlColumn('id', null, true),
+            $this->pgsqlColumn('a', null),
+        ]);
+        $db->expects(self::never())->method('createCommand');
+
+        (new TableMapper($db))->getStructureOf('tab');
     }
 
     private function plainIndex(string $name, string $column): IndexConstraint
