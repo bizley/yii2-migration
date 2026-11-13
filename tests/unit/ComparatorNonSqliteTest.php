@@ -418,6 +418,28 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @test
      */
+    public function shouldEscapeDoubleQuotesInDifferenceDescription(): void
+    {
+        $columnNew = $this->getColumn('col');
+        $columnNew->setComment('say "hi"');
+        $columnOld = $this->getColumn('col');
+        $columnOld->setComment('def');
+        $this->newStructure->method('getColumns')->willReturn(['col' => $columnNew]);
+        $this->newStructure->method('getColumn')->willReturn($columnNew);
+        $this->oldStructure->method('getColumns')->willReturn(['col' => $columnOld]);
+        $this->oldStructure->method('getColumn')->willReturn($columnOld);
+
+        $this->compare();
+
+        self::assertSame(
+            ["different 'col' column property: comment (DB: \"say \\\"hi\\\"\" != MIG: \"def\")"],
+            $this->blueprint->getDescriptions()
+        );
+    }
+
+    /**
+     * @test
+     */
     public function shouldAlterColumnForGetComment(): void
     {
         $columnNew = $this->getColumn('col');
@@ -1048,6 +1070,33 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyNew, $this->blueprint->getTableNewPrimaryKey());
         self::assertNull($this->blueprint->getTableOldPrimaryKey());
         self::assertNull($this->blueprint->getAddedPrimaryKey());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAddCompositePrimaryKeyEvenWhenNewColumnHasPKInfo(): void
+    {
+        $columnId = $this->getColumn('id');
+        $columnCol = $this->getColumn('col');
+        $columnCol->setAppend('PRIMARY KEY');
+        $this->newStructure->method('getColumns')->willReturn(['id' => $columnId, 'col' => $columnCol]);
+        $this->newStructure->method('getColumn')->willReturnMap([['id', $columnId], ['col', $columnCol]]);
+        $this->oldStructure->method('getColumns')->willReturn(['id' => $columnId]);
+        $this->oldStructure->method('getColumn')->willReturnMap([['id', $columnId], ['col', null]]);
+
+        $primaryKeyNew = new PrimaryKey();
+        $primaryKeyNew->setColumns(['id', 'col']);
+        $primaryKeyOld = new PrimaryKey();
+        $primaryKeyOld->setColumns(['id']);
+        $this->newStructure->method('getPrimaryKey')->willReturn($primaryKeyNew);
+        $this->oldStructure->method('getPrimaryKey')->willReturn($primaryKeyOld);
+
+        $this->compare();
+
+        self::assertSame(['col'], \array_keys($this->blueprint->getAddedColumns()));
+        self::assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
+        self::assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
     }
 
     /**

@@ -323,8 +323,8 @@ final class BlueprintRenderer implements BlueprintRendererInterface
     private function renderPrimaryKeyToAdd(
         BlueprintInterface $blueprint,
         string $tableName,
-        int $indent = 0,
-        ?string $schema = null,
+        int $indent,
+        ?string $schema,
         bool $inverse = false
     ): ?string {
         if ($inverse) {

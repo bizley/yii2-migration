@@ -170,7 +170,7 @@ final class ColumnRenderer implements ColumnRendererInterface
         if ($this->generalSchema) {
             $alias = Schema::getAlias($schema, $type, (string)$length);
             if ($alias !== null) {
-                $this->definition[] = \str_replace('{renderLength}', '', $alias);
+                $this->definition[] = $alias;
                 return;
             }
         }

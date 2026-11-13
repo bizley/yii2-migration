@@ -50,6 +50,15 @@ final class CreateIndexParserTest extends TestCase
                 'CREATE INDEX CONCURRENTLY idx ON ONLY tab using GIST (a)',
                 ['table' => 'tab', 'name' => 'idx', 'unique' => false, 'definition' => 'USING GIST (a)'],
             ],
+            'without method, with USING in predicate' => [
+                "CREATE INDEX idx ON tab (a) WHERE (b <> 'USING x')",
+                [
+                    'table' => 'tab',
+                    'name' => 'idx',
+                    'unique' => false,
+                    'definition' => "USING btree (a) WHERE (b <> 'USING x')",
+                ],
+            ],
             'table placeholder without prefix' => [
                 'CREATE INDEX [[idx]] ON {{tab}} USING gin (a)',
                 ['table' => '{{tab}}', 'name' => 'idx', 'unique' => false, 'definition' => 'USING gin (a)'],

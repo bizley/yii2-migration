@@ -145,6 +145,23 @@ RENDERED
     }
 
     /** @test */
+    public function shouldTreatNegativeIndentAsNoIndent(): void
+    {
+        $structure = $this->createMock(StructureInterface::class);
+        $structure->method('getColumns')->willReturn([]);
+        $structure->method('getName')->willReturn('table');
+
+        self::assertSame(
+            $this->structureRenderer->renderStructureUp($structure),
+            $this->structureRenderer->renderStructureUp($structure, -4)
+        );
+        self::assertSame(
+            $this->structureRenderer->renderStructureDown($structure),
+            $this->structureRenderer->renderStructureDown($structure, -4)
+        );
+    }
+
+    /** @test */
     public function shouldRenderProperlyWithPrimaryKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);

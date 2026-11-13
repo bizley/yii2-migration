@@ -213,6 +213,9 @@ final class IndexRendererTest extends TestCase
             'prefixed quote and statement' => ['{{%a"; DROP TABLE x; --}}', '"pre_a""; DROP TABLE x; --"'],
             'prefixed unusual with schema' => ['{{%s.t"x}}', '"pre_s"."t""x"'],
             'placeholder injection' => ['{{%a}} ON b; DROP TABLE x; --}}', '"pre_a}} ON b; DROP TABLE x; --"'],
+            'statement before placeholder' => ['x; DROP TABLE y; --{{%tab}}', '"x; DROP TABLE y; --{{%tab}}"'],
+            'statement after placeholder' => ['{{%a}}; DROP TABLE x; --', '"{{%a}}; DROP TABLE x; --"'],
+            'prefixed with new line' => ["{{%a\nb}}", "\"pre_a\nb\""],
         ];
     }
 

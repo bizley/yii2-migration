@@ -249,4 +249,21 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedScale, $this->column->getScale());
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
+
+    /** @test */
+    public function shouldSetPrecisionAndScaleFromDifferentValues(): void
+    {
+        $this->column->setLength('10, 2', Schema::PGSQL);
+        self::assertSame(10, $this->column->getPrecision());
+        self::assertSame(2, $this->column->getScale());
+    }
+
+    /** @test */
+    public function shouldResetPrecisionAndScaleWhenLengthIsEmpty(): void
+    {
+        $this->column->setLength('10, 2', Schema::PGSQL);
+        $this->column->setLength('', Schema::PGSQL);
+        self::assertNull($this->column->getPrecision());
+        self::assertNull($this->column->getScale());
+    }
 }

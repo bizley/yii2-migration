@@ -138,7 +138,7 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed}>
+     * @return array<array-key, array{mixed}>
      */
     public function providerForWrongAddColumn(): array
     {
@@ -147,6 +147,11 @@ final class StructureChangeTest extends TestCase
             [[]],
             [[1, []]],
             [['col', 1]],
+            'no name' => [['schema' => []]],
+            'no schema' => [['name' => 'col']],
+            'non-string name' => [['name' => 1, 'schema' => []]],
+            'non-string name with type' => [['name' => 1, 'schema' => ['type' => 'string']]],
+            'non-array schema' => [['name' => 'col', 'schema' => 'string']],
         ];
     }
 
@@ -313,7 +318,7 @@ final class StructureChangeTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed}>
+     * @return array<array-key, array{mixed}>
      */
     public function providerForWrongRenameColumn(): array
     {
@@ -322,6 +327,27 @@ final class StructureChangeTest extends TestCase
             [[]],
             [[1]],
             [['a', 2]],
+            'no new' => [['old' => 'a']],
+            'no old' => [['new' => 'a']],
+            'non-string new' => [['new' => 1, 'old' => 'a']],
+            'non-string old' => [['new' => 'a', 'old' => 1]],
+        ];
+    }
+
+    /**
+     * @return array<array-key, array{mixed}>
+     */
+    public function providerForWrongAddCommentOnColumn(): array
+    {
+        return [
+            ['wrong'],
+            [[]],
+            [[1]],
+            [['a', 2]],
+            'no column' => [['comment' => 'a']],
+            'no comment' => [['column' => 'a']],
+            'non-string column' => [['column' => 1, 'comment' => 'a']],
+            'non-string comment' => [['column' => 'a', 'comment' => 1]],
         ];
     }
 
@@ -564,7 +590,7 @@ final class StructureChangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider providerForWrongRenameColumn
+     * @dataProvider providerForWrongAddCommentOnColumn
      * @param mixed $data
      */
     public function shouldThrowExceptionForWrongDataForAddCommentOnColumn($data): void
