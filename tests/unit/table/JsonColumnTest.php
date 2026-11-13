@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\JsonColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group jsoncolumn
- */
+#[Group('table')]
+#[Group('jsoncolumn')]
 final class JsonColumnTest extends TestCase
 {
     /** @var JsonColumn */
@@ -22,7 +23,7 @@ final class JsonColumnTest extends TestCase
         $this->column = new JsonColumn();
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('json()', $this->column->getDefinition());
@@ -31,7 +32,7 @@ final class JsonColumnTest extends TestCase
     /**
      * @return array<string, array{string|array<array-key, int|string>|null, string|null}>
      */
-    public function providerForDefaults(): array
+    public static function providerForDefaults(): array
     {
         return [
             'string1' => ['', ''],
@@ -45,10 +46,10 @@ final class JsonColumnTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForDefaults
      * @param string|array<array-key, int|string>|null $defaultToSet
      */
+    #[DataProvider('providerForDefaults')]
+    #[Test]
     public function shouldReturnProperDefault($defaultToSet, ?string $expected): void
     {
         $this->column->setDefault($defaultToSet);
@@ -58,7 +59,7 @@ final class JsonColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -70,10 +71,8 @@ final class JsonColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected): void
     {
         self::assertSame($expected, $this->column->getLength($schema));
@@ -82,7 +81,7 @@ final class JsonColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null],
@@ -94,17 +93,15 @@ final class JsonColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(string $schema, ?int $expectedPrecision): void
     {
         $this->column->setLength(1, $schema);
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /** @test */
+    #[Test]
     public function shouldNotDecodeJsonWhenThereIsException(): void
     {
         $this->column->setDefault('{"bad":"json');

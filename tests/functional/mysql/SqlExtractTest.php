@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace bizley\tests\functional\mysql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
@@ -12,11 +16,11 @@ use yii\console\ExitCode;
 /**
  * Extractor replaces yii\db\Migration through Yii's class map and loads migration files with require_once,
  * so this test must not share the process with the other functional tests.
- * @group mysql
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
-final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
+#[PreserveGlobalState(false)]
+#[Group('mysql')]
+#[RunTestsInSeparateProcesses]
+final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTestCase
 {
     /** @var string */
     public static $schema = 'mysql';
@@ -25,10 +29,10 @@ final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
     public static $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
 
     /**
-     * @test
      * @throws InvalidRouteException
      * @throws ConsoleException
      */
+    #[Test]
     public function shouldExtractSqlFromMigrationUp(): void
     {
         self::assertEquals(
@@ -76,10 +80,10 @@ ALTER TABLE `updater_base_fk_with_idx` ADD CONSTRAINT `fk-existing-ids` FOREIGN 
     }
 
     /**
-     * @test
      * @throws InvalidRouteException
      * @throws ConsoleException
      */
+    #[Test]
     public function shouldExtractSqlFromMigrationDown(): void
     {
         self::assertEquals(

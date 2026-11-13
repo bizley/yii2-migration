@@ -9,13 +9,14 @@ use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\PrimaryKeyColumnInterface;
 use bizley\migration\table\PrimaryKeyInterface;
 use bizley\migration\table\PrimaryKeyVariantColumnInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\db\Expression;
 
-/**
- * @group renderers
- * @group columnrenderer
- */
+#[Group('renderers')]
+#[Group('columnrenderer')]
 final class ColumnRendererTest extends TestCase
 {
     use PhpStringLiteralsTrait;
@@ -28,7 +29,7 @@ final class ColumnRendererTest extends TestCase
     /**
      * @return list<array{string|null, string|null}>
      */
-    public function providerForEscaping(): array
+    public static function providerForEscaping(): array
     {
         return [
             ['aaa', 'aaa'],
@@ -41,17 +42,17 @@ final class ColumnRendererTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForEscaping
      * @param string|null $expected
      * @param string|null $input
      */
+    #[DataProvider('providerForEscaping')]
+    #[Test]
     public function shouldProperlyEscapeQuotes(?string $expected, ?string $input): void
     {
         self::assertSame($expected, $this->getRenderer()->escapeQuotes($input));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithNoLength(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -61,7 +62,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyColumnWithNoLength(): void
     {
         $column = $this->createMock(PrimaryKeyColumnInterface::class);
@@ -72,7 +73,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyColumnWithIsNotNull(): void
     {
         $column = $this->createMock(PrimaryKeyColumnInterface::class);
@@ -83,7 +84,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithNoLengthNoPKAndNonGeneralSchema(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -93,7 +94,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithPKButNoLengthAndNonGeneralSchema(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -105,7 +106,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer(false)->render($column, $primaryKey));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithNoLengthAndGeneralSchemaAndNoPrimaryKey(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -115,7 +116,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithNoLengthGeneralSchemaNonCompositePrimaryKey(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -128,7 +129,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumnWithNoLengthGeneralSchemaNonColumnInPrimaryKey(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -142,7 +143,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyPrimaryKeyVariantColumn(): void
     {
         $column = $this->createMock(PrimaryKeyVariantColumnInterface::class);
@@ -157,7 +158,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->primaryKeyDef(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithNonGeneralSchemaAndNonDefaultLength(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -168,7 +169,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(12),', $this->getRenderer(false)->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndDefaultLengthAsNull(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -179,7 +180,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithGeneralSchemaAndNonDefaultLength(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -190,7 +191,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(11),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithUnsigned(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -201,7 +202,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithDefaultExpression(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -215,7 +216,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithDefaultArrayValue(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -226,7 +227,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->defaultValue(\'[1,2,3]\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithDefaultValue(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -237,7 +238,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->defaultValue(\'123\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithDefaultFalseValue(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -248,7 +249,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->defaultValue(false),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithDefaultTrueValue(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -259,7 +260,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->defaultValue(true),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderSimpleColumnWithDefaultValueContainingBackslashesAsValidPhp(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -275,7 +276,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithComment(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -286,7 +287,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->comment(\'test\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAfter(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -297,7 +298,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithFirstAndAfter(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -309,7 +310,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->after(\'first\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithFirstAndNoAfter(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -321,7 +322,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->first(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAppend(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -332,7 +333,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->append(\'aaa\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAppendAndCompositePrimaryKey(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -349,7 +350,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAppendAndNoColumnPrimaryKey(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -367,7 +368,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAppendAndPrimaryKeyAndNoSchemaAppend(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -386,7 +387,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithAppendAndPrimaryKeyAndSchemaAppend(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -405,7 +406,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldNotAppendPrimaryKeyInfoForPrimaryKeyColumnInGeneralSchema(): void
     {
         $column = $this->createMock(PrimaryKeyColumnInterface::class);
@@ -420,7 +421,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def(),', $this->getRenderer()->render($column, $primaryKey));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlySimpleColumnWithTrimmedAppend(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -431,7 +432,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->append(\'aaa\'),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldNotDuplicateSchemaAppendAlreadyPresentInColumnAppend(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -450,7 +451,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnToAdd(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -463,7 +464,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnToAlter(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -476,7 +477,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnToDrop(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -488,7 +489,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnWithLengthAsMax(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -502,7 +503,7 @@ final class ColumnRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnWithNotNull(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -513,7 +514,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->notNull(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyColumnWithUnsigned(): void
     {
         $column = $this->createMock(ColumnInterface::class);
@@ -524,7 +525,7 @@ final class ColumnRendererTest extends TestCase
         self::assertSame('\'col\' => $this->def()->unsigned(),', $this->getRenderer()->render($column));
     }
 
-    /** @test */
+    #[Test]
     public function shouldEscapeNamesInRenderedCode(): void
     {
         $name = self::$unusualName;

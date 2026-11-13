@@ -28,19 +28,20 @@ use bizley\migration\table\TimestampColumn;
 use bizley\migration\table\TinyIntegerColumn;
 use bizley\migration\table\UnsignedPrimaryKeyColumn;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\db\Schema;
 
-/**
- * @group table
- * @group columnfactory
- */
+#[Group('table')]
+#[Group('columnfactory')]
 final class ColumnFactoryTest extends TestCase
 {
     /**
      * @return array<string, array{string, class-string}>
      */
-    public function providerForTypes(): array
+    public static function providerForTypes(): array
     {
         return [
             Schema::TYPE_PK => [Schema::TYPE_PK, PrimaryKeyColumn::class],
@@ -69,10 +70,10 @@ final class ColumnFactoryTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForTypes
      * @param class-string $expected
      */
+    #[DataProvider('providerForTypes')]
+    #[Test]
     public function shouldReturnProperColumn(string $type, string $expected): void
     {
         $column = ColumnFactory::build($type);
@@ -80,9 +81,7 @@ final class ColumnFactoryTest extends TestCase
         self::assertSame($type, $column->getType());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowExceptionOnUnknownType(): void
     {
         $this->expectException(InvalidArgumentException::class);

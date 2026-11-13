@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
@@ -12,7 +13,7 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
-abstract class ListTest extends DbLoaderTestCase
+abstract class ListTestCase extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
@@ -33,10 +34,10 @@ abstract class ListTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws InvalidRouteException
      * @throws ConsoleException
      */
+    #[Test]
     public function shouldShowListActionWithAllTables(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('list'));

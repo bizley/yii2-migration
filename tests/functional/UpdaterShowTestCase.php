@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
@@ -13,7 +14,7 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception as DbException;
 
-abstract class UpdaterShowTest extends DbLoaderTestCase
+abstract class UpdaterShowTestCase extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
@@ -35,11 +36,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingColumn(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer())->execute();
@@ -56,11 +57,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add', 'updater_base', 'col')->execute();
@@ -77,11 +78,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingUniqueIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add-unique', 'updater_base', 'col', true)->execute();
@@ -98,11 +99,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingMultiIndex(): void
     {
         $this->getDb()->createCommand()->createIndex('idx-add-multi', 'updater_base', ['col', 'col2'])->execute();
@@ -119,11 +120,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByAddingMultiUniqueIndex(): void
     {
         $this->getDb()->createCommand()->createIndex(
@@ -145,11 +146,11 @@ abstract class UpdaterShowTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldShowUpdateTableByDroppingIndex(): void
     {
         $this->getDb()->createCommand()->dropIndex('idx-col', 'updater_base_fk')->execute();

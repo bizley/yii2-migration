@@ -11,10 +11,13 @@ use bizley\migration\table\ForeignKey;
 use bizley\migration\table\Index;
 use bizley\migration\table\PrimaryKey;
 use bizley\migration\table\StructureInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/** @group comparator */
+#[Group('comparator')]
 class ComparatorNonSqliteTest extends TestCase
 {
     /** @var StructureInterface&MockObject */
@@ -77,9 +80,7 @@ class ComparatorNonSqliteTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddColumns(): void
     {
         $column1 = $this->getColumn('col1');
@@ -109,9 +110,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col1', 'col2'], \array_keys($this->blueprint->getAddedColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldDropColumn(): void
     {
         $column1 = $this->getColumn('col1');
@@ -125,9 +124,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col1'], \array_keys($this->blueprint->getDroppedColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetType(): void
     {
         $columnNew = $this->getColumn('col');
@@ -150,9 +147,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForIsNotNull(): void
     {
         $columnNew = $this->getColumn('col');
@@ -175,9 +170,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetLength(): void
     {
         $columnNew = $this->getColumn('col');
@@ -200,9 +193,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetLengthDecimal(): void
     {
         $columnNew = $this->getColumn('col');
@@ -225,9 +216,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForDecimalLengthWithoutScaleVariant1(): void
     {
         $columnNew = $this->getColumn('col');
@@ -244,9 +233,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForDecimalLengthWithoutScaleVariant2(): void
     {
         $columnNew = $this->getColumn('col');
@@ -263,9 +250,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForIsUnique(): void
     {
         $columnNew = $this->getColumn('col');
@@ -288,9 +273,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForIsUnique(): void
     {
         $columnNew = $this->getColumn('col');
@@ -314,9 +297,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForIsUniqueWhenIndexIsMulticolumn(): void
     {
         $columnNew = $this->getColumn('col');
@@ -340,9 +321,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertTrue($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForIsUnsigned(): void
     {
         $columnNew = $this->getColumn('col');
@@ -365,9 +344,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetDefault(): void
     {
         $columnNew = $this->getColumn('col');
@@ -390,9 +367,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetDefaultNULL(): void
     {
         $columnNew = $this->getColumn('col');
@@ -415,9 +390,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldEscapeDoubleQuotesInDifferenceDescription(): void
     {
         $columnNew = $this->getColumn('col');
@@ -437,9 +410,7 @@ class ComparatorNonSqliteTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetComment(): void
     {
         $columnNew = $this->getColumn('col');
@@ -462,9 +433,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendNonPK(): void
     {
         $columnNew = $this->getColumn('col');
@@ -487,9 +456,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithPKAndGeneralSchema(): void
     {
         $primaryKey = new PrimaryKey();
@@ -508,9 +475,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithPKAndNonGeneralSchema(): void
     {
         $primaryKey = new PrimaryKey();
@@ -535,9 +500,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -554,9 +517,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -573,9 +534,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndOldAppendVariant2(): void
     {
         $columnNew = $this->getColumn('col');
@@ -592,9 +551,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithAutoincrementAndNewAppendVariant2(): void
     {
         $columnNew = $this->getColumn('col');
@@ -611,9 +568,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -630,9 +585,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -649,9 +602,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyOldAppendVariant2(): void
     {
         $columnNew = $this->getColumn('col');
@@ -668,9 +619,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAlterColumnForGetAppendWithPKAndEmptyNewAppendVariant2(): void
     {
         $columnNew = $this->getColumn('col');
@@ -687,9 +636,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotPKAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -712,9 +659,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant1AndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -737,9 +682,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant2AndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -762,9 +705,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNoIdentityAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -787,9 +728,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddForeignKeys(): void
     {
         $foreignKey = $this->getForeignKey('fk');
@@ -815,9 +754,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk', 'fk2'], \array_keys($this->blueprint->getAddedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldDropForeignKey(): void
     {
         $foreignKey = $this->getForeignKey('fk');
@@ -834,9 +771,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceForeignKeysWithDifferentColumns(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -880,9 +815,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk', 'fk2'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentReferredColumns(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -905,9 +838,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentReferredTable(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -930,9 +861,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentOnUpdateConstraint(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -955,9 +884,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentOnDeleteConstraint(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -980,9 +907,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['fk'], \array_keys($this->blueprint->getDroppedForeignKeys()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenOnlyNewOne(): void
     {
         $primaryKeyNew = new PrimaryKey();
@@ -1002,9 +927,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenOnlyOldOne(): void
     {
         $primaryKeyOld = new PrimaryKey();
@@ -1024,9 +947,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenDifferentColumns(): void
     {
         $primaryKeyNew = new PrimaryKey();
@@ -1049,9 +970,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyOld, $this->blueprint->getDroppedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotReplacePrimaryKeyWhenPKInfoAddedAlready(): void
     {
         $column = $this->getColumn('col');
@@ -1072,9 +991,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertNull($this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddCompositePrimaryKeyEvenWhenNewColumnHasPKInfo(): void
     {
         $columnId = $this->getColumn('id');
@@ -1099,9 +1016,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame($primaryKeyNew, $this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddPrimaryKeyWhenPKInfoNotAddedAlready(): void
     {
         $column = $this->getColumn('col');
@@ -1121,9 +1036,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertNotNull($this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotReplacePrimaryKeyWhenPKInfoAlteredAlready(): void
     {
         $columnNew = $this->getColumn('col');
@@ -1148,9 +1061,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertNull($this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddPrimaryKeyWhenPKInfoNotAlteredAlready(): void
     {
         $columnNew = $this->getColumn('col');
@@ -1174,9 +1085,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertNotNull($this->blueprint->getAddedPrimaryKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenPKInfoAddedAlreadyAndRemoveExcessive(): void
     {
         $column = $this->getColumn('col');
@@ -1198,9 +1107,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame('abc', $column->getAppend());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenPKInfoAlteredAlreadyAndRemoveExcessive(): void
     {
         $columnNew = $this->getColumn('col');
@@ -1226,9 +1133,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame('abc', $columnNew->getAppend());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAddIndex(): void
     {
         $index = $this->getIndex('idx');
@@ -1246,9 +1151,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getAddedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotAddIndexWhenItComesFromForeignKey(): void
     {
         $index = $this->getIndex('idx');
@@ -1268,9 +1171,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame([], $this->blueprint->getDescriptions());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldDropIndex(): void
     {
         $index = $this->getIndex('idx');
@@ -1288,9 +1189,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceIndexWhenDifferentMethod(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1317,7 +1216,7 @@ class ComparatorNonSqliteTest extends TestCase
     /**
      * @return array<string, array{string|null, string|null, string}>
      */
-    public function providerForDifferentDefinitions(): array
+    public static function providerForDifferentDefinitions(): array
     {
         return [
             'different' => [
@@ -1338,10 +1237,8 @@ class ComparatorNonSqliteTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForDifferentDefinitions
-     */
+    #[DataProvider('providerForDifferentDefinitions')]
+    #[Test]
     public function shouldReplaceIndexWhenDifferentDefinition(
         ?string $newDefinition,
         ?string $oldDefinition,
@@ -1366,9 +1263,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotReplaceIndexWhenSameDefinition(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1385,9 +1280,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotReplaceIndexWhenSameMethod(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1406,9 +1299,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertFalse($this->blueprint->isPending());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceIndexWhenDifferentUnique(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1433,9 +1324,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceMoreThanOneIndex(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1469,9 +1358,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx', 'idx2'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceIndexWhenDifferentColumns(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1494,9 +1381,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReplaceIndexWhenDifferentColumnsOrder(): void
     {
         $indexNew = $this->getIndex('idx');
@@ -1519,9 +1404,7 @@ class ComparatorNonSqliteTest extends TestCase
         self::assertSame(['idx'], \array_keys($this->blueprint->getDroppedIndexes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotReplaceIndexWhenOnlyColumnsKeysAreDifferent(): void
     {
         $indexNew = $this->getIndex('idx');

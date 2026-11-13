@@ -7,9 +7,11 @@ namespace bizley\tests\unit;
 use bizley\migration\Comparator;
 use bizley\migration\Schema;
 use bizley\migration\table\PrimaryKey;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\NotSupportedException;
 
-/** @group comparator */
+#[Group('comparator')]
 final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
 {
     /**
@@ -29,9 +31,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldDropColumn(): void
     {
         $column1 = $this->getColumn('col1');
@@ -52,9 +54,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetType(): void
     {
         $columnNew = $this->getColumn('col');
@@ -81,9 +83,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForIsNotNull(): void
     {
         $columnNew = $this->getColumn('col');
@@ -110,9 +112,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetLength(): void
     {
         $columnNew = $this->getColumn('col');
@@ -139,9 +141,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetLengthDecimal(): void
     {
         $columnNew = $this->getColumn('col');
@@ -168,9 +170,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForIsUnique(): void
     {
         $columnNew = $this->getColumn('col');
@@ -197,9 +199,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForIsUnsigned(): void
     {
         $columnNew = $this->getColumn('col');
@@ -226,9 +228,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetDefault(): void
     {
         $columnNew = $this->getColumn('col');
@@ -254,9 +256,7 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
         self::assertSame(['col'], \array_keys($this->blueprint->getUnalteredColumns()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldAlterColumnForGetDefaultNULL(): void
     {
         $columnNew = $this->getColumn('col');
@@ -274,9 +274,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldEscapeDoubleQuotesInDifferenceDescription(): void
     {
         $columnNew = $this->getColumn('col');
@@ -300,9 +300,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetComment(): void
     {
         $columnNew = $this->getColumn('col');
@@ -329,9 +329,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendNonPK(): void
     {
         $columnNew = $this->getColumn('col');
@@ -358,9 +358,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithPKAndNonGeneralSchema(): void
     {
         $primaryKey = new PrimaryKey();
@@ -389,9 +389,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotPKAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -418,9 +418,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant1AndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -447,9 +447,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNotAutoIncrementVariant2AndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -476,9 +476,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAlterColumnForGetAppendWithNoIdentityAndEmptyOldAppend(): void
     {
         $columnNew = $this->getColumn('col');
@@ -505,9 +505,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAddForeignKeys(): void
     {
         $foreignKey = $this->getForeignKey('fk');
@@ -536,9 +536,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldDropForeignKey(): void
     {
         $foreignKey = $this->getForeignKey('fk');
@@ -559,9 +559,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplaceForeignKeysWithDifferentColumns(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -608,9 +608,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentReferredColumns(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -637,9 +637,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentReferredTable(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -666,9 +666,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentOnUpdateConstraint(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -695,9 +695,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplaceForeignKeyWithDifferentOnDeleteConstraint(): void
     {
         $foreignKeyNew = $this->getForeignKey('fk');
@@ -724,9 +724,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenOnlyNewOne(): void
     {
         $primaryKeyNew = new PrimaryKey();
@@ -750,9 +750,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenOnlyOldOne(): void
     {
         $primaryKeyOld = new PrimaryKey();
@@ -776,9 +776,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReplacePrimaryKeyWhenDifferentColumns(): void
     {
         $primaryKeyNew = new PrimaryKey();
@@ -805,9 +805,9 @@ final class ComparatorSqliteShowTest extends ComparatorNonSqliteTest
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotReplacePrimaryKeyWhenPKInfoAddedAlready(): void
     {
         $column = $this->getColumn('col');

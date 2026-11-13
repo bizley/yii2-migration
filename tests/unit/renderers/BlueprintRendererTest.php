@@ -14,13 +14,14 @@ use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\PrimaryKeyInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group renderers
- * @group blueprintrenderer
- */
+#[Group('renderers')]
+#[Group('blueprintrenderer')]
 final class BlueprintRendererTest extends TestCase
 {
     /** @var BlueprintRenderer */
@@ -60,7 +61,7 @@ final class BlueprintRendererTest extends TestCase
     /**
      * @return array<string, array{bool, string|null, string, string|null}>
      */
-    public function providerForName(): array
+    public static function providerForName(): array
     {
         return [
             'not use prefix' => [false, null, 'table', 'table'],
@@ -72,31 +73,31 @@ final class BlueprintRendererTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForName
      * @param bool $usePrefix
      * @param string|null $dbPrefix
      * @param string $name
      * @param string|null $expected
      */
+    #[DataProvider('providerForName')]
+    #[Test]
     public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, string $name, ?string $expected): void
     {
         self::assertSame($expected, $this->renderer->renderName($name, $usePrefix, $dbPrefix));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyEmpty(): void
     {
         self::assertSame('', $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyEmpty(): void
     {
         self::assertSame('', $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyColumnsToDrop(): void
     {
         $this->columnRenderer->method('renderDrop')->willReturn('drop-column');
@@ -110,7 +111,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-column\ndrop-column", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyColumnsToDrop(): void
     {
         $this->columnRenderer->method('renderDrop')->willReturn('drop-column');
@@ -124,7 +125,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-column\ndrop-column", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyColumnsToAdd(): void
     {
         $this->columnRenderer->method('renderAdd')->willReturn('add-column');
@@ -138,7 +139,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("add-column\nadd-column", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyColumnsToAdd(): void
     {
         $this->columnRenderer->method('renderAdd')->willReturn('add-column');
@@ -152,7 +153,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("add-column\nadd-column", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyColumnsToAlter(): void
     {
         $this->columnRenderer->method('renderAlter')->willReturn('alter-column');
@@ -166,7 +167,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("alter-column\nalter-column", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyColumnsToAlter(): void
     {
         $this->columnRenderer->method('renderAlter')->willReturn('alter-column');
@@ -180,7 +181,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("alter-column\nalter-column", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyForeignKeysToDrop(): void
     {
         $this->foreignKeyRenderer->method('renderDown')->willReturn('drop-fk');
@@ -194,7 +195,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-fk\ndrop-fk", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyForeignKeysToDrop(): void
     {
         $this->foreignKeyRenderer->method('renderDown')->willReturn('drop-fk');
@@ -208,7 +209,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-fk\ndrop-fk", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyForeignKeysToAdd(): void
     {
         $this->foreignKeyRenderer->method('renderUp')->willReturn('add-fk');
@@ -222,7 +223,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("add-fk\nadd-fk", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyForeignKeysToAdd(): void
     {
         $this->foreignKeyRenderer->method('renderUp')->willReturn('add-fk');
@@ -236,7 +237,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("add-fk\nadd-fk", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyIndexesToDrop(): void
     {
         $this->indexRenderer->method('renderDown')->willReturn('drop-idx');
@@ -250,7 +251,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-idx\ndrop-idx", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyIndexesToDrop(): void
     {
         $this->indexRenderer->method('renderDown')->willReturn('drop-idx');
@@ -264,7 +265,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("drop-idx\ndrop-idx", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyIndexesToAdd(): void
     {
         $this->indexRenderer->method('renderUp')->willReturn('create-idx');
@@ -278,7 +279,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("create-idx\ncreate-idx", $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyIndexesToAdd(): void
     {
         $this->indexRenderer->method('renderUp')->willReturn('create-idx');
@@ -292,7 +293,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame("create-idx\ncreate-idx", $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyPrimaryKeyToDrop(): void
     {
         $this->primaryKeyRenderer->method('renderDown')->willReturn('drop-pk');
@@ -301,7 +302,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame('drop-pk', $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyPrimaryKeyToDrop(): void
     {
         $this->primaryKeyRenderer->method('renderDown')->willReturn('drop-pk');
@@ -310,7 +311,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame('drop-pk', $this->renderer->renderDown($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpProperlyPrimaryKeyToAdd(): void
     {
         $this->primaryKeyRenderer->method('renderUp')->willReturn('add-pk');
@@ -319,7 +320,7 @@ final class BlueprintRendererTest extends TestCase
         self::assertSame('add-pk', $this->renderer->renderUp($this->blueprint));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownProperlyPrimaryKeyToAdd(): void
     {
         $this->primaryKeyRenderer->method('renderUp')->willReturn('add-pk');
@@ -357,7 +358,7 @@ final class BlueprintRendererTest extends TestCase
         $this->blueprint->method('getAddedForeignKeys')->willReturn(['f2' => $foreignKey]);
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUpInOrderSafeForDependencies(): void
     {
         $this->prepareBlueprintWithAllChanges();
@@ -381,7 +382,7 @@ final class BlueprintRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDownInOrderSafeForDependencies(): void
     {
         $this->prepareBlueprintWithAllChanges();

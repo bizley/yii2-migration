@@ -8,6 +8,9 @@ use bizley\migration\Schema;
 use bizley\migration\table\CharacterColumn;
 use bizley\migration\TableMapper;
 use PDO;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\NotSupportedException;
@@ -25,7 +28,7 @@ use yii\db\pgsql\Schema as PgsqlSchema;
 use yii\db\QueryBuilder;
 use yii\db\TableSchema;
 
-/** @group tablemapper */
+#[Group('tablemapper')]
 final class TableMapperTest extends TestCase
 {
     /** @var MockObject&Connection */
@@ -68,9 +71,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldSetProperDefaultValues(): void
     {
         $this->prepareSchemaMock();
@@ -87,7 +90,7 @@ final class TableMapperTest extends TestCase
     /**
      * @return array<string, array{string, list<string>}>
      */
-    public function providerForPrimaryKey(): array
+    public static function providerForPrimaryKey(): array
     {
         return [
             'pk1' => ['pk1', []],
@@ -97,12 +100,12 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForPrimaryKey
      * @param string $primaryKeyName
      * @param list<string> $primaryKeyColumns
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForPrimaryKey')]
+    #[Test]
     public function shouldSetProperPrimaryKey(string $primaryKeyName, array $primaryKeyColumns): void
     {
         $primaryKey = new Constraint([
@@ -121,7 +124,7 @@ final class TableMapperTest extends TestCase
     /**
      * @return array<string, array{list<array<string, string|list<string>|null>>}>
      */
-    public function providerForForeignKeys(): array
+    public static function providerForForeignKeys(): array
     {
         return [
             'fk1' => [[[
@@ -170,11 +173,11 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForForeignKeys
      * @param list<array<string, string|list<string>|null>> $foreignKeyData
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForForeignKeys')]
+    #[Test]
     public function shouldSetProperForeignKeys(array $foreignKeyData): void
     {
         $foreignKeys = [];
@@ -200,9 +203,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldSuppressForeignKey(): void
     {
         $foreignKey = new ForeignKeyConstraint(
@@ -224,7 +227,7 @@ final class TableMapperTest extends TestCase
     /**
      * @return array<string, array{list<array<string, string|list<string>|bool>>}>
      */
-    public function providerForIndexes(): array
+    public static function providerForIndexes(): array
     {
         return [
             'i1' => [[[
@@ -263,11 +266,11 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForIndexes
      * @param list<array<string, string|list<string>|bool>> $indexData
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForIndexes')]
+    #[Test]
     public function shouldSetProperIndexes(array $indexData): void
     {
         $indexes = [];
@@ -289,9 +292,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldIgnorePrimaryIndex(): void
     {
         $this->prepareSchemaMock(
@@ -304,9 +307,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldSetColumn(): void
     {
         $this->prepareSchemaMock(false);
@@ -344,9 +347,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldSetNoColumns(): void
     {
         $this->prepareSchemaMock(false);
@@ -356,9 +359,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldSetUniqueColumnWithUniqueIndex(): void
     {
         $this->prepareSchemaMock(
@@ -394,9 +397,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotSetUniqueColumnWithoutIndex(): void
     {
         $this->prepareSchemaMock(
@@ -433,9 +436,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnProperEngineVersion(): void
     {
         $this->prepareSchemaMock();
@@ -451,9 +454,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnNullAsEngineVersionWhenThereIsException(): void
     {
         $this->prepareSchemaMock();
@@ -467,9 +470,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnNullAsEngineVersionWhenPdoIsNull(): void
     {
         $this->prepareSchemaMock();
@@ -481,9 +484,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReadTableMetadataOnlyOnceAndBuildNewStructureEachTime(): void
     {
         $foreignKey = new ForeignKeyConstraint(
@@ -516,9 +519,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReadDecimalPrecisionAndScaleForMssql(): void
     {
         $schema = $this->createMock(MssqlSchema::class);
@@ -594,9 +597,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldQueryMssqlInformationSchemaOfTheTableCatalog(): void
     {
         $tableSchema = $this->createMock(MssqlTableSchema::class);
@@ -625,9 +628,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotQueryMssqlInformationSchemaWhenNotNeeded(): void
     {
         $tableSchema = $this->createMock(TableSchema::class);
@@ -701,7 +704,7 @@ final class TableMapperTest extends TestCase
     /**
      * @return array<string, array{string, bool}>
      */
-    public function providerForPgsqlRawDefaults(): array
+    public static function providerForPgsqlRawDefaults(): array
     {
         return [
             'quoted string' => ["'abc'::character varying", false],
@@ -733,10 +736,10 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForPgsqlRawDefaults
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForPgsqlRawDefaults')]
+    #[Test]
     public function shouldUseRawPgsqlDefaultForExpressions(string $rawDefault, bool $isExpression): void
     {
         $db = $this->preparePgsqlConnection([$this->pgsqlColumn('col', 'parsed by Yii')]);
@@ -759,9 +762,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReadPgsqlDefaultsOnlyOncePerTable(): void
     {
         $db = $this->preparePgsqlConnection([
@@ -789,9 +792,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotReadPgsqlDefaultsWhenThereAreNone(): void
     {
         $db = $this->preparePgsqlConnection([
@@ -834,9 +837,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReadPgsqlIndexMethodsAndDefinitions(): void
     {
         $db = $this->preparePgsqlIndexConnection([
@@ -933,9 +936,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotMarkColumnAsUniqueBecauseOfUniqueIndexWithDefinition(): void
     {
         $db = $this->preparePgsqlIndexConnection(
@@ -961,9 +964,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotReadPgsqlIndexMethodsWhenThereAreNoIndexes(): void
     {
         $db = $this->preparePgsqlIndexConnection([
@@ -975,9 +978,9 @@ final class TableMapperTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldNotReadIndexMethodsForNonPgsql(): void
     {
         $this->prepareSchemaMock(

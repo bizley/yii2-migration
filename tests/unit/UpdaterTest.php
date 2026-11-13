@@ -12,6 +12,9 @@ use bizley\migration\TableMapperInterface;
 use bizley\migration\TableMissingException;
 use bizley\migration\Updater;
 use ErrorException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -20,7 +23,7 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\TableSchema;
 
-/** @group updater */
+#[Group('updater')]
 final class UpdaterTest extends TestCase
 {
     /** @var TableMapperInterface&MockObject */
@@ -52,7 +55,7 @@ final class UpdaterTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnUpdateTableMigrationTemplate(): void
     {
         self::assertSame(
@@ -64,7 +67,7 @@ final class UpdaterTest extends TestCase
     /**
      * @return list<array{string|null, string|null}>
      */
-    public function providerForNamespaces(): array
+    public static function providerForNamespaces(): array
     {
         return [
             [null, null],
@@ -75,12 +78,12 @@ final class UpdaterTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForNamespaces
      * @param string|null $namespace
      * @param string|null $expected
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForNamespaces')]
+    #[Test]
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
         $this->view->expects(self::once())->method('renderFile')->with(
@@ -106,12 +109,12 @@ final class UpdaterTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      * @throws TableMissingException
      * @throws ErrorException
      * @throws InvalidConfigException
      */
+    #[Test]
     public function shouldThrowExceptionWhenTableIsMissing(): void
     {
         $this->expectException(TableMissingException::class);
@@ -120,12 +123,12 @@ final class UpdaterTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws TableMissingException
      */
+    #[Test]
     public function shouldProperlyPrepareBlueprint(): void
     {
         $this->mapper->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
@@ -147,9 +150,9 @@ final class UpdaterTest extends TestCase
     }
 
     /**
-     * @test
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldProperlyGenerateFromBlueprint(): void
     {
         $blueprint = $this->createMock(BlueprintInterface::class);

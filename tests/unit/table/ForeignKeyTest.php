@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace bizley\tests\unit\table;
 
 use bizley\migration\table\ForeignKey;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group foreignkey
- */
+#[Group('table')]
+#[Group('foreignkey')]
 final class ForeignKeyTest extends TestCase
 {
     /** @var ForeignKey */
@@ -24,7 +25,7 @@ final class ForeignKeyTest extends TestCase
     /**
      * @return array<string, array{string|null, string}>
      */
-    public function providerForName(): array
+    public static function providerForName(): array
     {
         return [
             'null' => [null, 'fk-tab-a-b'],
@@ -34,10 +35,8 @@ final class ForeignKeyTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForName
-     */
+    #[DataProvider('providerForName')]
+    #[Test]
     public function shouldReturnName(?string $input, string $output): void
     {
         $this->fk->setTableName('tab');
@@ -50,7 +49,7 @@ final class ForeignKeyTest extends TestCase
     /**
      * @return array<string, array{string|null, string}>
      */
-    public function providerForFKConstraints(): array
+    public static function providerForFKConstraints(): array
     {
         return [
             'no action' => ['no action', 'no action'],
@@ -70,10 +69,8 @@ final class ForeignKeyTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForFKConstraints
-     */
+    #[DataProvider('providerForFKConstraints')]
+    #[Test]
     public function shouldReturnProperConstraint(?string $input, string $output): void
     {
         $this->fk->setOnDelete($input);

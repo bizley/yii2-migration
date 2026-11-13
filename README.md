@@ -34,7 +34,7 @@ Or add the package to your `composer.json` file:
 ```json
 {
     "require-dev": {
-        "bizley/migration": "^4.0"
+        "bizley/migration": "^5.0"
     }
 }
 ```

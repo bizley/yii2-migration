@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\BigUnsignedPrimaryKeyColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group bigprimarykeyunsignedcolumn
- */
+#[Group('table')]
+#[Group('bigprimarykeyunsignedcolumn')]
 final class BigUnsignedPrimaryKeyColumnTest extends TestCase
 {
     /** @var BigUnsignedPrimaryKeyColumn */
@@ -22,17 +23,13 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
         $this->column = new BigUnsignedPrimaryKeyColumn();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('bigPrimaryKey({renderLength})', $this->column->getDefinition());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldBeUnsigned(): void
     {
         self::assertTrue($this->column->isUnsigned());
@@ -41,7 +38,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, string|null}>
      */
-    public function providerForGettingLength(): array
+    public static function providerForGettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -56,10 +53,8 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLength
-     */
+    #[DataProvider('providerForGettingLength')]
+    #[Test]
     public function shouldReturnProperLength(string $schema, ?int $expected, ?string $engineVersion): void
     {
         $this->column->setSize(1);
@@ -69,7 +64,7 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null, string|null}>
      */
-    public function providerForSettingLength(): array
+    public static function providerForSettingLength(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null, null],
@@ -84,10 +79,8 @@ final class BigUnsignedPrimaryKeyColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLength
-     */
+    #[DataProvider('providerForSettingLength')]
+    #[Test]
     public function shouldSetProperLength(
         string $schema,
         ?int $expectedSize,

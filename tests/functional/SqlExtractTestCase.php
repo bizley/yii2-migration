@@ -6,18 +6,12 @@ namespace bizley\tests\functional;
 
 use bizley\tests\stubs\MigrationControllerStub;
 use Yii;
-use yii\base\NotSupportedException;
-use yii\db\Exception as DbException;
 
-abstract class UpdaterPkTest extends DbLoaderTestCase
+abstract class SqlExtractTestCase extends DbTestCase
 {
     /** @var MigrationControllerStub */
     protected $controller;
 
-    /**
-     * @throws NotSupportedException
-     * @throws DbException
-     */
     protected function setUp(): void
     {
         $this->controller = new MigrationControllerStub('migration', Yii::$app);
@@ -25,7 +19,5 @@ abstract class UpdaterPkTest extends DbLoaderTestCase
         MigrationControllerStub::$stdout = '';
         MigrationControllerStub::$content = '';
         MigrationControllerStub::$confirmControl = true;
-
-        $this->addPkBase();
     }
 }

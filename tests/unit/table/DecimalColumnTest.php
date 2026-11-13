@@ -6,12 +6,13 @@ namespace bizley\tests\unit\table;
 
 use bizley\migration\Schema;
 use bizley\migration\table\DecimalColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group table
- * @group decimalcolumn
- */
+#[Group('table')]
+#[Group('decimalcolumn')]
 final class DecimalColumnTest extends TestCase
 {
     /** @var DecimalColumn */
@@ -22,7 +23,7 @@ final class DecimalColumnTest extends TestCase
         $this->column = new DecimalColumn();
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnProperDefinition(): void
     {
         self::assertSame('decimal({renderLength})', $this->column->getDefinition());
@@ -31,7 +32,7 @@ final class DecimalColumnTest extends TestCase
     /**
      * @return array<string, array{string, string|null}>
      */
-    public function providerForGettingLengthWithoutScale(): array
+    public static function providerForGettingLengthWithoutScale(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, '1'],
@@ -43,10 +44,8 @@ final class DecimalColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLengthWithoutScale
-     */
+    #[DataProvider('providerForGettingLengthWithoutScale')]
+    #[Test]
     public function shouldReturnProperLengthWithoutScale(string $schema, ?string $expected): void
     {
         $this->column->setPrecision(1);
@@ -56,7 +55,7 @@ final class DecimalColumnTest extends TestCase
     /**
      * @return array<string, array{string, string|null}>
      */
-    public function providerForGettingLengthWithScale(): array
+    public static function providerForGettingLengthWithScale(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, '1, 1'],
@@ -68,10 +67,8 @@ final class DecimalColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForGettingLengthWithScale
-     */
+    #[DataProvider('providerForGettingLengthWithScale')]
+    #[Test]
     public function shouldReturnProperLengthWithScale(string $schema, ?string $expected): void
     {
         $this->column->setPrecision(1);
@@ -82,7 +79,7 @@ final class DecimalColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null}>
      */
-    public function providerForSettingLengthWithoutScale(): array
+    public static function providerForSettingLengthWithoutScale(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, 1, null],
@@ -94,10 +91,8 @@ final class DecimalColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithoutScale
-     */
+    #[DataProvider('providerForSettingLengthWithoutScale')]
+    #[Test]
     public function shouldSetProperLengthWith1IntElementArray(
         string $schema,
         ?int $expectedPrecision,
@@ -111,7 +106,7 @@ final class DecimalColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null}>
      */
-    public function providerForSettingLengthWithoutScaleAndPrecision(): array
+    public static function providerForSettingLengthWithoutScaleAndPrecision(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, null, null],
@@ -123,10 +118,8 @@ final class DecimalColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithoutScaleAndPrecision
-     */
+    #[DataProvider('providerForSettingLengthWithoutScaleAndPrecision')]
+    #[Test]
     public function shouldSetProperLengthWith0ElementArray(
         string $schema,
         ?int $expectedPrecision,
@@ -137,10 +130,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithoutScale
-     */
+    #[DataProvider('providerForSettingLengthWithoutScale')]
+    #[Test]
     public function shouldSetProperLengthWith1StringElementArray(
         string $schema,
         ?int $expectedPrecision,
@@ -154,7 +145,7 @@ final class DecimalColumnTest extends TestCase
     /**
      * @return array<string, array{string, int|null, int|null}>
      */
-    public function providerForSettingLengthWithScale(): array
+    public static function providerForSettingLengthWithScale(): array
     {
         return [
             'cubrid' => [Schema::CUBRID, 1, 1],
@@ -166,10 +157,8 @@ final class DecimalColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithScale
-     */
+    #[DataProvider('providerForSettingLengthWithScale')]
+    #[Test]
     public function shouldSetProperLengthWith2IntElementsArray(
         string $schema,
         ?int $expectedPrecision,
@@ -180,10 +169,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithScale
-     */
+    #[DataProvider('providerForSettingLengthWithScale')]
+    #[Test]
     public function shouldSetProperLengthWith2StringElementsArray(
         string $schema,
         ?int $expectedPrecision,
@@ -194,10 +181,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithoutScale
-     */
+    #[DataProvider('providerForSettingLengthWithoutScale')]
+    #[Test]
     public function shouldSetProperLengthWith1StringElement(
         string $schema,
         ?int $expectedPrecision,
@@ -208,10 +193,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithScale
-     */
+    #[DataProvider('providerForSettingLengthWithScale')]
+    #[Test]
     public function shouldSetProperLengthWith2StringElementsVariant1(
         string $schema,
         ?int $expectedPrecision,
@@ -222,10 +205,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithScale
-     */
+    #[DataProvider('providerForSettingLengthWithScale')]
+    #[Test]
     public function shouldSetProperLengthWith2StringElementsVariant2(
         string $schema,
         ?int $expectedPrecision,
@@ -236,10 +217,8 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSettingLengthWithScale
-     */
+    #[DataProvider('providerForSettingLengthWithScale')]
+    #[Test]
     public function shouldSetProperLengthWith2StringElementsVariant3(
         string $schema,
         ?int $expectedPrecision,
@@ -250,7 +229,7 @@ final class DecimalColumnTest extends TestCase
         self::assertSame($expectedPrecision, $this->column->getPrecision());
     }
 
-    /** @test */
+    #[Test]
     public function shouldSetPrecisionAndScaleFromDifferentValues(): void
     {
         $this->column->setLength('10, 2', Schema::PGSQL);
@@ -258,7 +237,7 @@ final class DecimalColumnTest extends TestCase
         self::assertSame(2, $this->column->getScale());
     }
 
-    /** @test */
+    #[Test]
     public function shouldResetPrecisionAndScaleWhenLengthIsEmpty(): void
     {
         $this->column->setLength('10, 2', Schema::PGSQL);

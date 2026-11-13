@@ -6,12 +6,13 @@ namespace bizley\tests\unit\renderers;
 
 use bizley\migration\renderers\IndexRenderer;
 use bizley\migration\table\IndexInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group renderers
- * @group indexrenderer
- */
+#[Group('renderers')]
+#[Group('indexrenderer')]
 final class IndexRendererTest extends TestCase
 {
     use PhpStringLiteralsTrait;
@@ -24,7 +25,7 @@ final class IndexRendererTest extends TestCase
         $this->renderer = new IndexRenderer();
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperTemplateForUp(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -35,7 +36,7 @@ final class IndexRendererTest extends TestCase
         self::assertSame('$this->createIndex(\'pk\', \'test\', []);', $this->renderer->renderUp($index, 'test'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperTemplateForDown(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -47,7 +48,7 @@ final class IndexRendererTest extends TestCase
     /**
      * @return array<string, array{int, list<string>, bool, string, string}>
      */
-    public function providerForRender(): array
+    public static function providerForRender(): array
     {
         return [
             '1col 0ind non-unique' => [
@@ -82,14 +83,14 @@ final class IndexRendererTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForRender
      * @param int $indent
      * @param list<string> $columns
      * @param bool $unique
      * @param string $expectedCreate
      * @param string $expectedDrop
      */
+    #[DataProvider('providerForRender')]
+    #[Test]
     public function shouldRenderProperlyPrimaryKey(
         int $indent,
         array $columns,
@@ -106,7 +107,7 @@ final class IndexRendererTest extends TestCase
         self::assertSame($expectedDrop, $this->renderer->renderDown($index, 'test', $indent));
     }
 
-    /** @test */
+    #[Test]
     public function shouldEscapeNamesInRenderedCode(): void
     {
         $name = self::$unusualName;
@@ -119,7 +120,7 @@ final class IndexRendererTest extends TestCase
         self::assertSame([$name, $name], self::stringLiterals($this->renderer->renderDown($index, $name)));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderIndexMethod(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -134,7 +135,7 @@ final class IndexRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderIndexWithDefinition(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -149,7 +150,7 @@ final class IndexRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderUniqueIndexWithDefinitionAsValidPhp(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -170,7 +171,7 @@ final class IndexRendererTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderDropForIndexWithDefinition(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -180,7 +181,7 @@ final class IndexRendererTest extends TestCase
         self::assertSame('$this->dropIndex(\'idx\', \'test\');', $this->renderer->renderDown($index, 'test'));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderIndexWithDefinitionAndUnusualNamesAsValidPhpAndSql(): void
     {
         $index = $this->createMock(IndexInterface::class);
@@ -199,7 +200,7 @@ final class IndexRendererTest extends TestCase
     /**
      * @return array<string, array{string, string}>
      */
-    public function providerForSqlTableNames(): array
+    public static function providerForSqlTableNames(): array
     {
         return [
             'plain' => ['test', 'test'],
@@ -219,10 +220,8 @@ final class IndexRendererTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider providerForSqlTableNames
-     */
+    #[DataProvider('providerForSqlTableNames')]
+    #[Test]
     public function shouldQuoteTableNameInRawSql(string $tableName, string $expectedSqlName): void
     {
         $index = $this->createMock(IndexInterface::class);

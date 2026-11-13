@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use yii\base\Exception;
 use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group pgsql */
-final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
+#[Group('pgsql')]
+final class UpdaterTest extends \bizley\tests\functional\UpdaterTestCase
 {
     /** @var string */
     public static $schema = 'pgsql';
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingIndexWithMethod(): void
     {
         $this->getDb()->createCommand('CREATE INDEX "idx-add" ON "updater_base" USING hash ("col")')->execute();
@@ -42,11 +44,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingIndexWithDefinition(): void
     {
         $this->getDb()->createCommand('CREATE INDEX "idx-add" ON "updater_base" (lower("col2"))')->execute();
@@ -67,11 +69,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByChangingIndexDefinition(): void
     {
         $this->getDb()->createCommand()->dropIndex('idx-dec-partial', 'updater_base_fk_with_idx')->execute();
@@ -101,11 +103,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByChangingIndexMethod(): void
     {
         $this->getDb()->createCommand()->dropIndex('idx-amount-hash', 'updater_base_fk_with_idx')->execute();
@@ -134,11 +136,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingColumn(): void
     {
         $this->getDb()->createCommand()->dropColumn('updater_base', 'col')->execute();
@@ -159,11 +161,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumn(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->string())->execute();
@@ -184,11 +186,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnSize(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col2', $this->string(45))->execute();
@@ -209,11 +211,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnDefault(): void
     {
         $this->getDb()->createCommand()->alterColumn(
@@ -238,11 +240,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithDefaultExpression(): void
     {
         $this->getDb()->createCommand()->addColumn(
@@ -267,11 +269,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->addColumn('updater_base', 'added', $this->integer()->notNull())->execute();
@@ -292,11 +294,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingBooleanColumnWithDefault(): void
     {
         $this->getDb()->createCommand()->addColumn(
@@ -321,11 +323,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithNotNull(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->notNull())->execute();
@@ -346,11 +348,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringColumnWithUnique(): void
     {
         $this->getDb()->createCommand()->alterColumn('updater_base', 'col', $this->integer()->unique())->execute();
@@ -371,11 +373,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingForeignKey(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -404,11 +406,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAddingForeignKey(): void
     {
         $this->getDb()->createCommand()->addForeignKey(
@@ -443,11 +445,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringForeignKey(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -497,11 +499,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringForeignKeyColumns(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -549,11 +551,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByAlteringForeignKeyConstraints(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();
@@ -603,11 +605,11 @@ final class UpdaterTest extends \bizley\tests\functional\UpdaterTest
     }
 
     /**
-     * @test
      * @throws ConsoleException
      * @throws InvalidRouteException
      * @throws Exception
      */
+    #[Test]
     public function shouldUpdateTableByDroppingColumnWithFK(): void
     {
         $this->getDb()->createCommand()->dropForeignKey('fk-plus', 'updater_base_fk')->execute();

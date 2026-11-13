@@ -10,6 +10,9 @@ use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\StructureInterface;
 use bizley\migration\TableMapperInterface;
 use bizley\migration\TableMissingException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Yii;
@@ -17,7 +20,7 @@ use yii\base\NotSupportedException;
 use yii\base\View;
 use yii\db\TableSchema;
 
-/** @group generator */
+#[Group('generator')]
 final class GeneratorTest extends TestCase
 {
     /** @var TableMapperInterface&MockObject */
@@ -44,7 +47,7 @@ final class GeneratorTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnCreateTableMigrationTemplate(): void
     {
         self::assertSame(
@@ -53,7 +56,7 @@ final class GeneratorTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyReturnCreateForeignKeysMigrationTemplate(): void
     {
         self::assertSame(
@@ -65,7 +68,7 @@ final class GeneratorTest extends TestCase
     /**
      * @return list<array{string|null, string|null}>
      */
-    public function providerForNamespaces(): array
+    public static function providerForNamespaces(): array
     {
         return [
             [null, null],
@@ -76,13 +79,13 @@ final class GeneratorTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForNamespaces
      * @param string|null $namespace
      * @param string|null $expected
      * @throws TableMissingException
      * @throws NotSupportedException
      */
+    #[DataProvider('providerForNamespaces')]
+    #[Test]
     public function shouldProperlyNormalizeNamespace(?string $namespace, ?string $expected): void
     {
         $this->mapper->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
@@ -99,10 +102,10 @@ final class GeneratorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws TableMissingException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldThrowExceptionWhenTableIsMissing(): void
     {
         $this->expectException(TableMissingException::class);
@@ -111,10 +114,10 @@ final class GeneratorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws TableMissingException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldProperlyGenerateForTable(): void
     {
         $this->mapper->method('getTableSchema')->willReturn($this->createMock(TableSchema::class));
@@ -158,7 +161,7 @@ final class GeneratorTest extends TestCase
         $this->generator->generateForTable('table', 'migration', ['tab-ref'], false, 'prefix', 'a\\b\\c');
     }
 
-    /** @test */
+    #[Test]
     public function shouldProperlyGenerateForForeignKeys(): void
     {
         $foreignKeyFirst = $this->createMock(ForeignKeyInterface::class);
@@ -203,7 +206,7 @@ final class GeneratorTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldReturnSuppressedForeignKeys(): void
     {
         $this->mapper->method('getSuppressedForeignKeys')->willReturn([]);

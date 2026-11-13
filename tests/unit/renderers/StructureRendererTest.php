@@ -13,13 +13,14 @@ use bizley\migration\table\ColumnInterface;
 use bizley\migration\table\ForeignKeyInterface;
 use bizley\migration\table\IndexInterface;
 use bizley\migration\table\StructureInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group renderers
- * @group structurerenderer
- */
+#[Group('renderers')]
+#[Group('structurerenderer')]
 final class StructureRendererTest extends TestCase
 {
     use PhpStringLiteralsTrait;
@@ -52,7 +53,7 @@ final class StructureRendererTest extends TestCase
     /**
      * @return array<string, array{bool, string|null, string, string|null}>
      */
-    public function providerForName(): array
+    public static function providerForName(): array
     {
         return [
             'not use prefix' => [false, null, 'table', 'table'],
@@ -64,19 +65,19 @@ final class StructureRendererTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForName
      * @param bool $usePrefix
      * @param string|null $dbPrefix
      * @param string $name
      * @param string|null $expected
      */
+    #[DataProvider('providerForName')]
+    #[Test]
     public function shouldProperlyRenderName(bool $usePrefix, ?string $dbPrefix, string $name, ?string $expected): void
     {
         self::assertSame($expected, $this->structureRenderer->renderName($name, $usePrefix, $dbPrefix));
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithTableForUp(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -104,7 +105,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithTableForDown(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -117,7 +118,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithIndent(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -144,7 +145,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldTreatNegativeIndentAsNoIndent(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -161,7 +162,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithPrimaryKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -190,7 +191,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithIndexes(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -222,7 +223,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithNoIndexForForeignKey(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -258,7 +259,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyWithForeignKeys(): void
     {
         $structure = $this->createMock(StructureInterface::class);
@@ -289,7 +290,7 @@ RENDERED
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldRenderProperlyForeignKeysDown(): void
     {
         $foreignKey = $this->createMock(ForeignKeyInterface::class);
@@ -298,7 +299,7 @@ RENDERED
         self::assertSame('foreign-key-render', $this->structureRenderer->renderForeignKeysDown([$foreignKey]));
     }
 
-    /** @test */
+    #[Test]
     public function shouldEscapeTableNameInRenderedCode(): void
     {
         $name = self::$unusualName;

@@ -12,12 +12,14 @@ use bizley\migration\table\StructureBuilderInterface;
 use bizley\migration\table\StructureChangeInterface;
 use bizley\migration\table\StructureInterface;
 use ErrorException;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 
-/** @group inspector */
+#[Group('inspector')]
 final class InspectorTest extends TestCase
 {
     /** @var HistoryManagerInterface&MockObject */
@@ -46,11 +48,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws InvalidConfigException
      * @throws ErrorException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnPendingBlueprintWhenNoHistory(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn([]);
@@ -70,11 +72,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnPendingBlueprintWhenAllHistorySkipped(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1]);
@@ -94,11 +96,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnPendingBlueprintWhenAllHistorySkippedAndMigrationNotTrimmed(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration\\' => 1]);
@@ -119,11 +121,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnPendingBlueprintWhenNoChangesGathered(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1]);
@@ -143,11 +145,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldStartFromScratchWhenNoTableInHistory(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration1' => 1]);
@@ -171,11 +173,11 @@ final class InspectorTest extends TestCase
 
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldStartFromScratchWhenMethodIsDropTable(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(
@@ -204,11 +206,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldReturnNonPendingBlueprintWhenMethodIsCreateTableAndStructuresAreSame(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(
@@ -237,11 +239,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldStartFromScratchWhenMethodIsRenameAndDropTable(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(
@@ -278,11 +280,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldGatherChangesAndPrepareBlueprint(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration1' => 1]);
@@ -306,11 +308,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldContinueInspectingOnSomeHistorySkipped(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['migration' => 1, 'migration2' => 2, 'migration3' => 3]);
@@ -329,11 +331,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldAllowToGatherMoreChangesIfMethodsAreNotStoppingIt(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(
@@ -360,11 +362,11 @@ final class InspectorTest extends TestCase
     }
 
     /**
-     * @test
      * @throws ErrorException
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
+    #[Test]
     public function shouldExtractEachMigrationOnlyOnceForMultipleTables(): void
     {
         $this->historyManager->method('fetchHistory')->willReturn(['m2' => 2, 'm1' => 1]);

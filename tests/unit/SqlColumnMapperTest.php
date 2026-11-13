@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace bizley\tests\unit;
 
 use bizley\migration\SqlColumnMapper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use yii\db\cubrid\Schema as CubridSchema;
 use yii\db\mssql\Schema as MSSqlSchema;
@@ -12,13 +15,13 @@ use yii\db\mysql\Schema as MySqlSchema;
 use yii\db\pgsql\Schema as PostgreSqlSchema;
 use yii\db\sqlite\Schema as SqliteSchema;
 
-/** @group sqlcolumnmapper */
+#[Group('sqlcolumnmapper')]
 class SqlColumnMapperTest extends TestCase
 {
     /**
      * @return list<array{string, array<string, string>}>
      */
-    public function providerForCubrid(): array
+    public static function providerForCubrid(): array
     {
         return [
             ['short', ['type' => 'smallint']],
@@ -57,11 +60,11 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForCubrid
      * @param string $definition
      * @param array<string, string> $schema
      */
+    #[DataProvider('providerForCubrid')]
+    #[Test]
     public function shouldDetectCubridTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new CubridSchema())->typeMap));
@@ -70,7 +73,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return list<array{string, array<string, string|bool>}>
      */
-    public function providerForMSSql(): array
+    public static function providerForMSSql(): array
     {
         return [
             ['bigint', ['type' => 'bigint']],
@@ -111,11 +114,11 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForMSSql
      * @param string $definition
      * @param array<string, string|bool> $schema
      */
+    #[DataProvider('providerForMSSql')]
+    #[Test]
     public function shouldDetectMSSqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new MSSqlSchema())->typeMap));
@@ -124,7 +127,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return list<array{string, array<string, string>}>
      */
-    public function providerForMySql(): array
+    public static function providerForMySql(): array
     {
         return [
             ['tinyint', ['type' => 'tinyint']],
@@ -161,11 +164,11 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForMySql
      * @param string $definition
      * @param array<string, string> $schema
      */
+    #[DataProvider('providerForMySql')]
+    #[Test]
     public function shouldDetectMySqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new MySqlSchema())->typeMap));
@@ -174,7 +177,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return list<array{string, array<string, string>}>
      */
-    public function providerForOracle(): array
+    public static function providerForOracle(): array
     {
         return [
             ['float', ['type' => 'double']],
@@ -190,11 +193,11 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForOracle
      * @param string $definition
      * @param array<string, string> $schema
      */
+    #[DataProvider('providerForOracle')]
+    #[Test]
     public function shouldDetectOracleTypes(string $definition, array $schema): void
     {
         self::assertSame(
@@ -218,7 +221,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return list<array{string, array<string, string>}>
      */
-    public function providerForPostgreSql(): array
+    public static function providerForPostgreSql(): array
     {
         return [
             ['bit', ['type' => 'integer']],
@@ -289,11 +292,11 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForPostgreSql
      * @param string $definition
      * @param array<string, string> $schema
      */
+    #[DataProvider('providerForPostgreSql')]
+    #[Test]
     public function shouldDetectPostgreSqlTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new PostgreSqlSchema())->typeMap));
@@ -302,7 +305,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return list<array{string, array<string, string>}>
      */
-    public function providerForSqlite(): array
+    public static function providerForSqlite(): array
     {
         return [
             ['tinyint', ['type' => 'tinyint']],
@@ -338,23 +341,23 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForSqlite
      * @param string $definition
      * @param array<string, string> $schema
      */
+    #[DataProvider('providerForSqlite')]
+    #[Test]
     public function shouldDetectSqliteTypes(string $definition, array $schema): void
     {
         self::assertSame($schema, SqlColumnMapper::map($definition, (new SqliteSchema())->typeMap));
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectTypeWithoutLength(): void
     {
         self::assertSame(['type' => 'string'], SqlColumnMapper::map('varchar', ['varchar' => 'string']));
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectTypeWithLength(): void
     {
         self::assertSame(
@@ -366,7 +369,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectEnum(): void
     {
         self::assertSame(
@@ -377,7 +380,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectEnumWithHyphenAndUnderscore(): void
     {
         self::assertSame(
@@ -388,7 +391,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectTypeWithLengthVariant2(): void
     {
         self::assertSame(
@@ -403,7 +406,7 @@ class SqlColumnMapperTest extends TestCase
     /**
      * @return array<string, array{string, array<string, string>}>
      */
-    public function providerForComments(): array
+    public static function providerForComments(): array
     {
         return [
             'single quote' => [
@@ -473,16 +476,16 @@ class SqlColumnMapperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider providerForComments
      * @param array<string, string> $expected
      */
+    #[DataProvider('providerForComments')]
+    #[Test]
     public function shouldDetectComment(string $definition, array $expected): void
     {
         self::assertSame($expected, SqlColumnMapper::map($definition, []));
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectCommentWithWrongNumberOfQuotes(): void
     {
         self::assertSame(
@@ -495,7 +498,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldKeepUnterminatedEmptyCommentInAppend(): void
     {
         self::assertSame(
@@ -508,7 +511,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldKeepEvenNumberOfTrailingQuotesInUnterminatedComment(): void
     {
         self::assertSame(
@@ -520,7 +523,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDropClosingQuoteAfterEscapedQuotesInComment(): void
     {
         self::assertSame(
@@ -532,7 +535,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectStringDefault(): void
     {
         self::assertSame(
@@ -544,7 +547,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectNumericDefault(): void
     {
         self::assertSame(
@@ -556,7 +559,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectNumericDefaultWithDot(): void
     {
         self::assertSame(
@@ -568,7 +571,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectHexNumericDefault(): void
     {
         self::assertSame(
@@ -580,7 +583,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectBinNumericDefault(): void
     {
         self::assertSame(
@@ -592,7 +595,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectWrongNumericDefault(): void
     {
         self::assertSame(
@@ -605,7 +608,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectNegativeNumericDefault(): void
     {
         self::assertSame(
@@ -618,7 +621,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldCutOnlyMultiDigitNumericDefault(): void
     {
         self::assertSame(
@@ -631,7 +634,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldStopNumericDefaultAtHyphen(): void
     {
         self::assertSame(
@@ -644,7 +647,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldCutOnlyParenthesizedDefault(): void
     {
         $schema = SqlColumnMapper::map('default (1)not null', []);
@@ -653,7 +656,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertArrayNotHasKey('append', $schema);
     }
 
-    /** @test */
+    #[Test]
     public function shouldCutOnlyParenthesizedExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('default NOW() not null', []);
@@ -662,7 +665,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertArrayNotHasKey('append', $schema);
     }
 
-    /** @test */
+    #[Test]
     public function shouldCutOnlyExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('x default CURRENT_TIMESTAMP y', []);
@@ -670,7 +673,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertSame('x  y', $schema['append']);
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectParenthesizedDefault(): void
     {
         $schema = SqlColumnMapper::map('default (default (value))', []);
@@ -679,7 +682,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertArrayNotHasKey('append', $schema);
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('default CURRENT_TIMESTAMP', []);
@@ -688,7 +691,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertArrayNotHasKey('append', $schema);
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectParenthesizedExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('default NOW()', []);
@@ -697,7 +700,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertArrayNotHasKey('append', $schema);
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectWrongExpressionDefault(): void
     {
         $schema = SqlColumnMapper::map('default CURRENT _TIMESTAMP', []);
@@ -706,7 +709,7 @@ class SqlColumnMapperTest extends TestCase
         self::assertSame('_TIMESTAMP', $schema['append']);
     }
 
-    /** @test */
+    #[Test]
     public function shouldProcessEmptyString(): void
     {
         self::assertSame(
@@ -717,7 +720,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectFirst(): void
     {
         self::assertSame(
@@ -729,7 +732,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectAfter(): void
     {
         self::assertSame(
@@ -783,7 +786,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectNotNull(): void
     {
         self::assertSame(
@@ -795,7 +798,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectNull(): void
     {
         self::assertSame(
@@ -807,7 +810,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectAutoincrement(): void
     {
         self::assertSame(
@@ -819,7 +822,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectAutoincrementVariant2(): void
     {
         self::assertSame(
@@ -831,7 +834,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectPrimaryKey(): void
     {
         self::assertSame(
@@ -843,7 +846,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectPrimaryKeyVariant2(): void
     {
         self::assertSame(
@@ -855,7 +858,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectUnsigned(): void
     {
         self::assertSame(
@@ -867,7 +870,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldDetectUnique(): void
     {
         self::assertSame(
@@ -879,7 +882,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldPrepareAppend(): void
     {
         self::assertSame(
@@ -893,7 +896,7 @@ class SqlColumnMapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function shouldMapFullStatement(): void
     {
         self::assertSame(

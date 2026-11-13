@@ -6,6 +6,8 @@ namespace bizley\tests\functional\pgsql;
 
 use bizley\tests\functional\DbLoaderTestCase;
 use bizley\tests\stubs\MigrationControllerStub;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Yii;
 use yii\base\InvalidRouteException;
 use yii\base\NotSupportedException;
@@ -13,7 +15,7 @@ use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 
-/** @group pgsql */
+#[Group('pgsql')]
 class ListSchemasTest extends DbLoaderTestCase
 {
     /** @var MigrationControllerStub */
@@ -37,10 +39,10 @@ class ListSchemasTest extends DbLoaderTestCase
     }
 
     /**
-     * @test
      * @throws InvalidRouteException
      * @throws ConsoleException
      */
+    #[Test]
     public function shouldShowListActionWithAllTables(): void
     {
         self::assertEquals(ExitCode::OK, $this->controller->runAction('list'));
