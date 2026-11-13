@@ -39,3 +39,8 @@ parameters:
         -
             message: '#^Object option "(precision|scale)" for yii\\db\\ColumnSchema must be int, null given\.$#'
             identifier: mspirkovYii2.baseObjectInstantiationValidation
+        # Yii documents $unique as bool only, but PostgreSQL QueryBuilder accepts the index method there as well.
+        -
+            message: '#^Parameter \#4 \$unique of method yii\\db\\Migration::createIndex\(\) expects bool, string given\.$#'
+            identifier: argument.type
+            path: tests/migrations/m20200406_124200_create_table_updater_base.php

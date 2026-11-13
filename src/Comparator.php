@@ -468,11 +468,35 @@ final class Comparator implements ComparatorInterface
 
             /** @var IndexInterface $oldIndex */
             $oldIndex = $oldStructure->getIndex($name);
+            if ($oldIndex->getDefinition() !== $index->getDefinition()) {
+                $blueprint->addDescription(
+                    "different index '$name' definition (DB: "
+                    . $this->describeIndexDefinition($index)
+                    . ' != MIG: ' . $this->describeIndexDefinition($oldIndex) . ')'
+                );
+                $blueprint->dropIndex($oldIndex);
+                $blueprint->addIndex($index);
+
+                continue;
+            }
+
             if ($oldIndex->isUnique() !== $index->isUnique()) {
                 $blueprint->addDescription(
                     "different index '$name' definition (DB: unique "
                     . $this->stringifyValue($index->isUnique())
                     . ' != MIG: unique ' . $this->stringifyValue($oldIndex->isUnique()) . ')'
+                );
+                $blueprint->dropIndex($oldIndex);
+                $blueprint->addIndex($index);
+
+                continue;
+            }
+
+            if ($oldIndex->getMethod() !== $index->getMethod()) {
+                $blueprint->addDescription(
+                    "different index '$name' definition (DB: method "
+                    . ($index->getMethod() ?? 'default')
+                    . ' != MIG: method ' . ($oldIndex->getMethod() ?? 'default') . ')'
                 );
                 $blueprint->dropIndex($oldIndex);
                 $blueprint->addIndex($index);
@@ -567,6 +591,14 @@ final class Comparator implements ComparatorInterface
         }
 
         return [$primaryKey, $autoIncrement, $append];
+    }
+
+    /**
+     * Returns the raw definition of the index or the list of its columns if there is no definition.
+     */
+    private function describeIndexDefinition(IndexInterface $index): string
+    {
+        return $index->getDefinition() ?? '(' . \implode(', ', $index->getColumns()) . ')';
     }
 
     /**

@@ -62,6 +62,9 @@ final class TableMapper implements TableMapperInterface
     /** @var array<string, array<string, string>> */
     private array $pgsqlRawDefaults = [];
 
+    /** @var array<string, array<string, array{method: string|null, definition: string|null}>> */
+    private array $pgsqlIndexDetails = [];
+
     /**
      * Returns a structure of the table.
      * @param array<string> $referencesToPostpone
@@ -146,7 +149,86 @@ final class TableMapper implements TableMapperInterface
             }
         }
 
+        if ($mappedIndexes !== [] && $this->getSchemaType() === Schema::PGSQL) {
+            $details = $this->getPgsqlIndexDetails($table);
+            foreach ($mappedIndexes as $name => $mappedIndex) {
+                if (!\array_key_exists($name, $details)) {
+                    continue;
+                }
+                $mappedIndex->setMethod($details[$name]['method']);
+                $definition = $details[$name]['definition'];
+                if ($definition !== null) {
+                    // columns reported by Yii are not reliable here (e.g. an expression is reported as a column)
+                    $mappedIndex->setColumns([]);
+                    $mappedIndex->setDefinition($definition);
+                }
+            }
+        }
+
         return $mappedIndexes;
+    }
+
+    /**
+     * Yii does not read the PostgreSQL index method nor anything else than the plain list of columns, so the index
+     * definition is taken from pg_get_indexdef(). When it is exactly "USING method (column, ...)" the index can be
+     * recreated with createIndex() and only the method is needed (null for the default B-tree). Otherwise (operator
+     * classes, predicates, expressions, sort order, included columns, storage parameters...) the definition (from
+     * USING) is returned to be used in raw CREATE INDEX statement.
+     * @return array<string, array{method: string|null, definition: string|null}> indexed by index names
+     */
+    private function getPgsqlIndexDetails(string $table): array
+    {
+        if (!\array_key_exists($table, $this->pgsqlIndexDetails)) {
+            $this->pgsqlIndexDetails[$table] = [];
+
+            $tableSchema = $this->getTableSchema($table);
+            if ($tableSchema !== null) {
+                $rows = $this->db->createCommand(
+                    <<<'SQL'
+SELECT
+    "ic"."relname" AS "name",
+    "am"."amname" AS "method",
+    pg_get_indexdef("i"."indexrelid") AS "definition",
+    (
+        SELECT string_agg(quote_ident("a"."attname"), ', ' ORDER BY "k"."ord")
+        FROM unnest("i"."indkey"::int2[]) WITH ORDINALITY AS "k"("attnum", "ord")
+        INNER JOIN "pg_attribute" AS "a" ON "a"."attrelid" = "i"."indrelid" AND "a"."attnum" = "k"."attnum"
+    ) AS "plain_columns"
+FROM "pg_index" AS "i"
+INNER JOIN "pg_class" AS "ic" ON "ic"."oid" = "i"."indexrelid"
+INNER JOIN "pg_am" AS "am" ON "am"."oid" = "ic"."relam"
+INNER JOIN "pg_class" AS "tc" ON "tc"."oid" = "i"."indrelid"
+INNER JOIN "pg_namespace" AS "n" ON "n"."oid" = "tc"."relnamespace"
+WHERE "n"."nspname" = :schema AND "tc"."relname" = :table AND NOT "i"."indisprimary"
+SQL,
+                    [':schema' => $tableSchema->schemaName, ':table' => $tableSchema->name]
+                )->queryAll();
+
+                foreach ($rows as $row) {
+                    $method = (string)$row['method'];
+                    $fullDefinition = (string)$row['definition'];
+                    $usingPosition = \strpos($fullDefinition, ' USING ' . $method . ' (');
+                    if ($usingPosition === false) {
+                        continue;
+                    }
+
+                    $definition = \substr($fullDefinition, $usingPosition + 1);
+                    if ($definition === 'USING ' . $method . ' (' . $row['plain_columns'] . ')') {
+                        $this->pgsqlIndexDetails[$table][$row['name']] = [
+                            'method' => $method === 'btree' ? null : $method,
+                            'definition' => null,
+                        ];
+                    } else {
+                        $this->pgsqlIndexDetails[$table][$row['name']] = [
+                            'method' => null,
+                            'definition' => $definition,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $this->pgsqlIndexDetails[$table];
     }
 
     /**

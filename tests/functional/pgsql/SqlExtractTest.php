@@ -57,7 +57,9 @@ CREATE TABLE "updater_base_fk_with_idx" (
 	"dec_no_scale" numeric(20,0) NOT NULL
 );
 CREATE INDEX "idx-updater_base_id" ON "updater_base_fk_with_idx" ("updater_base_id");
-ALTER TABLE "updater_base_fk_with_idx" ADD CONSTRAINT "fk-existing-ids" FOREIGN KEY ("updater_base_id") REFERENCES "updater_base_fk_target" ("id") ON DELETE CASCADE ON UPDATE CASCADE;',
+ALTER TABLE "updater_base_fk_with_idx" ADD CONSTRAINT "fk-existing-ids" FOREIGN KEY ("updater_base_id") REFERENCES "updater_base_fk_target" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX "idx-amount-hash" ON "updater_base_fk_with_idx" USING hash ("amount");
+CREATE INDEX "idx-dec-partial" ON "updater_base_fk_with_idx" USING btree (dec_no_scale) WHERE (dec_no_scale > (0)::numeric);',
             MigrationControllerStub::$stdout
         );
         self::assertStringContainsString(

@@ -802,4 +802,191 @@ final class TableMapperTest extends TestCase
 
         (new TableMapper($db))->getStructureOf('tab');
     }
+
+    private function plainIndex(string $name, string $column): IndexConstraint
+    {
+        return new IndexConstraint(
+            ['name' => $name, 'columnNames' => [$column], 'isPrimary' => false, 'isUnique' => false]
+        );
+    }
+
+    /**
+     * @param array<IndexConstraint> $indexes
+     * @param array<ColumnSchema> $columns
+     * @return MockObject&Connection
+     */
+    private function preparePgsqlIndexConnection(array $indexes, array $columns = []): Connection
+    {
+        $schema = $this->createMock(PgsqlSchema::class);
+        $schema->method('getTableForeignKeys')->willReturn([]);
+        $schema->method('getTableIndexes')->willReturn($indexes);
+        $schema->method('getTablePrimaryKey')->willReturn(null);
+        $db = $this->createMock(Connection::class);
+        $db->method('getSchema')->willReturn($schema);
+
+        $tableSchema = $this->createMock(TableSchema::class);
+        $tableSchema->name = 'tab';
+        $tableSchema->schemaName = 'public';
+        $tableSchema->columns = $columns;
+        $db->method('getTableSchema')->willReturn($tableSchema);
+
+        return $db;
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldReadPgsqlIndexMethodsAndDefinitions(): void
+    {
+        $db = $this->preparePgsqlIndexConnection([
+            new IndexConstraint(['name' => 'pk', 'columnNames' => ['id'], 'isPrimary' => true, 'isUnique' => true]),
+            $this->plainIndex('idx-hash', 'a'),
+            $this->plainIndex('idx-btree', 'b'),
+            $this->plainIndex('idx-gin', 'c'),
+            $this->plainIndex('idx-opclass', 'd'),
+            $this->plainIndex('idx-expr', 'lower'),
+            new IndexConstraint(
+                ['name' => 'idx-partial', 'columnNames' => ['e'], 'isPrimary' => false, 'isUnique' => true]
+            ),
+            $this->plainIndex('idx-multi', 'f'),
+            $this->plainIndex('idx-unknown', 'g'),
+        ]);
+        $command = $this->createMock(Command::class);
+        $command->expects(self::once())->method('queryAll')->willReturn([
+            [
+                'name' => 'idx-hash',
+                'method' => 'hash',
+                'definition' => 'CREATE INDEX "idx-hash" ON public.tab USING hash (a)',
+                'plain_columns' => 'a',
+            ],
+            [
+                'name' => 'idx-btree',
+                'method' => 'btree',
+                'definition' => 'CREATE INDEX "idx-btree" ON public.tab USING btree (b)',
+                'plain_columns' => 'b',
+            ],
+            [
+                'name' => 'idx-gin',
+                'method' => 'gin',
+                'definition' => 'CREATE INDEX "idx-gin" ON public.tab USING gin (c)',
+                'plain_columns' => 'c',
+            ],
+            [
+                'name' => 'idx-opclass',
+                'method' => 'gin',
+                'definition' => 'CREATE INDEX "idx-opclass" ON public.tab USING gin (d gin_trgm_ops)',
+                'plain_columns' => 'd',
+            ],
+            [
+                'name' => 'idx-expr',
+                'method' => 'btree',
+                'definition' => 'CREATE INDEX "idx-expr" ON public.tab USING btree (lower((h)::text))',
+                'plain_columns' => null,
+            ],
+            [
+                'name' => 'idx-partial',
+                'method' => 'btree',
+                'definition' => 'CREATE UNIQUE INDEX "idx-partial" ON public.tab USING btree (e) WHERE (e > 0)',
+                'plain_columns' => 'e',
+            ],
+            [
+                'name' => 'idx-multi',
+                'method' => 'btree',
+                'definition' => 'CREATE INDEX "idx-multi" ON public.tab USING btree (f, "G")',
+                'plain_columns' => 'f, "G"',
+            ],
+            [
+                'name' => 'idx-unknown',
+                'method' => 'btree',
+                'definition' => 'something unexpected',
+                'plain_columns' => 'g',
+            ],
+        ]);
+        $db->expects(self::once())
+            ->method('createCommand')
+            ->with(self::stringContains('pg_get_indexdef'), [':schema' => 'public', ':table' => 'tab'])
+            ->willReturn($command);
+
+        $mapper = new TableMapper($db);
+        $structure = $mapper->getStructureOf('tab');
+        $mapper->getStructureOf('tab');
+
+        $expected = [
+            'idx-hash' => ['hash', null, ['a']],
+            'idx-btree' => [null, null, ['b']],
+            'idx-gin' => ['gin', null, ['c']],
+            'idx-opclass' => [null, 'USING gin (d gin_trgm_ops)', []],
+            'idx-expr' => [null, 'USING btree (lower((h)::text))', []],
+            'idx-partial' => [null, 'USING btree (e) WHERE (e > 0)', []],
+            'idx-multi' => [null, null, ['f']],
+            'idx-unknown' => [null, null, ['g']],
+        ];
+        foreach ($expected as $name => [$method, $definition, $columns]) {
+            $index = $structure->getIndex($name);
+            self::assertNotNull($index, $name);
+            self::assertSame($method, $index->getMethod(), $name);
+            self::assertSame($definition, $index->getDefinition(), $name);
+            self::assertSame($columns, $index->getColumns(), $name);
+        }
+        self::assertTrue($structure->getIndex('idx-partial')?->isUnique());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotMarkColumnAsUniqueBecauseOfUniqueIndexWithDefinition(): void
+    {
+        $db = $this->preparePgsqlIndexConnection(
+            [
+                new IndexConstraint(
+                    ['name' => 'idx-partial', 'columnNames' => ['col'], 'isPrimary' => false, 'isUnique' => true]
+                ),
+            ],
+            [new ColumnSchema(['type' => 'integer', 'name' => 'col', 'isPrimaryKey' => false, 'unsigned' => false])]
+        );
+        $command = $this->createMock(Command::class);
+        $command->method('queryAll')->willReturn([
+            [
+                'name' => 'idx-partial',
+                'method' => 'btree',
+                'definition' => 'CREATE UNIQUE INDEX "idx-partial" ON public.tab USING btree (col) WHERE (col > 0)',
+                'plain_columns' => 'col',
+            ],
+        ]);
+        $db->method('createCommand')->willReturn($command);
+
+        self::assertFalse((new TableMapper($db))->getStructureOf('tab')->getColumn('col')?->isUnique());
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotReadPgsqlIndexMethodsWhenThereAreNoIndexes(): void
+    {
+        $db = $this->preparePgsqlIndexConnection([
+            new IndexConstraint(['name' => 'pk', 'columnNames' => ['id'], 'isPrimary' => true, 'isUnique' => true]),
+        ]);
+        $db->expects(self::never())->method('createCommand');
+
+        (new TableMapper($db))->getStructureOf('tab');
+    }
+
+    /**
+     * @test
+     * @throws NotSupportedException
+     */
+    public function shouldNotReadIndexMethodsForNonPgsql(): void
+    {
+        $this->prepareSchemaMock(
+            true,
+            [],
+            [$this->plainIndex('idx', 'a')]
+        );
+        $this->db->expects(self::never())->method('createCommand');
+
+        self::assertNull($this->mapper->getStructureOf('tab')->getIndex('idx')?->getMethod());
+    }
 }

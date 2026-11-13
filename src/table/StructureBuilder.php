@@ -179,6 +179,7 @@ final class StructureBuilder implements StructureBuilderInterface
                 $renamedIndex = new Index();
                 $renamedIndex->setName($index->getName());
                 $renamedIndex->setUnique($index->isUnique());
+                $renamedIndex->setMethod($index->getMethod());
                 $renamedIndex->setColumns($this->renameInList($index->getColumns(), $oldName, $newName));
                 $structure->addIndex($renamedIndex);
             }

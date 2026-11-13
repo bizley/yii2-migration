@@ -363,6 +363,99 @@ final class GeneratorTest extends \bizley\tests\functional\GeneratorTest
      * @throws NotSupportedException
      * @throws \yii\base\Exception
      */
+    public function shouldGenerateIndexesWithMethods(): void
+    {
+        $this->createTables(
+            [
+                'index_methods' => [
+                    'col1' => $this->integer(),
+                    'col2' => 'integer[]',
+                    'col3' => $this->integer(),
+                    'col4' => $this->string(),
+                    'col5' => $this->integer(),
+                    'col6' => $this->string(),
+                    'col7' => $this->integer(),
+                ]
+            ]
+        );
+        $db = $this->getDb();
+        $db->createCommand('CREATE INDEX "idx-hash" ON "index_methods" USING hash ("col1")')->execute();
+        $db->createCommand('CREATE INDEX "idx-gin" ON "index_methods" USING gin ("col2")')->execute();
+        $db->createCommand('CREATE INDEX "idx-btree" ON "index_methods" USING btree ("col3")')->execute();
+        $db->createCommand(
+            'CREATE INDEX "idx-opclass" ON "index_methods" USING btree ("col4" text_pattern_ops)'
+        )->execute();
+        $db->createCommand(
+            'CREATE INDEX "idx-partial-hash" ON "index_methods" USING hash ("col5") WHERE "col5" > 0'
+        )->execute();
+        $db->createCommand('CREATE INDEX "idx-expression" ON "index_methods" (lower("col6"))')->execute();
+        $db->createCommand(
+            'CREATE UNIQUE INDEX "idx-unique-partial" ON "index_methods" ("col7" DESC) WHERE "col6" <> \'it\'\'s\''
+        )->execute();
+
+        self::assertEquals(ExitCode::OK, $this->controller->runAction('create', ['index_methods']));
+        $content = MigrationControllerStub::$content;
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-hash\', \'{{%index_methods}}\', [\'col1\'], \'hash\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-gin\', \'{{%index_methods}}\', [\'col2\'], \'gin\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->createIndex(\'idx-btree\', \'{{%index_methods}}\', [\'col3\']);',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->execute(\'CREATE INDEX [[idx-opclass]] ON {{%index_methods}} '
+            . 'USING btree (col4 text_pattern_ops)\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->execute(\'CREATE INDEX [[idx-partial-hash]] ON {{%index_methods}} '
+            . 'USING hash (col5) WHERE (col5 > 0)\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->execute(\'CREATE INDEX [[idx-expression]] ON {{%index_methods}} '
+            . 'USING btree (lower((col6)::text))\');',
+            $content
+        );
+        self::assertStringContainsString(
+            '$this->execute(\'CREATE UNIQUE INDEX [[idx-unique-partial]] ON {{%index_methods}} '
+            . 'USING btree (col7 DESC) WHERE ((col6)::text <> \\\'it\\\'\\\'s\\\'::text)\');',
+            $content
+        );
+        // unique index with predicate does not make the column unique
+        self::assertStringContainsString('\'col7\' => $this->integer(),', $content);
+
+        // generated statements recreate the same indexes
+        \preg_match_all('/\\$this->execute\\((\'(?:[^\'\\\\]|\\\\.)*\')\\);/', $content, $matches);
+        self::assertCount(4, $matches[1]);
+        foreach ($matches[1] as $phpString) {
+            /** @var string $sql */
+            $sql = eval('return ' . $phpString . ';');
+            self::assertSame(1, \preg_match('/INDEX \\[\\[(.+?)\\]\\]/', $sql, $nameMatch));
+            $definitionQuery = 'SELECT pg_get_indexdef(:name::regclass)';
+            $original = $db->createCommand($definitionQuery, [':name' => '"' . $nameMatch[1] . '"'])->queryScalar();
+            $db->createCommand()->dropIndex($nameMatch[1], 'index_methods')->execute();
+            $db->createCommand($sql)->execute();
+            self::assertSame(
+                $original,
+                $db->createCommand($definitionQuery, [':name' => '"' . $nameMatch[1] . '"'])->queryScalar()
+            );
+        }
+    }
+
+    /**
+     * @test
+     * @throws ConsoleException
+     * @throws Exception
+     * @throws InvalidRouteException
+     * @throws NotSupportedException
+     * @throws \yii\base\Exception
+     */
     public function shouldGenerateGeneralSchemaTableWithUniqueColumn(): void
     {
         $this->createTables(['unique' => ['col' => $this->integer()->unique()]]);

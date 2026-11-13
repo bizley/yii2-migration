@@ -498,6 +498,68 @@ final class StructureChangeTest extends TestCase
         self::assertSame('idx', $index->getName());
         self::assertSame(['column'], $index->getColumns());
         self::assertTrue($index->isUnique());
+        self::assertNull($index->getMethod());
+        self::assertNull($index->getDefinition());
+    }
+
+    /** @test */
+    public function shouldProperlyReturnValueForCreateIndexWithMethod(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(
+            [
+                'name' => 'idx',
+                'columns' => ['column'],
+                'unique' => false,
+                'method' => 'hash',
+            ]
+        );
+
+        $index = $this->change->getValue();
+        self::assertInstanceOf(IndexInterface::class, $index);
+        self::assertFalse($index->isUnique());
+        self::assertSame('hash', $index->getMethod());
+    }
+
+    /** @test */
+    public function shouldProperlyReturnValueForCreateIndexWithDefinition(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(
+            [
+                'name' => 'idx',
+                'columns' => [],
+                'unique' => true,
+                'definition' => 'USING btree (a) WHERE (a > 0)',
+            ]
+        );
+
+        $index = $this->change->getValue();
+        self::assertInstanceOf(IndexInterface::class, $index);
+        self::assertTrue($index->isUnique());
+        self::assertSame([], $index->getColumns());
+        self::assertNull($index->getMethod());
+        self::assertSame('USING btree (a) WHERE (a > 0)', $index->getDefinition());
+    }
+
+    /** @test */
+    public function shouldThrowExceptionForCreateIndexWithWrongDefinition(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(['name' => 'idx', 'columns' => [], 'unique' => false, 'definition' => 1]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->change->getValue();
+    }
+
+    /** @test */
+    public function shouldThrowExceptionForCreateIndexWithWrongMethod(): void
+    {
+        $this->change->setMethod('createIndex');
+        $this->change->setData(['name' => 'idx', 'columns' => ['column'], 'unique' => false, 'method' => 1]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->change->getValue();
     }
 
     /**
