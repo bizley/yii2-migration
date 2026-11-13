@@ -751,9 +751,6 @@ class MigrationController extends BaseMigrationController
         /** @var Connection $db */
         $db = $this->db;
         $allTables = $this->getAllTableNames($db);
-        if (empty($allTables)) {
-            return [];
-        }
         $excludedTables = \array_merge(
             [$db->getSchema()->getRawTableName($this->migrationTable)],
             $this->excludeTables
