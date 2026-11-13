@@ -13,6 +13,8 @@ use yii\console\ExitCode;
  * This test should be run separate with phpunit-no-yii-autoload.xml config (bootstrap-no-autoload.php bootstrap)
  * to make sure no standard Yii autoloader is registered first.
  * @group autoloader
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class NoYiiAutoloaderTest extends DbLoaderTestCase
 {

@@ -9,7 +9,13 @@ use yii\base\InvalidRouteException;
 use yii\console\Exception as ConsoleException;
 use yii\console\ExitCode;
 
-/** @group sqlite */
+/**
+ * Extractor replaces yii\db\Migration through Yii's class map and loads migration files with require_once,
+ * so this test must not share the process with the other functional tests.
+ * @group sqlite
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
 final class SqlExtractTest extends \bizley\tests\functional\SqlExtractTest
 {
     /** @var string */

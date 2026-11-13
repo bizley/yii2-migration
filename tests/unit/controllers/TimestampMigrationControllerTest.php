@@ -213,6 +213,15 @@ final class TimestampMigrationControllerTest extends TestCase
         );
     }
 
+    /** @test */
+    public function shouldDetectCollisionWithMigrationNamespaceGivenAsString(): void
+    {
+        $this->controller->migrationNamespace = 'bizley\\tests\\runtime\\test';
+        $this->createMigrationFile(\time() + 3);
+
+        $this->assertCollisionDetectedOnCreate();
+    }
+
     private function createMigrationFile(int $timestamp): void
     {
         \file_put_contents(
