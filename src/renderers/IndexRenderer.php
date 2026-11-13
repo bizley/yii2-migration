@@ -28,7 +28,7 @@ final class IndexRenderer implements IndexRendererInterface
                 [
                     '{unique}' => $index->isUnique() ? ' UNIQUE' : '',
                     '{indexName}' => QuoteEscaper::escape($this->renderSqlIndexName($index->getName() ?? '')),
-                    '{tableName}' => QuoteEscaper::escape($tableName),
+                    '{tableName}' => $this->renderSqlTableName($tableName),
                     '{definition}' => QuoteEscaper::escape($definition),
                 ]
             );
@@ -76,6 +76,36 @@ final class IndexRenderer implements IndexRendererInterface
         $method = $index->getMethod();
 
         return $method !== null ? ", '" . QuoteEscaper::escape($method) . "'" : '';
+    }
+
+    /**
+     * Renders the table name for raw SQL as a fragment of the single-quoted PHP string. Names that Yii's {{...}}
+     * placeholder (or a plain identifier) can express are kept, other names are quoted directly (PostgreSQL style),
+     * so they can not inject SQL. The table prefix of such names is added when the migration is applied.
+     */
+    private function renderSqlTableName(string $tableName): string
+    {
+        if (
+            \preg_match('/^{{%?[\w\-. ]+%?}}$/', $tableName) === 1
+            || \preg_match('/^[\w\-.]+$/', $tableName) === 1
+        ) {
+            return $tableName;
+        }
+
+        $prefixed = false;
+        if (\preg_match('/^{{%(.*)}}$/s', $tableName, $matches) === 1) {
+            $prefixed = true;
+            $tableName = $matches[1];
+        }
+
+        $quotedParts = [];
+        foreach (\explode('.', $tableName) as $part) {
+            $quotedParts[] = '"' . ($prefixed ? "' . \$this->db->tablePrefix . '" : '')
+                . QuoteEscaper::escape(\str_replace('"', '""', $part)) . '"';
+            $prefixed = false;
+        }
+
+        return \implode('.', $quotedParts);
     }
 
     /**

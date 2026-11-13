@@ -191,8 +191,71 @@ final class IndexRendererTest extends TestCase
 
         $rendered = $this->renderer->renderUp($index, 't\'ab');
         self::assertSame(
-            'CREATE INDEX "i\'dx ""{tableName}""\\" ON t\'ab USING gin (a)',
-            eval('return ' . \substr($rendered, \strlen('$this->execute('), -2) . ';')
+            'CREATE INDEX "i\'dx ""{tableName}""\\" ON "t\'ab" USING gin (a)',
+            self::executedSql($rendered)
         );
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public function providerForSqlTableNames(): array
+    {
+        return [
+            'plain' => ['test', 'test'],
+            'plain with schema' => ['public.test', 'public.test'],
+            'prefixed' => ['{{%test}}', '{{%test}}'],
+            'prefixed with schema' => ['{{%public.test}}', '{{%public.test}}'],
+            'unprefixed placeholder' => ['{{test}}', '{{test}}'],
+            'quote and statement' => ['a"; DROP TABLE x; --', '"a""; DROP TABLE x; --"'],
+            'space' => ['my table', '"my table"'],
+            'unusual with schema' => ['public.t\'ab', '"public"."t\'ab"'],
+            'prefixed quote and statement' => ['{{%a"; DROP TABLE x; --}}', '"pre_a""; DROP TABLE x; --"'],
+            'prefixed unusual with schema' => ['{{%s.t"x}}', '"pre_s"."t""x"'],
+            'placeholder injection' => ['{{%a}} ON b; DROP TABLE x; --}}', '"pre_a}} ON b; DROP TABLE x; --"'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider providerForSqlTableNames
+     */
+    public function shouldQuoteTableNameInRawSql(string $tableName, string $expectedSqlName): void
+    {
+        $index = $this->createMock(IndexInterface::class);
+        $index->method('getColumns')->willReturn([]);
+        $index->method('getName')->willReturn('idx');
+        $index->method('isUnique')->willReturn(false);
+        $index->method('getDefinition')->willReturn('USING gin (a)');
+
+        self::assertSame(
+            'CREATE INDEX [[idx]] ON ' . $expectedSqlName . ' USING gin (a)',
+            self::executedSql($this->renderer->renderUp($index, $tableName))
+        );
+    }
+
+    /**
+     * Runs the rendered statement in a fake migration and returns the SQL passed to execute().
+     */
+    private static function executedSql(string $rendered): string
+    {
+        $migration = new class {
+            public object $db;
+            public ?string $sql = null;
+
+            public function execute(string $sql): void
+            {
+                $this->sql = $sql;
+            }
+        };
+        $migration->db = (object)['tablePrefix' => 'pre_'];
+
+        (function () use ($rendered): void {
+            eval($rendered);
+        })->bindTo($migration, $migration)();
+
+        self::assertNotNull($migration->sql);
+
+        return $migration->sql;
     }
 }
